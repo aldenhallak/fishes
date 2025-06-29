@@ -18,6 +18,7 @@ canvas.addEventListener('mousemove', (e) => {
 });
 canvas.addEventListener('mouseup', () => {
     drawing = false;
+    checkFishAfterStroke();
 });
 canvas.addEventListener('mouseleave', () => {
     drawing = false;
@@ -43,6 +44,7 @@ canvas.addEventListener('touchmove', (e) => {
 });
 canvas.addEventListener('touchend', () => {
     drawing = false;
+    checkFishAfterStroke();
 });
 canvas.addEventListener('touchcancel', () => {
     drawing = false;
@@ -87,7 +89,7 @@ async function getAllFishes() {
     let lastDoc = null;
     const pageSize = 100;
     while (true) {
-        let query = window.db.collection('fishes').limit(pageSize);
+        let query = window.db.collection('fishes_test').limit(pageSize);
         if (lastDoc) query = query.startAfter(lastDoc.id);
         const snapshot = await query.get();
         snapshot.forEach(doc => allDocs.push(doc));
@@ -138,7 +140,7 @@ function createFishObject({
 function loadFishImageToTank(imgUrl, fishData, onDone) {
     const img = new window.Image();
     img.crossOrigin = 'anonymous';
-    img.onload = function() {
+    img.onload = function () {
         const displayCanvas = makeDisplayFishCanvas(img, 80, 48);
         if (displayCanvas && displayCanvas.width && displayCanvas.height) {
             // Clamp x and y to ensure fish are always visible and not negative
@@ -183,7 +185,7 @@ async function submitFishToTank({
 }) {
     const fishImgData = fishCanvas.toDataURL('image/png');
     const img = new window.Image();
-    img.onload = function() {
+    img.onload = function () {
         const displayCanvas = makeDisplayFishCanvas(img, 80, 48);
         fishes.push(createFishObject({
             fishCanvas: displayCanvas,
@@ -241,27 +243,18 @@ swimBtn.addEventListener('click', async () => {
     fishCtx.imageSmoothingEnabled = true;
     fishCtx.imageSmoothingQuality = 'high';
     fishCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, SAVE_W, SAVE_H);
-    // Randomize initial position and direction
-    const direction = Math.random() > 0.5 ? 1 : -1;
-    const x = Math.floor(Math.random() * (swimCanvas.width - 80));
-    const y = Math.floor(Math.random() * (swimCanvas.height - 48));
-    const fishObj = {
-        fishCanvas,
-        x,
-        y,
-        direction,
-        phase: Math.random() * Math.PI * 2,
-        amplitude: 20 + Math.random() * 10,
-        speed: 1.5 + Math.random(),
-        vx: 0,
-        vy: 0,
-        width: 80,
-        height: 48
-    };
+    // Check fish validity before allowing submit
+    const isFish = await verifyFishDoodle(canvas);
+    lastFishCheck = isFish;
+    showFishWarning(!isFish);
+    if (!isFish) {
+        // No popup, just block submission and keep background red
+        return;
+    }
     // Modal: Would you like to sign the art?
     showModal(`<div style='text-align:center;'>Would you like to sign the art?<br><br>
         <button id='sign-yes' style='margin:0 12px 0 0;padding:6px 18px;'>Yes</button>
-        <button id='sign-no' style='padding:6px 18px;'>No</button></div>`, () => {});
+        <button id='sign-no' style='padding:6px 18px;'>No</button></div>`, () => { });
     // Helper to handle fish submission (shared by sign-yes and sign-no)
     async function submitFish(artist) {
         const createdAt = new Date().toISOString();
@@ -277,34 +270,72 @@ swimBtn.addEventListener('click', async () => {
         const formData = new FormData();
         formData.append('image', imageBlob, 'fish.png');
         formData.append('artist', artist);
+        // Spinner UI
+        let submitBtn = document.getElementById('submit-fish');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<span class='spinner' style='display:inline-block;width:18px;height:18px;border:3px solid #3498db;border-top:3px solid #fff;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;'></span>`;
+        }
+        // Add spinner CSS
+        if (!document.getElementById('spinner-style')) {
+            const style = document.createElement('style');
+            style.id = 'spinner-style';
+            style.textContent = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
+            document.head.appendChild(style);
+        }
+        // Await server response
         await fetch('https://fishes-be-571679687712.northamerica-northeast1.run.app/uploadfish', {
             method: 'POST',
             body: formData
         });
-        // Add to tank immediately
-        await submitFishToTank({
-            fishCanvas,
-            x: Math.random() * (swimCanvas.width - 80),
-            y: Math.random() * (swimCanvas.height - 48),
-            direction,
-            phase: fishObj.phase,
-            amplitude: fishObj.amplitude,
-            speed: fishObj.speed,
-            artist,
-            createdAt
-        });
-        localStorage.setItem('fishSubmitted', 'true');
-        const drawUI = document.getElementById('draw-ui');
-        if (drawUI) drawUI.style.display = 'none';
-        if (swimCanvas) swimCanvas.style.display = '';
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        document.querySelector('div[style*="z-index: 9999"]')?.remove();
+        // Use returned fish image for tank
+        const result = await resp.json();
+        // Remove spinner and re-enable button
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit';
+        }
+
+        if (result && result.data.Image) {
+            const img = new window.Image();
+            img.crossOrigin = 'anonymous'; // Prevent tainting for CORS images
+            img.onload = function () {
+                try {
+                    const displayCanvas = makeDisplayFishCanvas(img, 80, 48);
+                    fishes.push(createFishObject({
+                        fishCanvas: displayCanvas,
+                        x: Math.random() * (swimCanvas.width - 80),
+                        y: Math.random() * (swimCanvas.height - 48),
+                        direction: Math.random() > 0.5 ? 1 : -1,
+                        phase: Math.random() * Math.PI * 2,
+                        amplitude: 20 + Math.random() * 10,
+                        speed: 1.5 + Math.random(),
+                        vx: 0,
+                        vy: 0,
+                        width: 80,
+                        height: 48,
+                        artist,
+                        createdAt
+                    }));
+                    // Hide modal and reset UI
+                    localStorage.setItem('fishSubmitted', 'true');
+                    const drawUI = document.getElementById('draw-ui');
+                    if (drawUI) drawUI.style.display = 'none';
+                    if (swimCanvas) swimCanvas.style.display = '';
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    document.querySelector('div[style*="z-index: 9999"]')?.remove();
+                } catch (e) {
+                    alert('Sorry, there was a problem displaying your fish. Please try again.');
+                }
+            };
+            img.src = result.data.Image;
+        }
     }
 
     document.getElementById('sign-yes').onclick = async () => {
         document.querySelector('div[style*="z-index: 9999"]')?.remove();
         showModal(`<div style='text-align:center;'>Enter your name:<br><input id='artist-name' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'><br>
-            <button id='submit-fish' style='padding:6px 18px;'>Submit</button></div>`, () => {});
+            <button id='submit-fish' style='padding:6px 18px;'>Submit</button></div>`, () => { });
         document.getElementById('submit-fish').onclick = async () => {
             const artist = document.getElementById('artist-name').value.trim() || 'Anonymous';
             await submitFish(artist);
@@ -444,11 +475,11 @@ function handleTankTap(e) {
         const fy = fish.y + fish.height / 2;
         const dx = fx - tapX;
         const dy = fy - tapY;
-        const dist = Math.sqrt(dx*dx + dy*dy);
+        const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < radius) {
             // Add velocity away from tap
             const force = 16 * (1 - dist / radius); // Stronger if closer
-            const norm = Math.sqrt(dx*dx + dy*dy) || 1;
+            const norm = Math.sqrt(dx * dx + dy * dy) || 1;
             fish.vx = (dx / norm) * force;
             fish.vy = (dy / norm) * force;
             // Optionally, make fish face away
@@ -458,8 +489,8 @@ function handleTankTap(e) {
 }
 
 // Remove any previous handlers to avoid duplicates/conflicts
-swimCanvas.removeEventListener('mousedown', window._swimFishMousedownHandler || (()=>{}));
-swimCanvas.removeEventListener('touchstart', window._swimFishTouchstartHandler || (()=>{}));
+swimCanvas.removeEventListener('mousedown', window._swimFishMousedownHandler || (() => { }));
+swimCanvas.removeEventListener('touchstart', window._swimFishTouchstartHandler || (() => { }));
 
 // --- Unified handler for both mouse and touch, with fish image in modal ---
 function showFishInfoModal(fish) {
@@ -472,9 +503,12 @@ function showFishInfoModal(fish) {
     let info = `<div style='text-align:center;'>`;
     info += `<img src='${imgDataUrl}' width='80' height='48' style='display:block;margin:0 auto 10px auto;border-radius:8px;border:1px solid #ccc;background:#f8f8f8;' alt='Fish'><br>`;
     info += `<b>Artist:</b> ${fish.artist || 'Anonymous'}<br>`;
-    info += `<b>Created:</b> ${new Date(fish.createdAt).toLocaleString()}<br>`;
+    // Sometimes the fish might not have a createdAt date, due to being loaded directly instead of from Firestore.
+    if (fish.createdAt) {
+        info += `<b>Created:</b> ${fish.createdAt.toDate().toLocaleString()}<br>`;
+    }
     info += `</div>`;
-    showModal(info, () => {});
+    showModal(info, () => { });
 }
 
 // --- Unified handler for both mouse and touch ---
@@ -553,7 +587,7 @@ function drawWigglingFish(fish, x, y, direction, time, phase) {
     const src = fish.fishCanvas;
     const w = fish.width;
     const h = fish.height;
-    const tailEnd = Math.floor(w * fish.peduncle.x); // peduncle% is tail.
+    const tailEnd = Math.floor(w * fish.peduncle); // peduncle% is tail.
     for (let i = 0; i < w; i++) {
         let isTail, t, wiggle, drawCol, drawX;
         if (direction === 1) {
@@ -591,9 +625,9 @@ function cropCanvasToContent(srcCanvas) {
         for (let x = 0; x < w; x++) {
             const i = (y * w + x) * 4;
             const r = imgData.data[i];
-            const g = imgData.data[i+1];
-            const b = imgData.data[i+2];
-            const a = imgData.data[i+3];
+            const g = imgData.data[i + 1];
+            const b = imgData.data[i + 2];
+            const a = imgData.data[i + 3];
             // Consider non-transparent and not white as content
             if (a > 16 && !(r > 240 && g > 240 && b > 240)) {
                 if (x < minX) minX = x;
@@ -635,3 +669,167 @@ function makeDisplayFishCanvas(img, width = 80, height = 48) {
     displayCtx.drawImage(cropped, 0, 0, cropped.width, cropped.height, dx, dy, drawW, drawH);
     return displayCanvas;
 }
+
+// ONNX fish doodle classifier integration
+let ortSession = null;
+let lastFishCheck = true;
+
+// Load ONNX model (make sure fish_doodle_classifier.onnx is in your public folder)
+async function loadFishModel() {
+    if (!ortSession) {
+        ortSession = await window.ort.InferenceSession.create('fish_doodle_classifier.onnx');
+    }
+}
+
+// Preprocess canvas for ONNX (adjust SIZE and normalization as needed)
+function preprocessCanvasForONNX(canvas) {
+    const SIZE = 224;
+    // 1. Crop to content (non-transparent or non-white)
+    function cropCanvasToContent(srcCanvas) {
+        const ctx = srcCanvas.getContext('2d');
+        const w = srcCanvas.width;
+        const h = srcCanvas.height;
+        const imgData = ctx.getImageData(0, 0, w, h);
+        let minX = w, minY = h, maxX = 0, maxY = 0;
+        let found = false;
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                const i = (y * w + x) * 4;
+                const r = imgData.data[i];
+                const g = imgData.data[i + 1];
+                const b = imgData.data[i + 2];
+                const a = imgData.data[i + 3];
+                // Consider non-transparent and not white as content
+                if (a > 16 && !(r > 240 && g > 240 && b > 240)) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                    found = true;
+                }
+            }
+        }
+        if (!found) return srcCanvas; // No content found
+        const cropW = maxX - minX + 1;
+        const cropH = maxY - minY + 1;
+        const cropped = document.createElement('canvas');
+        cropped.width = cropW;
+        cropped.height = cropH;
+        cropped.getContext('2d').drawImage(srcCanvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+        return cropped;
+    }
+    // Crop to content
+    const cropped = cropCanvasToContent(canvas);
+    // 2. Paste onto white 224x224, scaling to fit
+    const tmp = document.createElement('canvas');
+    tmp.width = SIZE;
+    tmp.height = SIZE;
+    const ctx = tmp.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, SIZE, SIZE);
+    // Scale and center
+    const scale = Math.min(SIZE / cropped.width, SIZE / cropped.height);
+    const drawW = cropped.width * scale;
+    const drawH = cropped.height * scale;
+    const dx = (SIZE - drawW) / 2;
+    const dy = (SIZE - drawH) / 2;
+    ctx.drawImage(cropped, 0, 0, cropped.width, cropped.height, dx, dy, drawW, drawH);
+    // 3. Grayscale, 3 channels, normalize
+    const imgData = ctx.getImageData(0, 0, SIZE, SIZE).data;
+    const input = new Float32Array(3 * SIZE * SIZE);
+    for (let y = 0; y < SIZE; y++) {
+        for (let x = 0; x < SIZE; x++) {
+            const idx = (y * SIZE + x) * 4;
+            const r = imgData[idx];
+            const g = imgData[idx + 1];
+            const b = imgData[idx + 2];
+            let gray = 0.299 * r + 0.587 * g + 0.114 * b;
+            const norm = (gray / 255 - 0.5) / 0.5;
+            for (let c = 0; c < 3; c++) {
+                input[c * SIZE * SIZE + y * SIZE + x] = norm;
+            }
+        }
+    }
+    return new window.ort.Tensor('float32', input, [1, 3, SIZE, SIZE]);
+}
+
+// Run ONNX model and return true if fish, false otherwise
+async function verifyFishDoodle(canvas) {
+    await loadFishModel();
+    const inputTensor = preprocessCanvasForONNX(canvas);
+    let feeds = {};
+    if (ortSession && ortSession.inputNames && ortSession.inputNames.length > 0) {
+        feeds[ortSession.inputNames[0]] = inputTensor;
+    } else {
+        feeds['input'] = inputTensor;
+    }
+    const results = await ortSession.run(feeds);
+    const outputKey = Object.keys(results)[0];
+    const output = results[outputKey].data;
+    let isFish, prob;
+    if (output.length > 1) {
+        const exp0 = Math.exp(output[0]);
+        const exp1 = Math.exp(output[1]);
+        prob = exp1 / (exp0 + exp1);
+        isFish = output[1] > output[0];
+    } else {
+        prob = 1 / (1 + Math.exp(-output[0]));
+        isFish = output[0] > 0;
+    }
+    // Show probability under the drawing area
+    let probDiv = document.getElementById('fish-probability');
+    if (!probDiv) {
+        probDiv = document.createElement('div');
+        probDiv.id = 'fish-probability';
+        probDiv.style.textAlign = 'center';
+        probDiv.style.margin = '10px 0 0 0';
+        probDiv.style.fontWeight = 'bold';
+        probDiv.style.fontSize = '1.1em';
+        probDiv.style.color = prob >= 0.5 ? '#218838' : '#c0392b';
+        const drawCanvas = document.getElementById('draw-canvas');
+        if (drawCanvas && drawCanvas.parentNode) {
+            // Insert directly after the canvas
+            if (drawCanvas.nextSibling) {
+                drawCanvas.parentNode.insertBefore(probDiv, drawCanvas.nextSibling);
+            } else {
+                drawCanvas.parentNode.appendChild(probDiv);
+            }
+        } else {
+            // Fallback: append to draw-ui
+            const drawUI = document.getElementById('draw-ui');
+            if (drawUI) drawUI.appendChild(probDiv);
+        }
+    }
+    probDiv.textContent = `Fish probability: ${(prob * 100).toFixed(1)}%`;
+    probDiv.style.color = prob >= 0.5 ? '#218838' : '#c0392b';
+    return isFish;
+}
+
+// Show/hide fish warning and update background color
+function showFishWarning(show) {
+    const drawUI = document.getElementById('draw-ui');
+    if (drawUI) {
+        drawUI.style.background = show ? '#ffeaea' : '#eaffea'; // red for invalid, green for valid
+        drawUI.style.transition = 'background 0.3s';
+    }
+}
+
+// After each stroke, check if it's a fish
+async function checkFishAfterStroke() {
+    if (!window.ort) return; // ONNX runtime not loaded
+    const isFish = await verifyFishDoodle(canvas);
+    lastFishCheck = isFish;
+    showFishWarning(!isFish);
+}
+
+// Load ONNX Runtime Web from CDN if not present
+(function ensureONNXRuntime() {
+    if (!window.ort) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js';
+        script.onload = () => { loadFishModel(); };
+        document.head.appendChild(script);
+    } else {
+        loadFishModel();
+    }
+})();
