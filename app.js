@@ -207,13 +207,16 @@ async function submitFishToTank({
 window.addEventListener('DOMContentLoaded', async () => {
     const hasSubmitted = localStorage.getItem('fishSubmitted');
     const drawUI = document.getElementById('draw-ui');
+    const footer = document.getElementById('footer-love');
     // Use the already-declared swimCanvas variable
     if (hasSubmitted) {
         if (drawUI) drawUI.style.display = 'none';
         if (swimCanvas) swimCanvas.style.display = '';
+        if (footer) footer.style.display = '';
     } else {
         if (drawUI) drawUI.style.display = '';
         if (swimCanvas) swimCanvas.style.display = 'none';
+        if (footer) footer.style.display = 'none';
     }
     // Load all fish from Firestore on page load (fetch all pages)
     const allFishDocs = await getAllFishes();
@@ -251,99 +254,16 @@ swimBtn.addEventListener('click', async () => {
         // No popup, just block submission and keep background red
         return;
     }
-    // Modal: Would you like to sign the art?
-    showModal(`<div style='text-align:center;'>Would you like to sign the art?<br><br>
-        <button id='sign-yes' style='margin:0 12px 0 0;padding:6px 18px;'>Yes</button>
-        <button id='sign-no' style='padding:6px 18px;'>No</button></div>`, () => { });
-    // Helper to handle fish submission (shared by sign-yes and sign-no)
-    async function submitFish(artist) {
-        const createdAt = new Date().toISOString();
-        const fishImgData = fishCanvas.toDataURL('image/png');
-        // Convert dataURL to Blob
-        function dataURLtoBlob(dataurl) {
-            const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-            for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
-            return new Blob([u8arr], { type: mime });
-        }
-        const imageBlob = dataURLtoBlob(fishImgData);
-        const formData = new FormData();
-        formData.append('image', imageBlob, 'fish.png');
-        formData.append('artist', artist);
-        // Spinner UI
-        let submitBtn = document.getElementById('submit-fish');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<span class='spinner' style='display:inline-block;width:18px;height:18px;border:3px solid #3498db;border-top:3px solid #fff;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;'></span>`;
-        }
-        // Add spinner CSS
-        if (!document.getElementById('spinner-style')) {
-            const style = document.createElement('style');
-            style.id = 'spinner-style';
-            style.textContent = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
-            document.head.appendChild(style);
-        }
-        // Await server response
-        const resp = await fetch('https://fishes-be-571679687712.northamerica-northeast1.run.app/uploadfish', {
-            method: 'POST',
-            body: formData
-        });
-        // Use returned fish image for tank
-        const result = await resp.json();
-        // Remove spinner and re-enable button
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Submit';
-        }
-
-        if (result && result.data.Image) {
-            const img = new window.Image();
-            img.crossOrigin = 'anonymous'; // Prevent tainting for CORS images
-            img.onload = function () {
-                try {
-                    const displayCanvas = makeDisplayFishCanvas(img, 80, 48);
-                    fishes.push(createFishObject({
-                        fishCanvas: displayCanvas,
-                        x: Math.random() * (swimCanvas.width - 80),
-                        y: Math.random() * (swimCanvas.height - 48),
-                        direction: Math.random() > 0.5 ? 1 : -1,
-                        phase: Math.random() * Math.PI * 2,
-                        amplitude: 20 + Math.random() * 10,
-                        speed: 1.5 + Math.random(),
-                        vx: 0,
-                        vy: 0,
-                        width: 80,
-                        height: 48,
-                        artist,
-                        createdAt
-                    }));
-                    // Hide modal and reset UI
-                    localStorage.setItem('fishSubmitted', 'true');
-                    const drawUI = document.getElementById('draw-ui');
-                    if (drawUI) drawUI.style.display = 'none';
-                    if (swimCanvas) swimCanvas.style.display = '';
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    document.querySelector('div[style*="z-index: 9999"]')?.remove();
-                } catch (e) {
-                    alert('Sorry, there was a problem displaying your fish. Please try again.');
-                }
-            };
-            img.src = result.data.Image;
-        }
-    }
-
-    document.getElementById('sign-yes').onclick = async () => {
-        document.querySelector('div[style*="z-index: 9999"]')?.remove();
-        showModal(`<div style='text-align:center;'>Enter your name:<br><input id='artist-name' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'><br>
-            <button id='submit-fish' style='padding:6px 18px;'>Submit</button></div></div>`, () => { });
-        document.getElementById('submit-fish').onclick = async () => {
-            const artist = document.getElementById('artist-name').value.trim() || 'Anonymous';
-            await submitFish(artist);
-        };
+    // Show sign modal immediately (no yes/no)
+    showModal(`<div style='text-align:center;'>Sign your art:<br><input id='artist-name' value='Anonymous' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'><br>
+        <button id='submit-fish' style='padding:6px 18px;'>Submit</button>
+        <button id='cancel-fish' style='padding:6px 18px;margin-left:10px;'>Cancel</button></div>`, () => { });
+    document.getElementById('submit-fish').onclick = async () => {
+        const artist = document.getElementById('artist-name').value.trim() || 'Anonymous';
+        await submitFish(artist);
     };
-    document.getElementById('sign-no').onclick = async () => {
+    document.getElementById('cancel-fish').onclick = () => {
         document.querySelector('div[style*="z-index: 9999"]')?.remove();
-        await submitFish('Anonymous');
     };
 });
 
@@ -503,9 +423,19 @@ function showFishInfoModal(fish) {
     let info = `<div style='text-align:center;'>`;
     info += `<img src='${imgDataUrl}' width='80' height='48' style='display:block;margin:0 auto 10px auto;border-radius:8px;border:1px solid #ccc;background:#f8f8f8;' alt='Fish'><br>`;
     info += `<b>Artist:</b> ${fish.artist || 'Anonymous'}<br>`;
-    // Sometimes the fish might not have a createdAt date, due to being loaded directly instead of from Firestore.
+    // Handle createdAt as Firestore Timestamp or ISO string
     if (fish.createdAt) {
-        info += `<b>Created:</b> ${fish.createdAt.toDate().toLocaleString()}<br>`;
+        let dateObj;
+        if (typeof fish.createdAt === 'string') {
+            dateObj = new Date(fish.createdAt);
+        } else if (typeof fish.createdAt.toDate === 'function') {
+            dateObj = fish.createdAt.toDate();
+        } else {
+            dateObj = fish.createdAt;
+        }
+        if (!isNaN(dateObj)) {
+            info += `<b>Created:</b> ${dateObj.toLocaleString()}<br>`;
+        }
     }
     info += `</div>`;
     showModal(info, () => { });
@@ -831,3 +761,100 @@ async function checkFishAfterStroke() {
         loadFishModel();
     }
 })();
+
+// --- Fish submission modal handler ---
+async function submitFish(artist) {
+    const createdAt = new Date().toISOString();
+    // Save fish at a fixed resolution (e.g., 320x192)
+    const SAVE_W = 320;
+    const SAVE_H = 192;
+    const fishCanvas = document.createElement('canvas');
+    fishCanvas.width = SAVE_W;
+    fishCanvas.height = SAVE_H;
+    const fishCtx = fishCanvas.getContext('2d');
+    fishCtx.imageSmoothingEnabled = true;
+    fishCtx.imageSmoothingQuality = 'high';
+    fishCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, SAVE_W, SAVE_H);
+    // Convert dataURL to Blob
+    function dataURLtoBlob(dataurl) {
+        const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+        return new Blob([u8arr], { type: mime });
+    }
+    const fishImgData = fishCanvas.toDataURL('image/png');
+    const imageBlob = dataURLtoBlob(fishImgData);
+    const formData = new FormData();
+    formData.append('image', imageBlob, 'fish.png');
+    formData.append('artist', artist);
+    // Spinner UI
+    let submitBtn = document.getElementById('submit-fish');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class='spinner' style='display:inline-block;width:18px;height:18px;border:3px solid #3498db;border-top:3px solid #fff;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;'></span>`;
+    }
+    // Add spinner CSS
+    if (!document.getElementById('spinner-style')) {
+        const style = document.createElement('style');
+        style.id = 'spinner-style';
+        style.textContent = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
+        document.head.appendChild(style);
+    }
+    try {
+        // Await server response
+        const resp = await fetch('https://fishes-be-571679687712.northamerica-northeast1.run.app/uploadfish', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await resp.json();
+        // Remove spinner and re-enable button
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit';
+        }
+        if (result && result.data && result.data.Image) {
+            const img = new window.Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = function () {
+                try {
+                    const displayCanvas = makeDisplayFishCanvas(img, 80, 48);
+                    fishes.push(createFishObject({
+                        fishCanvas: displayCanvas,
+                        x: Math.random() * (swimCanvas.width - 80),
+                        y: Math.random() * (swimCanvas.height - 48),
+                        direction: Math.random() > 0.5 ? 1 : -1,
+                        phase: Math.random() * Math.PI * 2,
+                        amplitude: 20 + Math.random() * 10,
+                        speed: 1.5 + Math.random(),
+                        vx: 0,
+                        vy: 0,
+                        width: 80,
+                        height: 48,
+                        artist : result.data.Artist || artist,
+                        createdAt: result.data.CreatedAt,
+                    }));
+                    // Hide modal and reset UI
+                    localStorage.setItem('fishSubmitted', 'true');
+                    const drawUI = document.getElementById('draw-ui');
+                    const footer = document.getElementById('footer-love');
+                    if (drawUI) drawUI.style.display = 'none';
+                    if (swimCanvas) swimCanvas.style.display = '';
+                    if (footer) footer.style.display = '';
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    document.querySelector('div[style*="z-index: 9999"]')?.remove();
+                } catch (e) {
+                    alert('Sorry, there was a problem displaying your fish. Please try again.');
+                }
+            };
+            img.src = result.data.Image;
+        } else {
+            alert('Sorry, there was a problem uploading your fish. Please try again.');
+        }
+    } catch (err) {
+        alert('Failed to submit fish: ' + err.message);
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit';
+        }
+    }
+}
