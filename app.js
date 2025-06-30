@@ -115,7 +115,7 @@ function createFishObject({
     artist = 'Anonymous',
     createdAt = null,
     docId = null,
-    peduncle = { x: 0.4 }
+    peduncle = .4,
 }) {
     return {
         fishCanvas,
@@ -159,7 +159,7 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
                 artist: fishData.artist || fishData.Artist || 'Anonymous',
                 createdAt: fishData.createdAt || fishData.CreatedAt || null,
                 docId: fishData.docId || null,
-                peduncle: fishData.peduncle || { x: 0.4 }
+                peduncle: fishData.peduncle || .4
             });
             fishes.push(fishObj);
             if (onDone) onDone(fishObj);
@@ -832,6 +832,7 @@ async function submitFish(artist) {
                         height: 48,
                         artist : result.data.Artist || artist,
                         createdAt: result.data.CreatedAt,
+                        peduncle: result.data.Peduncle || 0.4 ,
                     }));
                     // Hide modal and reset UI
                     localStorage.setItem('fishSubmitted', 'true');
