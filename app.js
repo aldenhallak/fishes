@@ -284,7 +284,7 @@ swimBtn.addEventListener('click', async () => {
             document.head.appendChild(style);
         }
         // Await server response
-        await fetch('https://fishes-be-571679687712.northamerica-northeast1.run.app/uploadfish', {
+        const resp = await fetch('https://fishes-be-571679687712.northamerica-northeast1.run.app/uploadfish', {
             method: 'POST',
             body: formData
         });
@@ -335,7 +335,7 @@ swimBtn.addEventListener('click', async () => {
     document.getElementById('sign-yes').onclick = async () => {
         document.querySelector('div[style*="z-index: 9999"]')?.remove();
         showModal(`<div style='text-align:center;'>Enter your name:<br><input id='artist-name' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'><br>
-            <button id='submit-fish' style='padding:6px 18px;'>Submit</button></div>`, () => { });
+            <button id='submit-fish' style='padding:6px 18px;'>Submit</button></div></div>`, () => { });
         document.getElementById('submit-fish').onclick = async () => {
             const artist = document.getElementById('artist-name').value.trim() || 'Anonymous';
             await submitFish(artist);
@@ -734,9 +734,9 @@ function preprocessCanvasForONNX(canvas) {
     const dx = (SIZE - drawW) / 2;
     const dy = (SIZE - drawH) / 2;
     ctx.drawImage(cropped, 0, 0, cropped.width, cropped.height, dx, dy, drawW, drawH);
-    // 3. Grayscale, 3 channels, normalize
+    // 3. Grayscale, 1 channel, normalize
     const imgData = ctx.getImageData(0, 0, SIZE, SIZE).data;
-    const input = new Float32Array(3 * SIZE * SIZE);
+    const input = new Float32Array(1 * SIZE * SIZE);
     for (let y = 0; y < SIZE; y++) {
         for (let x = 0; x < SIZE; x++) {
             const idx = (y * SIZE + x) * 4;
@@ -745,12 +745,10 @@ function preprocessCanvasForONNX(canvas) {
             const b = imgData[idx + 2];
             let gray = 0.299 * r + 0.587 * g + 0.114 * b;
             const norm = (gray / 255 - 0.5) / 0.5;
-            for (let c = 0; c < 3; c++) {
-                input[c * SIZE * SIZE + y * SIZE + x] = norm;
-            }
+            input[y * SIZE + x] = norm;
         }
     }
-    return new window.ort.Tensor('float32', input, [1, 3, SIZE, SIZE]);
+    return new window.ort.Tensor('float32', input, [1, 1, SIZE, SIZE]);
 }
 
 // Run ONNX model and return true if fish, false otherwise
@@ -774,7 +772,7 @@ async function verifyFishDoodle(canvas) {
         isFish = output[1] > output[0];
     } else {
         prob = 1 / (1 + Math.exp(-output[0]));
-        isFish = output[0] > 0;
+        isFish = prob >= 0.15; // Threshold for fish detection
     }
     // Show probability under the drawing area
     let probDiv = document.getElementById('fish-probability');
@@ -785,7 +783,7 @@ async function verifyFishDoodle(canvas) {
         probDiv.style.margin = '10px 0 0 0';
         probDiv.style.fontWeight = 'bold';
         probDiv.style.fontSize = '1.1em';
-        probDiv.style.color = prob >= 0.5 ? '#218838' : '#c0392b';
+        probDiv.style.color = prob >= 0.1 ? '#218838' : '#c0392b';
         const drawCanvas = document.getElementById('draw-canvas');
         if (drawCanvas && drawCanvas.parentNode) {
             // Insert directly after the canvas
@@ -801,7 +799,7 @@ async function verifyFishDoodle(canvas) {
         }
     }
     probDiv.textContent = `Fish probability: ${(prob * 100).toFixed(1)}%`;
-    probDiv.style.color = prob >= 0.5 ? '#218838' : '#c0392b';
+    probDiv.style.color = prob >= 0.1 ? '#218838' : '#c0392b';
     return isFish;
 }
 
