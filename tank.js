@@ -5,6 +5,69 @@ const swimCanvas = document.getElementById('swim-canvas');
 const swimCtx = swimCanvas.getContext('2d');
 const fishes = [];
 
+// Calculate optimal fish size based on tank size
+function calculateFishSize() {
+    const tankWidth = swimCanvas.width;
+    const tankHeight = swimCanvas.height;
+    
+    // Scale fish size based on tank dimensions
+    // Use smaller dimension to ensure fish fit well on all screen ratios
+    const baseDimension = Math.min(tankWidth, tankHeight);
+    
+    // Fish width should be roughly 8-12% of the smaller tank dimension
+    const fishWidth = Math.floor(baseDimension * 0.1); // 10% of smaller dimension
+    const fishHeight = Math.floor(fishWidth * 0.6); // Maintain 3:5 aspect ratio
+    
+    // Set reasonable bounds: 
+    // - Minimum: 30px wide (for very small screens)
+    // - Maximum: 150px wide (for very large screens)
+    const finalWidth = Math.max(30, Math.min(150, fishWidth));
+    const finalHeight = Math.max(18, Math.min(90, fishHeight));
+    
+    return {
+        width: finalWidth,
+        height: finalHeight
+    };
+}
+
+// Rescale all existing fish to maintain consistency
+function rescaleAllFish() {
+    const newSize = calculateFishSize();
+    
+    fishes.forEach(fish => {
+        // Store original image source
+        const originalCanvas = fish.fishCanvas;
+        
+        // Create a temporary canvas to extract the original image
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = originalCanvas.width;
+        tempCanvas.height = originalCanvas.height;
+        tempCanvas.getContext('2d').drawImage(originalCanvas, 0, 0);
+        
+        // Create new resized canvas
+        const resizedCanvas = document.createElement('canvas');
+        resizedCanvas.width = newSize.width;
+        resizedCanvas.height = newSize.height;
+        const resizedCtx = resizedCanvas.getContext('2d');
+        
+        // Scale the fish image to new size
+        resizedCtx.imageSmoothingEnabled = true;
+        resizedCtx.imageSmoothingQuality = 'high';
+        resizedCtx.drawImage(tempCanvas, 0, 0, newSize.width, newSize.height);
+        
+        // Update fish properties
+        const oldWidth = fish.width;
+        const oldHeight = fish.height;
+        fish.fishCanvas = resizedCanvas;
+        fish.width = newSize.width;
+        fish.height = newSize.height;
+        
+        // Adjust position to prevent fish from going off-screen
+        fish.x = Math.max(0, Math.min(swimCanvas.width - newSize.width, fish.x));
+        fish.y = Math.max(0, Math.min(swimCanvas.height - newSize.height, fish.y));
+    });
+}
+
 // Helper to crop whitespace (transparent or white) from a canvas
 function cropCanvasToContent(srcCanvas) {
     const ctx = srcCanvas.getContext('2d');
@@ -99,10 +162,12 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
     const img = new window.Image();
     img.crossOrigin = 'anonymous';
     img.onload = function () {
-        const displayCanvas = makeDisplayFishCanvas(img, 80, 48);
+        // Calculate dynamic size based on current tank and fish count
+        const fishSize = calculateFishSize();
+        const displayCanvas = makeDisplayFishCanvas(img, fishSize.width, fishSize.height);
         if (displayCanvas && displayCanvas.width && displayCanvas.height) {
-            const maxX = Math.max(0, swimCanvas.width - 80);
-            const maxY = Math.max(0, swimCanvas.height - 48);
+            const maxX = Math.max(0, swimCanvas.width - fishSize.width);
+            const maxY = Math.max(0, swimCanvas.height - fishSize.height);
             const x = Math.floor(Math.random() * maxX);
             const y = Math.floor(Math.random() * maxY);
             const fishObj = createFishObject({
@@ -116,9 +181,12 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
                 artist: fishData.artist || fishData.Artist || 'Anonymous',
                 createdAt: fishData.createdAt || fishData.CreatedAt || null,
                 docId: fishData.docId || null,
-                peduncle: fishData.peduncle || .4
+                peduncle: fishData.peduncle || .4,
+                width: fishSize.width,
+                height: fishSize.height
             });
             fishes.push(fishObj);
+            
             if (onDone) onDone(fishObj);
         } else {
             console.warn('Fish image did not load or is blank:', imgUrl);
@@ -165,8 +233,13 @@ function showFishInfoModal(fish) {
     fishImgCanvas.height = fish.height;
     fishImgCanvas.getContext('2d').drawImage(fish.fishCanvas, 0, 0);
     const imgDataUrl = fishImgCanvas.toDataURL();
+    
+    // Scale display size for modal (max 80x48, maintain aspect ratio)
+    const modalWidth = Math.min(80, fish.width);
+    const modalHeight = Math.min(48, fish.height);
+    
     let info = `<div style='text-align:center;'>`;
-    info += `<img src='${imgDataUrl}' width='80' height='48' style='display:block;margin:0 auto 10px auto;border-radius:8px;border:1px solid #ccc;background:#f8f8f8;' alt='Fish'><br>`;
+    info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto 10px auto;border-radius:8px;border:1px solid #ccc;background:#f8f8f8;' alt='Fish'><br>`;
     info += `<b>Artist:</b> ${fish.artist || 'Anonymous'}<br>`;
     if (fish.createdAt) {
         let dateObj;
@@ -263,12 +336,24 @@ swimCanvas.addEventListener('mousedown', handleFishTap);
 swimCanvas.addEventListener('touchstart', handleFishTap);
 
 function resizeForMobile() {
+    const oldWidth = swimCanvas.width;
+    const oldHeight = swimCanvas.height;
+    
     swimCanvas.width = window.innerWidth;
     swimCanvas.height = window.innerHeight;
     swimCanvas.style.width = '100vw';
     swimCanvas.style.height = '100vh';
     swimCanvas.style.maxWidth = '100vw';
     swimCanvas.style.maxHeight = '100vh';
+    
+    // If canvas size changed significantly, rescale all fish
+    const widthChange = Math.abs(oldWidth - swimCanvas.width) / oldWidth;
+    const heightChange = Math.abs(oldHeight - swimCanvas.height) / oldHeight;
+    
+    // Rescale if size changed by more than 20%
+    if (widthChange > 0.2 || heightChange > 0.2) {
+        rescaleAllFish();
+    }
 }
 window.addEventListener('resize', resizeForMobile);
 resizeForMobile();
