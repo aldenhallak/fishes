@@ -199,14 +199,23 @@ async function getAllFishes() {
     const allDocs = [];
     let lastDoc = null;
     const pageSize = 100;
+
     while (true) {
-        let query = window.db.collection('fishes_test').limit(pageSize);
-        if (lastDoc) query = query.startAfter(lastDoc.id);
+        let query = window.db.collection('fishes_test')
+            .orderBy("CreatedAt")
+            .limit(pageSize);
+
+        if (lastDoc) {
+            query = query.startAfter(lastDoc.data().CreatedAt);
+        }
+
         const snapshot = await query.get();
         snapshot.forEach(doc => allDocs.push(doc));
+
         if (snapshot.size < pageSize) break;
         lastDoc = snapshot.docs[snapshot.docs.length - 1];
     }
+
     return allDocs;
 }
 
