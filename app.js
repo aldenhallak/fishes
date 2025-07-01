@@ -129,6 +129,9 @@ async function submitFish(artist) {
             submitBtn.textContent = 'Submit';
         }
         if (result && result.data && result.data.Image) {
+            // Save today's date to track fish submission
+            const today = new Date().toDateString();
+            localStorage.setItem('lastFishDate', today);
             // Hide modal and reset UI
             window.location.href = 'tank.html';
         } else {
@@ -162,6 +165,7 @@ swimBtn.addEventListener('click', async () => {
         // No popup, just block submission and keep background red
         return;
     }
+    
     // Get saved artist name or use Anonymous
     const savedArtist = localStorage.getItem('artistName');
     const defaultName = (savedArtist && savedArtist !== 'Anonymous') ? savedArtist : 'Anonymous';
@@ -509,3 +513,23 @@ async function checkFishAfterStroke() {
         loadFishModel();
     }
 })();
+
+// Check if user already drew a fish today when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toDateString();
+    const lastFishDate = localStorage.getItem('lastFishDate');
+    console.log(`Last fish date: ${lastFishDate}, Today: ${today}`);
+    if (lastFishDate === today) {
+        showModal(`<div style='text-align:center;'>You already drew a fish today!<br><br>
+            <button id='go-to-tank' style='padding:8px 16px; margin: 0 5px;'>Take me to fishtank</button>
+            <button id='draw-another' style='padding:8px 16px; margin: 0 5px;'>I want to draw another fish</button></div>`, () => { });
+        
+        document.getElementById('go-to-tank').onclick = () => {
+            window.location.href = 'tank.html';
+        };
+        
+        document.getElementById('draw-another').onclick = () => {
+            document.querySelector('div[style*="z-index: 9999"]')?.remove();
+        };
+    }
+});
