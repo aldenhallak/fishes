@@ -194,3 +194,96 @@ function createVotingControlsHTML(fishId, upvotes = 0, downvotes = 0, includeSco
     
     return html;
 }
+
+// Generate random document ID for querying
+function generateRandomDocId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 20; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
+// Get random documents using efficient Firestore random selection
+async function getRandomFish(limit = 50) {
+    const randomDocs = [];
+    
+    while (randomDocs.length < limit) {
+        const randomId = generateRandomDocId();
+        
+        // Try forward direction first
+        let query = window.db.collection('fishes_test')
+            .where(window.firebase.firestore.FieldPath.documentId(), '>=', randomId)
+            .orderBy(window.firebase.firestore.FieldPath.documentId())
+            .limit(limit - randomDocs.length);
+        
+        let snapshot = await query.get();
+        
+        // If no results, try backward direction (wrap-around)
+        if (snapshot.empty) {
+            query = window.db.collection('fishes_test')
+                .where(window.firebase.firestore.FieldPath.documentId(), '>=', '')
+                .orderBy(window.firebase.firestore.FieldPath.documentId())
+                .limit(limit - randomDocs.length);
+            
+            snapshot = await query.get();
+        }
+        
+        // Add new documents (avoid duplicates)
+        const existingIds = new Set(randomDocs.map(doc => doc.id));
+        snapshot.docs.forEach(doc => {
+            if (!existingIds.has(doc.id) && randomDocs.length < limit) {
+                randomDocs.push(doc);
+            }
+        });
+        
+        // Safety break to avoid infinite loop
+        if (snapshot.empty || snapshot.docs.length === 0) {
+            console.warn('No more documents available for random selection');
+            break;
+        }
+    }
+    
+    return randomDocs;
+}
+
+// Get fish from Firestore with different sorting options (unified function for both tank and rank)
+async function getFishBySort(sortType, limit = 50, startAfter = null, direction = 'desc') {
+    let query = window.db.collection('fishes_test');
+    
+    switch (sortType) {
+        case 'score':
+        case 'popular':
+            query = query.orderBy("score", direction);
+            if (startAfter) {
+                query = query.startAfter(startAfter);
+            }
+            query = query.limit(limit); 
+            break;
+            
+        case 'date':
+        case 'recent':
+            query = query.orderBy("CreatedAt", direction);
+            if (startAfter) {
+                query = query.startAfter(startAfter);
+            }
+            query = query.limit(limit);
+            break;
+            
+        case 'random':
+            // For random, we can't use pagination in the traditional sense
+            return await getRandomFish(limit);
+            
+        default:
+            // Default to most recent
+            query = query.orderBy("CreatedAt", direction);
+            if (startAfter) {
+                query = query.startAfter(startAfter);
+            }
+            query = query.limit(limit);
+    }
+    
+    const snapshot = await query.get();
+    return snapshot.docs;
+}

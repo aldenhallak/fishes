@@ -9,21 +9,21 @@ const fishes = [];
 function calculateFishSize() {
     const tankWidth = swimCanvas.width;
     const tankHeight = swimCanvas.height;
-    
+
     // Scale fish size based on tank dimensions
     // Use smaller dimension to ensure fish fit well on all screen ratios
     const baseDimension = Math.min(tankWidth, tankHeight);
-    
+
     // Fish width should be roughly 8-12% of the smaller tank dimension
     const fishWidth = Math.floor(baseDimension * 0.1); // 10% of smaller dimension
     const fishHeight = Math.floor(fishWidth * 0.6); // Maintain 3:5 aspect ratio
-    
+
     // Set reasonable bounds: 
     // - Minimum: 30px wide (for very small screens)
     // - Maximum: 150px wide (for very large screens)
     const finalWidth = Math.max(30, Math.min(150, fishWidth));
     const finalHeight = Math.max(18, Math.min(90, fishHeight));
-    
+
     return {
         width: finalWidth,
         height: finalHeight
@@ -33,35 +33,35 @@ function calculateFishSize() {
 // Rescale all existing fish to maintain consistency
 function rescaleAllFish() {
     const newSize = calculateFishSize();
-    
+
     fishes.forEach(fish => {
         // Store original image source
         const originalCanvas = fish.fishCanvas;
-        
+
         // Create a temporary canvas to extract the original image
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = originalCanvas.width;
         tempCanvas.height = originalCanvas.height;
         tempCanvas.getContext('2d').drawImage(originalCanvas, 0, 0);
-        
+
         // Create new resized canvas
         const resizedCanvas = document.createElement('canvas');
         resizedCanvas.width = newSize.width;
         resizedCanvas.height = newSize.height;
         const resizedCtx = resizedCanvas.getContext('2d');
-        
+
         // Scale the fish image to new size
         resizedCtx.imageSmoothingEnabled = true;
         resizedCtx.imageSmoothingQuality = 'high';
         resizedCtx.drawImage(tempCanvas, 0, 0, newSize.width, newSize.height);
-        
+
         // Update fish properties
         const oldWidth = fish.width;
         const oldHeight = fish.height;
         fish.fishCanvas = resizedCanvas;
         fish.width = newSize.width;
         fish.height = newSize.height;
-        
+
         // Adjust position to prevent fish from going off-screen
         fish.x = Math.max(0, Math.min(swimCanvas.width - newSize.width, fish.x));
         fish.y = Math.max(0, Math.min(swimCanvas.height - newSize.height, fish.y));
@@ -195,7 +195,7 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
                 score: fishData.score || 0
             });
             fishes.push(fishObj);
-            
+
             if (onDone) onDone(fishObj);
         } else {
             console.warn('Fish image did not load or is blank:', imgUrl);
@@ -204,34 +204,72 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
     img.src = imgUrl;
 }
 
-async function getAllFishes() {
-    // Get only the most recent 50 fish
-    const query = window.db.collection('fishes_test')
-        .orderBy("CreatedAt", "desc") // Order by newest first
-        .limit(50); // Limit to 50 fish
+// Using shared utility function from fish-utils.js
 
-    const snapshot = await query.get();
-    const allDocs = [];
-    snapshot.forEach(doc => allDocs.push(doc));
-    
-    return allDocs;
+// Load fish into tank based on sort type
+async function loadFishIntoTank(sortType = 'recent') {
+    // Show loading indicator
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'block';
+    }
+
+    // Clear existing fish
+    fishes.length = 0;
+
+    try {
+        // Load fish from Firestore using shared utility
+        const allFishDocs = await getFishBySort(sortType, 50);
+        allFishDocs.forEach(doc => {
+            const data = doc.data();
+            const imageUrl = data.image || data.Image;
+            if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.startsWith('http')) {
+                console.warn('Skipping fish with invalid image:', doc.id, data);
+                return;
+            }
+            loadFishImageToTank(imageUrl, {
+                ...data,
+                docId: doc.id
+            });
+        });
+    } catch (error) {
+        console.error('Error loading fish:', error);
+    } finally {
+        // Hide loading indicator
+        if (loadingIndicator) {
+            setTimeout(() => {
+                loadingIndicator.style.display = 'none';
+            }, 500); // Brief delay to show loading finished
+        }
+    }
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    // Load all fish from Firestore on page load (fetch all pages)
-    const allFishDocs = await getAllFishes();
-    allFishDocs.forEach(doc => {
-        const data = doc.data();
-        const imageUrl = data.image || data.Image;
-        if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.startsWith('http')) {
-            console.warn('Skipping fish with invalid image:', doc.id, data);
-            return;
-        }
-        loadFishImageToTank(imageUrl, {
-            ...data,
-            docId: doc.id
-        });
+    const sortSelect = document.getElementById('tank-sort');
+    const refreshButton = document.getElementById('refresh-tank');
+
+    // Handle sort change
+    sortSelect.addEventListener('change', () => {
+        const selectedSort = sortSelect.value;
+        loadFishIntoTank(selectedSort);
+
+        // Update page title based on selection
+        const titles = {
+            'recent': 'Fish Tank - 50 Most Recent',
+            'popular': 'Fish Tank - 50 Most Popular',
+            'random': 'Fish Tank - 50 Random Fish'
+        };
+        document.title = titles[selectedSort] || 'Fish Tank';
     });
+
+    // Handle refresh button
+    refreshButton.addEventListener('click', () => {
+        const selectedSort = sortSelect.value;
+        loadFishIntoTank(selectedSort);
+    });
+
+    // Load initial fish (most recent by default)
+    await loadFishIntoTank('recent');
 });
 
 function showFishInfoModal(fish) {
@@ -240,11 +278,11 @@ function showFishInfoModal(fish) {
     fishImgCanvas.height = fish.height;
     fishImgCanvas.getContext('2d').drawImage(fish.fishCanvas, 0, 0);
     const imgDataUrl = fishImgCanvas.toDataURL();
-    
+
     // Scale display size for modal (max 120x80, maintain aspect ratio)
     const modalWidth = Math.min(120, fish.width);
     const modalHeight = Math.min(80, fish.height);
-    
+
     let info = `<div style='text-align:center;'>`;
     info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto 15px auto;border-radius:8px;border:1px solid #ccc;background:#f8f8f8;' alt='Fish'><br>`;
     info += `<div style='margin-bottom:15px;'>`;
@@ -255,11 +293,11 @@ function showFishInfoModal(fish) {
     const score = calculateScore(fish);
     info += `<b class="modal-score">Score: ${score}</b>`;
     info += `</div>`;
-    
+
     // Add voting controls using shared utility
     info += createVotingControlsHTML(fish.docId, fish.upvotes || 0, fish.downvotes || 0, false, 'modal-controls');
     info += `</div>`;
-    
+
     showModal(info, () => { });
 }
 
@@ -283,12 +321,12 @@ function handleVote(fishId, voteType, button) {
                     fish.downvotes = (fish.downvotes || 0) + 1;
                 }
             }
-            
+
             // Update the modal display with new counts
             const upvoteCount = document.querySelector('.modal-controls .upvote-count');
             const downvoteCount = document.querySelector('.modal-controls .downvote-count');
             const scoreDisplay = document.querySelector('.modal-score');
-            
+
             if (upvoteCount) upvoteCount.textContent = fish.upvotes || 0;
             if (downvoteCount) downvoteCount.textContent = fish.downvotes || 0;
             if (scoreDisplay) scoreDisplay.textContent = `Score: ${calculateScore(fish)}`;
@@ -385,18 +423,18 @@ swimCanvas.addEventListener('touchstart', handleFishTap);
 function resizeForMobile() {
     const oldWidth = swimCanvas.width;
     const oldHeight = swimCanvas.height;
-    
+
     swimCanvas.width = window.innerWidth;
     swimCanvas.height = window.innerHeight;
     swimCanvas.style.width = '100vw';
     swimCanvas.style.height = '100vh';
     swimCanvas.style.maxWidth = '100vw';
     swimCanvas.style.maxHeight = '100vh';
-    
+
     // If canvas size changed significantly, rescale all fish
     const widthChange = Math.abs(oldWidth - swimCanvas.width) / oldWidth;
     const heightChange = Math.abs(oldHeight - swimCanvas.height) / oldHeight;
-    
+
     // Rescale if size changed by more than 20%
     if (widthChange > 0.2 || heightChange > 0.2) {
         rescaleAllFish();
