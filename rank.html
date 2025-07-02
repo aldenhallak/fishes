@@ -35,6 +35,25 @@
             flex-wrap: wrap;
         }
         
+        .sort-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .sort-btn.active {
+            background: #2c5530;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .sort-btn:active {
+            transform: translateY(0);
+        }
+        
+        .sort-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
         .fish-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
@@ -90,33 +109,6 @@
             opacity: 0.8;
         }
         
-        .report-btn {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1em;
-            transition: all 0.2s ease;
-            min-width: 40px;
-        }
-        
-        .report-btn:hover {
-            background: #ff5252;
-            transform: scale(1.05);
-        }
-        
-        .report-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .report-btn:disabled {
-            background: #4CAF50;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
         .loading {
             text-align: center;
             padding: 40px;
@@ -133,8 +125,7 @@
     
     <div class="ranking-container">
         <div class="ranking-header">
-            <h1>🐟 Fish Ranking 🐟</h1>
-            <p>Vote for your favorite fish!</p>
+            <h1> Fish Ranking </h1>
         </div>
         
         <div class="sort-controls">

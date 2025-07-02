@@ -7,6 +7,11 @@ const BACKEND_URL = USE_PRODUCTION_BACKEND
 // Fish Ranking System
 let allFishData = [];
 let currentSort = 'score';
+let sortDirection = 'desc'; // 'asc' or 'desc'
+let isLoading = false;
+let hasMoreFish = true;
+let lastDoc = null; // For pagination with Firestore
+let loadedCount = 0; // Track total loaded fish count
 
 // Generate random document ID for querying
 function generateRandomDocId() {
@@ -62,26 +67,39 @@ async function getRandomFish(limit = 50) {
     return randomDocs;
 }
 
-// Get fish from Firestore with efficient querying
-async function getFishBySort(sortType, limit = 50) {
+// Get fish from Firestore with efficient querying and pagination
+async function getFishBySort(sortType, limit = 50, startAfter = null, direction = 'desc') {
     let query = window.db.collection('fishes_test');
     
     switch (sortType) {
         case 'score':
-            query = query.orderBy("score", "desc").limit(limit); 
+            query = query.orderBy("score", direction);
+            if (startAfter) {
+                query = query.startAfter(startAfter);
+            }
+            query = query.limit(limit); 
             break;
             
         case 'date':
             // Most efficient - direct database sorting
-            query = query.orderBy("CreatedAt", "desc").limit(limit);
+            query = query.orderBy("CreatedAt", direction);
+            if (startAfter) {
+                query = query.startAfter(startAfter);
+            }
+            query = query.limit(limit);
             break;
             
         case 'random':
-            // Use efficient random document selection
+            // For random, we can't use pagination in the traditional sense
+            // Return new random selection each time
             return await getRandomFish(limit);
             
         default:
-            query = query.orderBy("CreatedAt", "desc").limit(limit);
+            query = query.orderBy("CreatedAt", direction);
+            if (startAfter) {
+                query = query.startAfter(startAfter);
+            }
+            query = query.limit(limit);
     }
     
     const snapshot = await query.get();
@@ -244,10 +262,6 @@ async function handleVote(fishId, voteType, button) {
             // Update the display
             updateFishCard(fishId);
             
-            // Re-sort if needed
-            if (currentSort === 'score') {
-                sortAndDisplayFish();
-            }
         } else {
             console.error(`Fish with ID ${fishId} not found in allFishData`);
         }
@@ -334,17 +348,21 @@ function createFishCard(fish) {
 }
 
 // Sort fish data
-function sortFish(fishData, sortType) {
+function sortFish(fishData, sortType, direction = 'desc') {
     const sorted = [...fishData];
     
     switch (sortType) {
         case 'score':
-            return sorted.sort((a, b) => (b.score || 0) - (a.score || 0));
+            return sorted.sort((a, b) => {
+                const scoreA = a.score || 0;
+                const scoreB = b.score || 0;
+                return direction === 'desc' ? scoreB - scoreA : scoreA - scoreB;
+            });
         case 'date':
             return sorted.sort((a, b) => {
                 const dateA = a.createdAt ? new Date(a.createdAt.toDate ? a.createdAt.toDate() : a.createdAt) : new Date(0);
                 const dateB = b.createdAt ? new Date(b.createdAt.toDate ? b.createdAt.toDate() : b.createdAt) : new Date(0);
-                return dateB - dateA; // Newest first
+                return direction === 'desc' ? dateB - dateA : dateA - dateB;
             });
         case 'random':
             // Fisher-Yates shuffle
@@ -359,9 +377,17 @@ function sortFish(fishData, sortType) {
 }
 
 // Display fish in the grid
-function displayFish(fishData) {
+function displayFish(fishData, append = false) {
     const grid = document.getElementById('fish-grid');
-    grid.innerHTML = fishData.map(fish => createFishCard(fish)).join('');
+    
+    if (append) {
+        // Append new fish to existing grid
+        const newFishHTML = fishData.map(fish => createFishCard(fish)).join('');
+        grid.insertAdjacentHTML('beforeend', newFishHTML);
+    } else {
+        // Replace all fish (initial load or sort change)
+        grid.innerHTML = fishData.map(fish => createFishCard(fish)).join('');
+    }
     
     // Load fish images asynchronously
     fishData.forEach(fish => {
@@ -381,19 +407,71 @@ function displayFish(fishData) {
 
 // Sort and display fish
 function sortAndDisplayFish() {
-    const sortedFish = sortFish(allFishData, currentSort);
+    const sortedFish = sortFish(allFishData, currentSort, sortDirection);
     displayFish(sortedFish);
+}
+
+// Update button text with sort direction arrows
+function updateSortButtonText() {
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        const sortType = btn.getAttribute('data-sort');
+        let baseText = '';
+        let arrow = '';
+        let tooltip = '';
+        
+        switch (sortType) {
+            case 'score':
+                baseText = 'Sort by Score';
+                break;
+            case 'date':
+                baseText = 'Sort by Date';
+                break;
+            case 'random':
+                baseText = 'Random Order';
+                tooltip = 'Show fish in random order';
+                break;
+        }
+        
+        // Add arrow for current sort (except random)
+        if (sortType === currentSort && sortType !== 'random') {
+            arrow = sortDirection === 'desc' ? ' ↓' : ' ↑';
+            tooltip = sortType === 'score' 
+                ? (sortDirection === 'desc' ? 'Highest score first' : 'Lowest score first')
+                : (sortDirection === 'desc' ? 'Newest first' : 'Oldest first');
+        } else if (sortType !== 'random') {
+            tooltip = `Click to sort by ${sortType}. Click again to reverse order.`;
+        }
+        
+        btn.textContent = baseText + arrow;
+        btn.title = tooltip;
+    });
 }
 
 // Handle sort button clicks
 async function handleSortChange(sortType) {
-    currentSort = sortType;
+    // If clicking the same sort button, toggle direction
+    if (currentSort === sortType && sortType !== 'random') {
+        sortDirection = sortDirection === 'desc' ? 'asc' : 'desc';
+    } else {
+        // New sort type, use default direction
+        currentSort = sortType;
+        sortDirection = sortType === 'date' ? 'desc' : 'desc'; // Default to descending for most sorts
+    }
+    
+    // Reset pagination state whenever sort changes (including direction)
+    lastDoc = null;
+    hasMoreFish = true;
+    loadedCount = 0;
+    allFishData = [];
     
     // Update active button
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     document.querySelector(`[data-sort="${sortType}"]`).classList.add('active');
+    
+    // Update button text with arrows
+    updateSortButtonText();
     
     // Show loading and reload data with new sort
     document.getElementById('loading').style.display = 'block';
@@ -445,15 +523,42 @@ async function filterValidFish(fishArray) {
     return validFish;
 }
 
-// Load fish data with efficient querying
-async function loadFishData(sortType = currentSort) {
+// Load fish data with efficient querying and pagination
+async function loadFishData(sortType = currentSort, isInitialLoad = true) {
+    if (isLoading || (!hasMoreFish && !isInitialLoad)) {
+        return;
+    }
+    
+    isLoading = true;
+    
     try {
-        document.getElementById('loading').textContent = `Loading fish... 🐠`;
+        const loadingElement = document.getElementById('loading');
+        const gridElement = document.getElementById('fish-grid');
         
-        const fishDocs = await getFishBySort(sortType, 50);
+        if (isInitialLoad) {
+            loadingElement.textContent = `Loading fish... 🐠`;
+            loadingElement.style.display = 'block';
+            gridElement.style.display = 'none';
+        } else {
+            // Show inline loading for pagination
+            loadingElement.textContent = `Loading more fish... 🐠`;
+            loadingElement.style.display = 'block';
+        }
+        
+        const fishDocs = await getFishBySort(sortType, 50, lastDoc, sortDirection);
+        
+        // Check if we got fewer docs than requested (indicates end of data)
+        if (fishDocs.length < 50 && sortType !== 'random') {
+            hasMoreFish = false;
+        }
+        
+        // For random sorting, disable infinite scroll after first load
+        if (sortType === 'random' && !isInitialLoad) {
+            hasMoreFish = false;
+        }
         
         // Map fish documents to objects
-        const allFish = fishDocs.map(doc => {
+        const newFish = fishDocs.map(doc => {
             const data = doc.data();
             const fish = {
                 ...data,
@@ -464,43 +569,95 @@ async function loadFishData(sortType = currentSort) {
         });
         
         // Filter to only fish with working images
-        const validFish = await filterValidFish(allFish);
+        const validFish = await filterValidFish(newFish);
         
-        // If we don't have enough valid fish, try to get more
-        let finalFish = validFish;
-        if (validFish.length < 25 && sortType !== 'random') {
-            const moreFishDocs = await getFishBySort(sortType, 100);
-            const moreFish = moreFishDocs.map(doc => {
-                const data = doc.data();
-                return {
-                    ...data,
-                    docId: doc.id,
-                    score: calculateScore(data)
-                };
-            });
-            const moreValidFish = await filterValidFish(moreFish);
-            finalFish = moreValidFish.slice(0, 50);
+        // Update lastDoc for pagination (except for random sorting)
+        if (fishDocs.length > 0 && sortType !== 'random') {
+            lastDoc = fishDocs[fishDocs.length - 1];
         }
         
         // Apply client-side sorting for score (random is already handled by DB query)
         if (sortType === 'score') {
-            finalFish.sort((a, b) => (b.score || 0) - (a.score || 0));
+            validFish.sort((a, b) => {
+                const scoreA = a.score || 0;
+                const scoreB = b.score || 0;
+                return sortDirection === 'desc' ? scoreB - scoreA : scoreA - scoreB;
+            });
         }
-        // Random sorting is now handled efficiently at the database level
         
-        allFishData = finalFish.slice(0, 50);
-        
-        // Hide loading and show grid
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('fish-grid').style.display = 'grid';
-        
-        // Display fish
-        displayFish(allFishData);
+        if (isInitialLoad) {
+            allFishData = validFish;
+            loadedCount = allFishData.length;
+            
+            // Hide loading and show grid
+            loadingElement.style.display = 'none';
+            gridElement.style.display = 'grid';
+            displayFish(allFishData, false);
+            updateStatusMessage();
+        } else {
+            // Filter out duplicates when appending
+            const existingIds = new Set(allFishData.map(fish => fish.docId));
+            const newValidFish = validFish.filter(fish => !existingIds.has(fish.docId));
+            
+            if (newValidFish.length > 0) {
+                allFishData = [...allFishData, ...newValidFish];
+                loadedCount = allFishData.length;
+                displayFish(newValidFish, true);
+            } else {
+                // No new fish found, might have reached the end
+                hasMoreFish = false;
+            }
+            
+            // Hide loading and show status if needed
+            loadingElement.style.display = 'none';
+            updateStatusMessage();
+        }
         
     } catch (error) {
         console.error('Error loading fish:', error);
         document.getElementById('loading').textContent = 'Error loading fish. Please try again.';
+    } finally {
+        isLoading = false;
     }
+}
+
+// Update status message
+function updateStatusMessage() {
+    const loadingElement = document.getElementById('loading');
+    
+    if (!hasMoreFish && loadedCount > 0) {
+        loadingElement.textContent = `Showing all ${loadedCount} fish 🐟`;
+        loadingElement.style.display = 'block';
+        loadingElement.style.color = '#666';
+        loadingElement.style.fontSize = '0.9em';
+        loadingElement.style.padding = '20px';
+    }
+}
+
+// Check if user has scrolled near the bottom of the page
+function isNearBottom() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    
+    // Trigger when user is within 200px of the bottom
+    return scrollTop + windowHeight >= documentHeight - 200;
+}
+
+// Handle infinite scroll
+function handleScroll() {
+    if (isNearBottom() && !isLoading && hasMoreFish) {
+        loadFishData(currentSort, false);
+    }
+}
+
+// Throttle scroll event to improve performance
+let scrollTimeout;
+function throttledScroll() {
+    if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+    }
+    scrollTimeout = setTimeout(handleScroll, 100);
 }
 
 // Initialize page
@@ -512,7 +669,13 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // Load fish data
+    // Set up infinite scroll
+    window.addEventListener('scroll', throttledScroll);
+    
+    // Initialize button text with arrows
+    updateSortButtonText();
+    
+    // Load initial fish data
     loadFishData();
 });
 
@@ -521,12 +684,7 @@ async function handleReport(fishId, button) {
     try {
         // Show confirmation dialog
         const reason = prompt(
-            'Please specify the reason for reporting this fish:\n\n' +
-            '• Inappropriate content\n' +
-            '• Spam\n' +
-            '• Copyright violation\n' +
-            '• Other\n\n' +
-            'Enter reason:'
+           'why'
         );
         
         if (!reason || reason.trim() === '') {
