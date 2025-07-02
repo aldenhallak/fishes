@@ -196,26 +196,15 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
 }
 
 async function getAllFishes() {
+    // Get only the most recent 50 fish
+    const query = window.db.collection('fishes_test')
+        .orderBy("CreatedAt", "desc") // Order by newest first
+        .limit(50); // Limit to 50 fish
+
+    const snapshot = await query.get();
     const allDocs = [];
-    let lastDoc = null;
-    const pageSize = 100;
-
-    while (true) {
-        let query = window.db.collection('fishes_test')
-            .orderBy("CreatedAt")
-            .limit(pageSize);
-
-        if (lastDoc) {
-            query = query.startAfter(lastDoc.data().CreatedAt);
-        }
-
-        const snapshot = await query.get();
-        snapshot.forEach(doc => allDocs.push(doc));
-
-        if (snapshot.size < pageSize) break;
-        lastDoc = snapshot.docs[snapshot.docs.length - 1];
-    }
-
+    snapshot.forEach(doc => allDocs.push(doc));
+    
     return allDocs;
 }
 
