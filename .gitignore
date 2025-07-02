@@ -1,0 +1,10 @@
+# Ignore .zencoder directory
+.zencoder/
+
+# Ignore .vscode directory
+.vscode/
+
+# Common ignored files
+node_modules/
+.DS_Store
+*.log

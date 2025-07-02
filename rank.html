@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Ranking</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.ico">
+    <style>
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .ranking-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .ranking-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .ranking-header h1 {
+            color: #2c5530;
+            margin-bottom: 10px;
+        }
+        
+        .sort-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .fish-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+            gap: 5px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .fish-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+                        
+        .fish-image {
+            max-width: 120px;
+            max-height: 80px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .fish-info {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .fish-artist {
+            font-weight: bold;
+            color: #2c5530;
+            margin-bottom: 5px;
+        }
+        
+        .fish-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .fish-score {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .voting-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .vote-count {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .report-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.2s ease;
+            min-width: 40px;
+        }
+        
+        .report-btn:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+        }
+        
+        .report-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .report-btn:disabled {
+            background: #4CAF50;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .back-link:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <a href="tank.html" class="back-link">← Back to Tank</a>
+    
+    <div class="ranking-container">
+        <div class="ranking-header">
+            <h1>🐟 Fish Ranking 🐟</h1>
+            <p>Vote for your favorite fish!</p>
+        </div>
+        
+        <div class="sort-controls">
+            <button class="sort-btn active" data-sort="score">Sort by Score</button>
+            <button class="sort-btn" data-sort="date">Sort by Date</button>
+            <button class="sort-btn" data-sort="random">Random Order</button>
+        </div>
+        
+        <div id="loading" class="loading">
+            Loading fish... 🐠
+        </div>
+        
+        <div id="fish-grid" class="fish-grid" style="display: none;">
+            <!-- Fish cards will be populated here -->
+        </div>
+    </div>
+    
+    <footer id="footer-love" style="text-align:center; margin:32px 0 12px 0; color:#888; font-size:1.05em;">
+        Made with <span style="color:#e25555;">hate</span> by <a href="https://fifteen.games">fifteen.games</a>.
+    </footer>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="firebase-init.js"></script>
+    <script src="rank.js"></script>
+</body>
+</html>

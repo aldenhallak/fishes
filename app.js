@@ -1,3 +1,9 @@
+// Configuration for backend URL - change to false for local development
+const USE_PRODUCTION_BACKEND = true;
+const BACKEND_URL = USE_PRODUCTION_BACKEND 
+    ? 'https://fishes-be-571679687712.northamerica-northeast1.run.app'
+    : 'http://localhost:8080';
+
 // Drawing logic
 const canvas = document.getElementById('draw-canvas');
 const ctx = canvas.getContext('2d');
@@ -118,7 +124,7 @@ async function submitFish(artist) {
     }
     try {
         // Await server response
-        const resp = await fetch('https://fishes-be-571679687712.northamerica-northeast1.run.app/uploadfish', {
+        const resp = await fetch(`${BACKEND_URL}/uploadfish`, {
             method: 'POST',
             body: formData
         });
