@@ -1,8 +1,4 @@
-// Configuration for backend URL - change to false for local development
-const USE_PRODUCTION_BACKEND = true;
-const BACKEND_URL = USE_PRODUCTION_BACKEND 
-    ? 'https://fishes-be-571679687712.northamerica-northeast1.run.app'
-    : 'http://localhost:8080';
+// Backend configuration is now in fish-utils.js
 
 // Fish Ranking System
 let allFishData = [];
@@ -170,85 +166,24 @@ function createFishImageDataUrl(imgUrl, callback) {
     img.src = imgUrl;
 }
 
-// Format date for display
-function formatDate(dateValue) {
-    if (!dateValue) return 'Unknown date';
-    
-    let dateObj;
-    if (typeof dateValue === 'string') {
-        dateObj = new Date(dateValue);
-    } else if (typeof dateValue.toDate === 'function') {
-        dateObj = dateValue.toDate();
-    } else {
-        dateObj = dateValue;
-    }
-    
-    if (isNaN(dateObj)) return 'Unknown date';
-    
-    return dateObj.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-}
+// Date formatting and score calculation are now in fish-utils.js
 
-// Calculate fish score (upvotes - downvotes)
-function calculateScore(fish) {
-    const upvotes = fish.upvotes || 0;
-    const downvotes = fish.downvotes || 0;
-    return upvotes - downvotes;
-}
+// Vote sending function is now in fish-utils.js
 
-// Send vote to endpoint (assumed to exist)
-async function sendVote(fishId, voteType) {
-    try {
-        
-        const response = await fetch(`${BACKEND_URL}/api/vote`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                fishId: fishId,
-                vote: voteType // 'up' or 'down'
-            })
-        });
-        
-        if (!response.ok) {
-            console.error(`Vote failed with status: ${response.status}`);
-            throw new Error(`Vote failed with status: ${response.status}`);
-        }
-        
-        const responseData = await response.json();
-        return responseData;
-    } catch (error) {
-        console.error('Error sending vote:', error);
-    }
-}
-
-// Handle vote button click
-async function handleVote(fishId, voteType, button) {
-    // Disable button temporarily
-    button.disabled = true;
-    button.style.opacity = '0.6';
-    
-    try {
-        const result = await sendVote(fishId, voteType);
-        
-        // Always update the fish data, regardless of success property
+// Handle vote button click - rank page specific
+function handleVote(fishId, voteType, button) {
+    handleVoteGeneric(fishId, voteType, button, (result, voteType) => {
+        // Update the fish data in allFishData array
         const fish = allFishData.find(f => f.docId === fishId);
         if (fish) {
             // Check for different response formats and update accordingly
             if (result.upvotes !== undefined && result.downvotes !== undefined) {
-                // Direct upvotes/downvotes in response (from real backend)
                 fish.upvotes = result.upvotes;
                 fish.downvotes = result.downvotes;
             } else if (result.updatedFish) {
-                // Nested updatedFish object (from simulation)
                 fish.upvotes = result.updatedFish.upvotes || fish.upvotes || 0;
                 fish.downvotes = result.updatedFish.downvotes || fish.downvotes || 0;
             } else if (result.success) {
-                // If no vote data but success is true, increment locally
                 if (voteType === 'up') {
                     fish.upvotes = (fish.upvotes || 0) + 1;
                 } else {
@@ -258,22 +193,13 @@ async function handleVote(fishId, voteType, button) {
             
             // Always recalculate score
             fish.score = calculateScore(fish);
-                        
+            
             // Update the display
             updateFishCard(fishId);
-            
         } else {
             console.error(`Fish with ID ${fishId} not found in allFishData`);
         }
-    } catch (error) {
-        console.error('Vote failed:', error);
-    }
-    
-    // Re-enable button
-    setTimeout(() => {
-        button.disabled = false;
-        button.style.opacity = '1';
-    }, 1000);
+    });
 }
 
 // Update a single fish card
@@ -679,77 +605,9 @@ window.addEventListener('DOMContentLoaded', () => {
     loadFishData();
 });
 
-// Handle reporting
-async function handleReport(fishId, button) {
-    try {
-        // Show confirmation dialog
-        const reason = prompt(
-           'why'
-        );
-        
-        if (!reason || reason.trim() === '') {
-            return; // User cancelled or entered empty reason
-        }
-        
-        // Disable button immediately
-        button.disabled = true;
-        button.style.opacity = '0.6';
-        
-        // Send report to API endpoint
-        const response = await fetch(`${BACKEND_URL}/api/report`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                fishId: fishId,
-                reason: reason.trim(),
-                userAgent: navigator.userAgent,
-                url: window.location.href,
-                timestamp: new Date().toISOString()
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            // Show success message
-            alert('Report submitted successfully. Thank you for helping keep our community safe!');
-            
-            // Update button to show success
-            button.textContent = '✅';
-            button.title = 'Report submitted';
-            button.style.opacity = '1';
-            button.style.backgroundColor = '#4CAF50';
-            
-            // Keep button disabled to prevent duplicate reports
-            setTimeout(() => {
-                button.textContent = '🚩';
-                button.title = 'Report inappropriate content';
-                button.style.backgroundColor = '';
-                button.disabled = false;
-                button.style.opacity = '1';
-            }, 10000); // 10 second cooldown
-            
-        } else {
-            throw new Error(result.message || 'Report submission failed');
-        }
-        
-    } catch (error) {
-        console.error('Error submitting report:', error);
-        
-        // Re-enable button on error
-        button.disabled = false;
-        button.style.opacity = '1';
-        
-        
-        alert('Error submitting report. Please try again later.');
-        
-    }
+// Handle reporting - rank page specific
+function handleReport(fishId, button) {
+    handleReportGeneric(fishId, button);
 }
 
 // Make functions globally available

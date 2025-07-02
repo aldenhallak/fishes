@@ -138,6 +138,9 @@ function createFishObject({
     createdAt = null,
     docId = null,
     peduncle = .4,
+    upvotes = 0,
+    downvotes = 0,
+    score = 0
 }) {
     return {
         fishCanvas,
@@ -154,7 +157,10 @@ function createFishObject({
         artist,
         createdAt,
         docId,
-        peduncle
+        peduncle,
+        upvotes,
+        downvotes,
+        score,
     };
 }
 
@@ -174,7 +180,7 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
                 fishCanvas: displayCanvas,
                 x,
                 y,
-                direction: fishData.direction || fishData.Direction || 1,
+                direction: Math.random() < 0.5 ? -1 : 1, // Randomly choose left or right
                 phase: fishData.phase || 0,
                 amplitude: fishData.amplitude || 24,
                 speed: fishData.speed || 2,
@@ -183,7 +189,10 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
                 docId: fishData.docId || null,
                 peduncle: fishData.peduncle || .4,
                 width: fishSize.width,
-                height: fishSize.height
+                height: fishSize.height,
+                upvotes: fishData.upvotes || 0,
+                downvotes: fishData.downvotes || 0,
+                score: fishData.score || 0
             });
             fishes.push(fishObj);
             
@@ -232,29 +241,69 @@ function showFishInfoModal(fish) {
     fishImgCanvas.getContext('2d').drawImage(fish.fishCanvas, 0, 0);
     const imgDataUrl = fishImgCanvas.toDataURL();
     
-    // Scale display size for modal (max 80x48, maintain aspect ratio)
-    const modalWidth = Math.min(80, fish.width);
-    const modalHeight = Math.min(48, fish.height);
+    // Scale display size for modal (max 120x80, maintain aspect ratio)
+    const modalWidth = Math.min(120, fish.width);
+    const modalHeight = Math.min(80, fish.height);
     
     let info = `<div style='text-align:center;'>`;
-    info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto 10px auto;border-radius:8px;border:1px solid #ccc;background:#f8f8f8;' alt='Fish'><br>`;
+    info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto 15px auto;border-radius:8px;border:1px solid #ccc;background:#f8f8f8;' alt='Fish'><br>`;
+    info += `<div style='margin-bottom:15px;'>`;
     info += `<b>Artist:</b> ${fish.artist || 'Anonymous'}<br>`;
     if (fish.createdAt) {
-        let dateObj;
-        if (typeof fish.createdAt === 'string') {
-            dateObj = new Date(fish.createdAt);
-        } else if (typeof fish.createdAt.toDate === 'function') {
-            dateObj = fish.createdAt.toDate();
-        } else {
-            dateObj = fish.createdAt;
-        }
-        if (!isNaN(dateObj)) {
-            info += `<b>Created:</b> ${dateObj.toLocaleString()}<br>`;
-        }
+        info += `<b>Created:</b> ${formatDate(fish.createdAt)}<br>`;
     }
+    const score = calculateScore(fish);
+    info += `<b class="modal-score">Score: ${score}</b>`;
     info += `</div>`;
+    
+    // Add voting controls using shared utility
+    info += createVotingControlsHTML(fish.docId, fish.upvotes || 0, fish.downvotes || 0, false, 'modal-controls');
+    info += `</div>`;
+    
     showModal(info, () => { });
 }
+
+// Tank-specific vote handler using shared utilities
+function handleVote(fishId, voteType, button) {
+    handleVoteGeneric(fishId, voteType, button, (result, voteType) => {
+        // Find the fish in the fishes array and update it
+        const fish = fishes.find(f => f.docId === fishId);
+        if (fish) {
+            // Update fish data based on response format
+            if (result.upvotes !== undefined && result.downvotes !== undefined) {
+                fish.upvotes = result.upvotes;
+                fish.downvotes = result.downvotes;
+            } else if (result.updatedFish) {
+                fish.upvotes = result.updatedFish.upvotes || fish.upvotes || 0;
+                fish.downvotes = result.updatedFish.downvotes || fish.downvotes || 0;
+            } else if (result.success) {
+                if (voteType === 'up') {
+                    fish.upvotes = (fish.upvotes || 0) + 1;
+                } else {
+                    fish.downvotes = (fish.downvotes || 0) + 1;
+                }
+            }
+            
+            // Update the modal display with new counts
+            const upvoteCount = document.querySelector('.modal-controls .upvote-count');
+            const downvoteCount = document.querySelector('.modal-controls .downvote-count');
+            const scoreDisplay = document.querySelector('.modal-score');
+            
+            if (upvoteCount) upvoteCount.textContent = fish.upvotes || 0;
+            if (downvoteCount) downvoteCount.textContent = fish.downvotes || 0;
+            if (scoreDisplay) scoreDisplay.textContent = `Score: ${calculateScore(fish)}`;
+        }
+    });
+}
+
+// Tank-specific report handler using shared utilities  
+function handleReport(fishId, button) {
+    handleReportGeneric(fishId, button);
+}
+
+// Make functions globally available for onclick handlers
+window.handleVote = handleVote;
+window.handleReport = handleReport;
 
 function showModal(html, onClose) {
     let modal = document.createElement('div');
