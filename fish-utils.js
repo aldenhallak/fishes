@@ -3,7 +3,7 @@
 
 // Configuration for backend URL - change to false for local development
 const USE_PRODUCTION_BACKEND = true;
-const BACKEND_URL = USE_PRODUCTION_BACKEND 
+const BACKEND_URL = USE_PRODUCTION_BACKEND
     ? 'https://fishes-be-571679687712.northamerica-northeast1.run.app'
     : 'http://localhost:8080';
 
@@ -27,12 +27,12 @@ async function sendVote(fishId, voteType) {
                 vote: voteType // 'up' or 'down'
             })
         });
-        
+
         if (!response.ok) {
             console.error(`Vote failed with status: ${response.status}`);
             throw new Error(`Vote failed with status: ${response.status}`);
         }
-        
+
         const responseData = await response.json();
         return responseData;
     } catch (error) {
@@ -57,11 +57,11 @@ async function sendReport(fishId, reason) {
                 timestamp: new Date().toISOString()
             })
         });
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
         return result;
     } catch (error) {
@@ -75,26 +75,26 @@ async function handleVoteGeneric(fishId, voteType, button, updateCallback) {
     // Disable button temporarily
     button.disabled = true;
     button.style.opacity = '0.6';
-    
+
     try {
         const result = await sendVote(fishId, voteType);
-        
+
         // Call the provided update callback with the result
         if (updateCallback) {
             updateCallback(result, voteType);
         }
-        
+
         // Show success feedback
         button.style.backgroundColor = voteType === 'up' ? '#4CAF50' : '#f44336';
         setTimeout(() => {
             button.style.backgroundColor = '';
         }, 1000);
-        
+
     } catch (error) {
         console.error('Vote failed:', error);
         alert('Voting failed. Please try again.');
     }
-    
+
     // Re-enable button
     setTimeout(() => {
         button.disabled = false;
@@ -106,26 +106,26 @@ async function handleVoteGeneric(fishId, voteType, button, updateCallback) {
 async function handleReportGeneric(fishId, button) {
     try {
         const reason = prompt('Please provide a reason for reporting this fish:');
-        
+
         if (!reason || reason.trim() === '') {
             return; // User cancelled or entered empty reason
         }
-        
+
         // Disable button immediately
         button.disabled = true;
         button.style.opacity = '0.6';
-        
+
         const result = await sendReport(fishId, reason);
-        
+
         if (result.success) {
             alert('Report submitted successfully. Thank you for helping keep our community safe!');
-            
+
             // Update button to show success
             button.textContent = '✅';
             button.title = 'Report submitted';
             button.style.opacity = '1';
             button.style.backgroundColor = '#4CAF50';
-            
+
             // Keep button disabled to prevent duplicate reports
             setTimeout(() => {
                 button.textContent = '🚩';
@@ -134,18 +134,18 @@ async function handleReportGeneric(fishId, button) {
                 button.disabled = false;
                 button.style.opacity = '1';
             }, 10000); // 10 second cooldown
-            
+
         } else {
             throw new Error(result.message || 'Report submission failed');
         }
-        
+
     } catch (error) {
         console.error('Error submitting report:', error);
-        
+
         // Re-enable button on error
         button.disabled = false;
         button.style.opacity = '1';
-        
+
         alert('Error submitting report. Please try again later.');
     }
 }
@@ -153,7 +153,7 @@ async function handleReportGeneric(fishId, button) {
 // Format date for display (shared utility)
 function formatDate(dateValue) {
     if (!dateValue) return 'Unknown date';
-    
+
     let dateObj;
     if (typeof dateValue === 'string') {
         dateObj = new Date(dateValue);
@@ -162,9 +162,9 @@ function formatDate(dateValue) {
     } else {
         dateObj = dateValue;
     }
-    
+
     if (isNaN(dateObj)) return 'Unknown date';
-    
+
     return dateObj.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -176,11 +176,11 @@ function formatDate(dateValue) {
 function createVotingControlsHTML(fishId, upvotes = 0, downvotes = 0, includeScore = false, cssClass = '') {
     const score = upvotes - downvotes;
     let html = `<div class="voting-controls ${cssClass}" style="display:flex;justify-content:center;align-items:center;gap:10px;margin-top:15px;">`;
-    
+
     if (includeScore) {
         html += `<span class="fish-score">Score: ${score}</span>`;
     }
-    
+
     html += `<button class="vote-btn upvote-btn" onclick="handleVote('${fishId}', 'up', this)" title="Upvote this fish">`;
     html += `👍 <span class="vote-count upvote-count">${upvotes}</span>`;
     html += `</button>`;
@@ -191,7 +191,7 @@ function createVotingControlsHTML(fishId, upvotes = 0, downvotes = 0, includeSco
     html += `🚩`;
     html += `</button>`;
     html += `</div>`;
-    
+
     return html;
 }
 
@@ -208,28 +208,30 @@ function generateRandomDocId() {
 // Get random documents using efficient Firestore random selection
 async function getRandomFish(limit = 50) {
     const randomDocs = [];
-    
+
     while (randomDocs.length < limit) {
         const randomId = generateRandomDocId();
-        
+
         // Try forward direction first
         let query = window.db.collection('fishes_test')
             .where(window.firebase.firestore.FieldPath.documentId(), '>=', randomId)
+            .where('isVisible', '==', true)
             .orderBy(window.firebase.firestore.FieldPath.documentId())
             .limit(limit - randomDocs.length);
-        
+
         let snapshot = await query.get();
-        
+
         // If no results, try backward direction (wrap-around)
         if (snapshot.empty) {
             query = window.db.collection('fishes_test')
-                .where(window.firebase.firestore.FieldPath.documentId(), '>=', '')
+                .where(window.firebase.firestore.FieldPath.documentId(), '<', randomId)
+                .where('isVisible', '==', true)
                 .orderBy(window.firebase.firestore.FieldPath.documentId())
                 .limit(limit - randomDocs.length);
-            
+
             snapshot = await query.get();
         }
-        
+
         // Add new documents (avoid duplicates)
         const existingIds = new Set(randomDocs.map(doc => doc.id));
         snapshot.docs.forEach(doc => {
@@ -237,21 +239,24 @@ async function getRandomFish(limit = 50) {
                 randomDocs.push(doc);
             }
         });
-        
+
         // Safety break to avoid infinite loop
         if (snapshot.empty || snapshot.docs.length === 0) {
             console.warn('No more documents available for random selection');
             break;
         }
     }
-    
+
     return randomDocs;
 }
 
 // Get fish from Firestore with different sorting options (unified function for both tank and rank)
 async function getFishBySort(sortType, limit = 50, startAfter = null, direction = 'desc') {
     let query = window.db.collection('fishes_test');
-    
+
+    // Filter out flagged and deleted fish
+    query = query.where('isVisible', '==', true);
+
     switch (sortType) {
         case 'score':
         case 'popular':
@@ -259,9 +264,9 @@ async function getFishBySort(sortType, limit = 50, startAfter = null, direction 
             if (startAfter) {
                 query = query.startAfter(startAfter);
             }
-            query = query.limit(limit); 
+            query = query.limit(limit);
             break;
-            
+
         case 'date':
         case 'recent':
             query = query.orderBy("CreatedAt", direction);
@@ -270,11 +275,11 @@ async function getFishBySort(sortType, limit = 50, startAfter = null, direction 
             }
             query = query.limit(limit);
             break;
-            
+
         case 'random':
             // For random, we can't use pagination in the traditional sense
             return await getRandomFish(limit);
-            
+
         default:
             // Default to most recent
             query = query.orderBy("CreatedAt", direction);
@@ -283,7 +288,7 @@ async function getFishBySort(sortType, limit = 50, startAfter = null, direction 
             }
             query = query.limit(limit);
     }
-    
+
     const snapshot = await query.get();
     return snapshot.docs;
 }

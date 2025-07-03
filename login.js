@@ -18,9 +18,12 @@
     });
 
     if (res.ok) {
-      localStorage.setItem("adminToken", await res.text());
+      const authResponse = await res.json();
+      // Store the session token from the backend response
+      localStorage.setItem("adminToken", authResponse.token);
       window.location.href = "/moderation.html";
     } else {
-      alert("Access denied.");
+      const errorResponse = await res.json().catch(() => ({}));
+      alert(errorResponse.error || "Access denied.");
     }
   }

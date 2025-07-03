@@ -164,7 +164,7 @@ function createFishCard(fish) {
             </div>
             <div class="fish-info">
                 <div class="fish-artist">${fish.Artist || 'Anonymous'}</div>
-                <div class="fish-date">${formatDate(fish.createdAt)}</div>
+                <div class="fish-date">${formatDate(fish.CreatedAt)}</div>
                 <div class="fish-score">Score: ${score}</div>
             </div>
             <div class="voting-controls">

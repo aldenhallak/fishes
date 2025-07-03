@@ -1,1 +1,79 @@
-TODO: Implement
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Moderation Panel</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="moderation.css">
+</head>
+<body>
+    <div class="moderation-container">
+        <div class="moderation-header">
+            <h1>🐠 Fish Moderation Panel</h1>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <p>Review and moderate user-submitted fish drawings</p>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" id="totalFish">-</div>
+                <div>Total Fish</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="flaggedFish">-</div>
+                <div>Flagged</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="approvedFish">-</div>
+                <div>Approved</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="deletedFish">-</div>
+                <div>Deleted</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="pendingFish">-</div>
+                <div>Pending</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" onclick="setFilter('all')">All Fish</button>
+            <button class="filter-btn" onclick="setFilter('flagged')">Flagged Only</button>
+            <button class="filter-btn" onclick="setFilter('reported')">Reported Only</button>
+            <button class="filter-btn" onclick="setFilter('recent')">Recent (24h)</button>
+            <button class="filter-btn" onclick="setFilter('high-score')">High Score</button>
+            <button class="filter-btn" onclick="setFilter('low-score')">Low Score</button>
+        </div>
+        
+        <div class="bulk-actions" style="margin-bottom: 20px; display: none;" id="bulkActions">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span id="selectedCount">0 selected</span>
+                <button class="action-btn approve-btn" onclick="bulkApprove()">Bulk Approve</button>
+                <button class="action-btn delete-btn" onclick="bulkDelete()">Bulk Delete</button>
+                <button class="filter-btn" onclick="clearSelection()">Clear Selection</button>
+            </div>
+        </div>
+        
+        <div id="loading" class="loading">Loading fish for moderation...</div>
+        <div id="fishGrid" class="fish-grid" style="display: none;"></div>
+        
+        <div id="loadMore" style="text-align: center; margin-top: 20px; display: none;">
+            <button onclick="loadMoreFish()" style="padding: 10px 20px; background: #0288d1; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Load More Fish
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script src="firebase-init.js"></script>
+    <script src="fish-utils.js"></script>
+    <script src="moderation.js"></script>
+</body>
+</html>
