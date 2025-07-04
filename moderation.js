@@ -169,6 +169,9 @@ async function loadFishFromFirebase(loadMore) {
         case 'low-score':
             query = query.where('isVisible', '==', true).orderBy('score', 'asc');
             break;
+        case 'deleted':
+            query = query.where('deleted', '==', true).orderBy('CreatedAt', 'desc');
+            break;
         default:
             query = query.where('isVisible', '==', true).orderBy('CreatedAt', 'desc');
     }
