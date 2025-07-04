@@ -13,13 +13,27 @@
   <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #666;">
     View: 
     <select id="tank-sort" style="font-size: 11px; margin: 0 5px;">
-      <option value="recent">50 Most Recent</option>
-      <option value="popular">50 Most Popular</option>
-      <option value="random">50 Random</option>
+      <option value="recent">Most Recent</option>
+      <option value="popular">Most Popular</option>
+      <option value="random">Random</option>
     </select>
     <button id="refresh-tank" style="font-size: 11px; margin-left: 5px;">refresh</button>
     | 
+    <label style="font-size: 11px; margin-left: 5px;">
+      <input type="checkbox" id="notifications-toggle" checked style="margin-right: 3px;">
+      notifications
+    </label>
+    | 
     <a href="rank.html" style="color: #0066cc; text-decoration: underline; font-size: 11px;">rankings</a>
+    
+    <div style="margin-top: 8px;">
+      <label style="font-size: 11px; color: #666;">
+        Fish count: <span id="fish-count-display" style="font-weight: 500;">50</span>
+        <input type="range" id="fish-count-slider" min="1" max="100" value="50" 
+               style="width: 120px; margin: 0 8px; vertical-align: middle; cursor: pointer;">
+        <span id="current-fish-count" style="font-size: 10px; color: #999;"></span>
+      </label>
+    </div>
     
     <div id="loading-indicator" style="display: none; font-size: 11px; color: #999; margin-top: 5px;">
       loading...
