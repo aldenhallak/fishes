@@ -1,6 +1,6 @@
 # DrawAFish.com
 
-DrawAFish.com is a playful browser-based drawing app that lets users doodle a fish, have it automatically classified by an AI model, and—if it's fishy enough—make it swim in a shared online tank! The app provides instant feedback using a neural network, and only valid fish can join the tank.
+DrawAFish.com is a playful browser-based drawing app that lets users doodle a fish, have it automatically classified by an AI model, and make it swim in a shared online tank! The app provides instant feedback using a neural network, and only valid fish can join the tank.
 
 ## Features
 - Draw a fish (facing right) on the canvas.
@@ -24,12 +24,12 @@ DrawAFish.com is a playful browser-based drawing app that lets users doodle a fi
 
 ## Connected Repositories
 
-### [fish-trainer](https://github.com/yourusername/fish-trainer)
+### [fish-trainer](https://github.com/aldenhallak/fish-trainer)
 - Contains the PyTorch code for training the fish doodle classifier.
 - Exports the trained model to ONNX format, which is used by DrawAFish.com for in-browser inference.
 - Includes data augmentation, preprocessing, and model evaluation scripts.
 
-### [fish-be](https://github.com/yourusername/fish-be)
+### [fish-be](https://github.com/aldenhallak/fish-be)
 - The backend for DrawAFish.com, deployed as a serverless function (I'm using cloud run :~)).
 - Handles fish image uploads, processes and stores submissions, and returns the canonical fish image for the tank.
 - May also provide endpoints for moderation, stats, or gallery features.
@@ -42,8 +42,8 @@ DrawAFish.com is a playful browser-based drawing app that lets users doodle a fi
 5. Ensure the backend endpoint in `app.js` points to your deployed `fish-be` instance.
 
 ## Credits
-- AI model and training: [fish-trainer](https://github.com/yourusername/fish-trainer)
-- Backend: [fish-be](https://github.com/yourusername/fish-be)
+- AI model and training: [fish-trainer](https://github.com/aldenhallak/fish-trainer)
+- Backend: [fish-be](https://github.com/aldenhallak/fish-be)
 - Frontend & UI: This repository
 
 ---
