@@ -79,30 +79,19 @@ function showModal(html, onClose) {
 }
 
 // --- Fish submission modal handler ---
-async function submitFish(artist) {
-    const createdAt = new Date().toISOString();
-    // Save fish at a fixed resolution (e.g., 320x192)
-    const SAVE_W = 320;
-    const SAVE_H = 192;
-    const fishCanvas = document.createElement('canvas');
-    fishCanvas.width = SAVE_W;
-    fishCanvas.height = SAVE_H;
-    const fishCtx = fishCanvas.getContext('2d');
-    fishCtx.imageSmoothingEnabled = true;
-    fishCtx.imageSmoothingQuality = 'high';
-    fishCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, SAVE_W, SAVE_H);
-    // Convert dataURL to Blob
+async function submitFish(artist, needsModeration = false) {
     function dataURLtoBlob(dataurl) {
         const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
             bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
         for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
         return new Blob([u8arr], { type: mime });
     }
-    const fishImgData = fishCanvas.toDataURL('image/png');
+    const fishImgData = canvas.toDataURL('image/png');
     const imageBlob = dataURLtoBlob(fishImgData);
     const formData = new FormData();
     formData.append('image', imageBlob, 'fish.png');
     formData.append('artist', artist);
+    formData.append('needsModeration', needsModeration.toString());
     // Spinner UI
     let submitBtn = document.getElementById('submit-fish');
     if (submitBtn) {
@@ -132,8 +121,18 @@ async function submitFish(artist) {
             // Save today's date to track fish submission
             const today = new Date().toDateString();
             localStorage.setItem('lastFishDate', today);
-            // Hide modal and reset UI
-            window.location.href = 'tank.html';
+            
+            // Show success message based on moderation status
+            if (needsModeration) {
+                showModal(`<div style='text-align:center;'>
+                    <h1>Fish Submitted for Review</div>
+                    <div>Your fish has been submitted and will appear in the tank once it passes moderator review.</div>
+                    <button onclick="window.location.href='tank.html'">View Tank</button>
+                </div>`, () => {});
+            } else {
+                // Regular fish - go directly to tank
+                window.location.href = 'tank.html';
+            }
         } else {
             alert('Sorry, there was a problem uploading your fish. Please try again.');
         }
@@ -147,38 +146,40 @@ async function submitFish(artist) {
 }
 
 swimBtn.addEventListener('click', async () => {
-    // Save fish at a fixed resolution (e.g., 320x192)
-    const SAVE_W = 320;
-    const SAVE_H = 192;
-    const fishCanvas = document.createElement('canvas');
-    fishCanvas.width = SAVE_W;
-    fishCanvas.height = SAVE_H;
-    const fishCtx = fishCanvas.getContext('2d');
-    fishCtx.imageSmoothingEnabled = true;
-    fishCtx.imageSmoothingQuality = 'high';
-    fishCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, SAVE_W, SAVE_H);
-    // Check fish validity before allowing submit
+    // Check fish validity for warning purposes
     const isFish = await verifyFishDoodle(canvas);
     lastFishCheck = isFish;
     showFishWarning(!isFish);
-    if (!isFish) {
-        // No popup, just block submission and keep background red
-        return;
-    }
     
     // Get saved artist name or use Anonymous
     const savedArtist = localStorage.getItem('artistName');
     const defaultName = (savedArtist && savedArtist !== 'Anonymous') ? savedArtist : 'Anonymous';
     
-    // Show sign modal immediately (no yes/no)
-    showModal(`<div style='text-align:center;'>Sign your art:<br><input id='artist-name' value='${defaultName}' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'><br>
-        <button id='submit-fish' style='padding:6px 18px;'>Submit</button>
-        <button id='cancel-fish' style='padding:6px 18px;margin-left:10px;'>Cancel</button></div>`, () => { });
+    // Show different modal based on fish validity
+    if (!isFish) {
+        // Show moderation warning modal for low-scoring fish
+        showModal(`<div style='text-align:center;'>
+            <div style='color:#ff6b35;font-weight:bold;margin-bottom:12px;'>Low Fish Score</div>
+            <div style='margin-bottom:16px;line-height:1.4;'>i dont think this is a fish but you can submit it anyway and ill review it</div>
+            <div style='margin-bottom:16px;'>Sign your art:<br><input id='artist-name' value='${defaultName}' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'></div>
+            <button id='submit-fish' >Submit for Review</button>
+            <button id='cancel-fish' >Cancel</button>
+        </div>`, () => { });
+    } else {
+        // Show normal submission modal for good fish
+        showModal(`<div style='text-align:center;'>
+            <div style='color:#27ae60;font-weight:bold;margin-bottom:12px;'>🐟 Great Fish!</div>
+            <div style='margin-bottom:16px;'>Sign your art:<br><input id='artist-name' value='${defaultName}' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'></div>
+            <button id='submit-fish' style='padding:6px 18px;background:#27ae60;color:white;border:none;border-radius:4px;'>Submit</button>
+            <button id='cancel-fish' style='padding:6px 18px;margin-left:10px;background:#ccc;border:none;border-radius:4px;'>Cancel</button>
+        </div>`, () => { });
+    }
+    
     document.getElementById('submit-fish').onclick = async () => {
         const artist = document.getElementById('artist-name').value.trim() || 'Anonymous';
         // Save artist name to localStorage for future use
         localStorage.setItem('artistName', artist);
-        await submitFish(artist);
+        await submitFish(artist, !isFish); // Pass moderation flag
     };
     document.getElementById('cancel-fish').onclick = () => {
         document.querySelector('div[style*="z-index: 9999"]')?.remove();
@@ -363,80 +364,97 @@ async function loadFishModel() {
     }
 }
 
-// Preprocess canvas for ONNX (adjust SIZE and normalization as needed)
-function preprocessCanvasForONNX(canvas) {
+// Add debugging to frontend preprocessing
+function debugPreprocessCanvasForONNX(canvas) {
     const SIZE = 224;
-    // 1. Crop to content (non-transparent or non-white)
-    function cropCanvasToContent(srcCanvas) {
-        const ctx = srcCanvas.getContext('2d');
-        const w = srcCanvas.width;
-        const h = srcCanvas.height;
-        const imgData = ctx.getImageData(0, 0, w, h);
-        let minX = w, minY = h, maxX = 0, maxY = 0;
-        let found = false;
-        for (let y = 0; y < h; y++) {
-            for (let x = 0; x < w; x++) {
-                const i = (y * w + x) * 4;
-                const r = imgData.data[i];
-                const g = imgData.data[i + 1];
-                const b = imgData.data[i + 2];
-                const a = imgData.data[i + 3];
-                // Consider non-transparent and not white as content
-                if (a > 16 && !(r > 240 && g > 240 && b > 240)) {
-                    if (x < minX) minX = x;
-                    if (x > maxX) maxX = x;
-                    if (y < minY) minY = y;
-                    if (y > maxY) maxY = y;
-                    found = true;
-                }
+    
+    // 1. Get canvas data
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    
+    // 2. Crop to content (copy the exact same logic)
+    const imgData = ctx.getImageData(0, 0, w, h);
+    let minX = w, minY = h, maxX = 0, maxY = 0;
+    let found = false;
+    
+    for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+            const i = (y * w + x) * 4;
+            const r = imgData.data[i];
+            const g = imgData.data[i + 1];
+            const b = imgData.data[i + 2];
+            const a = imgData.data[i + 3];
+            
+            // Consider non-transparent and not white as content
+            if (a > 16 && !(r > 240 && g > 240 && b > 240)) {
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+                found = true;
             }
         }
-        if (!found) return srcCanvas; // No content found
-        const cropW = maxX - minX + 1;
-        const cropH = maxY - minY + 1;
-        const cropped = document.createElement('canvas');
-        cropped.width = cropW;
-        cropped.height = cropH;
-        cropped.getContext('2d').drawImage(srcCanvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
-        return cropped;
     }
-    // Crop to content
-    const cropped = cropCanvasToContent(canvas);
-    // 2. Paste onto white 224x224, scaling to fit
+    
+    if (!found) {
+        minX = 0; minY = 0; maxX = w - 1; maxY = h - 1;
+        console.log('Frontend - No content found, using full image');
+    }
+    
+    const cropW = maxX - minX + 1;
+    const cropH = maxY - minY + 1;
+        
+    // 3. Create cropped canvas
+    const cropped = document.createElement('canvas');
+    cropped.width = cropW;
+    cropped.height = cropH;
+    cropped.getContext('2d').drawImage(canvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+    
+    // 4. Create 224x224 canvas with white background
     const tmp = document.createElement('canvas');
     tmp.width = SIZE;
     tmp.height = SIZE;
-    const ctx = tmp.getContext('2d');
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, SIZE, SIZE);
-    // Scale and center
+    const tmpCtx = tmp.getContext('2d');
+    tmpCtx.fillStyle = '#fff';
+    tmpCtx.fillRect(0, 0, SIZE, SIZE);
+    
+    // 5. Scale and center
     const scale = Math.min(SIZE / cropped.width, SIZE / cropped.height);
     const drawW = cropped.width * scale;
     const drawH = cropped.height * scale;
     const dx = (SIZE - drawW) / 2;
     const dy = (SIZE - drawH) / 2;
-    ctx.drawImage(cropped, 0, 0, cropped.width, cropped.height, dx, dy, drawW, drawH);
-    // 3. Grayscale, 1 channel, normalize
-    const imgData = ctx.getImageData(0, 0, SIZE, SIZE).data;
+    
+    tmpCtx.drawImage(cropped, 0, 0, cropped.width, cropped.height, dx, dy, drawW, drawH);
+    // 6. Get final image data and process
+    const finalImgData = tmpCtx.getImageData(0, 0, SIZE, SIZE).data;
+        
+    // 7. Convert to tensor
     const input = new Float32Array(1 * SIZE * SIZE);
     for (let y = 0; y < SIZE; y++) {
         for (let x = 0; x < SIZE; x++) {
             const idx = (y * SIZE + x) * 4;
-            const r = imgData[idx];
-            const g = imgData[idx + 1];
-            const b = imgData[idx + 2];
+            const r = finalImgData[idx];
+            const g = finalImgData[idx + 1];
+            const b = finalImgData[idx + 2];
             let gray = 0.299 * r + 0.587 * g + 0.114 * b;
             const norm = (gray / 255 - 0.5) / 0.5;
             input[y * SIZE + x] = norm;
         }
     }
+        
     return new window.ort.Tensor('float32', input, [1, 1, SIZE, SIZE]);
 }
 
-// Run ONNX model and return true if fish, false otherwise
+// Modify your verifyFishDoodle function to call this debug version
 async function verifyFishDoodle(canvas) {
     await loadFishModel();
-    const inputTensor = preprocessCanvasForONNX(canvas);
+    
+    // Use debug version for detailed logging
+    const inputTensor = debugPreprocessCanvasForONNX(canvas);
+    
+    // Rest of your existing code...
     let feeds = {};
     if (ortSession && ortSession.inputNames && ortSession.inputNames.length > 0) {
         feeds[ortSession.inputNames[0]] = inputTensor;
@@ -454,9 +472,10 @@ async function verifyFishDoodle(canvas) {
         isFish = output[1] > output[0];
     } else {
         prob = 1 / (1 + Math.exp(-output[0]));
-        isFish = prob >= 0.15; // Threshold for fish detection
+        isFish = prob >= 0.15;
     }
-    // Show probability under the drawing area
+        
+    // Your existing UI update code...
     let probDiv = document.getElementById('fish-probability');
     if (!probDiv) {
         probDiv = document.createElement('div');
@@ -468,14 +487,12 @@ async function verifyFishDoodle(canvas) {
         probDiv.style.color = prob >= 0.1 ? '#218838' : '#c0392b';
         const drawCanvas = document.getElementById('draw-canvas');
         if (drawCanvas && drawCanvas.parentNode) {
-            // Insert directly after the canvas
             if (drawCanvas.nextSibling) {
                 drawCanvas.parentNode.insertBefore(probDiv, drawCanvas.nextSibling);
             } else {
                 drawCanvas.parentNode.appendChild(probDiv);
             }
         } else {
-            // Fallback: append to draw-ui
             const drawUI = document.getElementById('draw-ui');
             if (drawUI) drawUI.appendChild(probDiv);
         }
