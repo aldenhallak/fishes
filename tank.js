@@ -248,18 +248,37 @@ window.addEventListener('DOMContentLoaded', async () => {
     const sortSelect = document.getElementById('tank-sort');
     const refreshButton = document.getElementById('refresh-tank');
 
+    // Check for URL parameter to set initial sort
+    const urlParams = new URLSearchParams(window.location.search);
+    const sortParam = urlParams.get('sort');
+    let initialSort = 'recent'; // default
+
+    // Validate sort parameter and set dropdown
+    if (sortParam && ['recent', 'popular', 'random'].includes(sortParam)) {
+        initialSort = sortParam;
+        sortSelect.value = sortParam;
+    }
+
+    // Update page title based on initial selection
+    const titles = {
+        'recent': 'Fish Tank - 50 Most Recent',
+        'popular': 'Fish Tank - 50 Most Popular',
+        'random': 'Fish Tank - 50 Random Fish'
+    };
+    document.title = titles[initialSort] || 'Fish Tank';
+
     // Handle sort change
     sortSelect.addEventListener('change', () => {
         const selectedSort = sortSelect.value;
         loadFishIntoTank(selectedSort);
 
         // Update page title based on selection
-        const titles = {
-            'recent': 'Fish Tank - 50 Most Recent',
-            'popular': 'Fish Tank - 50 Most Popular',
-            'random': 'Fish Tank - 50 Random Fish'
-        };
         document.title = titles[selectedSort] || 'Fish Tank';
+        
+        // Update URL without reloading the page
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('sort', selectedSort);
+        window.history.replaceState({}, '', newUrl);
     });
 
     // Handle refresh button
@@ -268,8 +287,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         loadFishIntoTank(selectedSort);
     });
 
-    // Load initial fish (most recent by default)
-    await loadFishIntoTank('recent');
+    // Load initial fish based on URL parameter or default
+    await loadFishIntoTank(initialSort);
 });
 
 function showFishInfoModal(fish) {
