@@ -11,8 +11,18 @@ const API_BASE_URL = `${BACKEND_URL}/api`;
 
 // Check authentication on page load
 window.onload = async function () {
-    const adminToken = localStorage.getItem('adminToken');
-    if (!adminToken) {
+    const userToken = localStorage.getItem('userToken');
+    const userData = localStorage.getItem('userData');
+    
+    if (!userToken || !userData) {
+        window.location.href = '/login.html';
+        return;
+    }
+    
+    // Check if user has admin privileges
+    const user = JSON.parse(userData);
+    if (!user.isAdmin) {
+        alert('Admin privileges required');
         window.location.href = '/login.html';
         return;
     }
@@ -24,7 +34,7 @@ window.onload = async function () {
 // Load statistics from backend
 async function loadStats() {
     try {
-        const token = localStorage.getItem('adminToken');
+        const token = localStorage.getItem('userToken');
         const response = await fetch(`${API_BASE_URL}/moderate/stats`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -101,7 +111,7 @@ async function loadFish(loadMore = false) {
 
     try {
         let fishData;
-        const token = localStorage.getItem('adminToken');
+        const token = localStorage.getItem('userToken');
 
         // Use backend API for flagged filter
         if (currentFilter === 'flagged') {
@@ -315,7 +325,7 @@ async function bulkApprove() {
     if (reason === null) return; // User cancelled
 
     try {
-        const token = localStorage.getItem('adminToken');
+        const token = localStorage.getItem('userToken');
         const response = await fetch(`${API_BASE_URL}/moderate/bulk-review`, {
             method: 'POST',
             headers: {
@@ -359,7 +369,7 @@ async function bulkDelete() {
     }
 
     try {
-        const token = localStorage.getItem('adminToken');
+        const token = localStorage.getItem('userToken');
         const response = await fetch(`${API_BASE_URL}/moderate/bulk-review`, {
             method: 'POST',
             headers: {
@@ -401,7 +411,7 @@ async function deleteFish(fishId, button) {
     button.textContent = 'Deleting...';
 
     try {
-        const token = localStorage.getItem('adminToken');
+        const token = localStorage.getItem('userToken');
         const response = await fetch(`${API_BASE_URL}/moderate/delete/${fishId}`, {
             method: 'DELETE',
             headers: {
@@ -436,7 +446,7 @@ async function approveFish(fishId, button) {
     button.textContent = 'Approving...';
 
     try {
-        const token = localStorage.getItem('adminToken');
+        const token = localStorage.getItem('userToken');
         const response = await fetch(`${API_BASE_URL}/moderate/approve/${fishId}`, {
             method: 'POST',
             headers: {
@@ -516,7 +526,7 @@ async function loadReportsForFish(fishId) {
 
 // Logout function
 function logout() {
-    localStorage.removeItem('adminToken');
+    localStorage.removeItem('userToken');
     window.location.href = '/login.html';
 }
 
