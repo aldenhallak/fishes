@@ -5,6 +5,78 @@ const swimCanvas = document.getElementById('swim-canvas');
 const swimCtx = swimCanvas.getContext('2d');
 const fishes = [];
 
+// Environmental elements
+const bubbles = [];
+const particles = [];
+const kelpStrands = [];
+const foregroundKelp = [];
+const maxBubbles = 15; // Limit bubbles for performance
+const maxParticles = 8; // Limit particles for performance
+const maxKelp = 8; // Limit kelp strands for performance
+const maxForegroundKelp = 3; // Fewer foreground kelp for performance
+
+// Create environmental bubble
+function createBubble() {
+    return {
+        x: Math.random() * swimCanvas.width,
+        y: swimCanvas.height + 10,
+        radius: Math.random() * 4 + 2,
+        speed: Math.random() * 0.5 + 0.3,
+        wobble: Math.random() * 0.02 + 0.01,
+        phase: Math.random() * Math.PI * 2,
+        opacity: Math.random() * 0.4 + 0.2
+    };
+}
+
+// Create floating particle (food/debris)
+function createParticle() {
+    return {
+        x: Math.random() * swimCanvas.width,
+        y: Math.random() * swimCanvas.height,
+        size: Math.random() * 2 + 1,
+        speedX: (Math.random() - 0.5) * 0.2,
+        speedY: (Math.random() - 0.5) * 0.2,
+        life: 1,
+        decay: Math.random() * 0.001 + 0.0005,
+        color: `hsl(${Math.random() * 60 + 30}, 60%, 70%)` // Yellowish particles
+    };
+}
+
+// Create kelp strand within a cluster
+function createKelpStrand(clusterCenterX, clusterRadius, strandIndex = 0, totalStrands = 1) {
+    // Vary height based on position in cluster - center strands tend to be taller
+    const centerDistance = Math.abs(strandIndex - totalStrands / 2) / (totalStrands / 2);
+    const heightModifier = 1 - (centerDistance * 0.2); // Center strands up to 20% taller
+    const height = (Math.random() * 0.35 + 0.25) * heightModifier; // 25-60% of tank height (much shorter)
+    const segments = Math.floor(height * swimCanvas.height / 20) + 3;
+    
+    // Position within the cluster with some clustering bias toward center
+    const angle = Math.random() * Math.PI * 2;
+    const distance = Math.random() * clusterRadius * (0.7 + Math.random() * 0.3); // Slightly favor center
+    const x = clusterCenterX + Math.cos(angle) * distance;
+    
+    return {
+        x: Math.max(20, Math.min(swimCanvas.width - 20, x)), // Keep within bounds
+        baseY: swimCanvas.height + (Math.random() - 0.5) * 5, // Slight variation in ground level
+        height: height * swimCanvas.height,
+        segments: segments,
+        swaySpeed: Math.random() * 0.02 + 0.01,
+        swayAmount: Math.random() * 15 + 5,
+        phase: Math.random() * Math.PI * 2,
+        thickness: Math.random() * 3 + 2,
+        color: `hsl(${Math.random() * 40 + 80}, ${Math.random() * 30 + 60}%, ${Math.random() * 20 + 25}%)` // Green variations
+    };
+}
+
+// Create a cluster of kelp
+function createKelpCluster(centerX, radius, strandCount) {
+    const cluster = [];
+    for (let i = 0; i < strandCount; i++) {
+        cluster.push(createKelpStrand(centerX, radius, i, strandCount));
+    }
+    return cluster;
+}
+
 // Calculate optimal fish size based on tank size
 function calculateFishSize() {
     const tankWidth = swimCanvas.width;
@@ -161,6 +233,18 @@ function createFishObject({
         upvotes,
         downvotes,
         score,
+        // Enhanced behavior properties
+        baseSpeed: speed,
+        targetX: x,
+        targetY: y,
+        idleTime: 0,
+        lastDirectionChange: 0,
+        schooling: Math.random() > 0.7, // 30% chance to be schooling fish
+        personality: Math.random(), // 0 = shy, 1 = bold
+        depthPreference: Math.random() * 0.6 + 0.2, // Prefer different depth levels
+        restingPhase: Math.random() * 100, // For occasional resting
+        preferredKelpDistance: Math.random() * 40 + 20, // Preferred distance from kelp (20-60 pixels)
+        exploringMode: Math.random() > 0.5 // Some fish prefer exploring between kelp
     };
 }
 
@@ -214,6 +298,345 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
     img.src = imgUrl;
 }
 
+// Enhanced fish behavior functions
+function updateFishBehavior(fish, time, allFish) {
+    // Skip behavior updates for dying or entering fish
+    if (fish.isDying || fish.isEntering) return;
+    
+    // Update idle time
+    fish.idleTime++;
+    
+    // Subtle schooling behavior - find nearby fish (much weaker influence)
+    if (fish.schooling && allFish.length > 1) {
+        const nearbyFish = allFish.filter(otherFish => {
+            if (otherFish === fish || otherFish.isDying || otherFish.isEntering) return false;
+            const dx = otherFish.x - fish.x;
+            const dy = otherFish.y - fish.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance < 80; // Smaller schooling radius
+        });
+        
+        if (nearbyFish.length > 0) {
+            // Calculate average position of nearby fish
+            let avgX = 0, avgY = 0;
+            nearbyFish.forEach(otherFish => {
+                avgX += otherFish.x;
+                avgY += otherFish.y;
+            });
+            avgX /= nearbyFish.length;
+            avgY /= nearbyFish.length;
+            
+            // Very gentle pull toward school (much weaker)
+            const pullStrength = 0.005 * fish.personality;
+            fish.vy += (avgY - fish.y) * pullStrength; // Only slight vertical influence
+        }
+    }
+    
+    // Gentle depth preference behavior
+    const preferredY = swimCanvas.height * fish.depthPreference;
+    const depthDiff = preferredY - fish.y;
+    if (Math.abs(depthDiff) > 50) {
+        fish.vy += depthDiff * 0.003; // Much gentler depth correction
+    }
+    
+    // Enhanced kelp interaction - fish naturally navigate between clusters
+    if (kelpStrands.length > 0) {
+        // Find nearby kelp for navigation
+        const nearbyKelp = kelpStrands.filter(kelp => {
+            const distance = Math.sqrt(Math.pow(kelp.x - fish.x, 2) + Math.pow(kelp.y - fish.y, 2));
+            return distance < 80; // Within 80 pixels
+        });
+        
+        if (nearbyKelp.length > 0) {
+            // Shy fish hide behind kelp
+            if (fish.personality < 0.6) {
+                const closestKelp = nearbyKelp.reduce((closest, kelp) => {
+                    const distFish = Math.sqrt(Math.pow(kelp.x - fish.x, 2) + Math.pow(kelp.y - fish.y, 2));
+                    const distClosest = Math.sqrt(Math.pow(closest.x - fish.x, 2) + Math.pow(closest.y - fish.y, 2));
+                    return distFish < distClosest ? kelp : closest;
+                });
+                
+                const pullStrength = 0.008 * (1 - fish.personality);
+                fish.vx += (closestKelp.x - fish.x) * pullStrength;
+                fish.vy += (closestKelp.y - fish.y) * pullStrength;
+            }
+            
+            // All fish navigate between kelp clusters
+            nearbyKelp.forEach(kelp => {
+                const dx = kelp.x - fish.x;
+                const dy = kelp.y - fish.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Avoid very close kelp (collision avoidance)
+                if (distance < 30) {
+                    const avoidStrength = 0.02;
+                    fish.vx -= (dx / distance) * avoidStrength;
+                    fish.vy -= (dy / distance) * avoidStrength;
+                }
+            });
+            
+            // Find swimming lanes between kelp clusters
+            if (fish.exploringMode && nearbyKelp.length >= 2) {
+                // Find the midpoint between two kelp clusters
+                const kelp1 = nearbyKelp[0];
+                const kelp2 = nearbyKelp[1];
+                const midX = (kelp1.x + kelp2.x) / 2;
+                const midY = (kelp1.y + kelp2.y) / 2;
+                
+                // Gentle attraction to swim in the lane between kelp
+                const laneStrength = 0.004;
+                fish.vx += (midX - fish.x) * laneStrength;
+                fish.vy += (midY - fish.y) * laneStrength;
+            }
+            
+            // Bold fish prefer to swim in open areas
+            if (fish.personality > 0.7) {
+                const averageKelpX = nearbyKelp.reduce((sum, kelp) => sum + kelp.x, 0) / nearbyKelp.length;
+                const averageKelpY = nearbyKelp.reduce((sum, kelp) => sum + kelp.y, 0) / nearbyKelp.length;
+                
+                // Swim away from dense kelp areas
+                const openWaterStrength = 0.003;
+                fish.vx -= (averageKelpX - fish.x) * openWaterStrength;
+                fish.vy -= (averageKelpY - fish.y) * openWaterStrength;
+            }
+        }
+    }
+    
+    // Subtle vertical drift
+    if (Math.abs(fish.vy) < 0.1) {
+        fish.vy += (Math.random() - 0.5) * 0.3;
+    }
+    
+    // Occasional random direction changes (but keep swimming)
+    if (fish.idleTime > 400 + Math.random() * 300) {
+        fish.idleTime = 0;
+        // Slight speed variation instead of stopping
+        fish.speed = fish.baseSpeed * (0.6 + Math.random() * 0.8);
+        fish.vy += (Math.random() - 0.5) * 1.5;
+        
+        // Occasionally flip direction with brief pause
+        if (Math.random() < 0.25) {
+            fish.direction *= -1;
+            fish.speed *= 0.3; // Brief pause during turn
+        }
+        
+        // Occasionally dart between kelp clusters
+        if (Math.random() < 0.15 && kelpStrands.length > 0) {
+            const randomKelp = kelpStrands[Math.floor(Math.random() * kelpStrands.length)];
+            const dx = randomKelp.x - fish.x;
+            const dy = randomKelp.y - fish.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance > 60 && distance < 200) {
+                // Quick dart toward or away from kelp
+                const dartStrength = fish.personality > 0.5 ? 3 : -2; // Bold fish dart toward, shy fish dart away
+                fish.vx += (dx / distance) * dartStrength;
+                fish.vy += (dy / distance) * dartStrength;
+                fish.speed = fish.baseSpeed * 1.5; // Speed up during dart
+            }
+        }
+    }
+    
+    // Occasional resting behavior (less frequent)
+    if (Math.sin(time * 0.005 + fish.restingPhase) > 0.98) {
+        fish.speed = fish.baseSpeed * 0.5; // Slow down but keep moving
+        fish.amplitude = Math.max(8, fish.amplitude * 0.9); // Reduce swimming motion
+    } else {
+        fish.speed = fish.baseSpeed;
+        fish.amplitude = Math.min(24, fish.amplitude * 1.01); // Restore swimming motion
+    }
+    
+    // Apply gentle damping to vertical movement only
+    fish.vy *= 0.98;
+    
+    // Limit vertical velocities (horizontal movement is handled by main loop)
+    fish.vy = Math.max(-2, Math.min(2, fish.vy));
+}
+
+// Update environmental effects
+function updateEnvironmentalEffects(time) {
+    // Update bubbles
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+        const bubble = bubbles[i];
+        bubble.y -= bubble.speed;
+        bubble.x += Math.sin(time * bubble.wobble + bubble.phase) * 0.5;
+        
+        // Remove bubbles that reach the top
+        if (bubble.y + bubble.radius < 0) {
+            bubbles.splice(i, 1);
+        }
+    }
+    
+    // Add new bubbles occasionally (reduced rate if performance is low)
+    const bubbleRate = 0.02 * performanceLevel;
+    if (bubbles.length < maxBubbles * performanceLevel && Math.random() < bubbleRate) {
+        bubbles.push(createBubble());
+    }
+    
+    // Occasionally create bubbles near kelp clusters
+    if (kelpStrands.length > 0 && Math.random() < 0.008 * performanceLevel) {
+        const randomKelp = kelpStrands[Math.floor(Math.random() * kelpStrands.length)];
+        // Create 2-3 bubbles near the kelp base for more realistic effect
+        const bubbleCount = Math.floor(Math.random() * 2) + 1;
+        
+        for (let i = 0; i < bubbleCount; i++) {
+            bubbles.push({
+                x: randomKelp.x + (Math.random() - 0.5) * 30,
+                y: randomKelp.baseY - Math.random() * 30,
+                radius: Math.random() * 2 + 1,
+                speed: Math.random() * 0.8 + 0.4,
+                wobble: Math.random() * 0.02 + 0.01,
+                phase: Math.random() * Math.PI * 2,
+                opacity: Math.random() * 0.5 + 0.3
+            });
+        }
+    }
+    
+    // Update particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const particle = particles[i];
+        particle.x += particle.speedX;
+        particle.y += particle.speedY;
+        particle.life -= particle.decay;
+        
+        // Wrap particles around screen
+        if (particle.x < 0) particle.x = swimCanvas.width;
+        if (particle.x > swimCanvas.width) particle.x = 0;
+        if (particle.y < 0) particle.y = swimCanvas.height;
+        if (particle.y > swimCanvas.height) particle.y = 0;
+        
+        // Remove dead particles
+        if (particle.life <= 0) {
+            particles.splice(i, 1);
+        }
+    }
+    
+    // Add new particles occasionally (reduced rate if performance is low)
+    const particleRate = 0.01 * performanceLevel;
+    if (particles.length < maxParticles * performanceLevel && Math.random() < particleRate) {
+        particles.push(createParticle());
+    }
+}
+
+// Draw kelp strand
+function drawKelpStrand(ctx, kelp, time) {
+    ctx.save();
+    ctx.globalAlpha = 0.6;
+    ctx.strokeStyle = kelp.color;
+    ctx.lineWidth = kelp.thickness;
+    ctx.lineCap = 'round';
+    
+    // Calculate sway effect
+    const sway = Math.sin(time * kelp.swaySpeed + kelp.phase) * kelp.swayAmount;
+    
+    // Draw kelp as connected segments
+    ctx.beginPath();
+    
+    for (let i = 0; i <= kelp.segments; i++) {
+        const progress = i / kelp.segments;
+        const y = kelp.baseY - (progress * kelp.height);
+        
+        // Progressive sway - more sway at the top
+        const currentSway = sway * progress * progress;
+        const x = kelp.x + currentSway;
+        
+        if (i === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+    
+    ctx.stroke();
+    
+    // Add some small leaves/fronds
+    if (performanceLevel > 0.5) {
+        ctx.globalAlpha = 0.4;
+        ctx.lineWidth = 1;
+        
+        for (let i = 2; i < kelp.segments - 1; i += 2) {
+            const progress = i / kelp.segments;
+            const y = kelp.baseY - (progress * kelp.height);
+            const currentSway = sway * progress * progress;
+            const x = kelp.x + currentSway;
+            
+            // Small fronds
+            const frondLength = kelp.thickness * 2;
+            const frondAngle = Math.sin(time * 2 + kelp.phase + i) * 0.5;
+            
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + Math.cos(frondAngle) * frondLength, y + Math.sin(frondAngle) * frondLength);
+            ctx.moveTo(x, y);
+            ctx.lineTo(x - Math.cos(frondAngle) * frondLength, y + Math.sin(frondAngle) * frondLength);
+            ctx.stroke();
+        }
+    }
+    
+    ctx.restore();
+}
+
+// Draw environmental effects
+function drawEnvironmentalEffects(ctx) {
+    const time = Date.now() * 0.001;
+    
+    // Draw subtle water gradient background
+    const gradient = ctx.createLinearGradient(0, 0, 0, swimCanvas.height);
+    gradient.addColorStop(0, 'rgba(135, 206, 235, 0.03)'); // Light blue at top
+    gradient.addColorStop(1, 'rgba(25, 25, 112, 0.08)'); // Darker blue at bottom
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, swimCanvas.width, swimCanvas.height);
+    
+    // Draw kelp in background (behind fish)
+    kelpStrands.forEach(kelp => {
+        drawKelpStrand(ctx, kelp, time);
+    });
+    
+    // Draw subtle water surface ripples (very minimal)
+    if (performanceLevel > 0.7) {
+        ctx.save();
+        ctx.globalAlpha = 0.02;
+        ctx.strokeStyle = '#87CEEB';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 3; i++) {
+            const y = 20 + i * 15;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            for (let x = 0; x < swimCanvas.width; x += 20) {
+                const waveY = y + Math.sin(time * 0.5 + x * 0.01 + i) * 3;
+                ctx.lineTo(x, waveY);
+            }
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+    
+    // Draw bubbles
+    bubbles.forEach(bubble => {
+        ctx.save();
+        ctx.globalAlpha = bubble.opacity;
+        ctx.strokeStyle = '#87CEEB';
+        ctx.fillStyle = 'rgba(135, 206, 235, 0.1)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+    });
+    
+    // Draw particles
+    particles.forEach(particle => {
+        ctx.save();
+        ctx.globalAlpha = particle.life * 0.7;
+        ctx.fillStyle = particle.color;
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    });
+}
+
 // Using shared utility function from fish-utils.js
 
 // Global variable to track the newest fish timestamp and listener
@@ -221,6 +644,12 @@ let newestFishTimestamp = null;
 let newFishListener = null;
 let maxTankCapacity = 50; // Dynamic tank capacity controlled by slider
 let isUpdatingCapacity = false; // Prevent multiple simultaneous updates
+
+// Performance monitoring
+let frameCount = 0;
+let lastFpsTime = Date.now();
+let currentFps = 60;
+let performanceLevel = 1; // 1 = full effects, 0.5 = reduced effects, 0 = minimal effects
 
 // Update page title based on sort type
 function updatePageTitle(sortType) {
@@ -815,6 +1244,44 @@ function handleTankTap(e) {
         tapY = e.clientY - rect.top;
     }
     const radius = 120;
+    
+    // Create some bubbles at tap location
+    for (let i = 0; i < 3; i++) {
+        if (bubbles.length < maxBubbles) {
+            bubbles.push({
+                x: tapX + (Math.random() - 0.5) * 30,
+                y: tapY + (Math.random() - 0.5) * 30,
+                radius: Math.random() * 3 + 2,
+                speed: Math.random() * 1 + 0.5,
+                wobble: Math.random() * 0.03 + 0.02,
+                phase: Math.random() * Math.PI * 2,
+                opacity: Math.random() * 0.6 + 0.4
+            });
+        }
+    }
+    
+    // Also create bubbles near kelp if tapped near them
+    if (kelpStrands.length > 0) {
+        const nearbyKelp = kelpStrands.filter(kelp => {
+            const distance = Math.sqrt(Math.pow(kelp.x - tapX, 2) + Math.pow(kelp.y - tapY, 2));
+            return distance < 60;
+        });
+        
+        nearbyKelp.forEach(kelp => {
+            if (bubbles.length < maxBubbles) {
+                bubbles.push({
+                    x: kelp.x + (Math.random() - 0.5) * 20,
+                    y: kelp.baseY - Math.random() * 20,
+                    radius: Math.random() * 2 + 1,
+                    speed: Math.random() * 0.8 + 0.4,
+                    wobble: Math.random() * 0.02 + 0.01,
+                    phase: Math.random() * Math.PI * 2,
+                    opacity: Math.random() * 0.4 + 0.3
+                });
+            }
+        });
+    }
+    
     fishes.forEach(fish => {
         const fx = fish.x + fish.width / 2;
         const fy = fish.y + fish.height / 2;
@@ -822,11 +1289,22 @@ function handleTankTap(e) {
         const dy = fy - tapY;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < radius) {
-            const force = 16 * (1 - dist / radius);
+            // Fish react based on their personality
+            const shyness = 1 - fish.personality;
+            const force = (8 + shyness * 4) * (1 - dist / radius);
             const norm = Math.sqrt(dx * dx + dy * dy) || 1;
-            fish.vx = (dx / norm) * force;
-            fish.vy = (dy / norm) * force;
-            fish.direction = dx > 0 ? 1 : -1;
+            
+            // Apply force (gentler than before)
+            fish.vx = (dx / norm) * force * (0.3 + shyness * 0.4);
+            fish.vy = (dy / norm) * force * (0.2 + shyness * 0.3);
+            
+            // Only change direction if force is significant
+            if (Math.abs(fish.vx) > 2) {
+                fish.direction = dx > 0 ? 1 : -1;
+            }
+            
+            // Reset idle time to trigger more active behavior
+            fish.idleTime = 0;
         }
     });
 }
@@ -875,19 +1353,139 @@ function resizeForMobile() {
     // Rescale if size changed by more than 20%
     if (widthChange > 0.2 || heightChange > 0.2) {
         rescaleAllFish();
+        
+        // Regenerate kelp clusters for new canvas size
+        kelpStrands.length = 0;
+        foregroundKelp.length = 0;
+        
+        const numClusters = Math.min(6, Math.floor(swimCanvas.width / 120) + 2);
+        
+        for (let i = 0; i < numClusters; i++) {
+            const baseX = (swimCanvas.width / (numClusters + 1)) * (i + 1);
+            const clusterX = baseX + (Math.random() - 0.5) * 40;
+            const clusterRadius = 25 + Math.random() * 20;
+            const strandsPerCluster = 3 + Math.floor(Math.random() * 3);
+            
+            // Create background kelp cluster
+            const backgroundCluster = createKelpCluster(clusterX, clusterRadius, strandsPerCluster);
+            kelpStrands.push(...backgroundCluster);
+            
+            // 50% chance to add a foreground kelp cluster
+            if (Math.random() < 0.5) {
+                const foregroundCluster = createKelpCluster(
+                    clusterX + (Math.random() - 0.5) * 50,
+                    clusterRadius * 0.7,
+                    Math.floor(strandsPerCluster * 0.6)
+                );
+                
+                // Make foreground kelp more prominent
+                foregroundCluster.forEach(kelp => {
+                    kelp.height = kelp.height * 1.2;
+                    kelp.thickness = kelp.thickness * 1.4;
+                    kelp.color = `hsl(${Math.random() * 30 + 85}, ${Math.random() * 20 + 70}%, ${Math.random() * 15 + 18}%)`;
+                });
+                
+                foregroundKelp.push(...foregroundCluster);
+            }
+        }
     }
 }
 window.addEventListener('resize', resizeForMobile);
 resizeForMobile();
 
+// Initialize environmental effects
+function initializeEnvironmentalEffects() {
+    // Add some initial bubbles (fewer to start)
+    for (let i = 0; i < 3; i++) {
+        bubbles.push(createBubble());
+    }
+    
+    // Add some initial particles (fewer to start)
+    for (let i = 0; i < 2; i++) {
+        particles.push(createParticle());
+    }
+    
+    // Add kelp clusters
+    const numClusters = Math.min(12, Math.floor(swimCanvas.width / 120) + 2); // 2-12 clusters based on width
+    
+    for (let i = 0; i < numClusters; i++) {
+        // Position clusters with some spacing and randomness
+        const baseX = (swimCanvas.width / (numClusters + 1)) * (i + 1);
+        const clusterX = baseX + (Math.random() - 0.5) * 40; // Add some randomness
+        const clusterRadius = 25 + Math.random() * 20; // 25-45 pixel radius (smaller)
+        const strandsPerCluster = 3 + Math.floor(Math.random() * 3); // 3-5 strands per cluster
+        
+        // Create background kelp cluster
+        const backgroundCluster = createKelpCluster(clusterX, clusterRadius, strandsPerCluster);
+        kelpStrands.push(...backgroundCluster);
+        
+        // 50% chance to add a foreground kelp cluster
+        if (Math.random() < 0.5) {
+            const foregroundCluster = createKelpCluster(
+                clusterX + (Math.random() - 0.5) * 50, // Slightly offset from background
+                clusterRadius * 0.7, // Smaller radius
+                Math.floor(strandsPerCluster * 0.6) // Fewer strands
+            );
+            
+            // Make foreground kelp more prominent
+            foregroundCluster.forEach(kelp => {
+                kelp.height = kelp.height * 1.2; // Taller
+                kelp.thickness = kelp.thickness * 1.4; // Thicker
+                kelp.color = `hsl(${Math.random() * 30 + 85}, ${Math.random() * 20 + 70}%, ${Math.random() * 15 + 18}%)`; // Darker green
+            });
+            
+            foregroundKelp.push(...foregroundCluster);
+        }
+    }
+}
+
+// Initialize when page loads
+initializeEnvironmentalEffects();
+
 function animateFishes() {
     swimCtx.clearRect(0, 0, swimCanvas.width, swimCanvas.height);
     const time = Date.now() / 500;
+    
+    // Performance monitoring
+    frameCount++;
+    const now = Date.now();
+    if (now - lastFpsTime >= 1000) {
+        currentFps = frameCount;
+        frameCount = 0;
+        lastFpsTime = now;
+        
+        // Adjust performance level based on FPS
+        if (currentFps < 30) {
+            performanceLevel = Math.max(0, performanceLevel - 0.1);
+        } else if (currentFps > 50) {
+            performanceLevel = Math.min(1, performanceLevel + 0.05);
+        }
+    }
+    
+    // Update environmental effects (skip if performance is low)
+    if (performanceLevel > 0.3) {
+        updateEnvironmentalEffects(time);
+    }
+    
+    // Draw environmental effects (background)
+    if (performanceLevel > 0.2) {
+        drawEnvironmentalEffects(swimCtx);
+    }
     
     // Update fish count display occasionally
     if (Math.floor(time) % 2 === 0) { // Every 2 seconds
         updateCurrentFishCount();
     }
+    
+    // Show performance indicator in console if performance drops significantly
+    if (currentFps < 20 && Math.floor(time) % 10 === 0) {
+        console.log(`Tank performance: ${currentFps} FPS (Effects level: ${Math.round(performanceLevel * 100)}%)`);
+    }
+    
+    // Debug info (uncomment to see kelp cluster info)
+    // if (Math.floor(time) % 5 === 0 && frameCount === 0) {
+    //     console.log(`Kelp clusters: ${kelpStrands.length} background + ${foregroundKelp.length} foreground strands`);
+    // }
     
     for (const fish of fishes) {
         // Handle entrance animation
@@ -921,28 +1519,58 @@ function animateFishes() {
             // Slow down horizontal movement
             fish.speed = fish.speed * (1 - progress * 0.5);
         } else if (!fish.isEntering) {
-            // Normal fish behavior (only if not entering)
-            if (fish.vx || fish.vy) {
-                fish.x += fish.vx;
-                fish.y += fish.vy;
-                fish.vx *= 0.92;
-                fish.vy *= 0.92;
-                if (Math.abs(fish.vx) < 0.5) fish.vx = 0;
-                if (Math.abs(fish.vy) < 0.5) fish.vy = 0;
-            } else {
-                fish.x += fish.speed * fish.direction;
+            // Enhanced fish behavior (skip advanced behaviors if performance is low)
+            if (performanceLevel > 0.4) {
+                updateFishBehavior(fish, time, fishes);
             }
             
+            // Main horizontal swimming motion (always active)
+            fish.x += fish.speed * fish.direction;
+            
+            // Apply subtle vertical movement from behaviors
+            if (fish.vy) {
+                fish.y += fish.vy;
+            }
+            
+            // Handle external forces (from tapping) with decay
+            if (fish.vx) {
+                fish.x += fish.vx;
+                fish.vx *= 0.92; // Decay the external force
+                if (Math.abs(fish.vx) < 0.5) fish.vx = 0;
+                
+                // Update direction based on external force
+                if (Math.abs(fish.vx) > 0.1) {
+                    fish.direction = fish.vx > 0 ? 1 : -1;
+                }
+            }
+            
+            // Boundary constraints with direction flip
             if (fish.x > swimCanvas.width - fish.width || fish.x < 0) {
                 fish.direction *= -1;
+                fish.vx = 0; // Clear external forces when hitting boundary
             }
             fish.x = Math.max(0, Math.min(swimCanvas.width - fish.width, fish.x));
             fish.y = Math.max(0, Math.min(swimCanvas.height - fish.height, fish.y));
         }
         
-        const swimY = fish.isDying ? fish.y : fish.y + Math.sin(time + fish.phase) * fish.amplitude;
+        // Enhanced swimming motion with personality
+        const swimAmplitude = fish.amplitude * (0.7 + 0.3 * fish.personality);
+        const swimFrequency = 1 + (fish.personality * 0.3);
+        const swimY = fish.isDying ? fish.y : fish.y + Math.sin(time * swimFrequency + fish.phase) * swimAmplitude;
+        
         drawWigglingFish(fish, fish.x, swimY, fish.direction, time, fish.phase);
     }
+    
+    // Draw foreground kelp (in front of fish)
+    if (performanceLevel > 0.3) {
+        foregroundKelp.forEach(kelp => {
+            swimCtx.save();
+            swimCtx.globalAlpha = 0.3; // Make it semi-transparent so fish can be seen through it
+            drawKelpStrand(swimCtx, kelp, time);
+            swimCtx.restore();
+        });
+    }
+    
     requestAnimationFrame(animateFishes);
 }
 

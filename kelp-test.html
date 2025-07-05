@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelp Clusters Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #test-canvas {
+            border: 2px solid #333;
+            background: linear-gradient(to bottom, #e0f7fa, #b2dfdb);
+            display: block;
+            margin: 20px auto;
+        }
+        .info {
+            text-align: center;
+            margin: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <h2>Kelp Clusters Test</h2>
+        <p>This shows how the kelp clusters look without fish swimming around</p>
+        <button onclick="regenerateKelp()">Regenerate Kelp</button>
+    </div>
+    
+    <canvas id="test-canvas" width="800" height="400"></canvas>
+    
+    <div class="info">
+        <p>You should see 2-6 distinct kelp clusters growing from the bottom</p>
+        <p>Each cluster has 3-5 shorter kelp strands creating swimming lanes</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('test-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Simplified kelp creation for testing
+        function createKelpStrand(clusterCenterX, clusterRadius, strandIndex = 0, totalStrands = 1) {
+            const centerDistance = Math.abs(strandIndex - totalStrands / 2) / (totalStrands / 2);
+            const heightModifier = 1 - (centerDistance * 0.2);
+            const height = (Math.random() * 0.35 + 0.25) * heightModifier; // Shorter kelp
+            const segments = Math.floor(height * canvas.height / 20) + 3;
+            
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * clusterRadius * (0.7 + Math.random() * 0.3);
+            const x = clusterCenterX + Math.cos(angle) * distance;
+            
+            return {
+                x: Math.max(20, Math.min(canvas.width - 20, x)),
+                baseY: canvas.height + (Math.random() - 0.5) * 5,
+                height: height * canvas.height,
+                segments: segments,
+                swaySpeed: Math.random() * 0.02 + 0.01,
+                swayAmount: Math.random() * 15 + 5,
+                phase: Math.random() * Math.PI * 2,
+                thickness: Math.random() * 3 + 2,
+                color: `hsl(${Math.random() * 40 + 80}, ${Math.random() * 30 + 60}%, ${Math.random() * 20 + 25}%)`
+            };
+        }
+        
+        function createKelpCluster(centerX, radius, strandCount) {
+            const cluster = [];
+            for (let i = 0; i < strandCount; i++) {
+                cluster.push(createKelpStrand(centerX, radius, i, strandCount));
+            }
+            return cluster;
+        }
+        
+        function drawKelpStrand(kelp, time) {
+            ctx.save();
+            ctx.globalAlpha = 0.8;
+            ctx.strokeStyle = kelp.color;
+            ctx.lineWidth = kelp.thickness;
+            ctx.lineCap = 'round';
+            
+            const sway = Math.sin(time * kelp.swaySpeed + kelp.phase) * kelp.swayAmount;
+            
+            ctx.beginPath();
+            for (let i = 0; i <= kelp.segments; i++) {
+                const progress = i / kelp.segments;
+                const y = kelp.baseY - (progress * kelp.height);
+                const currentSway = sway * progress * progress;
+                const x = kelp.x + currentSway;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+        
+        let kelpStrands = [];
+        
+        function generateKelp() {
+            kelpStrands = [];
+            const numClusters = Math.min(6, Math.floor(canvas.width / 120) + 2); // More clusters
+            
+            for (let i = 0; i < numClusters; i++) {
+                const baseX = (canvas.width / (numClusters + 1)) * (i + 1);
+                const clusterX = baseX + (Math.random() - 0.5) * 40;
+                const clusterRadius = 25 + Math.random() * 20; // Smaller clusters
+                const strandsPerCluster = 3 + Math.floor(Math.random() * 3); // Fewer strands per cluster
+                
+                const cluster = createKelpCluster(clusterX, clusterRadius, strandsPerCluster);
+                kelpStrands.push(...cluster);
+            }
+            
+            console.log(`Generated ${kelpStrands.length} kelp strands in ${numClusters} clusters`);
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw water gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, 'rgba(135, 206, 235, 0.1)');
+            gradient.addColorStop(1, 'rgba(25, 25, 112, 0.2)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const time = Date.now() * 0.001;
+            
+            // Draw kelp
+            kelpStrands.forEach(kelp => {
+                drawKelpStrand(kelp, time);
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        function regenerateKelp() {
+            generateKelp();
+        }
+        
+        // Initialize
+        generateKelp();
+        animate();
+    </script>
+</body>
+</html>
