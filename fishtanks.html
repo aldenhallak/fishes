@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Fish Tanks - Fish Drawing App</title>
+    <link rel="stylesheet" href="src/css/style.css">
+    <link rel="icon" href="public/favicon.ico">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2dfdb 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #0288d1;
+            margin-bottom: 10px;
+        }
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .nav-links a {
+            color: #0288d1;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover {
+            background: rgba(2, 136, 209, 0.1);
+        }
+        .auth-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .auth-info.logged-out {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #0288d1;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #0288d1;
+        }
+        .tab-btn.active {
+            background: #0288d1;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .create-tank-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #0288d1;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        .btn {
+            padding: 10px 20px;
+            background: #0288d1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #0277bd;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .tank-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .tank-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .tank-card:hover {
+            transform: translateY(-5px);
+        }
+        .tank-card h3 {
+            color: #0288d1;
+            margin-bottom: 10px;
+        }
+        .tank-info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .tank-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0288d1;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        .tank-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-view {
+            background: #4caf50;
+            color: white;
+        }
+        .btn-view:hover {
+            background: #45a049;
+        }
+        .btn-edit {
+            background: #ff9800;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #f57c00;
+        }
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+        .btn-delete:hover {
+            background: #d32f2f;
+        }
+        .btn-share {
+            background: #2196f3;
+            color: white;
+        }
+        .btn-share:hover {
+            background: #1976d2;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .empty-state h3 {
+            color: #999;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #0288d1;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+        .share-url {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        .fish-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .fish-item {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .fish-item:hover {
+            transform: scale(1.1);
+        }
+        .fish-item.selected {
+            border-color: #0288d1;
+            border-width: 2px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .page-btn {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .page-btn:hover {
+            background: #f5f5f5;
+        }
+        .page-btn.active {
+            background: #0288d1;
+            color: white;
+            border-color: #0288d1;
+        }
+        .page-btn:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        @media (max-width: 768px) {
+            .tank-grid {
+                grid-template-columns: 1fr;
+            }
+            .tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐠 My Fish Tanks</h1>
+            <div class="nav-links">
+                <a href="index.html">Draw Fish</a>
+                <a href="tank.html">Public Tank</a>
+                <a href="rank.html">Rankings</a>
+                <a href="fishtanks.html">My Tanks</a>
+                <a href="login.html" id="auth-link">Login</a>
+            </div>
+        </div>
+
+        <div class="auth-info" id="auth-info">
+            <div id="auth-status">Please log in to manage your fish tanks</div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('my-tanks')">My Tanks</button>
+            <button class="tab-btn" onclick="showTab('create-tank')">Create Tank</button>
+            <button class="tab-btn" onclick="showTab('public-tanks')">Discover</button>
+        </div>
+
+        <!-- My Tanks Tab -->
+        <div id="my-tanks" class="tab-content active">
+            <div id="my-tanks-loading" class="loading" style="display: none;">Loading your tanks...</div>
+            <div id="my-tanks-error" class="error" style="display: none;"></div>
+            <div id="my-tanks-grid" class="tank-grid"></div>
+            <div id="my-tanks-empty" class="empty-state" style="display: none;">
+                <h3>No tanks yet!</h3>
+                <p>Create your first fish tank to get started.</p>
+                <button class="btn" onclick="showTab('create-tank')">Create Your First Tank</button>
+            </div>
+        </div>
+
+        <!-- Create Tank Tab -->
+        <div id="create-tank" class="tab-content">
+            <div class="create-tank-form">
+                <h2>Create New Fish Tank</h2>
+                <div id="create-tank-error" class="error" style="display: none;"></div>
+                <div id="create-tank-success" class="success" style="display: none;"></div>
+                
+                <form id="create-tank-form">
+                    <div class="form-group">
+                        <label for="tank-name">Tank Name *</label>
+                        <input type="text" id="tank-name" name="name" required maxlength="50" placeholder="Enter tank name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tank-description">Description</label>
+                        <textarea id="tank-description" name="description" maxlength="200" placeholder="Describe your tank (optional)"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="tank-public" name="isPublic" checked>
+                            <label for="tank-public">Make this tank public (others can view and add fish)</label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn">Create Tank</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Public Tanks Tab -->
+        <div id="public-tanks" class="tab-content">
+            <div id="public-tanks-loading" class="loading" style="display: none;">Loading public tanks...</div>
+            <div id="public-tanks-error" class="error" style="display: none;"></div>
+            <div id="public-tanks-grid" class="tank-grid"></div>
+            <div class="pagination" id="public-tanks-pagination"></div>
+        </div>
+    </div>
+
+    <!-- Edit Tank Modal -->
+    <div id="edit-tank-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('edit-tank-modal')">&times;</span>
+            <h2>Edit Tank</h2>
+            <div id="edit-tank-error" class="error" style="display: none;"></div>
+            <form id="edit-tank-form">
+                <div class="form-group">
+                    <label for="edit-tank-name">Tank Name *</label>
+                    <input type="text" id="edit-tank-name" required maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="edit-tank-description">Description</label>
+                    <textarea id="edit-tank-description" maxlength="200"></textarea>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="edit-tank-public">
+                        <label for="edit-tank-public">Make this tank public</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn">Update Tank</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Share Tank Modal -->
+    <div id="share-tank-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('share-tank-modal')">&times;</span>
+            <h2>Share Tank</h2>
+            <p>Share this URL to let others view your tank:</p>
+            <div class="share-url" id="share-url"></div>
+            <button class="btn" onclick="copyShareUrl()">Copy URL</button>
+        </div>
+    </div>
+
+    <!-- Add Fish Modal -->
+    <div id="add-fish-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('add-fish-modal')">&times;</span>
+            <h2>Add Fish to Tank</h2>
+            <div id="add-fish-error" class="error" style="display: none;"></div>
+            <div id="add-fish-success" class="success" style="display: none;"></div>
+            <div id="user-fish-loading" class="loading" style="display: none;">Loading available fish...</div>
+            <div id="user-fish-grid" class="fish-preview"></div>
+            <div id="user-fish-empty" class="empty-state" style="display: none;">
+                <h3>No fish available</h3>
+                <p>No fish are available to add to your tank right now.</p>
+                <a href="index.html" class="btn">Draw Fish</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="src/js/firebase-init.js"></script>
+    <script src="src/js/fish-utils.js"></script>
+    <script src="src/js/fishtanks.js"></script>
+</body>
+</html>

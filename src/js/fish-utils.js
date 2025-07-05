@@ -292,3 +292,36 @@ async function getFishBySort(sortType, limit = 50, startAfter = null, direction 
     const snapshot = await query.get();
     return snapshot.docs;
 }
+
+// Convert fish image to data URL for display
+function createFishImageDataUrl(imgUrl, callback) {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        canvas.width = 120;
+        canvas.height = 80;
+        
+        // Calculate scaling to fit within canvas while maintaining aspect ratio
+        const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+        const scaledWidth = img.width * scale;
+        const scaledHeight = img.height * scale;
+        
+        // Center the image
+        const x = (canvas.width - scaledWidth) / 2;
+        const y = (canvas.height - scaledHeight) / 2;
+        
+        // Clear canvas and draw image
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+        
+        callback(canvas.toDataURL());
+    };
+    img.onerror = function() {
+        callback(null);
+    };
+    img.src = imgUrl;
+}

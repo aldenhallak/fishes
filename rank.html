@@ -118,10 +118,113 @@
         .back-link:hover {
             background: #45a049;
         }
+        
+        .add-to-tank-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 0 2px;
+            transition: background 0.3s;
+        }
+        
+        .add-to-tank-btn:hover {
+            background: #1976d2;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        .tank-selection {
+            margin-top: 15px;
+        }
+        
+        .tank-option {
+            background: #f5f5f5;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .tank-option h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+        
+        .tank-option p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #45a049;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        .empty-tanks {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
-    <a href="tank.html" class="back-link">← Back to Tank</a>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <a href="index.html" style="color: #0066cc; text-decoration: underline; font-size: 12px; margin: 0 10px;">draw</a>
+        <a href="tank.html" style="color: #0066cc; text-decoration: underline; font-size: 12px; margin: 0 10px;">tank</a>
+        <a href="rank.html" style="color: #0066cc; text-decoration: underline; font-size: 12px; margin: 0 10px;">rankings</a>
+        <a href="fishtanks.html" style="color: #0066cc; text-decoration: underline; font-size: 12px; margin: 0 10px;">my tanks</a>
+    </div>
     
     <div class="ranking-container">
         <div class="ranking-header">
@@ -143,6 +246,18 @@
         </div>
     </div>
     
+    <!-- Add to Tank Modal -->
+    <div id="add-to-tank-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddToTankModal()">&times;</span>
+            <h2>Add Fish to Tank</h2>
+            <p>Select a tank to add this fish to:</p>
+            <div id="tank-selection" class="tank-selection">
+                <!-- Tank options will be populated here -->
+            </div>
+        </div>
+    </div>
+    
     <footer id="footer-love" style="text-align:center; margin:32px 0 12px 0; color:#888; font-size:1.05em;">
         Made with <span style="color:#e25555;">hate</span> by <a href="https://fifteen.games">fifteen.games</a>. | <a href="https://github.com/aldenhallak/fishes">Source Code</a>
     </footer>
@@ -152,5 +267,14 @@
     <script src="src/js/firebase-init.js"></script>
     <script src="src/js/fish-utils.js"></script>
     <script src="src/js/rank.js"></script>
+    <script>
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('add-to-tank-modal');
+            if (event.target === modal) {
+                closeAddToTankModal();
+            }
+        });
+    </script>
 </body>
 </html>
