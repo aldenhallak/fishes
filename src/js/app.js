@@ -351,12 +351,39 @@ function makeDisplayFishCanvas(img, width = 80, height = 48) {
 // ONNX fish doodle classifier integration
 let ortSession = null;
 let lastFishCheck = true;
+let isModelLoading = false;
+let modelLoadPromise = null;
 
 // Load ONNX model (make sure fish_doodle_classifier.onnx is in your public folder)
 async function loadFishModel() {
-    if (!ortSession) {
-        ortSession = await window.ort.InferenceSession.create('fish_doodle_classifier.onnx');
+    // If already loaded, return immediately
+    if (ortSession) {
+        return ortSession;
     }
+    
+    // If already loading, return the existing promise
+    if (isModelLoading && modelLoadPromise) {
+        return modelLoadPromise;
+    }
+    
+    // Start loading
+    isModelLoading = true;
+    console.log('Loading fish model...');
+    
+    modelLoadPromise = (async () => {
+        try {
+            ortSession = await window.ort.InferenceSession.create('fish_doodle_classifier.onnx');
+            console.log('Fish model loaded successfully');
+            return ortSession;
+        } catch (error) {
+            console.error('Failed to load fish model:', error);
+            throw error;
+        } finally {
+            isModelLoading = false;
+        }
+    })();
+    
+    return modelLoadPromise;
 }
 
 // Add debugging to frontend preprocessing
@@ -444,7 +471,10 @@ function debugPreprocessCanvasForONNX(canvas) {
 
 // Modify your verifyFishDoodle function to call this debug version
 async function verifyFishDoodle(canvas) {
-    await loadFishModel();
+    // Model should already be loaded, but check just in case
+    if (!ortSession) {
+        throw new Error('Fish model not loaded');
+    }
     
     // Use debug version for detailed logging
     const inputTensor = debugPreprocessCanvasForONNX(canvas);
@@ -509,6 +539,17 @@ function showFishWarning(show) {
 // After each stroke, check if it's a fish
 async function checkFishAfterStroke() {
     if (!window.ort) return; // ONNX runtime not loaded
+    
+    // Wait for model to be loaded if it's not ready yet
+    if (!ortSession) {
+        try {
+            await loadFishModel();
+        } catch (error) {
+            console.error('Model not available for fish checking:', error);
+            return;
+        }
+    }
+    
     const isFish = await verifyFishDoodle(canvas);
     lastFishCheck = isFish;
     showFishWarning(!isFish);
@@ -519,10 +560,18 @@ async function checkFishAfterStroke() {
     if (!window.ort) {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js';
-        script.onload = () => { loadFishModel(); };
+        script.onload = () => { 
+            console.log('ONNX Runtime loaded, starting model load...');
+            loadFishModel().catch(error => {
+                console.error('Failed to load model on startup:', error);
+            });
+        };
         document.head.appendChild(script);
     } else {
-        loadFishModel();
+        console.log('ONNX Runtime already available, starting model load...');
+        loadFishModel().catch(error => {
+            console.error('Failed to load model on startup:', error);
+        });
     }
 })();
 
