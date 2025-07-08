@@ -1,13 +1,17 @@
+/* Minimal functional styles */
 body {
-    font-family: Arial, sans-serif;
     text-align: center;
-    background: #e0f7fa;
+    margin: 0;
+    padding: 10px;
 }
+
+/* Canvas styles */
 #draw-canvas {
-    border: 2px solid #0288d1;
-    background: #b3e5fc;
+    border: 1px solid #000;
+    background: #ffffff;
     cursor: crosshair;
 }
+
 #swim-canvas {
     display: block;
     margin: 20px auto;

@@ -8,19 +8,26 @@
     <link rel="icon" href="public/favicon.ico">
 </head>
 <body>
-  <div id="draw-ui" style="max-width: 420px; margin: 0 auto; text-align: center;">
+  <div id="draw-ui">
     <!-- The paint bar will be injected here by JS -->
-    <h1>Draw a Fish !</h1>
-    <h2> (facing right) </h2>
-    <canvas id="draw-canvas" width="400" height="240" style="border:1px solid #888; background:#fff; display:block; margin:0 auto 12px auto;"></canvas>
-    <a href ="tank.html" >Tank</a>
-    <button id="swim-btn" style="margin-bottom: 8px;">Make it Swim</button>
-    <a href= "rank.html" >Rank</a>
+    <h1>Draw a Fish!</h1>
+    <h2>(facing right please)</h2>
+    <canvas id="draw-canvas" width="400" height="240"></canvas>
+    <br><br>
+    <a href="tank.html">tank</a>
+    <button id="swim-btn">make it swim!</button>
+    <a href="rank.html">rank</a>
+    <a href="fishtanks.html" id="my-tanks-link">my tanks</a>
   </div>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="src/js/firebase-init.js"></script>
   <script src="src/js/fish-utils.js"></script>
   <script src="src/js/app.js"></script>
+  <script>
+    // Initialize navigation authentication
+    initializeAuthNavigation();
+  </script>
 </body>
 </html>

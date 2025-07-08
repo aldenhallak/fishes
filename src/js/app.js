@@ -61,12 +61,12 @@ function showModal(html, onClose) {
     modal.style.top = '0';
     modal.style.width = '100vw';
     modal.style.height = '100vh';
-    modal.style.background = 'rgba(0,0,0,0.35)';
+    modal.style.background = 'rgba(192,192,192,0.8)';
     modal.style.display = 'flex';
     modal.style.alignItems = 'center';
     modal.style.justifyContent = 'center';
     modal.style.zIndex = '9999';
-    modal.innerHTML = `<div style="background:#fff;padding:28px 24px 18px 24px;border-radius:12px;box-shadow:0 4px 32px #0002;min-width:260px;max-width:90vw;max-height:90vh;overflow:auto;">${html}</div>`;
+    modal.innerHTML = `<div style="background:#c0c0c0;padding:15px;border: 2px outset #808080;min-width:300px;max-width:90vw;max-height:90vh;overflow:auto;font-family:'MS Sans Serif',sans-serif;font-size:11px;">${html}</div>`;
     function close() {
         document.body.removeChild(modal);
         if (onClose) onClose();
@@ -92,7 +92,7 @@ async function submitFish(artist, needsModeration = false) {
     formData.append('image', imageBlob, 'fish.png');
     formData.append('artist', artist);
     formData.append('needsModeration', needsModeration.toString());
-    // Spinner UI
+    // Retro loading indicator
     let submitBtn = document.getElementById('submit-fish');
     if (submitBtn) {
         submitBtn.disabled = true;
@@ -168,7 +168,7 @@ swimBtn.addEventListener('click', async () => {
     } else {
         // Show normal submission modal for good fish
         showModal(`<div style='text-align:center;'>
-            <div style='color:#27ae60;font-weight:bold;margin-bottom:12px;'>🐟 Great Fish!</div>
+            <div style='color:#27ae60;font-weight:bold;margin-bottom:12px;'>Great Fish!</div>
             <div style='margin-bottom:16px;'>Sign your art:<br><input id='artist-name' value='${defaultName}' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'></div>
             <button id='submit-fish' style='padding:6px 18px;background:#27ae60;color:white;border:none;border-radius:4px;'>Submit</button>
             <button id='cancel-fish' style='padding:6px 18px;margin-left:10px;background:#ccc;border:none;border-radius:4px;'>Cancel</button>
@@ -199,13 +199,10 @@ function createPaintOptions() {
         paintBar.id = 'paint-bar';
         paintBar.style.display = 'flex';
         paintBar.style.gap = '8px';
-        paintBar.style.margin = '8px 0';
+        paintBar.style.margin = '8px auto';
         paintBar.style.alignItems = 'center';
-        paintBar.style.background = '#f8f8f8';
-        paintBar.style.border = '1px solid #ccc';
+        paintBar.style.justifyContent = 'center';
         paintBar.style.padding = '6px 10px';
-        paintBar.style.borderRadius = '8px';
-        paintBar.style.boxShadow = '0 2px 6px rgba(0,0,0,0.04)';
         // Insert at the top of draw-ui
         const drawUI = document.getElementById('draw-ui');
         if (drawUI) drawUI.insertBefore(paintBar, drawUI.firstChild);
@@ -218,8 +215,7 @@ function createPaintOptions() {
         btn.style.background = color;
         btn.style.width = '28px';
         btn.style.height = '28px';
-        btn.style.border = color === '#ffffff' ? '1px solid #888' : 'none';
-        btn.style.borderRadius = '50%';
+        btn.style.border = '1px solid #000';
         btn.style.cursor = 'pointer';
         btn.title = color;
         btn.onclick = () => {
@@ -237,8 +233,7 @@ function createPaintOptions() {
         btn.textContent = w;
         btn.style.width = '28px';
         btn.style.height = '28px';
-        btn.style.borderRadius = '50%';
-        btn.style.marginLeft = '2px';
+        btn.style.border = '1px solid #000';
         btn.style.cursor = 'pointer';
         btn.onclick = () => {
             currentLineWidth = w;

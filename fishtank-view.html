@@ -3,343 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fish Tank - Fish Drawing App</title>
+    <title>Fish Tank View</title>
     <link rel="stylesheet" href="src/css/style.css">
     <link rel="icon" href="public/favicon.ico">
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #e0f7fa 0%, #b2dfdb 100%);
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            color: #0288d1;
-            margin-bottom: 10px;
-        }
-        .nav-links {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .nav-links a {
-            color: #0288d1;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-        .nav-links a:hover {
-            background: rgba(2, 136, 209, 0.1);
-        }
         .tank-header {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            border: 1px solid #000;
+            padding: 10px;
+            margin-bottom: 15px;
         }
-        .tank-title {
-            color: #0288d1;
-            margin-bottom: 10px;
-        }
-        .tank-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+        
         .tank-info {
-            color: #666;
-            flex: 1;
+            border: 1px solid #000;
+            padding: 8px;
+            margin-bottom: 15px;
         }
-        .tank-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-        .btn-primary {
-            background: #0288d1;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #0277bd;
-        }
-        .btn-secondary {
-            background: #4caf50;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background: #45a049;
-        }
-        .btn-danger {
-            background: #f44336;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #d32f2f;
-        }
-        .tank-container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .tank-canvas {
-            width: 100%;
-            max-width: 800px;
-            height: 400px;
-            border: 1px solid #888;
-            background: #e0f7fa;
-            display: block;
-            margin: 0 auto;
-            border-radius: 5px;
-        }
+        
         .tank-controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
-            flex-wrap: wrap;
+            margin-bottom: 15px;
         }
-        .control-group {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .control-group label {
-            font-size: 12px;
-            color: #666;
-        }
-        .control-group select, .control-group input {
+        
+        .tank-stats {
+            background: #ffffff;
+            border: 1px inset #808080;
+            padding: 8px;
+            margin-bottom: 15px;
+            font-family: "MS Sans Serif", sans-serif;
             font-size: 11px;
-            padding: 2px 5px;
         }
-        .fish-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .fish-card {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        .fish-card:hover {
-            transform: translateY(-2px);
-        }
-        .fish-preview {
+        
+        .fish-list {
             width: 100%;
-            height: 120px;
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
+            border-collapse: collapse;
+            margin-bottom: 15px;
         }
-        .fish-info {
-            text-align: center;
+        
+        .fish-list td {
+            border: 1px solid #000;
+            padding: 5px;
         }
-        .fish-signature {
-            font-weight: bold;
-            color: #0288d1;
-            margin-bottom: 5px;
+        
+        .fish-item {
+            border: 1px solid #000;
+            padding: 5px;
+            margin: 2px;
         }
-        .fish-meta {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 10px;
+        
+        .fish-image {
+            max-width: 60px;
+            max-height: 40px;
+            border: 1px solid #000;
         }
-        .fish-actions {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-        }
-        .btn-small {
-            padding: 4px 8px;
-            font-size: 11px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
+        
         .loading {
             text-align: center;
             padding: 20px;
-            color: #0288d1;
+            color: #000080;
+            font-family: "MS Sans Serif", sans-serif;
         }
+        
         .error {
-            background: #ffebee;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+            background: #ffcccc;
+            color: #800000;
+            border: 1px solid #800000;
+            padding: 5px;
+            margin: 5px 0;
+            font-family: "MS Sans Serif", sans-serif;
+            font-size: 11px;
         }
+
+        
         .success {
-            background: #e8f5e8;
-            color: #2e7d32;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+            background: #ccffcc;
+            color: #008000;
+            border: 1px solid #008000;
+            padding: 5px;
+            margin: 5px 0;
+            font-family: "MS Sans Serif", sans-serif;
+            font-size: 11px;
         }
+        
         .empty-state {
             text-align: center;
-            padding: 40px;
-            color: #666;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            color: #808080;
+            background: #ffffff;
+            border: 2px inset #808080;
         }
-        .empty-state h3 {
-            color: #999;
-            margin-bottom: 10px;
-        }
+        
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
         }
+        
         .modal-content {
             background: white;
-            margin: 15% auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 80%;
-            max-width: 500px;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover {
-            color: black;
-        }
-        .fish-selection {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .fish-selection-item {
-            width: 60px;
-            height: 60px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-        .fish-selection-item:hover {
-            border-color: #0288d1;
-            transform: scale(1.05);
-        }
-        .fish-selection-item.selected {
-            border-color: #0288d1;
-            background: #e3f2fd;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .stat-card {
-            background: white;
+            border: 1px solid #000;
+            margin: 100px auto;
             padding: 15px;
-            border-radius: 8px;
+            width: 400px;
+        }
+        
+        .close {
+            float: right;
+            cursor: pointer;
+        }
+        
+        .fish-selection-item {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #808080;
+            margin: 2px;
+            cursor: pointer;
+            background: #ffffff;
+        }
+        
+        .fish-selection-item.selected {
+            border: 2px solid #000080;
+            background: #ffffcc;
+        }
+        
+        .stats-grid {
+            background: #c0c0c0;
+            border: 1px inset #808080;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card {
+            display: inline-block;
+            background: #ffffff;
+            border: 1px inset #808080;
+            padding: 8px;
+            margin: 5px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-family: "MS Sans Serif", sans-serif;
+            font-size: 11px;
+            min-width: 80px;
         }
+        
         .stat-number {
-            font-size: 24px;
+            font-size: 16px;
             font-weight: bold;
-            color: #0288d1;
-            margin-bottom: 5px;
+            color: #000080;
         }
+        
         .stat-label {
-            font-size: 12px;
-            color: #666;
-        }
-        @media (max-width: 768px) {
-            .tank-meta {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .tank-actions {
-                width: 100%;
-                justify-content: center;
-            }
-            .fish-grid {
-                grid-template-columns: 1fr;
-            }
-            .modal-content {
-                width: 95%;
-                margin: 10% auto;
-            }
+            font-size: 10px;
+            color: #000000;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🐠 Fish Tank</h1>
-            <div class="nav-links">
-                <a href="index.html">Draw Fish</a>
-                <a href="tank.html">Public Tank</a>
-                <a href="rank.html">Rankings</a>
-                <a href="fishtanks.html">My Tanks</a>
+    <h1>Fish Tank View</h1>
+    
+    <div class="control-panel">
+        <strong>Navigation:</strong>
+        <a href="index.html">draw</a>
+        <a href="tank.html">public tank</a>
+        <a href="rank.html">rankings</a>
+        <a href="fishtanks.html" id="my-tanks-link">my tanks</a>
+    </div>
+
+    <div id="loading" class="loading">Loading tank...</div>
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div id="tank-content" style="display: none;">
+        <div class="tank-header">
+            <h2 id="tank-title">Tank Name</h2>
+            <div class="tank-info">
+                <div id="tank-description">Tank description</div>
+                <div id="tank-details">Created by • Updated</div>
+            </div>
+            <div id="tank-actions">
+                <!-- Actions will be populated by JavaScript -->
             </div>
         </div>
-
-        <div id="loading" class="loading">Loading tank...</div>
-        <div id="error" class="error" style="display: none;"></div>
-
-        <div id="tank-content" style="display: none;">
-            <div class="tank-header">
-                <h2 class="tank-title" id="tank-title">Tank Name</h2>
-                <div class="tank-meta">
-                    <div class="tank-info">
-                        <div id="tank-description">Tank description</div>
-                        <div id="tank-details">Created by • Updated</div>
-                    </div>
-                    <div class="tank-actions" id="tank-actions">
-                        <!-- Actions will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
 
             <div class="stats-grid">
                 <div class="stat-card">
@@ -360,31 +204,25 @@
                 </div>
             </div>
 
-            <div class="tank-container">
-                <canvas id="tank-canvas" class="tank-canvas" width="800" height="400"></canvas>
-                <div class="tank-controls">
-                    <div class="control-group">
-                        <label>View:</label>
-                        <select id="tank-view" onchange="updateTankView()">
-                            <option value="swim">Swimming</option>
-                            <option value="static">Static</option>
-                        </select>
-                    </div>
-                    <div class="control-group">
-                        <label>Speed:</label>
-                        <input type="range" id="swim-speed" min="0.5" max="3" step="0.1" value="1" onchange="updateSwimSpeed()">
-                    </div>
-                    <div class="control-group">
-                        <button class="btn btn-primary" onclick="refreshTank()">Refresh</button>
-                    </div>
-                </div>
+            <canvas id="tank-canvas" width="800" height="400"></canvas>
+            
+            <div class="control-panel">
+                <strong>TANK CONTROLS:</strong>
+                View: 
+                <select id="tank-view" onchange="updateTankView()">
+                    <option value="swim">Swimming</option>
+                    <option value="static">Static</option>
+                </select>
+                Speed: 
+                <input type="range" id="swim-speed" min="0.5" max="3" step="0.1" value="1" onchange="updateSwimSpeed()">
+                <button onclick="refreshTank()">REFRESH</button>
             </div>
 
             <div id="fish-section">
-                <h3>Fish in this Tank</h3>
-                <div id="fish-loading" class="loading" style="display: none;">Loading fish...</div>
+                <h3>*** FISH IN THIS TANK ***</h3>
+                <div id="fish-loading" class="loading" style="display: none;"><blink>LOADING FISH...</blink></div>
                 <div id="fish-error" class="error" style="display: none;"></div>
-                <div id="fish-grid" class="fish-grid"></div>
+                <table id="fish-grid" class="fish-list"></table>
                 <div id="fish-empty" class="empty-state" style="display: none;">
                     <h3>No fish yet!</h3>
                     <p>This tank is empty. Add some fish to bring it to life!</p>
@@ -412,8 +250,13 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="src/js/firebase-init.js"></script>
     <script src="src/js/fish-utils.js"></script>
     <script src="src/js/fishtank-view.js"></script>
+    <script>
+        // Initialize navigation authentication
+        initializeAuthNavigation();
+    </script>
 </body>
 </html>

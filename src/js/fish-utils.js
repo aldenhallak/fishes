@@ -175,20 +175,20 @@ function formatDate(dateValue) {
 // Create voting controls HTML (shared utility)
 function createVotingControlsHTML(fishId, upvotes = 0, downvotes = 0, includeScore = false, cssClass = '') {
     const score = upvotes - downvotes;
-    let html = `<div class="voting-controls ${cssClass}" style="display:flex;justify-content:center;align-items:center;gap:10px;margin-top:15px;">`;
+    let html = `<div class="voting-controls ${cssClass}" style="text-align:center;margin-top:10px;">`;
 
     if (includeScore) {
-        html += `<span class="fish-score">Score: ${score}</span>`;
+        html += `<span class="fish-score" style="font-size:11px;">Score: ${score}</span><br>`;
     }
 
-    html += `<button class="vote-btn upvote-btn" onclick="handleVote('${fishId}', 'up', this)" title="Upvote this fish">`;
-    html += `👍 <span class="vote-count upvote-count">${upvotes}</span>`;
+    html += `<button class="vote-btn upvote-btn" onclick="handleVote('${fishId}', 'up', this)" title="Upvote this fish" style="background:#c0c0c0;border:2px outset #808080;padding:2px 6px;font-size:10px;margin:2px;">`;
+    html += `+1 <span class="vote-count upvote-count">${upvotes}</span>`;
     html += `</button>`;
-    html += `<button class="vote-btn downvote-btn" onclick="handleVote('${fishId}', 'down', this)" title="Downvote this fish">`;
-    html += `👎 <span class="vote-count downvote-count">${downvotes}</span>`;
+    html += `<button class="vote-btn downvote-btn" onclick="handleVote('${fishId}', 'down', this)" title="Downvote this fish" style="background:#c0c0c0;border:2px outset #808080;padding:2px 6px;font-size:10px;margin:2px;">`;
+    html += `-1 <span class="vote-count downvote-count">${downvotes}</span>`;
     html += `</button>`;
-    html += `<button class="report-btn" onclick="handleReport('${fishId}', this)" title="Report inappropriate content">`;
-    html += `🚩`;
+    html += `<button class="report-btn" onclick="handleReport('${fishId}', this)" title="Report inappropriate content" style="background:#c0c0c0;border:2px outset #808080;padding:2px 6px;font-size:10px;margin:2px;">`;
+    html += `[!]`;
     html += `</button>`;
     html += `</div>`;
 
@@ -324,4 +324,34 @@ function createFishImageDataUrl(imgUrl, callback) {
         callback(null);
     };
     img.src = imgUrl;
+}
+
+// Navigation authentication utility
+function initializeAuthNavigation() {
+    // Check authentication status and show/hide "my tanks" link
+    function checkAuthAndUpdateNav() {
+        const token = localStorage.getItem('userToken');
+        const userData = localStorage.getItem('userData');
+        const myTanksLink = document.getElementById('my-tanks-link');
+        
+        if (myTanksLink) {
+            if (token && userData) {
+                // User is logged in - show the link
+                myTanksLink.style.display = 'inline';
+            } else {
+                // User is not logged in - hide the link
+                myTanksLink.style.display = 'none';
+            }
+        }
+    }
+    
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', checkAuthAndUpdateNav);
+    
+    // Also check when localStorage changes (for cross-tab login/logout)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'userToken' || e.key === 'userData') {
+            checkAuthAndUpdateNav();
+        }
+    });
 }

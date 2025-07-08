@@ -8,14 +8,13 @@
     <link rel="stylesheet" href="src/css/moderation.css">
 </head>
 <body>
-    <div class="moderation-container">
-        <div class="moderation-header">
-            <h1>🐠 Fish Moderation Panel</h1>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <p>Review and moderate user-submitted fish drawings</p>
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
+    <div class="moderation-header">
+        <h1>Fish Moderation Panel</h1>
+        <div>
+            Review and moderate user-submitted fish drawings
+            <button class="logout-btn" onclick="logout()" style="float: right;">Logout</button>
         </div>
+    </div>
         
         <div class="stats-bar">
             <div class="stat-item">
@@ -40,10 +39,11 @@
             </div>
         </div>
         
-        <div class="filters">
+        <div class="filters control-panel">
+            <strong>Filters:</strong>
             <button class="filter-btn active" onclick="setFilter('all')">All Fish</button>
-            <button class="filter-btn" onclick="setFilter('flagged')">Flagged Only</button>
-            <button class="filter-btn" onclick="setFilter('reported')">Reported Only</button>
+            <button class="filter-btn" onclick="setFilter('flagged')">Flagged</button>
+            <button class="filter-btn" onclick="setFilter('reported')">Reported</button>
             <button class="filter-btn" onclick="setFilter('recent')">Recent (24h)</button>
             <button class="filter-btn" onclick="setFilter('high-score')">High Score</button>
             <button class="filter-btn" onclick="setFilter('low-score')">Low Score</button>

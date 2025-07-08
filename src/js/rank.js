@@ -159,7 +159,7 @@ function createFishCard(fish) {
     
     return `
         <div class="fish-card" data-fish-id="${fish.docId}">
-            <div class="fish-image-container">
+            <div class="fish-image-container" onclick="showAddToTankModal('${fish.docId}')" title="Click to add to your tank" style="cursor: pointer;">
                 <img class="fish-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" alt="Fish" data-fish-id="${fish.docId}">
             </div>
             <div class="fish-info">
@@ -519,113 +519,10 @@ function handleReport(fishId, button) {
     handleReportGeneric(fishId, button);
 }
 
-// Add to Tank functionality
-let userTanks = [];
-let selectedFishId = null;
+// Add to Tank functionality now handled by modal-utils.js
+// The showAddToTankModal function is now available globally from modal-utils.js
 
-// Show add to tank modal
-async function showAddToTankModal(fishId) {
-    const token = localStorage.getItem('userToken');
-    if (!token) {
-        alert('Please log in to add fish to your tanks');
-        return;
-    }
-    
-    selectedFishId = fishId;
-    await loadUserTanks();
-    
-    // Show modal
-    document.getElementById('add-to-tank-modal').style.display = 'block';
-}
-
-// Load user's tanks
-async function loadUserTanks() {
-    try {
-        const token = localStorage.getItem('userToken');
-        const response = await fetch(`${BACKEND_URL}/api/fishtanks/my-tanks`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to load your tanks');
-        }
-        
-        const data = await response.json();
-        userTanks = data.fishtanks || [];
-        renderTankSelection();
-        
-    } catch (err) {
-        console.error('Error loading tanks:', err);
-        alert('Failed to load your tanks. Please try again.');
-    }
-}
-
-// Render tank selection
-function renderTankSelection() {
-    const container = document.getElementById('tank-selection');
-    container.innerHTML = '';
-    
-    if (userTanks.length === 0) {
-        container.innerHTML = `
-            <div class="empty-tanks">
-                <p>You don't have any tanks yet.</p>
-                <a href="fishtanks.html" class="btn">Create Your First Tank</a>
-            </div>
-        `;
-        return;
-    }
-    
-    userTanks.forEach(tank => {
-        const tankElement = document.createElement('div');
-        tankElement.className = 'tank-option';
-        tankElement.innerHTML = `
-            <h4>${tank.name}</h4>
-            <p>${tank.description || 'No description'}</p>
-            <p>Fish: ${tank.fishCount || 0} | Privacy: ${tank.isPublic ? 'Public' : 'Private'}</p>
-            <button class="btn btn-small" onclick="addFishToTank('${tank.id}')">Add to This Tank</button>
-        `;
-        container.appendChild(tankElement);
-    });
-}
-
-// Add fish to selected tank
-async function addFishToTank(tankId) {
-    if (!selectedFishId) return;
-    
-    try {
-        const token = localStorage.getItem('userToken');
-        const response = await fetch(`${BACKEND_URL}/api/fishtanks/${tankId}/add-fish`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                fishId: selectedFishId
-            })
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to add fish to tank');
-        }
-        
-        alert('Fish added to tank successfully!');
-        closeAddToTankModal();
-        
-    } catch (err) {
-        console.error('Error adding fish to tank:', err);
-        alert('Failed to add fish to tank: ' + err.message);
-    }
-}
-
-// Close add to tank modal
-function closeAddToTankModal() {
-    document.getElementById('add-to-tank-modal').style.display = 'none';
-    selectedFishId = null;
-}
+// Modal functions are now handled by modal-utils.js
 
 // Make functions globally available
 window.handleVote = handleVote;
@@ -633,3 +530,4 @@ window.handleReport = handleReport;
 window.showAddToTankModal = showAddToTankModal;
 window.addFishToTank = addFishToTank;
 window.closeAddToTankModal = closeAddToTankModal;
+window.closeLoginPromptModal = closeLoginPromptModal;

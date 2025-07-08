@@ -432,39 +432,31 @@ function showNewFishNotification(artistName) {
         return;
     }
     
-    // Create notification element
+    // Create retro notification element
     const notification = document.createElement('div');
-    notification.textContent = `new fish from ${artistName}!`;
+    notification.textContent = `New fish from ${artistName}!`;
     notification.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        color: black;
-        background: white;
-        padding: 8px 16px;
-        font-size: 14px;
-        font-weight: 500;
+        color: #000000;
+        background: #c0c0c0;
+        border: 2px outset #808080;
+        padding: 4px 8px;
+        font-size: 11px;
+        font-family: "MS Sans Serif", sans-serif;
+        font-weight: bold;
         z-index: 1000;
-        opacity: 0;
-        transform: translateX(100%);
         pointer-events: none;
     `;
     
     document.body.appendChild(notification);
     
-    // Animate in
+    // Remove after 3 seconds (no animation)
     setTimeout(() => {
-        notification.style.opacity = '1';
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-    
-    // Animate out and remove after 3 seconds
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
+        if (document.body.contains(notification)) {
             document.body.removeChild(notification);
-        }, 300);
+        }
     }, 3000);
 }
 
@@ -721,18 +713,24 @@ function showFishInfoModal(fish) {
     const modalHeight = Math.min(80, fish.height);
 
     let info = `<div style='text-align:center;'>`;
-    info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto 15px auto;border-radius:8px;border:1px solid #ccc;background:#f8f8f8;' alt='Fish'><br>`;
-    info += `<div style='margin-bottom:15px;'>`;
-    info += `<b>Artist:</b> ${fish.artist || 'Anonymous'}<br>`;
+    info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto 10px auto;border:1px solid #808080;background:#ffffff;' alt='Fish'><br>`;
+    info += `<div style='margin-bottom:10px;'>`;
+    info += `<strong>Artist:</strong> ${fish.artist || 'Anonymous'}<br>`;
     if (fish.createdAt) {
-        info += `<b>Created:</b> ${formatDate(fish.createdAt)}<br>`;
+        info += `<strong>Created:</strong> ${formatDate(fish.createdAt)}<br>`;
     }
     const score = calculateScore(fish);
-    info += `<b class="modal-score">Score: ${score}</b>`;
+    info += `<strong class="modal-score">Score: ${score}</strong>`;
     info += `</div>`;
 
     // Add voting controls using shared utility
     info += createVotingControlsHTML(fish.docId, fish.upvotes || 0, fish.downvotes || 0, false, 'modal-controls');
+    
+    // Add "Add to Tank" button
+    info += `<div style='margin-top: 10px; text-align: center;'>`;
+    info += `<button onclick="showAddToTankModal('${fish.docId}')" style="border: 1px solid #000; padding: 4px 8px; cursor: pointer;">Add to Tank</button>`;
+    info += `</div>`;
+    
     info += `</div>`;
 
     showModal(info, () => { });
@@ -787,12 +785,12 @@ function showModal(html, onClose) {
     modal.style.top = '0';
     modal.style.width = '100vw';
     modal.style.height = '100vh';
-    modal.style.background = 'rgba(0,0,0,0.35)';
+    modal.style.background = 'rgba(192,192,192,0.8)';
     modal.style.display = 'flex';
     modal.style.alignItems = 'center';
     modal.style.justifyContent = 'center';
     modal.style.zIndex = '9999';
-    modal.innerHTML = `<div style="background:#fff;padding:28px 24px 18px 24px;border-radius:12px;box-shadow:0 4px 32px #0002;min-width:260px;max-width:90vw;max-height:90vh;overflow:auto;">${html}</div>`;
+    modal.innerHTML = `<div style="background:white;padding:15px;border: 1px solid #000;min-width:300px;max-width:90vw;max-height:90vh;overflow:auto;">${html}</div>`;
     function close() {
         document.body.removeChild(modal);
         if (onClose) onClose();

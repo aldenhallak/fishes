@@ -3,189 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Fish Drawing App</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Fish Login</title>
+    <link rel="stylesheet" href="src/css/style.css">
     <style>
         .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 30px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            text-align: center;
+            max-width: 350px;
+            margin: 50px auto;
+            border: 1px solid #000;
+            padding: 15px;
         }
+        
         .login-header {
-            margin-bottom: 30px;
+            padding: 4px 8px;
+            margin: -15px -15px 15px -15px;
+            font-weight: bold;
         }
-        .login-header h1 {
-            color: #0288d1;
-            margin-bottom: 10px;
+        
+        .auth-tabs {
+            margin-bottom: 15px;
         }
-        .login-header p {
-            color: #666;
-            margin: 0;
+        
+        .auth-tab-btn {
+            margin-right: 5px;
         }
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
+        
+        .auth-tab-btn.active {
+            background: #000;
+            color: white;
         }
-        #g_id_signin {
-            margin: 20px 0;
+        
+        .auth-form {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-bottom: 15px;
         }
+        
+        .auth-form input {
+            width: 100%;
+            padding: 2px;
+            border: 1px solid #000;
+            margin-bottom: 8px;
+        }
+        
         .loading {
             display: none;
-            color: #0288d1;
-            font-style: italic;
         }
+        
         .error {
             display: none;
-            color: #f44336;
-            background: #ffebee;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #f44336;
+            color: #800000;
+            background: #ffcccc;
+            border: 1px solid #800000;
+            padding: 5px;
         }
-        .login-type-selection {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .login-type-btn {
-            flex: 1;
-            padding: 10px 20px;
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .login-type-btn.active {
-            background: #0288d1;
-            color: white;
-            border-color: #0288d1;
-        }
-        .login-type-btn:hover {
-            background: #e0e0e0;
-        }
-        .login-type-btn.active:hover {
-            background: #0277bd;
-        }
-        .auth-section {
-            width: 100%;
-        }
-        .auth-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .auth-tab-btn {
-            flex: 1;
-            padding: 8px 16px;
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .auth-tab-btn.active {
-            background: #0288d1;
-            color: white;
-            border-color: #0288d1;
-        }
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .auth-form input {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .auth-form input:focus {
-            outline: none;
-            border-color: #0288d1;
-        }
-        .auth-form button {
-            padding: 12px;
-            background: #0288d1;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s ease;
-        }
-        .auth-form button:hover {
-            background: #0277bd;
-        }
+        
         .divider {
             text-align: center;
-            margin: 20px 0;
-            position: relative;
+            margin: 15px 0;
+            border-bottom: 1px solid #000;
+            height: 10px;
         }
-        .divider:before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #ddd;
-        }
+        
         .divider span {
             background: white;
-            padding: 0 15px;
-            color: #666;
+            padding: 0 10px;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>🐠 Fish Drawing App</h1>
-            <p>Sign in to save your fish and access features</p>
+            Fish Login
         </div>
         
-        <div class="login-form">
-            <div class="auth-tabs">
-                <button type="button" class="auth-tab-btn active" onclick="showAuthForm('signin')">Sign In</button>
-                <button type="button" class="auth-tab-btn" onclick="showAuthForm('signup')">Sign Up</button>
-            </div>
-            
-            <!-- Sign In Form -->
-            <form id="signin-form" class="auth-form">
-                <input type="email" id="signin-email" placeholder="Email" required>
-                <input type="password" id="signin-password" placeholder="Password" required>
-                <button type="submit">Sign In</button>
-            </form>
-            
-            <!-- Sign Up Form -->
-            <form id="signup-form" class="auth-form" style="display: none;">
-                <input type="text" id="signup-name" placeholder="Display Name" required>
-                <input type="email" id="signup-email" placeholder="Email" required>
-                <input type="password" id="signup-password" placeholder="Password (min 6 characters)" required>
-                <button type="submit">Sign Up</button>
-            </form>
-            
-            <div class="divider">
-                <span>or</span>
-            </div>
-            
-            <div id="g_id_signin"></div>
-            
-            <div id="loading" class="loading">
-                Verifying credentials...
-            </div>
-            
-            <div id="error" class="error">
-                Authentication failed. Please try again.
-            </div>
+        <div class="auth-tabs">
+            <button type="button" class="auth-tab-btn active" onclick="showAuthForm('signin')">Sign In</button>
+            <button type="button" class="auth-tab-btn" onclick="showAuthForm('signup')">Sign Up</button>
+        </div>
+        
+        <!-- Sign In Form -->
+        <form id="signin-form" class="auth-form">
+            <strong>Email:</strong><br>
+            <input type="email" id="signin-email" required><br>
+            <strong>Password:</strong><br>
+            <input type="password" id="signin-password" required><br><br>
+            <button type="submit">Login</button>
+        </form>
+        
+        <!-- Sign Up Form -->
+        <form id="signup-form" class="auth-form" style="display: none;">
+            <strong>Display Name:</strong><br>
+            <input type="text" id="signup-name" required><br>
+            <strong>Email:</strong><br>
+            <input type="email" id="signup-email" required><br>
+            <strong>Password:</strong><br>
+            <input type="password" id="signup-password" required><br><br>
+            <button type="submit">Register</button>
+        </form>
+        
+        <div class="divider">
+            <span>or</span>
+        </div>
+        
+        <div id="g_id_signin"></div>
+        
+        <div id="loading" class="loading">
+            Verifying credentials...
+        </div>
+        
+        <div id="error" class="error">
+            Authentication failed. Please try again.
         </div>
     </div>
 

@@ -192,12 +192,13 @@
       position: fixed;
       top: 20px;
       right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 5px;
+      background: #c0c0c0;
+      color: #008000;
+      padding: 8px 12px;
+      border: 2px outset #808080;
       z-index: 1000;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      font-family: "MS Sans Serif", sans-serif;
+      font-size: 11px;
       max-width: 300px;
     `;
     messageElement.textContent = message;
