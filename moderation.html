@@ -50,6 +50,14 @@
             <button class="filter-btn" onclick="setFilter('deleted')">Deleted</button>
         </div>
         
+        <div class="download-section control-panel" style="margin-top: 10px;">
+            <strong>Training Data:</strong>
+            <button class="action-btn" onclick="downloadAllImages()" id="downloadBtn" style="background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                📥 Download All Images (Including Deleted)
+            </button>
+            <span id="downloadStatus" style="margin-left: 10px; font-style: italic; color: #666;"></span>
+        </div>
+        
         <div class="bulk-actions" style="margin-bottom: 20px; display: none;" id="bulkActions">
             <div style="display: flex; gap: 10px; align-items: center;">
                 <span id="selectedCount">0 selected</span>
@@ -72,6 +80,9 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- JSZip library for creating ZIP files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
     <script src="src/js/firebase-init.js"></script>
     <script src="src/js/fish-utils.js"></script>

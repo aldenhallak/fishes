@@ -553,3 +553,173 @@ function formatDate(dateValue) {
         minute: '2-digit'
     });
 }
+
+// Download all images including deleted ones for training
+async function downloadAllImages() {
+    const downloadBtn = document.getElementById('downloadBtn');
+    const downloadStatus = document.getElementById('downloadStatus');
+    
+    // Disable button and show loading state
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = 'Preparing Download...';
+    downloadStatus.textContent = 'Fetching all fish data...';
+    
+    try {
+        // Fetch all fish from Firebase (including deleted ones)
+        const allFishSnapshot = await window.db.collection('fishes_test').get();
+        
+        if (allFishSnapshot.empty) {
+            alert('No fish found to download.');
+            return;
+        }
+        
+        const totalFish = allFishSnapshot.size;
+        downloadStatus.textContent = `Found ${totalFish} fish. Creating ZIP file...`;
+        
+        // Create a new ZIP file
+        const zip = new JSZip();
+        
+        // Create metadata file
+        const metadata = {
+            exportDate: new Date().toISOString(),
+            totalFish: totalFish,
+            exportedBy: 'Fish Moderation Panel',
+            description: 'All fish images including deleted ones for training purposes'
+        };
+        
+        const fishData = [];
+        let processedCount = 0;
+        let successCount = 0;
+        let failedCount = 0;
+        
+        // Process each fish
+        for (const doc of allFishSnapshot.docs) {
+            const fish = doc.data();
+            const fishId = doc.id;
+            
+            try {
+                // Update progress
+                processedCount++;
+                downloadStatus.textContent = `Processing fish ${processedCount}/${totalFish}...`;
+                
+                // Get the image URL
+                const imageUrl = fish.image || fish.Image;
+                
+                if (!imageUrl) {
+                    console.warn(`No image URL found for fish ${fishId}`);
+                    failedCount++;
+                    continue;
+                }
+                
+                // Fetch the image
+                const response = await fetch(imageUrl);
+                if (!response.ok) {
+                    console.warn(`Failed to fetch image for fish ${fishId}: ${response.status}`);
+                    failedCount++;
+                    continue;
+                }
+                
+                const imageBlob = await response.blob();
+                
+                // Create filename with fish info
+                const status = fish.deleted ? 'deleted' : 
+                             fish.approved ? 'approved' : 
+                             fish.flaggedForReview ? 'flagged' : 'pending';
+                
+                const createdAt = fish.CreatedAt ? 
+                    (fish.CreatedAt.toDate ? fish.CreatedAt.toDate() : new Date(fish.CreatedAt)) : 
+                    new Date();
+                
+                const dateStr = createdAt.toISOString().split('T')[0];
+                
+                // Determine file extension from blob type or URL
+                let extension = 'png';
+                if (imageBlob.type === 'image/jpeg') {
+                    extension = 'jpg';
+                } else if (imageBlob.type === 'image/gif') {
+                    extension = 'gif';
+                }
+                
+                const filename = `${status}/${fishId}_${dateStr}_${status}.${extension}`;
+                
+                // Add image to ZIP
+                zip.file(filename, imageBlob);
+                
+                // Add fish metadata
+                fishData.push({
+                    id: fishId,
+                    filename: filename,
+                    status: status,
+                    createdAt: createdAt.toISOString(),
+                    artist: fish.Artist || 'Anonymous',
+                    upvotes: fish.upvotes || 0,
+                    downvotes: fish.downvotes || 0,
+                    score: calculateScore(fish),
+                    reportCount: fish.reportCount || 0,
+                    flaggedForReview: fish.flaggedForReview || false,
+                    approved: fish.approved || false,
+                    deleted: fish.deleted || false
+                });
+                
+                successCount++;
+                
+            } catch (error) {
+                console.error(`Error processing fish ${fishId}:`, error);
+                failedCount++;
+            }
+        }
+        
+        // Add metadata files to ZIP
+        metadata.fishData = fishData;
+        metadata.summary = {
+            totalFish: totalFish,
+            successfullyDownloaded: successCount,
+            failed: failedCount
+        };
+        
+        zip.file('metadata.json', JSON.stringify(metadata, null, 2));
+        
+        // Create a CSV file for easy analysis
+        const csvHeaders = 'ID,Filename,Status,Created,Artist,Upvotes,Downvotes,Score,ReportCount,Flagged,Approved,Deleted\n';
+        const csvData = fishData.map(fish => 
+            `${fish.id},${fish.filename},${fish.status},${fish.createdAt},${fish.artist},${fish.upvotes},${fish.downvotes},${fish.score},${fish.reportCount},${fish.flaggedForReview},${fish.approved},${fish.deleted}`
+        ).join('\n');
+        
+        zip.file('fish_data.csv', csvHeaders + csvData);
+        
+        // Generate and download ZIP file
+        downloadStatus.textContent = 'Generating ZIP file...';
+        
+        const content = await zip.generateAsync({
+            type: 'blob',
+            compression: 'DEFLATE',
+            compressionOptions: {
+                level: 6
+            }
+        });
+        
+        // Create download link
+        const url = window.URL.createObjectURL(content);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `fish_training_data_${new Date().toISOString().split('T')[0]}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        downloadStatus.textContent = `Download complete! ${successCount} images downloaded, ${failedCount} failed.`;
+        
+        // Show summary
+        alert(`Download complete!\n\nSuccessfully downloaded: ${successCount} images\nFailed: ${failedCount} images\nTotal processed: ${totalFish} fish\n\nThe ZIP file includes:\n- All fish images organized by status (approved, deleted, flagged, pending)\n- metadata.json with detailed information\n- fish_data.csv for easy analysis`);
+        
+    } catch (error) {
+        console.error('Error downloading images:', error);
+        alert('Error downloading images. Please try again.');
+        downloadStatus.textContent = 'Download failed. Please try again.';
+    } finally {
+        // Re-enable button
+        downloadBtn.disabled = false;
+        downloadBtn.textContent = '📥 Download All Images (Including Deleted)';
+    }
+}
