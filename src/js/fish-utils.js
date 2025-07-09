@@ -2,7 +2,7 @@
 // This file contains common functions to avoid code duplication
 
 // Configuration for backend URL - change to false for local development
-const USE_PRODUCTION_BACKEND = false;
+const USE_PRODUCTION_BACKEND = true;
 const BACKEND_URL = USE_PRODUCTION_BACKEND
     ? 'https://fishes-be-571679687712.northamerica-northeast1.run.app'
     : 'http://localhost:8080';
