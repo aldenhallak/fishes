@@ -156,10 +156,16 @@ function createFishCard(fish) {
     const score = fish.score || 0;
     const upvotes = fish.upvotes || 0;
     const downvotes = fish.downvotes || 0;
+    const userToken = localStorage.getItem('userToken');
+    
+    // Only make fish clickable if user is logged in
+    const fishImageContainer = userToken 
+        ? `<div class="fish-image-container" onclick="showAddToTankModal('${fish.docId}')" title="Click to add to your tank" style="cursor: pointer;">`
+        : `<div class="fish-image-container" title="Login to add fish to your tank" style="cursor: default;">`;
     
     return `
         <div class="fish-card" data-fish-id="${fish.docId}">
-            <div class="fish-image-container" onclick="showAddToTankModal('${fish.docId}')" title="Click to add to your tank" style="cursor: pointer;">
+            ${fishImageContainer}
                 <img class="fish-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" alt="Fish" data-fish-id="${fish.docId}">
             </div>
             <div class="fish-info">

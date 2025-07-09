@@ -726,10 +726,13 @@ function showFishInfoModal(fish) {
     // Add voting controls using shared utility
     info += createVotingControlsHTML(fish.docId, fish.upvotes || 0, fish.downvotes || 0, false, 'modal-controls');
     
-    // Add "Add to Tank" button
-    info += `<div style='margin-top: 10px; text-align: center;'>`;
-    info += `<button onclick="showAddToTankModal('${fish.docId}')" style="border: 1px solid #000; padding: 4px 8px; cursor: pointer;">Add to Tank</button>`;
-    info += `</div>`;
+    // Add "Add to Tank" button only if user is logged in
+    const userToken = localStorage.getItem('userToken');
+    if (userToken) {
+        info += `<div style='margin-top: 10px; text-align: center;'>`;
+        info += `<button onclick="showAddToTankModal('${fish.docId}')" style="border: 1px solid #000; padding: 4px 8px; cursor: pointer;">Add to Tank</button>`;
+        info += `</div>`;
+    }
     
     info += `</div>`;
 
@@ -780,17 +783,34 @@ window.handleReport = handleReport;
 
 function showModal(html, onClose) {
     let modal = document.createElement('div');
+    modal.className = 'modal';
     modal.style.position = 'fixed';
     modal.style.left = '0';
     modal.style.top = '0';
-    modal.style.width = '100vw';
-    modal.style.height = '100vh';
-    modal.style.background = 'rgba(192,192,192,0.8)';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.background = 'rgba(0,0,0,0.5)';
     modal.style.display = 'flex';
     modal.style.alignItems = 'center';
     modal.style.justifyContent = 'center';
-    modal.style.zIndex = '9999';
-    modal.innerHTML = `<div style="background:white;padding:15px;border: 1px solid #000;min-width:300px;max-width:90vw;max-height:90vh;overflow:auto;">${html}</div>`;
+    modal.style.zIndex = '1000';
+    
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    modalContent.style.background = 'white';
+    modalContent.style.margin = '100px auto';
+    modalContent.style.padding = '20px';
+    modalContent.style.width = 'auto';
+    modalContent.style.minWidth = '300px';
+    modalContent.style.maxWidth = '90vw';
+    modalContent.style.maxHeight = '90vh';
+    modalContent.style.borderRadius = '10px';
+    modalContent.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
+    modalContent.style.overflow = 'auto';
+    modalContent.innerHTML = html;
+    
+    modal.appendChild(modalContent);
+    
     function close() {
         document.body.removeChild(modal);
         if (onClose) onClose();

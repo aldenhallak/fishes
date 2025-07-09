@@ -175,20 +175,20 @@ function formatDate(dateValue) {
 // Create voting controls HTML (shared utility)
 function createVotingControlsHTML(fishId, upvotes = 0, downvotes = 0, includeScore = false, cssClass = '') {
     const score = upvotes - downvotes;
-    let html = `<div class="voting-controls ${cssClass}" style="text-align:center;margin-top:10px;">`;
+    let html = `<div class="voting-controls ${cssClass}">`;
 
     if (includeScore) {
-        html += `<span class="fish-score" style="font-size:11px;">Score: ${score}</span><br>`;
+        html += `<span class="fish-score">Score: ${score}</span><br>`;
     }
 
-    html += `<button class="vote-btn upvote-btn" onclick="handleVote('${fishId}', 'up', this)" title="Upvote this fish" style="background:#c0c0c0;border:2px outset #808080;padding:2px 6px;font-size:10px;margin:2px;">`;
-    html += `+1 <span class="vote-count upvote-count">${upvotes}</span>`;
+    html += `<button class="vote-btn upvote-btn" onclick="handleVote('${fishId}', 'up', this)">`;
+    html += `👍 <span class="vote-count upvote-count">${upvotes}</span>`;
     html += `</button>`;
-    html += `<button class="vote-btn downvote-btn" onclick="handleVote('${fishId}', 'down', this)" title="Downvote this fish" style="background:#c0c0c0;border:2px outset #808080;padding:2px 6px;font-size:10px;margin:2px;">`;
-    html += `-1 <span class="vote-count downvote-count">${downvotes}</span>`;
+    html += `<button class="vote-btn downvote-btn" onclick="handleVote('${fishId}', 'down', this)">`;
+    html += `👎 <span class="vote-count downvote-count">${downvotes}</span>`;
     html += `</button>`;
-    html += `<button class="report-btn" onclick="handleReport('${fishId}', this)" title="Report inappropriate content" style="background:#c0c0c0;border:2px outset #808080;padding:2px 6px;font-size:10px;margin:2px;">`;
-    html += `[!]`;
+    html += `<button class="report-btn" onclick="handleReport('${fishId}', this)" title="Report inappropriate content">`;
+    html += `🚩`;
     html += `</button>`;
     html += `</div>`;
 
