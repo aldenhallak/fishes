@@ -386,8 +386,8 @@ async function loadFishModel() {
     return modelLoadPromise;
 }
 
-// Add debugging to frontend preprocessing
-function debugPreprocessCanvasForONNX(canvas) {
+// Updated preprocessing to match new grayscale model (3-channel) with ImageNet normalization
+function preprocessCanvasForONNX(canvas) {
     const SIZE = 224;
     
     // 1. Get canvas data
@@ -449,37 +449,58 @@ function debugPreprocessCanvasForONNX(canvas) {
     const dy = (SIZE - drawH) / 2;
     
     tmpCtx.drawImage(cropped, 0, 0, cropped.width, cropped.height, dx, dy, drawW, drawH);
+    
     // 6. Get final image data and process
     const finalImgData = tmpCtx.getImageData(0, 0, SIZE, SIZE).data;
         
-    // 7. Convert to tensor
-    const input = new Float32Array(1 * SIZE * SIZE);
+    // 7. Convert to grayscale then repeat to 3 channels with ImageNet normalization
+    // This matches: transforms.Grayscale(num_output_channels=3)
+    // ImageNet normalization: mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+    const input = new Float32Array(3 * SIZE * SIZE);
+    
+    // ImageNet normalization values
+    const mean = [0.485, 0.456, 0.406];
+    const std = [0.229, 0.224, 0.225];
+    
     for (let y = 0; y < SIZE; y++) {
         for (let x = 0; x < SIZE; x++) {
             const idx = (y * SIZE + x) * 4;
             const r = finalImgData[idx];
             const g = finalImgData[idx + 1];
             const b = finalImgData[idx + 2];
-            let gray = 0.299 * r + 0.587 * g + 0.114 * b;
-            const norm = (gray / 255 - 0.5) / 0.5;
-            input[y * SIZE + x] = norm;
+            
+            // Convert to grayscale using standard weights
+            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+            
+            // Normalize grayscale value to [0, 1] then apply ImageNet normalization
+            // Since we're repeating grayscale to 3 channels, apply normalization to each channel
+            const grayNorm0 = (gray / 255.0 - mean[0]) / std[0];
+            const grayNorm1 = (gray / 255.0 - mean[1]) / std[1];
+            const grayNorm2 = (gray / 255.0 - mean[2]) / std[2];
+            
+            // PyTorch tensor format: [batch, channels, height, width]
+            // Channel-first format: all channels have same grayscale value but different normalization
+            const pixelIdx = y * SIZE + x;
+            input[pixelIdx] = grayNorm0;                        // Channel 0 (R)
+            input[SIZE * SIZE + pixelIdx] = grayNorm1;          // Channel 1 (G)
+            input[2 * SIZE * SIZE + pixelIdx] = grayNorm2;      // Channel 2 (B)
         }
     }
         
-    return new window.ort.Tensor('float32', input, [1, 1, SIZE, SIZE]);
+    return new window.ort.Tensor('float32', input, [1, 3, SIZE, SIZE]);
 }
 
-// Modify your verifyFishDoodle function to call this debug version
+// Updated verifyFishDoodle function to match new model output format
 async function verifyFishDoodle(canvas) {
     // Model should already be loaded, but check just in case
     if (!ortSession) {
         throw new Error('Fish model not loaded');
     }
     
-    // Use debug version for detailed logging
-    const inputTensor = debugPreprocessCanvasForONNX(canvas);
+    // Use updated preprocessing
+    const inputTensor = preprocessCanvasForONNX(canvas);
     
-    // Rest of your existing code...
+    // Run inference
     let feeds = {};
     if (ortSession && ortSession.inputNames && ortSession.inputNames.length > 0) {
         feeds[ortSession.inputNames[0]] = inputTensor;
@@ -489,18 +510,19 @@ async function verifyFishDoodle(canvas) {
     const results = await ortSession.run(feeds);
     const outputKey = Object.keys(results)[0];
     const output = results[outputKey].data;
-    let isFish, prob;
-    if (output.length > 1) {
-        const exp0 = Math.exp(output[0]);
-        const exp1 = Math.exp(output[1]);
-        prob = exp1 / (exp0 + exp1);
-        isFish = output[1] > output[0];
-    } else {
-        prob = 1 / (1 + Math.exp(-output[0]));
-        isFish = prob >= 0.15;
-    }
+    
+    // The model outputs a single logit value
+    // During training: labels = 1 - labels, so fish = 0, not_fish = 1
+    // Model output > 0.5 means "not_fish", < 0.5 means "fish"
+    const logit = output[0];
+    const prob = 1 / (1 + Math.exp(-logit));  // Sigmoid activation
+    
+    // Since the model was trained with inverted labels (fish=0, not_fish=1)
+    // A low probability means it's more likely to be a fish
+    const fishProbability = 1 - prob;
+    const isFish = fishProbability >= 0.5;  // Threshold for fish classification
         
-    // Your existing UI update code...
+    // Update UI with fish probability
     let probDiv = document.getElementById('fish-probability');
     if (!probDiv) {
         probDiv = document.createElement('div');
@@ -509,7 +531,7 @@ async function verifyFishDoodle(canvas) {
         probDiv.style.margin = '10px 0 0 0';
         probDiv.style.fontWeight = 'bold';
         probDiv.style.fontSize = '1.1em';
-        probDiv.style.color = prob >= 0.1 ? '#218838' : '#c0392b';
+        probDiv.style.color = fishProbability >= 0.5 ? '#218838' : '#c0392b';
         const drawCanvas = document.getElementById('draw-canvas');
         if (drawCanvas && drawCanvas.parentNode) {
             if (drawCanvas.nextSibling) {
@@ -522,8 +544,8 @@ async function verifyFishDoodle(canvas) {
             if (drawUI) drawUI.appendChild(probDiv);
         }
     }
-    probDiv.textContent = `Fish probability: ${(prob * 100).toFixed(1)}%`;
-    probDiv.style.color = prob >= 0.1 ? '#218838' : '#c0392b';
+    probDiv.textContent = `Fish probability: ${(fishProbability * 100).toFixed(1)}%`;
+    probDiv.style.color = fishProbability >= 0.5 ? '#218838' : '#c0392b';
     return isFish;
 }
 
