@@ -17,39 +17,56 @@
     );
   };
 
-  // Google OAuth handler
-  async function handleGoogleCredentialResponse(response) {
+  // Helper function to handle successful authentication
+  function handleAuthSuccess(authResponse) {
+    localStorage.setItem("userToken", authResponse.token);
+    localStorage.setItem("userData", JSON.stringify(authResponse.user));
+    
+    // Check if user has admin privileges and show notification
+    if (authResponse.user && authResponse.user.isAdmin) {
+      showMessage("Welcome! You have admin privileges. You can access the moderation panel from the main app.");
+    }
+    
+    window.location.href = "/fishtanks.html";
+  }
+
+  // Helper function to handle API errors
+  async function handleApiError(response, defaultMessage) {
+    const errorResponse = await response.json().catch(() => ({}));
+    throw new Error(errorResponse.error || defaultMessage);
+  }
+
+  // Helper function to execute authentication requests
+  async function executeAuthRequest(requestPromise, errorContext, defaultErrorMessage) {
     showLoading();
     hideError();
     
     try {
-      const res = await fetch(BACKEND_URL + "/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: response.credential })
-      });
-
-      if (res.ok) {
-        const authResponse = await res.json();
-        localStorage.setItem("userToken", authResponse.token);
-        localStorage.setItem("userData", JSON.stringify(authResponse.user));
-        
-        // Check if user has admin privileges and show notification
-        if (authResponse.user && authResponse.user.isAdmin) {
-          showMessage("Welcome! You have admin privileges. You can access the moderation panel from the main app.");
-        }
-        
-        window.location.href = "/index.html"; // Redirect to main app
+      const response = await requestPromise;
+      
+      if (response.ok) {
+        const authResponse = await response.json();
+        handleAuthSuccess(authResponse);
       } else {
-        const errorResponse = await res.json().catch(() => ({}));
-        throw new Error(errorResponse.error || "Authentication failed.");
+        await handleApiError(response, defaultErrorMessage);
       }
     } catch (error) {
-      console.error('Google authentication error:', error);
-      showError(error.message || "Authentication failed. Please try again.");
+      console.error(`${errorContext} error:`, error);
+      showError(error.message || `${defaultErrorMessage} Please try again.`);
     } finally {
       hideLoading();
     }
+  }
+
+  // Google OAuth handler
+  async function handleGoogleCredentialResponse(response) {
+    const requestPromise = fetch(BACKEND_URL + "/auth/google", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: response.credential })
+    });
+    
+    await executeAuthRequest(requestPromise, "Google authentication", "Authentication failed.");
   }
 
   // Handle email/password sign in
@@ -64,37 +81,13 @@
       return;
     }
     
-    showLoading();
-    hideError();
+    const requestPromise = fetch(BACKEND_URL + "/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
     
-    try {
-      const res = await fetch(BACKEND_URL + "/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-
-      if (res.ok) {
-        const authResponse = await res.json();
-        localStorage.setItem("userToken", authResponse.token);
-        localStorage.setItem("userData", JSON.stringify(authResponse.user));
-        
-        // Check if user has admin privileges and show notification
-        if (authResponse.user && authResponse.user.isAdmin) {
-          showMessage("Welcome! You have admin privileges. You can access the moderation panel from the main app.");
-        }
-        
-        window.location.href = "/index.html"; // Redirect to main app
-      } else {
-        const errorResponse = await res.json().catch(() => ({}));
-        throw new Error(errorResponse.error || "Login failed.");
-      }
-    } catch (error) {
-      console.error('Sign in error:', error);
-      showError(error.message || "Sign in failed. Please try again.");
-    } finally {
-      hideLoading();
-    }
+    await executeAuthRequest(requestPromise, "Sign in", "Sign in failed.");
   }
 
   // Handle email/password sign up
@@ -115,37 +108,13 @@
       return;
     }
     
-    showLoading();
-    hideError();
+    const requestPromise = fetch(BACKEND_URL + "/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ displayName, email, password })
+    });
     
-    try {
-      const res = await fetch(BACKEND_URL + "/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ displayName, email, password })
-      });
-
-      if (res.ok) {
-        const authResponse = await res.json();
-        localStorage.setItem("userToken", authResponse.token);
-        localStorage.setItem("userData", JSON.stringify(authResponse.user));
-        
-        // Check if user has admin privileges and show notification
-        if (authResponse.user && authResponse.user.isAdmin) {
-          showMessage("Welcome! You have admin privileges. You can access the moderation panel from the main app.");
-        }
-        
-        window.location.href = "/index.html"; // Redirect to main app
-      } else {
-        const errorResponse = await res.json().catch(() => ({}));
-        throw new Error(errorResponse.error || "Registration failed.");
-      }
-    } catch (error) {
-      console.error('Sign up error:', error);
-      showError(error.message || "Registration failed. Please try again.");
-    } finally {
-      hideLoading();
-    }
+    await executeAuthRequest(requestPromise, "Sign up", "Registration failed.");
   }
 
   // UI Helper Functions
