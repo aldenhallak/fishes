@@ -388,105 +388,60 @@ async function loadFishModel() {
 
 // Updated preprocessing to match new grayscale model (3-channel) with ImageNet normalization
 function preprocessCanvasForONNX(canvas) {
-    const SIZE = 224;
+    const SIZE = 224; // Standard ImageNet input size
     
-    // 1. Get canvas data
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width;
-    const h = canvas.height;
+    // Create a temporary canvas for resizing
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCanvas.width = SIZE;
+    tempCanvas.height = SIZE;
     
-    // 2. Crop to content (copy the exact same logic)
-    const imgData = ctx.getImageData(0, 0, w, h);
-    let minX = w, minY = h, maxX = 0, maxY = 0;
-    let found = false;
+    // Fill with white background (matching WhiteBgLoader in Python)
+    tempCtx.fillStyle = 'white';
+    tempCtx.fillRect(0, 0, SIZE, SIZE);
     
-    for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-            const i = (y * w + x) * 4;
-            const r = imgData.data[i];
-            const g = imgData.data[i + 1];
-            const b = imgData.data[i + 2];
-            const a = imgData.data[i + 3];
-            
-            // Consider non-transparent and not white as content
-            if (a > 16 && !(r > 240 && g > 240 && b > 240)) {
-                if (x < minX) minX = x;
-                if (x > maxX) maxX = x;
-                if (y < minY) minY = y;
-                if (y > maxY) maxY = y;
-                found = true;
-            }
-        }
-    }
+    // Draw the original canvas onto the temp canvas (resized)
+    tempCtx.drawImage(canvas, 0, 0, SIZE, SIZE);
     
-    if (!found) {
-        minX = 0; minY = 0; maxX = w - 1; maxY = h - 1;
-        console.log('Frontend - No content found, using full image');
-    }
+    // Get image data
+    const imageData = tempCtx.getImageData(0, 0, SIZE, SIZE);
+    const data = imageData.data;
     
-    const cropW = maxX - minX + 1;
-    const cropH = maxY - minY + 1;
-        
-    // 3. Create cropped canvas
-    const cropped = document.createElement('canvas');
-    cropped.width = cropW;
-    cropped.height = cropH;
-    cropped.getContext('2d').drawImage(canvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+    // Create input tensor array [1, 3, 224, 224] - CHW format
+    const input = new Float32Array(1 * 3 * SIZE * SIZE);
     
-    // 4. Create 224x224 canvas with white background
-    const tmp = document.createElement('canvas');
-    tmp.width = SIZE;
-    tmp.height = SIZE;
-    const tmpCtx = tmp.getContext('2d');
-    tmpCtx.fillStyle = '#fff';
-    tmpCtx.fillRect(0, 0, SIZE, SIZE);
-    
-    // 5. Scale and center
-    const scale = Math.min(SIZE / cropped.width, SIZE / cropped.height);
-    const drawW = cropped.width * scale;
-    const drawH = cropped.height * scale;
-    const dx = (SIZE - drawW) / 2;
-    const dy = (SIZE - drawH) / 2;
-    
-    tmpCtx.drawImage(cropped, 0, 0, cropped.width, cropped.height, dx, dy, drawW, drawH);
-    
-    // 6. Get final image data and process
-    const finalImgData = tmpCtx.getImageData(0, 0, SIZE, SIZE).data;
-        
-    // 7. Convert to grayscale then repeat to 3 channels with ImageNet normalization
-    // This matches: transforms.Grayscale(num_output_channels=3)
-    // ImageNet normalization: mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-    const input = new Float32Array(3 * SIZE * SIZE);
-    
-    // ImageNet normalization values
+    // ImageNet normalization values (same as in Python code)
     const mean = [0.485, 0.456, 0.406];
     const std = [0.229, 0.224, 0.225];
     
-    for (let y = 0; y < SIZE; y++) {
-        for (let x = 0; x < SIZE; x++) {
-            const idx = (y * SIZE + x) * 4;
-            const r = finalImgData[idx];
-            const g = finalImgData[idx + 1];
-            const b = finalImgData[idx + 2];
-            
-            // Convert to grayscale using standard weights
-            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-            
-            // Normalize grayscale value to [0, 1] then apply ImageNet normalization
-            // Since we're repeating grayscale to 3 channels, apply normalization to each channel
-            const grayNorm0 = (gray / 255.0 - mean[0]) / std[0];
-            const grayNorm1 = (gray / 255.0 - mean[1]) / std[1];
-            const grayNorm2 = (gray / 255.0 - mean[2]) / std[2];
-            
-            // PyTorch tensor format: [batch, channels, height, width]
-            // Channel-first format: all channels have same grayscale value but different normalization
-            const pixelIdx = y * SIZE + x;
-            input[pixelIdx] = grayNorm0;                        // Channel 0 (R)
-            input[SIZE * SIZE + pixelIdx] = grayNorm1;          // Channel 1 (G)
-            input[2 * SIZE * SIZE + pixelIdx] = grayNorm2;      // Channel 2 (B)
-        }
-    }
+    // Convert RGBA to RGB and normalize
+    for (let i = 0; i < SIZE * SIZE; i++) {
+        const pixelIndex = i * 4; // RGBA format
         
+        // Extract RGB values (0-255)
+        const r = data[pixelIndex];
+        const g = data[pixelIndex + 1];
+        const b = data[pixelIndex + 2];
+        
+        // Convert to [0, 1] range
+        const rNorm = r / 255.0;
+        const gNorm = g / 255.0;
+        const bNorm = b / 255.0;
+        
+        // Apply ImageNet normalization: (pixel - mean) / std
+        const rStandardized = (rNorm - mean[0]) / std[0];
+        const gStandardized = (gNorm - mean[1]) / std[1];
+        const bStandardized = (bNorm - mean[2]) / std[2];
+        
+        // Store in CHW format (Channel-Height-Width)
+        // R channel: indices 0 to SIZE*SIZE-1
+        // G channel: indices SIZE*SIZE to 2*SIZE*SIZE-1  
+        // B channel: indices 2*SIZE*SIZE to 3*SIZE*SIZE-1
+        input[i] = rStandardized;                    // R channel
+        input[i + SIZE * SIZE] = gStandardized;      // G channel
+        input[i + 2 * SIZE * SIZE] = bStandardized;  // B channel
+    }
+    
     return new window.ort.Tensor('float32', input, [1, 3, SIZE, SIZE]);
 }
 
