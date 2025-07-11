@@ -47,6 +47,14 @@
                 <div class="stat-number" id="pendingFish">-</div>
                 <div>Pending</div>
             </div>
+            <div class="stat-item">
+                <div class="stat-number" id="validFish">-</div>
+                <div>Valid Fish</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="invalidFish">-</div>
+                <div>Invalid Fish</div>
+            </div>
         </div>
         
         <div class="filters control-panel">
@@ -58,6 +66,9 @@
             <button class="filter-btn" onclick="setFilter('high-score')">High Score</button>
             <button class="filter-btn" onclick="setFilter('low-score')">Low Score</button>
             <button class="filter-btn" onclick="setFilter('deleted')">Deleted</button>
+            <button class="filter-btn" onclick="setFilter('needs-validity')">Needs Validity Review</button>
+            <button class="filter-btn" onclick="setFilter('valid')">Valid Fish</button>
+            <button class="filter-btn" onclick="setFilter('invalid')">Invalid Fish</button>
         </div>
         
         <div class="download-section control-panel" style="margin-top: 10px;">
@@ -73,6 +84,8 @@
                 <span id="selectedCount">0 selected</span>
                 <button class="action-btn approve-btn" onclick="bulkApprove()">Bulk Approve</button>
                 <button class="action-btn delete-btn" onclick="bulkDelete()">Bulk Delete</button>
+                <button class="action-btn" onclick="bulkMarkAsFish()" style="background: #2196F3; color: white;">Mark as Fish</button>
+                <button class="action-btn" onclick="bulkMarkAsNotFish()" style="background: #FF9800; color: white;">Mark as Not Fish</button>
                 <button class="filter-btn" onclick="clearSelection()">Clear Selection</button>
             </div>
         </div>

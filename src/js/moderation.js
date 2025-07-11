@@ -3,7 +3,7 @@ let currentFilter = 'all';
 let currentPage = 0;
 let isLoading = false;
 let fishCache = [];
-let stats = { total: 0, flagged: 0, approved: 0, deleted: 0, pending: 0 };
+let stats = { total: 0, flagged: 0, approved: 0, deleted: 0, pending: 0, valid: 0, invalid: 0 };
 let selectedFish = new Set();
 
 // Use the same backend URL from fish-utils.js
@@ -79,6 +79,16 @@ async function loadStatsFromFirebase() {
             .get();
         stats.deleted = deletedFishSnapshot.size;
 
+        const validFishSnapshot = await window.db.collection('fishes_test')
+            .where('isFish', '==', true)
+            .get();
+        stats.valid = validFishSnapshot.size;
+
+        const invalidFishSnapshot = await window.db.collection('fishes_test')
+            .where('isFish', '==', false)
+            .get();
+        stats.invalid = invalidFishSnapshot.size;
+
         stats.pending = stats.total - stats.approved - stats.deleted;
 
         updateStatsDisplay();
@@ -93,6 +103,8 @@ function updateStatsDisplay() {
     document.getElementById('approvedFish').textContent = stats.approved;
     document.getElementById('deletedFish').textContent = stats.deleted;
     document.getElementById('pendingFish').textContent = stats.pending;
+    document.getElementById('validFish').textContent = stats.valid;
+    document.getElementById('invalidFish').textContent = stats.invalid;
 }
 
 // Load fish based on current filter
@@ -182,6 +194,15 @@ async function loadFishFromFirebase(loadMore) {
         case 'deleted':
             query = query.where('deleted', '==', true).orderBy('CreatedAt', 'desc');
             break;
+        case 'needs-validity':
+            query = query.where('isFish', '==', null).orderBy('CreatedAt', 'desc');
+            break;
+        case 'valid':
+            query = query.where('isFish', '==', true).orderBy('CreatedAt', 'desc');
+            break;
+        case 'invalid':
+            query = query.where('isFish', '==', false).orderBy('CreatedAt', 'desc');
+            break;
         default:
             query = query.where('isVisible', '==', true).orderBy('CreatedAt', 'desc');
     }
@@ -225,6 +246,12 @@ function createFishCard(fishId, fish) {
     if (deleted) {
         card.classList.add('deleted');
     }
+    if (fish.isFish === true) {
+        card.classList.add('valid');
+    }
+    if (fish.isFish === false) {
+        card.classList.add('invalid');
+    }
 
     const createdAt = fish.CreatedAt ? formatDate(fish.CreatedAt) : 'Unknown';
     const score = calculateScore(fish);
@@ -246,6 +273,7 @@ function createFishCard(fishId, fish) {
             <strong>Score:</strong> ${score} (👍${upvotes} 👎${downvotes})<br>
             <strong>Artist:</strong> ${fish.Artist || 'Anonymous'}<br>
             <strong>Status:</strong> ${getStatusText(fish)}<br>
+            <strong>Validity:</strong> ${fish.isFish === true ? '🐟 Valid Fish' : fish.isFish === false ? '🚫 Not Fish' : '❓ Unknown'}<br>
             ${reportCount > 0 ? `<strong>Reports:</strong> ${reportCount}` : ''}
             ${lastReportedAt ? `<br><strong>Last Reported:</strong> ${lastReportedAt}` : ''}
         </div>
@@ -270,6 +298,15 @@ function createFishCard(fishId, fish) {
                 ✅ Approve
             </button>
         </div>
+        
+        <div class="validity-actions" style="margin-top: 10px;">
+            <button class="action-btn" onclick="markAsFish('${fishId}', this)" style="background: #2196F3; color: white;">
+                🐟 Mark as Fish
+            </button>
+            <button class="action-btn" onclick="markAsNotFish('${fishId}', this)" style="background: #FF9800; color: white;">
+                🚫 Mark as Not Fish
+            </button>
+        </div>
     `;
 
     return card;
@@ -281,6 +318,8 @@ function getStatusText(fish) {
     if (fish.approved) return '✅ Approved';
     if (fish.flaggedForReview) return '🚩 Flagged';
     if (fish.reportCount > 0) return '⚠️ Reported';
+    if (fish.isFish === true) return '🐟 Valid Fish';
+    if (fish.isFish === false) return '🚫 Not Fish';
     return '⏳ Pending';
 }
 
@@ -398,6 +437,89 @@ async function bulkDelete() {
     }
 }
 
+// Bulk mark selected fish as valid fish
+async function bulkMarkAsFish() {
+    if (selectedFish.size === 0) return;
+
+    const reason = prompt('Enter reason for bulk marking as fish (optional):');
+    if (reason === null) return; // User cancelled
+
+    try {
+        const token = localStorage.getItem('userToken');
+        const response = await fetch(`${API_BASE_URL}/moderate/bulk-review`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fishIds: Array.from(selectedFish),
+                action: 'mark_validity',
+                isFish: true,
+                reason: reason || 'Bulk marked as valid fish'
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert(`Bulk marking as fish completed: ${result.summary.successful} successful, ${result.summary.failed} failed`);
+            clearSelection();
+            await loadStats();
+            await loadFish();
+        } else {
+            throw new Error('Failed to bulk mark as fish');
+        }
+    } catch (error) {
+        console.error('Error in bulk mark as fish:', error);
+        alert('Error performing bulk marking as fish');
+    }
+}
+
+// Bulk mark selected fish as not fish
+async function bulkMarkAsNotFish() {
+    if (selectedFish.size === 0) return;
+
+    const reason = prompt('Enter reason for bulk marking as not fish (required):');
+    if (!reason) {
+        alert('Reason is required for marking as not fish');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to mark ${selectedFish.size} fish as not fish?`)) {
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('userToken');
+        const response = await fetch(`${API_BASE_URL}/moderate/bulk-review`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fishIds: Array.from(selectedFish),
+                action: 'mark_validity',
+                isFish: false,
+                reason: reason
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert(`Bulk marking as not fish completed: ${result.summary.successful} successful, ${result.summary.failed} failed`);
+            clearSelection();
+            await loadStats();
+            await loadFish();
+        } else {
+            throw new Error('Failed to bulk mark as not fish');
+        }
+    } catch (error) {
+        console.error('Error in bulk mark as not fish:', error);
+        alert('Error performing bulk marking as not fish');
+    }
+}
+
 // Delete a fish
 async function deleteFish(fishId, button) {
     if (!confirm('Are you sure you want to delete this fish?')) {
@@ -469,6 +591,80 @@ async function approveFish(fishId, button) {
         alert('Error approving fish. Please try again.');
         button.disabled = false;
         button.textContent = '✅ Approve';
+    }
+}
+
+// Mark a fish as valid fish
+async function markAsFish(fishId, button) {
+    const reason = prompt('Enter reason for marking as fish (optional):');
+
+    button.disabled = true;
+    button.textContent = 'Marking...';
+
+    try {
+        const token = localStorage.getItem('userToken');
+        const response = await fetch(`${API_BASE_URL}/moderate/mark-validity/${fishId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                isFish: true,
+                reason: reason || 'Marked as valid fish'
+            })
+        });
+
+        if (response.ok) {
+            alert('Fish marked as valid successfully');
+            await loadStats();
+            await loadFish();
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `Marking failed: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error marking fish as valid:', error);
+        alert('Error marking fish as valid. Please try again.');
+        button.disabled = false;
+        button.textContent = '🐟 Mark as Fish';
+    }
+}
+
+// Mark a fish as not fish
+async function markAsNotFish(fishId, button) {
+    const reason = prompt('Enter reason for marking as not fish (optional):');
+
+    button.disabled = true;
+    button.textContent = 'Marking...';
+
+    try {
+        const token = localStorage.getItem('userToken');
+        const response = await fetch(`${API_BASE_URL}/moderate/mark-validity/${fishId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                isFish: false,
+                reason: reason
+            })
+        });
+
+        if (response.ok) {
+            alert('Fish marked as not fish successfully');
+            await loadStats();
+            await loadFish();
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `Marking failed: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error marking fish as not fish:', error);
+        alert('Error marking fish as not fish. Please try again.');
+        button.disabled = false;
+        button.textContent = '🚫 Mark as Not Fish';
     }
 }
 

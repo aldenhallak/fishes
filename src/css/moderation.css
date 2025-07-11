@@ -43,6 +43,16 @@
     opacity: 0.7;
 }
 
+.fish-card.valid {
+    border-color: #4caf50;
+    background: #f1f8e9;
+}
+
+.fish-card.invalid {
+    border-color: #ff9800;
+    background: #fff8e1;
+}
+
 .bulk-actions {
     background: white;
     border-radius: 10px;
@@ -72,6 +82,12 @@
     display: flex;
     gap: 10px;
     margin-top: 15px;
+}
+
+.validity-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 .action-btn {
