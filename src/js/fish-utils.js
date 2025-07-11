@@ -258,6 +258,13 @@ async function getFishBySort(sortType, limit = 50, startAfter = null, direction 
     query = query.where('isVisible', '==', true);
 
     switch (sortType) {
+        case 'hot':
+            query = query.orderBy("hotScore", direction);
+            if (startAfter) {
+                query = query.startAfter(startAfter);
+            }
+            query = query.limit(limit);
+            break;
         case 'score':
         case 'popular':
             query = query.orderBy("score", direction);

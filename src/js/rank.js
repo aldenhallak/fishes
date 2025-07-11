@@ -2,7 +2,7 @@
 
 // Fish Ranking System
 let allFishData = [];
-let currentSort = 'score';
+let currentSort = 'hot';
 let sortDirection = 'desc'; // 'asc' or 'desc'
 let isLoading = false;
 let hasMoreFish = true;
@@ -261,6 +261,9 @@ function updateSortButtonText() {
         let tooltip = '';
         
         switch (sortType) {
+            case 'hot':
+                baseText = 'Sort by Hot';
+                break;
             case 'score':
                 baseText = 'Sort by Score';
                 break;
