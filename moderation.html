@@ -79,6 +79,15 @@
             <span id="downloadStatus" style="margin-left: 10px; font-style: italic; color: #666;"></span>
         </div>
         
+        <div class="selection-controls control-panel" style="margin-bottom: 10px;">
+            <strong>Selection:</strong>
+            <button class="filter-btn" onclick="selectAll()">Select All</button>
+            <button class="filter-btn" onclick="selectNone()">Select None</button>
+            <span style="margin-left: 10px; font-size: 12px; color: #666;">
+                💡 Tip: Hold Shift and click checkboxes to select ranges. Press Ctrl+A to select all.
+            </span>
+        </div>
+        
         <div class="bulk-actions" style="margin-bottom: 20px; display: none;" id="bulkActions">
             <div style="display: flex; gap: 10px; align-items: center;">
                 <span id="selectedCount">0 selected</span>

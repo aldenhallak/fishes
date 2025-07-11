@@ -5,6 +5,7 @@ let isLoading = false;
 let fishCache = [];
 let stats = { total: 0, flagged: 0, approved: 0, deleted: 0, pending: 0, valid: 0, invalid: 0 };
 let selectedFish = new Set();
+let lastClickedCheckbox = null;
 
 // Use the same backend URL from fish-utils.js
 const API_BASE_URL = `${BACKEND_URL}/api`;
@@ -29,6 +30,9 @@ window.onload = async function () {
 
     await loadStats();
     await loadFish();
+    
+    // Add keyboard shortcuts
+    setupKeyboardShortcuts();
 };
 
 // Load statistics from backend
@@ -261,7 +265,7 @@ function createFishCard(fishId, fish) {
 
     card.innerHTML = `
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
-            <input type="checkbox" id="select-${fishId}" onchange="toggleFishSelection('${fishId}')" style="margin-right: 10px;">
+            <input type="checkbox" id="select-${fishId}" onchange="toggleFishSelection('${fishId}', event)" style="margin-right: 10px;">
             <label for="select-${fishId}" style="font-weight: bold; color: #0288d1;">Select</label>
         </div>
         
@@ -324,14 +328,51 @@ function getStatusText(fish) {
 }
 
 // Toggle fish selection for bulk actions
-function toggleFishSelection(fishId) {
+function toggleFishSelection(fishId, event) {
     const checkbox = document.getElementById(`select-${fishId}`);
-    if (checkbox.checked) {
-        selectedFish.add(fishId);
+    
+    // Handle shift-click for range selection
+    if (event && event.shiftKey && lastClickedCheckbox) {
+        handleRangeSelection(fishId, checkbox.checked);
     } else {
-        selectedFish.delete(fishId);
+        // Normal single selection
+        if (checkbox.checked) {
+            selectedFish.add(fishId);
+        } else {
+            selectedFish.delete(fishId);
+        }
     }
+    
+    lastClickedCheckbox = fishId;
     updateBulkActions();
+}
+
+// Handle range selection with shift-click
+function handleRangeSelection(currentFishId, isChecked) {
+    const allCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="select-"]');
+    const checkboxIds = Array.from(allCheckboxes).map(cb => cb.id.replace('select-', ''));
+    
+    const lastIndex = checkboxIds.indexOf(lastClickedCheckbox);
+    const currentIndex = checkboxIds.indexOf(currentFishId);
+    
+    if (lastIndex !== -1 && currentIndex !== -1) {
+        const startIndex = Math.min(lastIndex, currentIndex);
+        const endIndex = Math.max(lastIndex, currentIndex);
+        
+        // Select/deselect all checkboxes in the range
+        for (let i = startIndex; i <= endIndex; i++) {
+            const fishId = checkboxIds[i];
+            const checkbox = document.getElementById(`select-${fishId}`);
+            
+            checkbox.checked = isChecked;
+            
+            if (isChecked) {
+                selectedFish.add(fishId);
+            } else {
+                selectedFish.delete(fishId);
+            }
+        }
+    }
 }
 
 // Update bulk actions visibility and count
@@ -350,6 +391,7 @@ function updateBulkActions() {
 // Clear selection
 function clearSelection() {
     selectedFish.clear();
+    lastClickedCheckbox = null;
     document.querySelectorAll('input[type="checkbox"][id^="select-"]').forEach(cb => {
         cb.checked = false;
     });
@@ -918,4 +960,39 @@ async function downloadAllImages() {
         downloadBtn.disabled = false;
         downloadBtn.textContent = '📥 Download All Images (Including Deleted)';
     }
+}
+
+// Select all visible fish
+function selectAll() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][id^="select-"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+        const fishId = checkbox.id.replace('select-', '');
+        selectedFish.add(fishId);
+    });
+    updateBulkActions();
+}
+
+// Select none (clear selection)
+function selectNone() {
+    clearSelection();
+}
+
+// Setup keyboard shortcuts
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(event) {
+        // Ctrl+A or Cmd+A to select all
+        if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
+            // Only if not focused on an input field
+            if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                event.preventDefault();
+                selectAll();
+            }
+        }
+        
+        // Escape to clear selection
+        if (event.key === 'Escape') {
+            clearSelection();
+        }
+    });
 }
