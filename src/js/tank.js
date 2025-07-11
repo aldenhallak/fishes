@@ -5,6 +5,212 @@ const swimCanvas = document.getElementById('swim-canvas');
 const swimCtx = swimCanvas.getContext('2d');
 const fishes = [];
 
+// Food system
+const foodPellets = [];
+const FOOD_SIZE = 8; // Increased size for better visibility
+const FOOD_FALL_SPEED = .01;
+const FOOD_DETECTION_RADIUS = 200; // Moderate detection radius
+const FOOD_LIFESPAN = 15000; // 15 seconds
+const FOOD_ATTRACTION_FORCE = 0.003; // Moderate attraction force
+
+// Food pellet creation and management
+function createFoodPellet(x, y) {
+    return {
+        x: x,
+        y: y,
+        vy: 0, // Initial vertical velocity
+        createdAt: Date.now(),
+        consumed: false,
+        size: FOOD_SIZE
+    };
+}
+
+function dropFoodPellet(x, y) {
+    // Create a small cluster of food pellets for more realistic feeding
+    const pelletCount = Math.floor(Math.random() * 3) + 2; // 2-4 pellets
+    for (let i = 0; i < pelletCount; i++) {
+        const offsetX = (Math.random() - 0.5) * 20; // Spread pellets around click point
+        const offsetY = (Math.random() - 0.5) * 10;
+        foodPellets.push(createFoodPellet(x + offsetX, y + offsetY));
+    }
+    
+    // Add visual feedback for feeding
+    createFeedingEffect(x, y);
+}
+
+function createFeedingEffect(x, y) {
+    // Create a small splash effect when food is dropped
+    const effect = {
+        x: x,
+        y: y,
+        particles: [],
+        createdAt: Date.now(),
+        duration: 300,
+        type: 'feeding'
+    };
+    
+    // Create small splash particles
+    for (let i = 0; i < 8; i++) {
+        const angle = (Math.PI * 2 * i) / 8;
+        effect.particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * 3,
+            vy: Math.sin(angle) * 3,
+            life: 1
+        });
+    }
+    
+    // Store effect for rendering
+    if (!window.feedingEffects) window.feedingEffects = [];
+    window.feedingEffects.push(effect);
+}
+
+function updateFoodPellets() {
+    for (let i = foodPellets.length - 1; i >= 0; i--) {
+        const pellet = foodPellets[i];
+        
+        // Remove consumed or expired pellets
+        if (pellet.consumed || Date.now() - pellet.createdAt > FOOD_LIFESPAN) {
+            foodPellets.splice(i, 1);
+            continue;
+        }
+        
+        // Apply gravity
+        pellet.vy += FOOD_FALL_SPEED; // Slower gravity acceleration
+        pellet.y += pellet.vy;
+        
+        // Stop at bottom of tank
+        if (pellet.y > swimCanvas.height - pellet.size) {
+            pellet.y = swimCanvas.height - pellet.size;
+            pellet.vy = 0;
+        }
+        
+        // Check for fish consumption
+        for (let fish of fishes) {
+            if (fish.isDying || fish.isEntering) continue;
+            
+            const fishCenterX = fish.x + fish.width / 2;
+            const fishCenterY = fish.y + fish.height / 2;
+            const dx = pellet.x - fishCenterX;
+            const dy = pellet.y - fishCenterY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // If fish is close enough, consume the pellet
+            if (distance < fish.width / 2 + pellet.size) {
+                pellet.consumed = true;
+                // Add a small visual effect when food is consumed
+                createFoodConsumptionEffect(pellet.x, pellet.y);
+                break;
+            }
+        }
+    }
+}
+
+function createFoodConsumptionEffect(x, y) {
+    // Create a small particle effect when food is consumed
+    const effect = {
+        x: x,
+        y: y,
+        particles: [],
+        createdAt: Date.now(),
+        duration: 500
+    };
+    
+    // Create small particles
+    for (let i = 0; i < 5; i++) {
+        effect.particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 4,
+            vy: (Math.random() - 0.5) * 4,
+            life: 1
+        });
+    }
+    
+    // Store effect for rendering (we'll add this to the animation loop)
+    if (!window.foodEffects) window.foodEffects = [];
+    window.foodEffects.push(effect);
+}
+
+function renderFoodPellets() {
+    if (foodPellets.length > 0) {
+        swimCtx.fillStyle = '#FF6B35'; // Orange color for better visibility
+        
+        for (const pellet of foodPellets) {
+            if (!pellet.consumed) {
+                swimCtx.beginPath();
+                swimCtx.arc(pellet.x, pellet.y, pellet.size, 0, Math.PI * 2);
+                swimCtx.fill();
+            }
+        }
+    }
+}
+
+function renderFoodEffects() {
+    if (!window.foodEffects) return;
+    
+    for (let i = window.foodEffects.length - 1; i >= 0; i--) {
+        const effect = window.foodEffects[i];
+        const elapsed = Date.now() - effect.createdAt;
+        const progress = elapsed / effect.duration;
+        
+        if (progress >= 1) {
+            window.foodEffects.splice(i, 1);
+            continue;
+        }
+        
+        swimCtx.save();
+        swimCtx.globalAlpha = 1 - progress;
+        swimCtx.fillStyle = '#FFD700'; // Gold color for consumption effect
+        
+        for (const particle of effect.particles) {
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vx *= 0.98; // Slight drag
+            particle.vy *= 0.98;
+            
+            swimCtx.beginPath();
+            swimCtx.arc(particle.x, particle.y, 1, 0, Math.PI * 2);
+            swimCtx.fill();
+        }
+        
+        swimCtx.restore();
+    }
+}
+
+function renderFeedingEffects() {
+    if (!window.feedingEffects) return;
+    
+    for (let i = window.feedingEffects.length - 1; i >= 0; i--) {
+        const effect = window.feedingEffects[i];
+        const elapsed = Date.now() - effect.createdAt;
+        const progress = elapsed / effect.duration;
+        
+        if (progress >= 1) {
+            window.feedingEffects.splice(i, 1);
+            continue;
+        }
+        
+        swimCtx.save();
+        swimCtx.globalAlpha = 1 - progress;
+        swimCtx.fillStyle = '#4CAF50'; // Green color for feeding effect
+        
+        for (const particle of effect.particles) {
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vx *= 0.95; // Slight drag
+            particle.vy *= 0.95;
+            
+            swimCtx.beginPath();
+            swimCtx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+            swimCtx.fill();
+        }
+        
+        swimCtx.restore();
+    }
+}
+
 // Calculate optimal fish size based on tank size
 function calculateFishSize() {
     const tankWidth = swimCanvas.width;
@@ -176,14 +382,18 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
             const maxY = Math.max(0, swimCanvas.height - fishSize.height);
             const x = Math.floor(Math.random() * maxX);
             const y = Math.floor(Math.random() * maxY);
+            const direction = Math.random() < 0.5 ? -1 : 1;
+            const speed = fishData.speed || 2;
             const fishObj = createFishObject({
                 fishCanvas: displayCanvas,
                 x,
                 y,
-                direction: Math.random() < 0.5 ? -1 : 1, // Randomly choose left or right
+                direction: direction,
                 phase: fishData.phase || 0,
-                amplitude: fishData.amplitude || 24,
-                speed: fishData.speed || 2,
+                amplitude: fishData.amplitude || 32,
+                speed: speed,
+                vx: speed * direction * 0.1, // Initialize with base velocity
+                vy: (Math.random() - 0.5) * 0.5, // Small random vertical velocity
                 artist: fishData.artist || fishData.Artist || 'Anonymous',
                 createdAt: fishData.createdAt || fishData.CreatedAt || null,
                 docId: fishData.docId || null,
@@ -832,6 +1042,18 @@ function handleTankTap(e) {
         tapX = e.clientX - rect.left;
         tapY = e.clientY - rect.top;
     }
+    
+    // Check if this is a feeding action (right click, or shift+click, or double tap)
+    const isFeeding = e.button === 2 || e.shiftKey || e.ctrlKey || e.metaKey;
+    
+    if (isFeeding) {
+        // Drop food pellets
+        dropFoodPellet(tapX, tapY);
+        e.preventDefault(); // Prevent context menu on right click
+        return;
+    }
+    
+    // Original scare behavior
     const radius = 120;
     fishes.forEach(fish => {
         const fx = fish.x + fish.width / 2;
@@ -873,7 +1095,60 @@ function handleFishTap(e) {
 }
 
 swimCanvas.addEventListener('mousedown', handleFishTap);
-swimCanvas.addEventListener('touchstart', handleFishTap);
+
+// Add right-click support for feeding
+swimCanvas.addEventListener('contextmenu', (e) => {
+    e.preventDefault(); // Prevent context menu
+    handleTankTap(e);
+});
+
+// Enhanced mobile touch support
+let lastTapTime = 0;
+let touchStartTime = 0;
+let touchStartPos = { x: 0, y: 0 };
+
+// Handle touch start for long press detection and fish interaction
+swimCanvas.addEventListener('touchstart', (e) => {
+    touchStartTime = Date.now();
+    const rect = swimCanvas.getBoundingClientRect();
+    touchStartPos = {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top
+    };
+    
+    // Also handle fish tap detection on touch start
+    handleFishTap(e);
+});
+
+// Handle touch end for double tap and long press
+swimCanvas.addEventListener('touchend', (e) => {
+    e.preventDefault(); // Prevent default mobile behavior
+    const currentTime = Date.now();
+    const touchDuration = currentTime - touchStartTime;
+    const rect = swimCanvas.getBoundingClientRect();
+    const tapX = e.changedTouches[0].clientX - rect.left;
+    const tapY = e.changedTouches[0].clientY - rect.top;
+    
+    // Check if finger moved significantly during touch
+    const moveDistance = Math.sqrt(
+        Math.pow(tapX - touchStartPos.x, 2) + 
+        Math.pow(tapY - touchStartPos.y, 2)
+    );
+    
+    // Long press for feeding (500ms+ and minimal movement)
+    if (touchDuration >= 500 && moveDistance < 20) {
+        dropFoodPellet(tapX, tapY);
+        return;
+    }
+    
+    // Double tap for feeding
+    if (currentTime - lastTapTime < 300 && moveDistance < 20) { // Double tap within 300ms
+        dropFoodPellet(tapX, tapY);
+        return;
+    }
+    
+    lastTapTime = currentTime;
+});
 
 function resizeForMobile() {
     const oldWidth = swimCanvas.width;
@@ -898,6 +1173,10 @@ function resizeForMobile() {
 window.addEventListener('resize', resizeForMobile);
 resizeForMobile();
 
+// Optimize performance by caching food detection calculations
+let foodDetectionCache = new Map();
+let cacheUpdateCounter = 0;
+
 function animateFishes() {
     swimCtx.clearRect(0, 0, swimCanvas.width, swimCanvas.height);
     const time = Date.now() / 500;
@@ -905,6 +1184,15 @@ function animateFishes() {
     // Update fish count display occasionally
     if (Math.floor(time) % 2 === 0) { // Every 2 seconds
         updateCurrentFishCount();
+    }
+    
+    // Update food pellets
+    updateFoodPellets();
+    
+    // Clear food detection cache every few frames to prevent stale data
+    cacheUpdateCounter++;
+    if (cacheUpdateCounter % 5 === 0) {
+        foodDetectionCache.clear();
     }
     
     for (const fish of fishes) {
@@ -940,27 +1228,168 @@ function animateFishes() {
             fish.speed = fish.speed * (1 - progress * 0.5);
         } else if (!fish.isEntering) {
             // Normal fish behavior (only if not entering)
-            if (fish.vx || fish.vy) {
-                fish.x += fish.vx;
-                fish.y += fish.vy;
-                fish.vx *= 0.92;
-                fish.vy *= 0.92;
-                if (Math.abs(fish.vx) < 0.5) fish.vx = 0;
-                if (Math.abs(fish.vy) < 0.5) fish.vy = 0;
-            } else {
-                fish.x += fish.speed * fish.direction;
+            
+            // Use cached food detection to improve performance
+            const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
+            let foodDetectionData = foodDetectionCache.get(fishId);
+            
+            if (!foodDetectionData) {
+                // Calculate food detection data and cache it
+                const fishCenterX = fish.x + fish.width / 2;
+                const fishCenterY = fish.y + fish.height / 2;
+                
+                let nearestFood = null;
+                let nearestDistance = FOOD_DETECTION_RADIUS;
+                let hasNearbyFood = false;
+                
+                // Optimize: Only check active food pellets
+                const activePellets = foodPellets.filter(p => !p.consumed);
+                
+                // Find nearest food pellet using more efficient distance calculation
+                for (const pellet of activePellets) {
+                    const dx = pellet.x - fishCenterX;
+                    const dy = pellet.y - fishCenterY;
+                    
+                    // Use squared distance for initial comparison (more efficient)
+                    const distanceSquared = dx * dx + dy * dy;
+                    const radiusSquared = FOOD_DETECTION_RADIUS * FOOD_DETECTION_RADIUS;
+                    
+                    if (distanceSquared < radiusSquared) {
+                        hasNearbyFood = true;
+                        
+                        // Only calculate actual distance if within radius
+                        const distance = Math.sqrt(distanceSquared);
+                        if (distance < nearestDistance) {
+                            nearestFood = pellet;
+                            nearestDistance = distance;
+                        }
+                    }
+                }
+                
+                foodDetectionData = {
+                    nearestFood,
+                    nearestDistance,
+                    hasNearbyFood,
+                    fishCenterX,
+                    fishCenterY
+                };
+                
+                foodDetectionCache.set(fishId, foodDetectionData);
             }
             
-            if (fish.x > swimCanvas.width - fish.width || fish.x < 0) {
-                fish.direction *= -1;
+            // Initialize velocity if not set
+            if (!fish.vx) fish.vx = 0;
+            if (!fish.vy) fish.vy = 0;
+            
+            // Always apply base swimming movement
+            fish.vx += fish.speed * fish.direction * 0.1; // Continuous base movement
+            
+            // Apply food attraction using cached data
+            if (foodDetectionData.nearestFood) {
+                const dx = foodDetectionData.nearestFood.x - foodDetectionData.fishCenterX;
+                const dy = foodDetectionData.nearestFood.y - foodDetectionData.fishCenterY;
+                const distance = foodDetectionData.nearestDistance;
+                
+                if (distance > 0) {
+                    // Calculate attraction force (stronger when closer, with smooth falloff)
+                    const distanceRatio = distance / FOOD_DETECTION_RADIUS;
+                    const attractionStrength = FOOD_ATTRACTION_FORCE * (1 - distanceRatio * distanceRatio);
+                    
+                    // Apply force towards food more gently
+                    fish.vx += (dx / distance) * attractionStrength;
+                    fish.vy += (dy / distance) * attractionStrength;
+                    
+                    // Update fish direction to face the food (but not too abruptly)
+                    if (Math.abs(dx) > 10) { // Only change direction if food is significantly left/right
+                        fish.direction = dx > 0 ? 1 : -1;
+                    }
+                }
             }
-            fish.x = Math.max(0, Math.min(swimCanvas.width - fish.width, fish.x));
-            fish.y = Math.max(0, Math.min(swimCanvas.height - fish.height, fish.y));
+            
+            // Always move based on velocity
+            fish.x += fish.vx;
+            fish.y += fish.vy;
+            
+            // Handle edge collisions BEFORE applying friction
+            let hitEdge = false;
+            
+            // Left and right edges
+            if (fish.x <= 0) {
+                fish.x = 0;
+                fish.direction = 1; // Face right
+                fish.vx = Math.abs(fish.vx); // Ensure velocity points right
+                hitEdge = true;
+            } else if (fish.x >= swimCanvas.width - fish.width) {
+                fish.x = swimCanvas.width - fish.width;
+                fish.direction = -1; // Face left
+                fish.vx = -Math.abs(fish.vx); // Ensure velocity points left
+                hitEdge = true;
+            }
+            
+            // Top and bottom edges
+            if (fish.y <= 0) {
+                fish.y = 0;
+                fish.vy = Math.abs(fish.vy) * 0.5; // Bounce off top, but gently
+                hitEdge = true;
+            } else if (fish.y >= swimCanvas.height - fish.height) {
+                fish.y = swimCanvas.height - fish.height;
+                fish.vy = -Math.abs(fish.vy) * 0.5; // Bounce off bottom, but gently
+                hitEdge = true;
+            }
+            
+            // Apply friction - less when attracted to food
+            const frictionFactor = foodDetectionData.hasNearbyFood ? 0.88 : 0.85;
+            fish.vx *= frictionFactor;
+            fish.vy *= frictionFactor;
+            
+            // Limit velocity to prevent fish from moving too fast
+            const maxVel = fish.speed * 2;
+            const velMag = Math.sqrt(fish.vx * fish.vx + fish.vy * fish.vy);
+            if (velMag > maxVel) {
+                fish.vx = (fish.vx / velMag) * maxVel;
+                fish.vy = (fish.vy / velMag) * maxVel;
+            }
+            
+            // Ensure minimum movement to prevent complete stops
+            if (Math.abs(fish.vx) < 0.1) {
+                fish.vx = fish.speed * fish.direction * 0.1;
+            }
+            
+            // If fish hit an edge, give it a small push away from the edge
+            if (hitEdge) {
+                fish.vx += fish.speed * fish.direction * 0.2;
+                // Add small random vertical component to avoid getting stuck
+                fish.vy += (Math.random() - 0.5) * 0.3;
+            }
         }
         
-        const swimY = fish.isDying ? fish.y : fish.y + Math.sin(time + fish.phase) * fish.amplitude;
+        // Calculate swim position - reduce sine wave when fish is attracted to food
+        let swimY;
+        if (fish.isDying) {
+            swimY = fish.y;
+        } else {
+            // Use cached food detection data for swim animation
+            const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
+            const foodDetectionData = foodDetectionCache.get(fishId);
+            const hasNearbyFood = foodDetectionData ? foodDetectionData.hasNearbyFood : false;
+            
+            // Reduce sine wave amplitude when attracted to food for more realistic movement
+            const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
+            swimY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
+        }
+        
         drawWigglingFish(fish, fish.x, swimY, fish.direction, time, fish.phase);
     }
+    
+    // Render food pellets
+    renderFoodPellets();
+    
+    // Render food consumption effects
+    renderFoodEffects();
+    
+    // Render feeding effects
+    renderFeedingEffects();
+    
     requestAnimationFrame(animateFishes);
 }
 
