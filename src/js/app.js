@@ -557,7 +557,42 @@ async function checkFishAfterStroke() {
 })();
 
 // Check if user already drew a fish today when page loads
+// Function to show welcome back message for returning users
+function showWelcomeBackMessage() {
+    const userId = localStorage.getItem('userId');
+    const artistName = localStorage.getItem('artistName');
+    const userToken = localStorage.getItem('userToken');
+    const userData = localStorage.getItem('userData');
+    const welcomeElement = document.getElementById('welcome-back-message');
+    
+    // Only show for users who have interacted before but haven't created an account
+    if (userId && artistName && artistName !== 'Anonymous' && !userToken) {
+        welcomeElement.innerHTML = `
+            Welcome back, <strong>${artistName}</strong>! 
+            <a href="login.html" style="color: #0066cc; text-decoration: underline;">Create an account</a> 
+            to build custom tanks and share with friends.
+        `;
+        welcomeElement.style.display = 'block';
+    } else if (userToken && userData) {
+        // For authenticated users, show a simple welcome with their display name
+        try {
+            const user = JSON.parse(userData);
+            const displayName = user.displayName || 'Artist';
+            welcomeElement.innerHTML = `Welcome back, <strong>${displayName}</strong>! 🎨`;
+            welcomeElement.style.background = '#e8f5e8';
+            welcomeElement.style.borderColor = '#b3d9b3';
+            welcomeElement.style.display = 'block';
+        } catch (e) {
+            // If userData is malformed, don't show anything
+            console.warn('Malformed userData in localStorage');
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Show welcome back message for returning users
+    showWelcomeBackMessage();
+    
     const today = new Date().toDateString();
     const lastFishDate = localStorage.getItem('lastFishDate');
     console.log(`Last fish date: ${lastFishDate}, Today: ${today}`);

@@ -19,3 +19,18 @@ body {
     border-radius: 10px;
     border: 2px solid #0288d1;
 }
+
+/* Welcome back message styling */
+#welcome-back-message {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: opacity 0.3s ease;
+}
+
+#welcome-back-message a {
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+#welcome-back-message a:hover {
+    color: #004499 !important;
+}
