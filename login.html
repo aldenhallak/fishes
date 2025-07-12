@@ -91,6 +91,32 @@
             background: white;
             padding: 0 10px;
         }
+
+        #already-logged-in h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        #already-logged-in p {
+            color: #666;
+            margin: 10px 0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid #007bff;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
     </style>
 </head>
 
@@ -150,6 +176,15 @@
 
         <div id="success" class="success">
             Password reset email sent! Please check your inbox.
+        </div>
+
+        <!-- Already logged in section -->
+        <div id="already-logged-in" class="auth-form" style="display: none; text-align: center;">
+            <h3>You are already logged in!</h3>
+            <p id="logged-in-user-info"></p>
+            <button type="button" class="btn" onclick="goToTanks()">Go to My Tanks</button>
+            <br><br>
+            <button type="button" class="btn" onclick="logoutAndStay()" style="background: #dc3545; border-color: #dc3545;">Logout</button>
         </div>
     </div>
 

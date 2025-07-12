@@ -348,32 +348,101 @@ function createFishImageDataUrl(imgUrl, callback) {
     img.src = imgUrl;
 }
 
-// Navigation authentication utility
-function initializeAuthNavigation() {
-    // Check authentication status and show/hide "my tanks" link
-    function checkAuthAndUpdateNav() {
-        const token = localStorage.getItem('userToken');
-        const userData = localStorage.getItem('userData');
-        const myTanksLink = document.getElementById('my-tanks-link');
-        
-        if (myTanksLink) {
-            if (token && userData) {
-                // User is logged in - show the link
-                myTanksLink.style.display = 'inline';
-            } else {
-                // User is not logged in - hide the link
-                myTanksLink.style.display = 'none';
-            }
+// Authentication utilities
+function isUserLoggedIn() {
+    const token = localStorage.getItem('userToken');
+    const userData = localStorage.getItem('userData');
+    return !!(token && userData);
+}
+
+function getCurrentUser() {
+    const userData = localStorage.getItem('userData');
+    return userData ? JSON.parse(userData) : null;
+}
+
+function redirectToLogin(currentPage = null) {
+    // Store current page for redirect after login
+    const redirectUrl = currentPage || window.location.href;
+    
+    // Use URL parameter for immediate redirect, and localStorage as backup
+    const loginUrl = new URL('/login.html', window.location.origin);
+    loginUrl.searchParams.set('redirect', encodeURIComponent(redirectUrl));
+    
+    // Also store in localStorage as backup
+    localStorage.setItem('loginRedirect', redirectUrl);
+    
+    // Redirect to login page
+    window.location.href = loginUrl.toString();
+}
+
+function logout() {
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('loginRedirect');
+    window.location.href = '/login.html';
+}
+
+// Check if authentication is required and redirect if needed
+function requireAuthentication(redirectToCurrentPage = true) {
+    if (!isUserLoggedIn()) {
+        if (redirectToCurrentPage) {
+            redirectToLogin(window.location.href);
+        } else {
+            redirectToLogin();
+        }
+        return false;
+    }
+    return true;
+}
+
+// Update authentication-related UI elements
+function updateAuthenticationUI() {
+    const isLoggedIn = isUserLoggedIn();
+    const currentUser = getCurrentUser();
+    
+    // Update "my tanks" link visibility
+    const myTanksLink = document.getElementById('my-tanks-link');
+    if (myTanksLink) {
+        myTanksLink.style.display = isLoggedIn ? 'inline' : 'none';
+    }
+    // Update auth link (login/logout)
+    const authLink = document.getElementById('auth-link');
+    if (authLink) {
+        if (isLoggedIn) {
+            authLink.textContent = 'Logout';
+            authLink.href = '#';
+            authLink.onclick = (e) => {
+                e.preventDefault();
+                logout();
+            };
+        } else {
+            authLink.textContent = 'Login';
+            authLink.href = '/login.html';
+            authLink.onclick = null;
+    
         }
     }
     
-    // Run on page load
-    document.addEventListener('DOMContentLoaded', checkAuthAndUpdateNav);
+    // Update auth status if present
+    const authStatus = document.getElementById('auth-status');
+    if (authStatus) {
+        if (isLoggedIn) {
+            authStatus.textContent = `Welcome, ${currentUser.displayName || currentUser.email}!`;
+        } else {
+            authStatus.textContent = 'Please log in to access this feature';
+        }
+    }
+}
+
+// Navigation authentication utility
+function initializeAuthNavigation() {
+    // Update UI on page load
+    document.addEventListener('DOMContentLoaded', updateAuthenticationUI);
     
     // Also check when localStorage changes (for cross-tab login/logout)
     window.addEventListener('storage', function(e) {
         if (e.key === 'userToken' || e.key === 'userData') {
-            checkAuthAndUpdateNav();
+            updateAuthenticationUI();
         }
     });
 }

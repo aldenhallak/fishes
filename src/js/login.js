@@ -1,5 +1,8 @@
   
   window.onload = () => {
+    // Check if user is already logged in
+    checkIfAlreadyLoggedIn();
+    
     // Setup form event listeners
     document.getElementById('signin-form').addEventListener('submit', handleSignIn);
     document.getElementById('signup-form').addEventListener('submit', handleSignUp);
@@ -31,7 +34,108 @@
       showMessage("Welcome! You have admin privileges. You can access the moderation panel from the main app.");
     }
     
-    window.location.href = "/fishtanks.html";
+    // Get redirect URL from URL parameters or localStorage, default to fishtanks.html
+    const redirectUrl = getRedirectUrl();
+    window.location.href = redirectUrl;
+  }
+
+  // Check if user is already logged in and show appropriate UI
+  function checkIfAlreadyLoggedIn() {
+    const token = localStorage.getItem('userToken');
+    const userData = localStorage.getItem('userData');
+    
+    if (token && userData) {
+      // User is already logged in, show the "already logged in" section
+      const user = JSON.parse(userData);
+      showAlreadyLoggedInUI(user);
+      return true;
+    }
+    return false;
+  }
+
+  // Show the already logged in UI
+  function showAlreadyLoggedInUI(user) {
+    // Hide all login forms
+    document.getElementById('signin-form').style.display = 'none';
+    document.getElementById('signup-form').style.display = 'none';
+    document.getElementById('forgot-password-form').style.display = 'none';
+    document.querySelectorAll('.auth-tab-btn').forEach(btn => btn.style.display = 'none');
+    document.getElementById('g_id_signin').style.display = 'none';
+    document.querySelector('.divider').style.display = 'none';
+    
+    // Show the already logged in section
+    const alreadyLoggedIn = document.getElementById('already-logged-in');
+    const userInfo = document.getElementById('logged-in-user-info');
+    
+    alreadyLoggedIn.style.display = 'block';
+    userInfo.textContent = `Welcome back, ${user.displayName || user.email}!`;
+  }
+
+  // Navigate to tanks page
+  function goToTanks() {
+    window.location.href = '/fishtanks.html';
+  }
+
+  // Logout and stay on login page
+  function logoutAndStay() {
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('loginRedirect');
+    
+    // Reload the page to show login forms again
+    window.location.reload();
+  }
+
+  // Get the redirect URL after successful login
+  function getRedirectUrl() {
+    // Check URL parameters first (for immediate redirects)
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectParam = urlParams.get('redirect');
+    
+    if (redirectParam) {
+      // Clear the redirect parameter from localStorage after use
+      localStorage.removeItem('loginRedirect');
+      const decodedUrl = decodeURIComponent(redirectParam);
+      return validateRedirectUrl(decodedUrl);
+    }
+    
+    // Check localStorage (for cases where redirect was stored before coming to login)
+    const storedRedirect = localStorage.getItem('loginRedirect');
+    if (storedRedirect) {
+      // Clear the redirect parameter from localStorage after use
+      localStorage.removeItem('loginRedirect');
+      return validateRedirectUrl(storedRedirect);
+    }
+    
+    // Default redirect to fishtanks page
+    return '/fishtanks.html';
+  }
+
+  // Validate and clean up redirect URL for security
+  function validateRedirectUrl(url) {
+    try {
+      // If it's a full URL, check if it's on the same origin
+      if (url.startsWith('http')) {
+        const redirectUrl = new URL(url);
+        const currentOrigin = new URL(window.location.href).origin;
+        if (redirectUrl.origin === currentOrigin) {
+          return redirectUrl.pathname + redirectUrl.search;
+        }
+        // If different origin, redirect to default
+        return '/fishtanks.html';
+      }
+      
+      // If it's a relative URL, use it as-is (but ensure it starts with /)
+      if (!url.startsWith('/')) {
+        url = '/' + url;
+      }
+      
+      return url;
+    } catch (e) {
+      // If URL parsing fails, default to fishtanks
+      console.warn('Invalid redirect URL:', url);
+      return '/fishtanks.html';
+    }
   }
 
   // Helper function to handle API errors

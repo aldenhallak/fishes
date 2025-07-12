@@ -8,6 +8,11 @@ const publicTanksLimit = 12;
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication and redirect to login if needed
+    if (!requireAuthentication()) {
+        return; // User will be redirected to login
+    }
+    
     checkAuthStatus();
     loadMyTanks();
     loadPublicTanks();

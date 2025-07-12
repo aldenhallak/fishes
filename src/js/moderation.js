@@ -12,14 +12,10 @@ const API_BASE_URL = `${BACKEND_URL}/api`;
 
 // Check authentication on page load
 window.onload = async function () {
-    const userToken = localStorage.getItem('userToken');
-    const userData = localStorage.getItem('userData');
-    
-    if (!userToken || !userData) {
-        window.location.href = '/login.html';
-        return;
+    if (!requireAuthentication()) {
+        return; // User will be redirected to login
     }
-    
+
     // Check if user has admin privileges
     const user = JSON.parse(userData);
     if (!user.isAdmin) {
@@ -30,7 +26,7 @@ window.onload = async function () {
 
     await loadStats();
     await loadFish();
-    
+
     // Add keyboard shortcuts
     setupKeyboardShortcuts();
 };
@@ -330,7 +326,7 @@ function getStatusText(fish) {
 // Toggle fish selection for bulk actions
 function toggleFishSelection(fishId, event) {
     const checkbox = document.getElementById(`select-${fishId}`);
-    
+
     // Handle shift-click for range selection
     if (event && event.shiftKey && lastClickedCheckbox) {
         handleRangeSelection(fishId, checkbox.checked);
@@ -342,7 +338,7 @@ function toggleFishSelection(fishId, event) {
             selectedFish.delete(fishId);
         }
     }
-    
+
     lastClickedCheckbox = fishId;
     updateBulkActions();
 }
@@ -351,21 +347,21 @@ function toggleFishSelection(fishId, event) {
 function handleRangeSelection(currentFishId, isChecked) {
     const allCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="select-"]');
     const checkboxIds = Array.from(allCheckboxes).map(cb => cb.id.replace('select-', ''));
-    
+
     const lastIndex = checkboxIds.indexOf(lastClickedCheckbox);
     const currentIndex = checkboxIds.indexOf(currentFishId);
-    
+
     if (lastIndex !== -1 && currentIndex !== -1) {
         const startIndex = Math.min(lastIndex, currentIndex);
         const endIndex = Math.max(lastIndex, currentIndex);
-        
+
         // Select/deselect all checkboxes in the range
         for (let i = startIndex; i <= endIndex; i++) {
             const fishId = checkboxIds[i];
             const checkbox = document.getElementById(`select-${fishId}`);
-            
+
             checkbox.checked = isChecked;
-            
+
             if (isChecked) {
                 selectedFish.add(fishId);
             } else {
@@ -651,7 +647,7 @@ async function markAsFish(fishId, button) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 isFish: true,
                 reason: reason || 'Marked as valid fish'
             })
@@ -688,7 +684,7 @@ async function markAsNotFish(fishId, button) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 isFish: false,
                 reason: reason
             })
@@ -796,27 +792,27 @@ function formatDate(dateValue) {
 async function downloadAllImages() {
     const downloadBtn = document.getElementById('downloadBtn');
     const downloadStatus = document.getElementById('downloadStatus');
-    
+
     // Disable button and show loading state
     downloadBtn.disabled = true;
     downloadBtn.textContent = 'Preparing Download...';
     downloadStatus.textContent = 'Fetching all fish data...';
-    
+
     try {
         // Fetch all fish from Firebase (including deleted ones)
         const allFishSnapshot = await window.db.collection('fishes_test').get();
-        
+
         if (allFishSnapshot.empty) {
             alert('No fish found to download.');
             return;
         }
-        
+
         const totalFish = allFishSnapshot.size;
         downloadStatus.textContent = `Found ${totalFish} fish. Creating ZIP file...`;
-        
+
         // Create a new ZIP file
         const zip = new JSZip();
-        
+
         // Create metadata file
         const metadata = {
             exportDate: new Date().toISOString(),
@@ -824,31 +820,31 @@ async function downloadAllImages() {
             exportedBy: 'Fish Moderation Panel',
             description: 'All fish images including deleted ones for training purposes'
         };
-        
+
         const fishData = [];
         let processedCount = 0;
         let successCount = 0;
         let failedCount = 0;
-        
+
         // Process each fish
         for (const doc of allFishSnapshot.docs) {
             const fish = doc.data();
             const fishId = doc.id;
-            
+
             try {
                 // Update progress
                 processedCount++;
                 downloadStatus.textContent = `Processing fish ${processedCount}/${totalFish}...`;
-                
+
                 // Get the image URL
                 const imageUrl = fish.image || fish.Image;
-                
+
                 if (!imageUrl) {
                     console.warn(`No image URL found for fish ${fishId}`);
                     failedCount++;
                     continue;
                 }
-                
+
                 // Fetch the image
                 const response = await fetch(imageUrl);
                 if (!response.ok) {
@@ -856,20 +852,20 @@ async function downloadAllImages() {
                     failedCount++;
                     continue;
                 }
-                
+
                 const imageBlob = await response.blob();
-                
+
                 // Create filename with fish info
-                const status = fish.deleted ? 'deleted' : 
-                             fish.approved ? 'approved' : 
-                             fish.flaggedForReview ? 'flagged' : 'pending';
-                
-                const createdAt = fish.CreatedAt ? 
-                    (fish.CreatedAt.toDate ? fish.CreatedAt.toDate() : new Date(fish.CreatedAt)) : 
+                const status = fish.deleted ? 'deleted' :
+                    fish.approved ? 'approved' :
+                        fish.flaggedForReview ? 'flagged' : 'pending';
+
+                const createdAt = fish.CreatedAt ?
+                    (fish.CreatedAt.toDate ? fish.CreatedAt.toDate() : new Date(fish.CreatedAt)) :
                     new Date();
-                
+
                 const dateStr = createdAt.toISOString().split('T')[0];
-                
+
                 // Determine file extension from blob type or URL
                 let extension = 'png';
                 if (imageBlob.type === 'image/jpeg') {
@@ -877,12 +873,12 @@ async function downloadAllImages() {
                 } else if (imageBlob.type === 'image/gif') {
                     extension = 'gif';
                 }
-                
+
                 const filename = `${status}/${fishId}_${dateStr}_${status}.${extension}`;
-                
+
                 // Add image to ZIP
                 zip.file(filename, imageBlob);
-                
+
                 // Add fish metadata
                 fishData.push({
                     id: fishId,
@@ -898,15 +894,15 @@ async function downloadAllImages() {
                     approved: fish.approved || false,
                     deleted: fish.deleted || false
                 });
-                
+
                 successCount++;
-                
+
             } catch (error) {
                 console.error(`Error processing fish ${fishId}:`, error);
                 failedCount++;
             }
         }
-        
+
         // Add metadata files to ZIP
         metadata.fishData = fishData;
         metadata.summary = {
@@ -914,20 +910,20 @@ async function downloadAllImages() {
             successfullyDownloaded: successCount,
             failed: failedCount
         };
-        
+
         zip.file('metadata.json', JSON.stringify(metadata, null, 2));
-        
+
         // Create a CSV file for easy analysis
         const csvHeaders = 'ID,Filename,Status,Created,Artist,Upvotes,Downvotes,Score,ReportCount,Flagged,Approved,Deleted\n';
-        const csvData = fishData.map(fish => 
+        const csvData = fishData.map(fish =>
             `${fish.id},${fish.filename},${fish.status},${fish.createdAt},${fish.artist},${fish.upvotes},${fish.downvotes},${fish.score},${fish.reportCount},${fish.flaggedForReview},${fish.approved},${fish.deleted}`
         ).join('\n');
-        
+
         zip.file('fish_data.csv', csvHeaders + csvData);
-        
+
         // Generate and download ZIP file
         downloadStatus.textContent = 'Generating ZIP file...';
-        
+
         const content = await zip.generateAsync({
             type: 'blob',
             compression: 'DEFLATE',
@@ -935,7 +931,7 @@ async function downloadAllImages() {
                 level: 6
             }
         });
-        
+
         // Create download link
         const url = window.URL.createObjectURL(content);
         const a = document.createElement('a');
@@ -945,12 +941,12 @@ async function downloadAllImages() {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-        
+
         downloadStatus.textContent = `Download complete! ${successCount} images downloaded, ${failedCount} failed.`;
-        
+
         // Show summary
         alert(`Download complete!\n\nSuccessfully downloaded: ${successCount} images\nFailed: ${failedCount} images\nTotal processed: ${totalFish} fish\n\nThe ZIP file includes:\n- All fish images organized by status (approved, deleted, flagged, pending)\n- metadata.json with detailed information\n- fish_data.csv for easy analysis`);
-        
+
     } catch (error) {
         console.error('Error downloading images:', error);
         alert('Error downloading images. Please try again.');
@@ -980,7 +976,7 @@ function selectNone() {
 
 // Setup keyboard shortcuts
 function setupKeyboardShortcuts() {
-    document.addEventListener('keydown', function(event) {
+    document.addEventListener('keydown', function (event) {
         // Ctrl+A or Cmd+A to select all
         if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
             // Only if not focused on an input field
@@ -989,7 +985,7 @@ function setupKeyboardShortcuts() {
                 selectAll();
             }
         }
-        
+
         // Escape to clear selection
         if (event.key === 'Escape') {
             clearSelection();
