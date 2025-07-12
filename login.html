@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fish Login</title>
     <link rel="stylesheet" href="src/css/style.css">
-    
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GS1GYSFBPX"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-      gtag('config', 'G-GS1GYSFBPX');
+        gtag('config', 'G-GS1GYSFBPX');
     </script>
-    
+
     <style>
         .login-container {
             max-width: 350px;
@@ -23,43 +24,43 @@
             border: 1px solid #000;
             padding: 15px;
         }
-        
+
         .login-header {
             padding: 4px 8px;
             margin: -15px -15px 15px -15px;
             font-weight: bold;
         }
-        
+
         .auth-tabs {
             margin-bottom: 15px;
         }
-        
+
         .auth-tab-btn {
             margin-right: 5px;
         }
-        
+
         .auth-tab-btn.active {
             background: #000;
             color: white;
         }
-        
+
         .auth-form {
             border: 1px solid #000;
             padding: 10px;
             margin-bottom: 15px;
         }
-        
+
         .auth-form input {
             width: 100%;
             padding: 2px;
             border: 1px solid #000;
             margin-bottom: 8px;
         }
-        
+
         .loading {
             display: none;
         }
-        
+
         .error {
             display: none;
             color: #800000;
@@ -67,31 +68,32 @@
             border: 1px solid #800000;
             padding: 5px;
         }
-        
+
         .divider {
             text-align: center;
             margin: 15px 0;
             border-bottom: 1px solid #000;
             height: 10px;
         }
-        
+
         .divider span {
             background: white;
             padding: 0 10px;
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <div class="login-header">
             Fish Login
         </div>
-        
+
         <div class="auth-tabs">
             <button type="button" class="auth-tab-btn active" onclick="showAuthForm('signin')">Sign In</button>
             <button type="button" class="auth-tab-btn" onclick="showAuthForm('signup')">Sign Up</button>
         </div>
-        
+
         <!-- Sign In Form -->
         <form id="signin-form" class="auth-form">
             <strong>Email:</strong><br>
@@ -100,28 +102,26 @@
             <input type="password" id="signin-password" required><br><br>
             <button type="submit">Login</button>
         </form>
-        
+
         <!-- Sign Up Form -->
         <form id="signup-form" class="auth-form" style="display: none;">
-            <strong>Display Name:</strong><br>
-            <input type="text" id="signup-name" required><br>
             <strong>Email:</strong><br>
             <input type="email" id="signup-email" required><br>
             <strong>Password:</strong><br>
             <input type="password" id="signup-password" required><br><br>
-            <button type="submit">Register</button>
+            <button type="submit">Register</button> 
         </form>
-        
+
         <div class="divider">
             <span>or</span>
         </div>
-        
+
         <div id="g_id_signin"></div>
-        
+
         <div id="loading" class="loading">
             Verifying credentials...
         </div>
-        
+
         <div id="error" class="error">
             Authentication failed. Please try again.
         </div>
@@ -133,4 +133,5 @@
     <script src="src/js/firebase-init.js"></script>
     <script src="src/js/login.js"></script>
 </body>
+
 </html>

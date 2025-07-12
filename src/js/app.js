@@ -92,6 +92,9 @@ async function submitFish(artist, needsModeration = false) {
     formData.append('image', imageBlob, 'fish.png');
     formData.append('artist', artist);
     formData.append('needsModeration', needsModeration.toString());
+    if(localStorage.getItem('userId')) {
+        formData.append('userId', localStorage.getItem('userId'));
+    }
     // Retro loading indicator
     let submitBtn = document.getElementById('submit-fish');
     if (submitBtn) {
@@ -121,6 +124,7 @@ async function submitFish(artist, needsModeration = false) {
             // Save today's date to track fish submission
             const today = new Date().toDateString();
             localStorage.setItem('lastFishDate', today);
+            localStorage.setItem('userId', result.data.userId);
             
             // Show success message based on moderation status
             if (needsModeration) {

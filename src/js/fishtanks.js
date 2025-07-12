@@ -190,7 +190,6 @@ function appendTanks(tanks, container, isOwner) {
 function createTankCard(tank, isOwner) {
     const card = document.createElement('div');
     card.className = 'tank-card';
-    
     const createdDate = new Date(tank.createdAt._seconds * 1000).toLocaleDateString();
     const updatedDate = new Date(tank.updatedAt._seconds * 1000).toLocaleDateString();
     
@@ -328,10 +327,8 @@ async function handleEditTank(e) {
     
     if (!currentEditingTank) return;
     
-    const form = e.target;
-    const formData = new FormData(form);
     const tankData = {
-        name: formData.get('name') ? document.getElementById('edit-tank-name').value.trim() : '',
+        name: document.getElementById('edit-tank-name').value.trim(),
         description: document.getElementById('edit-tank-description').value.trim(),
         isPublic: document.getElementById('edit-tank-public').checked
     };

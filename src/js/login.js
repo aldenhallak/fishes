@@ -94,11 +94,12 @@
   async function handleSignUp(event) {
     event.preventDefault();
     
-    const displayName = document.getElementById('signup-name').value;
     const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
+    const userId = localStorage.getItem('userId') || null; // Optional userId for existing users
+    const artistName = localStorage.getItem('artistName') || 'Anonymous'; // Optional artist name for existing users
     
-    if (!displayName || !email || !password) {
+    if (!email || !password) {
       showError("Please fill in all fields.");
       return;
     }
@@ -111,7 +112,7 @@
     const requestPromise = fetch(BACKEND_URL + "/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ displayName, email, password })
+      body: JSON.stringify({displayName: artistName, email, password, userId })
     });
     
     await executeAuthRequest(requestPromise, "Sign up", "Registration failed.");
