@@ -121,10 +121,7 @@ class ModalManager {
         const html = `
             <div style="text-align: center;">
                 <h2 style="margin: 0 0 15px 0; color: #333; font-size: 1.5em;">Login Required</h2>
-                <p style="margin: 0 0 15px 0; color: #666;">Login to add fish to your personal tank and create your own aquatic collection!</p>
-                <p style="margin: 0 0 15px 0; color: #666;">
-                    Once you're logged in, you can click on any fish to add it to your personal tank!
-                </p>
+                <p style="margin: 0 0 15px 0; color: #666;">Login to add fish to your personal tank.</p>
                 <div style="text-align: center; margin-top: 20px;">
                     <a href="login.html" style="padding: 8px 12px; border: 1px solid #ddd; background: #007bff; color: white; text-decoration: none; margin-right: 10px; border-radius: 5px; transition: all 0.2s ease;">Login / Sign Up</a>
                     <button onclick="this.closest('.modal').click()" style="border: 1px solid #ddd; background: white; padding: 8px 12px; cursor: pointer; border-radius: 5px; color: #666; transition: all 0.2s ease;">Maybe Later</button>

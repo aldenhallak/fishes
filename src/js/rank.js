@@ -16,8 +16,8 @@ function testImageUrl(imgUrl) {
     return new Promise((resolve) => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
-        
-        img.onload = function() {
+
+        img.onload = function () {
             // Check if image has actual content (not just a tiny placeholder)
             if (img.width > 10 && img.height > 10) {
                 resolve(true);
@@ -26,18 +26,18 @@ function testImageUrl(imgUrl) {
                 resolve(false);
             }
         };
-        
-        img.onerror = function() {
+
+        img.onerror = function () {
             console.warn('Image failed to load:', imgUrl);
             resolve(false);
         };
-        
+
         // Set a timeout to avoid hanging on slow images
         setTimeout(() => {
             console.warn('Image load timeout:', imgUrl);
             resolve(false);
         }, 5000); // 5 second timeout
-        
+
         img.src = imgUrl;
     });
 }
@@ -46,30 +46,30 @@ function testImageUrl(imgUrl) {
 function createFishImageDataUrl(imgUrl, callback) {
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.onload = function() {
+    img.onload = function () {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        
+
         // Set canvas size
         canvas.width = 120;
         canvas.height = 80;
-        
+
         // Calculate scaling to fit within canvas while maintaining aspect ratio
         const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
         const scaledWidth = img.width * scale;
         const scaledHeight = img.height * scale;
-        
+
         // Center the image
         const x = (canvas.width - scaledWidth) / 2;
         const y = (canvas.height - scaledHeight) / 2;
-        
+
         // Clear canvas and draw image
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
-        
+
         callback(canvas.toDataURL());
     };
-    img.onerror = function() {
+    img.onerror = function () {
         callback(null);
     };
     img.src = imgUrl;
@@ -99,10 +99,10 @@ function handleVote(fishId, voteType, button) {
                     fish.downvotes = (fish.downvotes || 0) + 1;
                 }
             }
-            
+
             // Always recalculate score
             fish.score = calculateScore(fish);
-            
+
             // Update the display
             updateFishCard(fishId);
         } else {
@@ -118,29 +118,29 @@ function updateFishCard(fishId) {
         console.error(`Cannot update card: Fish with ID ${fishId} not found in allFishData`);
         return;
     }
-    
+
     const scoreElement = document.querySelector(`.fish-card[data-fish-id="${fishId}"] .fish-score`);
     const upvoteElement = document.querySelector(`.fish-card[data-fish-id="${fishId}"] .upvote-count`);
     const downvoteElement = document.querySelector(`.fish-card[data-fish-id="${fishId}"] .downvote-count`);
-    
+
     if (scoreElement) {
         scoreElement.textContent = `Score: ${fish.score || 0}`;
     } else {
         console.error(`Score element not found for fish ${fishId}`);
     }
-    
+
     if (upvoteElement) {
         upvoteElement.textContent = fish.upvotes || 0;
     } else {
         console.error(`Upvote element not found for fish ${fishId}`);
     }
-    
+
     if (downvoteElement) {
         downvoteElement.textContent = fish.downvotes || 0;
     } else {
         console.error(`Downvote element not found for fish ${fishId}`);
     }
-    
+
     // Force a repaint to ensure the UI updates
     const fishCard = document.querySelector(`.fish-card[data-fish-id="${fishId}"]`);
     if (fishCard) {
@@ -157,12 +157,9 @@ function createFishCard(fish) {
     const upvotes = fish.upvotes || 0;
     const downvotes = fish.downvotes || 0;
     const userToken = localStorage.getItem('userToken');
-    
-    // Only make fish clickable if user is logged in
-    const fishImageContainer = userToken 
-        ? `<div class="fish-image-container" onclick="showAddToTankModal('${fish.docId}')" title="Click to add to your tank" style="cursor: pointer;">`
-        : `<div class="fish-image-container" title="Login to add fish to your tank" style="cursor: default;">`;
-    
+
+    const fishImageContainer =
+        `<div class="fish-image-container" onclick="showAddToTankModal('${fish.docId}')" title="Click to add to your tank" style="cursor: pointer;">`;
     return `
         <div class="fish-card" data-fish-id="${fish.docId}">
             ${fishImageContainer}
@@ -191,7 +188,7 @@ function createFishCard(fish) {
 // Sort fish data
 function sortFish(fishData, sortType, direction = 'desc') {
     const sorted = [...fishData];
-    
+
     switch (sortType) {
         case 'score':
             return sorted.sort((a, b) => {
@@ -220,7 +217,7 @@ function sortFish(fishData, sortType, direction = 'desc') {
 // Display fish in the grid
 function displayFish(fishData, append = false) {
     const grid = document.getElementById('fish-grid');
-    
+
     if (append) {
         // Append new fish to existing grid
         const newFishHTML = fishData.map(fish => createFishCard(fish)).join('');
@@ -229,7 +226,7 @@ function displayFish(fishData, append = false) {
         // Replace all fish (initial load or sort change)
         grid.innerHTML = fishData.map(fish => createFishCard(fish)).join('');
     }
-    
+
     // Load fish images asynchronously
     fishData.forEach(fish => {
         const imageUrl = fish.image || fish.Image;
@@ -259,7 +256,7 @@ function updateSortButtonText() {
         let baseText = '';
         let arrow = '';
         let tooltip = '';
-        
+
         switch (sortType) {
             case 'hot':
                 baseText = 'Sort by Hot';
@@ -275,17 +272,17 @@ function updateSortButtonText() {
                 tooltip = 'Show fish in random order';
                 break;
         }
-        
+
         // Add arrow for current sort (except random)
         if (sortType === currentSort && sortType !== 'random') {
             arrow = sortDirection === 'desc' ? ' ↓' : ' ↑';
-            tooltip = sortType === 'score' 
+            tooltip = sortType === 'score'
                 ? (sortDirection === 'desc' ? 'Highest score first' : 'Lowest score first')
                 : (sortDirection === 'desc' ? 'Newest first' : 'Oldest first');
         } else if (sortType !== 'random') {
             tooltip = `Click to sort by ${sortType}. Click again to reverse order.`;
         }
-        
+
         btn.textContent = baseText + arrow;
         btn.title = tooltip;
     });
@@ -301,26 +298,26 @@ async function handleSortChange(sortType) {
         currentSort = sortType;
         sortDirection = sortType === 'date' ? 'desc' : 'desc'; // Default to descending for most sorts
     }
-    
+
     // Reset pagination state whenever sort changes (including direction)
     lastDoc = null;
     hasMoreFish = true;
     loadedCount = 0;
     allFishData = [];
-    
+
     // Update active button
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     document.querySelector(`[data-sort="${sortType}"]`).classList.add('active');
-    
+
     // Update button text with arrows
     updateSortButtonText();
-    
+
     // Show loading and reload data with new sort
     document.getElementById('loading').style.display = 'block';
     document.getElementById('fish-grid').style.display = 'none';
-    
+
     // Reload fish data with new sort criteria
     await loadFishData(sortType);
 }
@@ -329,17 +326,17 @@ async function handleSortChange(sortType) {
 async function filterValidFish(fishArray) {
     const validFish = [];
     const batchSize = 10; // Test images in batches to avoid overwhelming the browser
-    
+
     document.getElementById('loading').textContent = 'Checking fish images...';
-    
+
     for (let i = 0; i < fishArray.length; i += batchSize) {
         const batch = fishArray.slice(i, i + batchSize);
-        
+
         // Update loading message with progress
         const progress = Math.min(i + batchSize, fishArray.length);
-        document.getElementById('loading').textContent = 
+        document.getElementById('loading').textContent =
             `Checking fish images... ${progress}/${fishArray.length}`;
-        
+
         // Test all images in current batch simultaneously
         const batchResults = await Promise.all(
             batch.map(async (fish) => {
@@ -347,23 +344,23 @@ async function filterValidFish(fishArray) {
                 if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.startsWith('http')) {
                     return null; // Invalid URL format
                 }
-                
+
                 const isValid = await testImageUrl(imageUrl);
                 return isValid ? fish : null;
             })
         );
-        
+
         // Add valid fish from this batch
         batchResults.forEach(fish => {
             if (fish) validFish.push(fish);
         });
-        
+
         // Small delay between batches to prevent browser overload
         if (i + batchSize < fishArray.length) {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
     }
-    
+
     return validFish;
 }
 
@@ -372,13 +369,13 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
     if (isLoading || (!hasMoreFish && !isInitialLoad)) {
         return;
     }
-    
+
     isLoading = true;
-    
+
     try {
         const loadingElement = document.getElementById('loading');
         const gridElement = document.getElementById('fish-grid');
-        
+
         if (isInitialLoad) {
             loadingElement.textContent = `Loading fish... 🐠`;
             loadingElement.style.display = 'block';
@@ -388,19 +385,19 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
             loadingElement.textContent = `Loading more fish... 🐠`;
             loadingElement.style.display = 'block';
         }
-        
+
         const fishDocs = await getFishBySort(sortType, 50, lastDoc, sortDirection);
-        
+
         // Check if we got fewer docs than requested (indicates end of data)
         if (fishDocs.length < 50 && sortType !== 'random') {
             hasMoreFish = false;
         }
-        
+
         // For random sorting, disable infinite scroll after first load
         if (sortType === 'random' && !isInitialLoad) {
             hasMoreFish = false;
         }
-        
+
         // Map fish documents to objects
         const newFish = fishDocs.map(doc => {
             const data = doc.data();
@@ -411,15 +408,15 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
             };
             return fish;
         });
-        
+
         // Filter to only fish with working images
         const validFish = await filterValidFish(newFish);
-        
+
         // Update lastDoc for pagination (except for random sorting)
         if (fishDocs.length > 0 && sortType !== 'random') {
             lastDoc = fishDocs[fishDocs.length - 1];
         }
-        
+
         // Apply client-side sorting for score (random is already handled by DB query)
         if (sortType === 'score') {
             validFish.sort((a, b) => {
@@ -428,11 +425,11 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
                 return sortDirection === 'desc' ? scoreB - scoreA : scoreA - scoreB;
             });
         }
-        
+
         if (isInitialLoad) {
             allFishData = validFish;
             loadedCount = allFishData.length;
-            
+
             // Hide loading and show grid
             loadingElement.style.display = 'none';
             gridElement.style.display = 'grid';
@@ -442,7 +439,7 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
             // Filter out duplicates when appending
             const existingIds = new Set(allFishData.map(fish => fish.docId));
             const newValidFish = validFish.filter(fish => !existingIds.has(fish.docId));
-            
+
             if (newValidFish.length > 0) {
                 allFishData = [...allFishData, ...newValidFish];
                 loadedCount = allFishData.length;
@@ -451,12 +448,12 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
                 // No new fish found, might have reached the end
                 hasMoreFish = false;
             }
-            
+
             // Hide loading and show status if needed
             loadingElement.style.display = 'none';
             updateStatusMessage();
         }
-        
+
     } catch (error) {
         console.error('Error loading fish:', error);
         document.getElementById('loading').textContent = 'Error loading fish. Please try again.';
@@ -468,7 +465,7 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
 // Update status message
 function updateStatusMessage() {
     const loadingElement = document.getElementById('loading');
-    
+
     if (!hasMoreFish && loadedCount > 0) {
         loadingElement.textContent = `Showing all ${loadedCount} fish 🐟`;
         loadingElement.style.display = 'block';
@@ -483,7 +480,7 @@ function isNearBottom() {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
-    
+
     // Trigger when user is within 200px of the bottom
     return scrollTop + windowHeight >= documentHeight - 200;
 }
@@ -512,13 +509,13 @@ window.addEventListener('DOMContentLoaded', () => {
             await handleSortChange(btn.getAttribute('data-sort'));
         });
     });
-    
+
     // Set up infinite scroll
     window.addEventListener('scroll', throttledScroll);
-    
+
     // Initialize button text with arrows
     updateSortButtonText();
-    
+
     // Load initial fish data
     loadFishData();
 });
