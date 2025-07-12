@@ -184,8 +184,8 @@
     document.querySelector(`[onclick="showAuthForm('${type}')"]`).classList.add('active');
     
     // Show/hide forms
-    document.getElementById('signin-form').style.display = type === 'signin' ? 'flex' : 'none';
-    document.getElementById('signup-form').style.display = type === 'signup' ? 'flex' : 'none';
+    document.getElementById('signin-form').style.display = type === 'signin' ? 'block' : 'none';
+    document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
     document.getElementById('forgot-password-form').style.display = 'none';
     
     // Clear form fields
@@ -205,7 +205,7 @@
     // Show/hide forms
     document.getElementById('signin-form').style.display = 'none';
     document.getElementById('signup-form').style.display = 'none';
-    document.getElementById('forgot-password-form').style.display = 'flex';
+    document.getElementById('forgot-password-form').style.display = 'block';
     
     // Clear form fields
     document.getElementById('forgot-password-form').reset();
