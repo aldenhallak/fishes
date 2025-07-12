@@ -69,6 +69,14 @@
             padding: 5px;
         }
 
+        .success {
+            display: none;
+            color: #008000;
+            background: #ccffcc;
+            border: 1px solid #008000;
+            padding: 5px;
+        }
+
         .divider {
             text-align: center;
             margin: 15px 0;
@@ -101,6 +109,8 @@
             <strong>Password:</strong><br>
             <input type="password" id="signin-password" required><br><br>
             <button type="submit">Login</button>
+            <br><br>
+            <a href="#" id="forgot-password-link" onclick="showForgotPasswordForm()">Forgot Password?</a>
         </form>
 
         <!-- Sign Up Form -->
@@ -110,6 +120,15 @@
             <strong>Password:</strong><br>
             <input type="password" id="signup-password" required><br><br>
             <button type="submit">Register</button> 
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgot-password-form" class="auth-form" style="display: none;">
+            <strong>Enter your email address:</strong><br>
+            <input type="email" id="forgot-email" required><br><br>
+            <button type="submit">Send Reset Email</button>
+            <br><br>
+            <a href="#" onclick="showAuthForm('signin')">Back to Sign In</a>
         </form>
 
         <div class="divider">
@@ -124,6 +143,10 @@
 
         <div id="error" class="error">
             Authentication failed. Please try again.
+        </div>
+
+        <div id="success" class="success">
+            Password reset email sent! Please check your inbox.
         </div>
     </div>
 

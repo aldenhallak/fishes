@@ -3,6 +3,7 @@
     // Setup form event listeners
     document.getElementById('signin-form').addEventListener('submit', handleSignIn);
     document.getElementById('signup-form').addEventListener('submit', handleSignUp);
+    document.getElementById('forgot-password-form').addEventListener('submit', handleForgotPassword);
     
     // Initialize Google Sign-In
     google.accounts.id.initialize({
@@ -15,6 +16,9 @@
       document.getElementById("g_id_signin"),
       { theme: "outline", size: "large" }
     );
+
+    // Check for success messages from redirects
+    checkForSuccessMessage();
   };
 
   // Helper function to handle successful authentication
@@ -118,6 +122,58 @@
     await executeAuthRequest(requestPromise, "Sign up", "Registration failed.");
   }
 
+  // Handle forgot password request
+  async function handleForgotPassword(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('forgot-email').value;
+    
+    if (!email) {
+      showError("Please enter your email address.");
+      return;
+    }
+    
+    showLoading();
+    hideError();
+    hideSuccess();
+    
+    try {
+      const response = await fetch(BACKEND_URL + "/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      
+      if (response.ok) {
+        showSuccess("Password reset email sent! Please check your inbox and spam folder.");
+        document.getElementById('forgot-password-form').reset();
+      } else {
+        const errorResponse = await response.json().catch(() => ({}));
+        throw new Error(errorResponse.error || "Failed to send reset email.");
+      }
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      showError(error.message || "Failed to send reset email. Please try again.");
+    } finally {
+      hideLoading();
+    }
+  }
+
+  // Check for success messages from URL parameters
+  function checkForSuccessMessage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+    
+    if (message === 'password-reset-success') {
+      showSuccess("Password reset successful! You can now sign in with your new password.");
+      
+      // Clear the URL parameter
+      const url = new URL(window.location);
+      url.searchParams.delete('message');
+      window.history.replaceState({}, document.title, url.pathname);
+    }
+  }
+
   // UI Helper Functions
 
   function showAuthForm(type) {
@@ -130,11 +186,31 @@
     // Show/hide forms
     document.getElementById('signin-form').style.display = type === 'signin' ? 'flex' : 'none';
     document.getElementById('signup-form').style.display = type === 'signup' ? 'flex' : 'none';
+    document.getElementById('forgot-password-form').style.display = 'none';
     
     // Clear form fields
     document.getElementById('signin-form').reset();
     document.getElementById('signup-form').reset();
+    document.getElementById('forgot-password-form').reset();
     hideError();
+    hideSuccess();
+  }
+
+  function showForgotPasswordForm() {
+    // Hide auth tabs and other forms
+    document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    
+    // Show/hide forms
+    document.getElementById('signin-form').style.display = 'none';
+    document.getElementById('signup-form').style.display = 'none';
+    document.getElementById('forgot-password-form').style.display = 'flex';
+    
+    // Clear form fields
+    document.getElementById('forgot-password-form').reset();
+    hideError();
+    hideSuccess();
   }
 
   function showLoading() {
@@ -153,6 +229,16 @@
 
   function hideError() {
     document.getElementById('error').style.display = 'none';
+  }
+
+  function showSuccess(message) {
+    const successElement = document.getElementById('success');
+    successElement.textContent = message;
+    successElement.style.display = 'block';
+  }
+
+  function hideSuccess() {
+    document.getElementById('success').style.display = 'none';
   }
 
   function showMessage(message) {
