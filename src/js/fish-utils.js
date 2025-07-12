@@ -1,11 +1,26 @@
 // Shared utilities for fish functionality across tank.js and rank.js
 // This file contains common functions to avoid code duplication
 
-// Configuration for backend URL - change to false for local development
-const USE_PRODUCTION_BACKEND = true;
-const BACKEND_URL = USE_PRODUCTION_BACKEND
-    ? 'https://fishes-be-571679687712.northamerica-northeast1.run.app'
-    : 'http://localhost:8080';
+// Configuration for backend URL - automatically detects environment with URL override support
+const isLocalhost = window.location.hostname === 'localhost' || 
+                   window.location.hostname === '127.0.0.1' ||
+                   window.location.hostname.includes('localhost');
+
+// Check for URL parameter override (useful for testing)
+const urlParams = new URLSearchParams(window.location.search);
+const forceLocal = urlParams.get('local') === 'true';
+const forceProd = urlParams.get('prod') === 'true';
+
+let BACKEND_URL;
+if (forceLocal) {
+    BACKEND_URL = 'http://localhost:8080';
+} else if (forceProd) {
+    BACKEND_URL = 'https://fishes-be-571679687712.northamerica-northeast1.run.app';
+} else {
+    BACKEND_URL = isLocalhost
+        ? 'http://localhost:8080'
+        : 'https://fishes-be-571679687712.northamerica-northeast1.run.app';
+}
 
 // Calculate fish score (upvotes - downvotes)
 function calculateScore(fish) {
