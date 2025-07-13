@@ -8,6 +8,7 @@ let isLoading = false;
 let hasMoreFish = true;
 let lastDoc = null; // For pagination with Firestore
 let loadedCount = 0; // Track total loaded fish count
+let currentUserId = null; // Track user filter for showing specific user's fish
 
 // Random fish selection and getFishBySort are now in fish-utils.js
 
@@ -166,7 +167,12 @@ function createFishCard(fish) {
                 <img class="fish-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" alt="Fish" data-fish-id="${fish.docId}">
             </div>
             <div class="fish-info">
-                <div class="fish-artist">${fish.Artist || 'Anonymous'}</div>
+                <div class="fish-artist">
+                    <a href="profile.html?userId=${encodeURIComponent(fish.UserId || fish.Artist || 'Anonymous')}" 
+                       style="color: inherit; text-decoration: none;">
+                        ${fish.Artist || 'Anonymous'}
+                    </a>
+                </div>
                 <div class="fish-date">${formatDate(fish.CreatedAt)}</div>
                 <div class="fish-score">Score: ${score}</div>
             </div>
@@ -386,7 +392,7 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
             loadingElement.style.display = 'block';
         }
 
-        const fishDocs = await getFishBySort(sortType, 50, lastDoc, sortDirection);
+        const fishDocs = await getFishBySort(sortType, 50, lastDoc, sortDirection, currentUserId);
 
         // Check if we got fewer docs than requested (indicates end of data)
         if (fishDocs.length < 50 && sortType !== 'random') {
@@ -492,6 +498,40 @@ function handleScroll() {
     }
 }
 
+// Update page header when filtering by user
+function updatePageHeaderForUser(userId) {
+    const headerElement = document.querySelector('.ranking-header h1');
+    if (headerElement) {
+        headerElement.textContent = `Fish by ${userId}`;
+    }
+    
+    // Update page title
+    document.title = `Fish by ${userId} - Fish Ranking`;
+    
+    // Add a note about the filter
+    const existingNote = document.querySelector('.user-filter-note');
+    if (!existingNote) {
+        const note = document.createElement('p');
+        note.className = 'user-filter-note';
+        note.style.textAlign = 'center';
+        note.style.color = '#666';
+        note.style.marginBottom = '20px';
+        note.textContent = `Showing all fish created by ${userId}`;
+        
+        const headerContainer = document.querySelector('.ranking-header');
+        if (headerContainer) {
+            headerContainer.appendChild(note);
+            
+            // Add back to profile link
+            const backLink = document.createElement('p');
+            backLink.style.textAlign = 'center';
+            backLink.style.marginTop = '10px';
+            backLink.innerHTML = `<a href="profile.html?userId=${encodeURIComponent(userId)}" style="color: #007bff; text-decoration: none;">&larr; Back to ${userId}'s Profile</a>`;
+            headerContainer.appendChild(backLink);
+        }
+    }
+}
+
 // Throttle scroll event to improve performance
 let scrollTimeout;
 function throttledScroll() {
@@ -503,6 +543,15 @@ function throttledScroll() {
 
 // Initialize page
 window.addEventListener('DOMContentLoaded', () => {
+    // Check for userId parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    currentUserId = urlParams.get('userId');
+    
+    // Update page header if filtering by user
+    if (currentUserId) {
+        updatePageHeaderForUser(currentUserId);
+    }
+    
     // Set up sort button event listeners
     document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.addEventListener('click', async () => {

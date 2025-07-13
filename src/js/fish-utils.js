@@ -221,7 +221,7 @@ function generateRandomDocId() {
 }
 
 // Get random documents using efficient Firestore random selection
-async function getRandomFish(limit = 50) {
+async function getRandomFish(limit = 50, userId = null) {
     const randomDocs = [];
 
     while (randomDocs.length < limit) {
@@ -230,8 +230,14 @@ async function getRandomFish(limit = 50) {
         // Try forward direction first
         let query = window.db.collection('fishes_test')
             .where(window.firebase.firestore.FieldPath.documentId(), '>=', randomId)
-            .where('isVisible', '==', true)
-            .orderBy(window.firebase.firestore.FieldPath.documentId())
+            .where('isVisible', '==', true);
+            
+        // Add user filter if specified
+        if (userId) {
+            query = query.where('userId', '==', userId);
+        }
+        
+        query = query.orderBy(window.firebase.firestore.FieldPath.documentId())
             .limit(limit - randomDocs.length);
 
         let snapshot = await query.get();
@@ -240,8 +246,14 @@ async function getRandomFish(limit = 50) {
         if (snapshot.empty) {
             query = window.db.collection('fishes_test')
                 .where(window.firebase.firestore.FieldPath.documentId(), '<', randomId)
-                .where('isVisible', '==', true)
-                .orderBy(window.firebase.firestore.FieldPath.documentId())
+                .where('isVisible', '==', true);
+                
+            // Add user filter if specified
+            if (userId) {
+                query = query.where('userId', '==', userId);
+            }
+            
+            query = query.orderBy(window.firebase.firestore.FieldPath.documentId())
                 .limit(limit - randomDocs.length);
 
             snapshot = await query.get();
@@ -266,11 +278,16 @@ async function getRandomFish(limit = 50) {
 }
 
 // Get fish from Firestore with different sorting options (unified function for both tank and rank)
-async function getFishBySort(sortType, limit = 50, startAfter = null, direction = 'desc') {
+async function getFishBySort(sortType, limit = 50, startAfter = null, direction = 'desc', userId = null) {
     let query = window.db.collection('fishes_test');
 
     // Filter out flagged and deleted fish
     query = query.where('isVisible', '==', true);
+    
+    // Filter by user if specified
+    if (userId) {
+        query = query.where('userId', '==', userId);
+    }
 
     switch (sortType) {
         case 'hot':
@@ -300,7 +317,7 @@ async function getFishBySort(sortType, limit = 50, startAfter = null, direction 
 
         case 'random':
             // For random, we can't use pagination in the traditional sense
-            return await getRandomFish(limit);
+            return await getRandomFish(limit, userId);
 
         default:
             // Default to most recent

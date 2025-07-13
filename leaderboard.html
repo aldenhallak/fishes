@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="src/css/style.css">
+    <link rel="icon" href="public/favicon.ico">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GS1GYSFBPX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-GS1GYSFBPX');
+    </script>
+    
+    <style>
+        .leaderboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .leaderboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .leaderboard-header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            color: #333;
+        }
+        
+        .leaderboard-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .leaderboard-controls label {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .leaderboard-controls select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .refresh-btn {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+        
+        .refresh-btn:hover {
+            background: #0056b3;
+        }
+        
+        .leaderboard-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+        }
+        
+        .leaderboard-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .leaderboard-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .leaderboard-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .leaderboard-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .rank-cell {
+            text-align: center;
+            width: 60px;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .rank-1 {
+            color: #ffd700;
+            font-size: 18px;
+        }
+        
+        .rank-2 {
+            color: #c0c0c0;
+            font-size: 16px;
+        }
+        
+        .rank-3 {
+            color: #cd7f32;
+            font-size: 16px;
+        }
+        
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .user-name:hover {
+            color: #007bff;
+            text-decoration: underline;
+        }
+        
+        .user-email {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .stat-cell {
+            text-align: center;
+            font-weight: 500;
+            width: 100px;
+        }
+        
+        .score-positive {
+            color: #28a745;
+        }
+        
+        .score-negative {
+            color: #dc3545;
+        }
+        
+        .score-zero {
+            color: #6c757d;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #dc3545;
+            font-size: 18px;
+        }
+        
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .nav-links a {
+            color: #007bff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background 0.2s ease;
+        }
+        
+        .nav-links a:hover {
+            background: #e9ecef;
+        }
+        
+        .empty-leaderboard {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .empty-leaderboard h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .leaderboard-table {
+                font-size: 14px;
+            }
+            
+            .leaderboard-table th,
+            .leaderboard-table td {
+                padding: 10px 8px;
+            }
+            
+            .user-cell {
+                gap: 8px;
+            }
+            
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            
+            .user-email {
+                display: none;
+            }
+            
+            .stat-cell {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-links">
+        <a href="index.html">draw</a>
+        <a href="tank.html">tank</a>
+        <a href="rank.html">rankings</a>
+        <a href="profile.html">profile</a>
+        <a href="fishtanks.html" id="my-tanks-link">my tanks</a>
+        <a href="login.html" id="auth-link">login</a>
+    </div>
+    
+    <div class="leaderboard-container">
+        <div class="leaderboard-header">
+            <h1>Top Artists Leaderboard</h1>
+        </div>
+        
+        <div class="leaderboard-controls">
+            <label for="limit-select">Show:</label>
+            <select id="limit-select" onchange="loadLeaderboard()">
+                <option value="10">Top 10</option>
+                <option value="25">Top 25</option>
+                <option value="50">Top 50</option>
+            </select>
+            <button class="refresh-btn" onclick="loadLeaderboard()">Refresh</button>
+        </div>
+        
+        <div id="loading" class="loading">
+            Loading leaderboard...
+        </div>
+        
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div id="empty-leaderboard" class="empty-leaderboard" style="display: none;">
+            <h2>No users found</h2>
+            <p>The leaderboard is empty. Be the first to create a fish!</p>
+        </div>
+        
+        <div id="leaderboard-content" class="leaderboard-table" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>User</th>
+                        <th>Score</th>
+                        <th>Fish</th>
+                        <th>Upvotes</th>
+                        <th>Downvotes</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <footer id="footer-love" style="text-align:center; margin:32px 0 12px 0; color:#888; font-size:1.05em;">
+        Made with <span style="color:#e25555;">hate</span> by <a href="https://fifteen.games">fifteen.games</a>. | <a href="https://github.com/aldenhallak/fishes">Source Code</a>
+    </footer>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="src/js/firebase-init.js"></script>
+    <script src="src/js/fish-utils.js"></script>
+    <script src="src/js/leaderboard.js"></script>
+    <script>
+        // Initialize navigation authentication
+        initializeAuthNavigation();
+        
+        // Load leaderboard on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLeaderboard();
+        });
+    </script>
+</body>
+</html>
