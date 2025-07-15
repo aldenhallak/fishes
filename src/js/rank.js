@@ -10,34 +10,53 @@ let lastDoc = null; // For pagination with Firestore
 let loadedCount = 0; // Track total loaded fish count
 let currentUserId = null; // Track user filter for showing specific user's fish
 
+// Cache for image validation results to avoid testing the same image multiple times
+const imageValidationCache = new Map(); // url -> {isValid: boolean, timestamp: number}
+
 // Random fish selection and getFishBySort are now in fish-utils.js
 
 // Test if an image URL is valid and loads successfully
 function testImageUrl(imgUrl) {
+    // Check cache first (valid for 5 minutes)
+    const cached = imageValidationCache.get(imgUrl);
+    if (cached && (Date.now() - cached.timestamp) < 300000) {
+        return Promise.resolve(cached.isValid);
+    }
+
     return new Promise((resolve) => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
 
+        const resolveAndCache = (isValid) => {
+            // Cache the result
+            imageValidationCache.set(imgUrl, {
+                isValid,
+                timestamp: Date.now()
+            });
+            resolve(isValid);
+        };
+
         img.onload = function () {
             // Check if image has actual content (not just a tiny placeholder)
             if (img.width > 10 && img.height > 10) {
-                resolve(true);
+                resolveAndCache(true);
             } else {
                 console.warn('Image too small:', imgUrl, `${img.width}x${img.height}`);
-                resolve(false);
+                resolveAndCache(false);
             }
         };
 
         img.onerror = function () {
             console.warn('Image failed to load:', imgUrl);
-            resolve(false);
+            resolveAndCache(false);
         };
 
         // Set a timeout to avoid hanging on slow images
         setTimeout(() => {
-            console.warn('Image load timeout:', imgUrl);
-            resolve(false);
-        }, 5000); // 5 second timeout
+            // console.warn('Image load timeout:', imgUrl);
+            // TODO: Fix this. Does nothing rn.
+            resolveAndCache(false);
+        }, 20000); // 20 second timeout - more realistic for slow images
 
         img.src = imgUrl;
     });
@@ -45,34 +64,68 @@ function testImageUrl(imgUrl) {
 
 // Convert fish image to data URL for display
 function createFishImageDataUrl(imgUrl, callback) {
+    // Check validation cache first - don't try to load images that we know are invalid
+    const cached = imageValidationCache.get(imgUrl);
+    if (cached && !cached.isValid && (Date.now() - cached.timestamp) < 300000) {
+        console.log('Skipping display for cached invalid image:', imgUrl);
+        callback(null);
+        return;
+    }
+
     const img = new Image();
     img.crossOrigin = 'anonymous';
+    let isCompleted = false;
+
+    const completeOnce = (result) => {
+        if (!isCompleted) {
+            isCompleted = true;
+            callback(result);
+        }
+    };
+
     img.onload = function () {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        clearTimeout(timeoutId);
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
 
-        // Set canvas size
-        canvas.width = 120;
-        canvas.height = 80;
+            // Set canvas size
+            canvas.width = 120;
+            canvas.height = 80;
 
-        // Calculate scaling to fit within canvas while maintaining aspect ratio
-        const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-        const scaledWidth = img.width * scale;
-        const scaledHeight = img.height * scale;
+            // Calculate scaling to fit within canvas while maintaining aspect ratio
+            const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+            const scaledWidth = img.width * scale;
+            const scaledHeight = img.height * scale;
 
-        // Center the image
-        const x = (canvas.width - scaledWidth) / 2;
-        const y = (canvas.height - scaledHeight) / 2;
+            // Center the image
+            const x = (canvas.width - scaledWidth) / 2;
+            const y = (canvas.height - scaledHeight) / 2;
 
-        // Clear canvas and draw image
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+            // Clear canvas and draw image
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
 
-        callback(canvas.toDataURL());
+            completeOnce(canvas.toDataURL());
+        } catch (error) {
+            console.error('Error creating image data URL:', error);
+            completeOnce(null);
+        }
     };
+
     img.onerror = function () {
-        callback(null);
+        clearTimeout(timeoutId);
+        console.warn('Image failed to load for display:', imgUrl);
+        completeOnce(null);
     };
+
+    // Add timeout for display function as well
+    const timeoutId = setTimeout(() => {
+        console.warn('Image display timeout:', imgUrl);
+        img.src = ''; // Cancel the loading
+        completeOnce(null);
+    }, 20000); // Same 20 second timeout
+
     img.src = imgUrl;
 }
 
@@ -582,7 +635,5 @@ function handleReport(fishId, button) {
 // Make functions globally available
 window.handleVote = handleVote;
 window.handleReport = handleReport;
-window.showAddToTankModal = showAddToTankModal;
-window.addFishToTank = addFishToTank;
-window.closeAddToTankModal = closeAddToTankModal;
-window.closeLoginPromptModal = closeLoginPromptModal;
+// Modal functions are now handled by modal-utils.js
+// showAddToTankModal, closeAddToTankModal, and closeLoginPromptModal are exported there

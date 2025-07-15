@@ -172,3 +172,22 @@ const modalManager = new ModalManager();
 
 // Export functions for global use
 window.showAddToTankModal = (fishId) => modalManager.showAddToTankModal(fishId);
+window.closeAddToTankModal = () => {
+    // Close any open modal by looking for modal elements
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+        }
+    });
+    modalManager.selectedFishId = null;
+};
+window.closeLoginPromptModal = () => {
+    // Close any open modal by looking for modal elements
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+        }
+    });
+};
