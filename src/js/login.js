@@ -28,6 +28,7 @@
   function handleAuthSuccess(authResponse) {
     localStorage.setItem("userToken", authResponse.token);
     localStorage.setItem("userData", JSON.stringify(authResponse.user));
+    localStorage.setItem("userId", authResponse.user.id);
     
     // Check if user has admin privileges and show notification
     if (authResponse.user && authResponse.user.isAdmin) {
@@ -168,10 +169,12 @@
 
   // Google OAuth handler
   async function handleGoogleCredentialResponse(response) {
+    const userId = localStorage.getItem('userId') || null; // Optional userId for existing users
+    
     const requestPromise = fetch(BACKEND_URL + "/auth/google", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: response.credential })
+      body: JSON.stringify({ token: response.credential, userId })
     });
     
     await executeAuthRequest(requestPromise, "Google authentication", "Authentication failed.");
@@ -183,6 +186,7 @@
     
     const email = document.getElementById('signin-email').value;
     const password = document.getElementById('signin-password').value;
+    const userId = localStorage.getItem('userId') || null; // Optional userId for existing users
     
     if (!email || !password) {
       showError("Please enter both email and password.");
@@ -192,7 +196,7 @@
     const requestPromise = fetch(BACKEND_URL + "/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password, userId })
     });
     
     await executeAuthRequest(requestPromise, "Sign in", "Sign in failed.");

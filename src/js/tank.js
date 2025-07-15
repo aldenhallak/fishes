@@ -512,24 +512,19 @@ async function updateTankCapacity(newCapacity) {
     if (newCapacity < fishes.length) {
         const currentFishCount = fishes.filter(f => !f.isDying).length;
         const excessCount = Math.max(0, currentFishCount - newCapacity);
-        
-        console.log(`Reducing capacity from ${currentFishCount} to ${newCapacity}, removing ${excessCount} fish`);
-        
+                
         // Get references to fish that are not already dying
         const aliveFish = fishes.filter(f => !f.isDying);
         
         // Only remove the excess amount, not all fish
         const fishToRemove = aliveFish.slice(0, excessCount);
-        
-        console.log(`Fish to remove: ${fishToRemove.length} out of ${aliveFish.length} alive fish`);
-        
+                
         // Stagger the death animations to avoid overwhelming the system
         fishToRemove.forEach((fishObj, i) => {
             setTimeout(() => {
                 // Find the current index of this fish object
                 const currentIndex = fishes.indexOf(fishObj);
                 if (currentIndex !== -1 && !fishObj.isDying) {
-                    console.log(`Animating death of fish with docId: ${fishObj.docId || 'unknown'}`);
                     animateFishDeath(currentIndex);
                 }
             }, i * 200); // 200ms delay between each death
