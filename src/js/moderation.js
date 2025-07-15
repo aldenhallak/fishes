@@ -17,6 +17,13 @@ window.onload = async function () {
     }
 
     // Check if user has admin privileges
+    const userData = localStorage.getItem('userData');
+    if (!userData) {
+        alert('User data not found');
+        window.location.href = '/login.html';
+        return;
+    }
+    
     const user = JSON.parse(userData);
     if (!user.isAdmin) {
         alert('Admin privileges required');

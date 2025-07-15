@@ -8,14 +8,14 @@ const publicTanksLimit = 12;
 let viewingUserId = null; // Track if we're viewing another user's tanks
 
 // Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Check for userId parameter in URL
     const urlParams = new URLSearchParams(window.location.search);
     viewingUserId = urlParams.get('userId');
     
     if (viewingUserId) {
         // Viewing another user's tanks - don't require authentication
-        updateUIForViewingOtherUser(viewingUserId);
+        await updateUIForViewingOtherUser(viewingUserId);
         loadUserTanks(viewingUserId);
         loadPublicTanks();
     } else {
@@ -152,48 +152,75 @@ async function loadMyTanks() {
 }
 
 // Update UI when viewing another user's tanks
-function updateUIForViewingOtherUser(userId) {
-    // Update page title
-    const headerElement = document.querySelector('.page-header h1');
-    if (headerElement) {
-        headerElement.textContent = `${userId}'s Fish Tanks`;
-    }
-    
-    // Update page title in browser
-    document.title = `${userId}'s Fish Tanks`;
-    
-    // Hide creation controls since this is view-only
-    const createControls = document.querySelectorAll('.create-tank-btn, .tank-actions .btn-edit, .tank-actions .btn-delete');
-    createControls.forEach(control => {
-        control.style.display = 'none';
-    });
-    
-    // Update tab label
-    const myTanksTab = document.querySelector('[onclick="showTab(\'my-tanks\')"]');
-    if (myTanksTab) {
-        myTanksTab.textContent = `${userId}'s Tanks`;
-    }
-    
-    // Add note about viewing another user's tanks
-    const existingNote = document.querySelector('.user-tanks-note');
-    if (!existingNote) {
-        const note = document.createElement('p');
-        note.className = 'user-tanks-note';
-        note.style.textAlign = 'center';
-        note.style.color = '#666';
-        note.style.marginBottom = '20px';
-        note.textContent = `Viewing public tanks created by ${userId}`;
+async function updateUIForViewingOtherUser(userId) {
+    try {
+        // Fetch user profile to get display name
+        const profile = await getUserProfile(userId);
+        const displayName = getDisplayName(profile);
+        console.log(`Updating UI for viewing user: ${displayName} (${userId})`);
         
-        const headerContainer = document.querySelector('.page-header');
-        if (headerContainer) {
-            headerContainer.appendChild(note);
-            
-            // Add back to profile link
-            const backLink = document.createElement('p');
-            backLink.style.textAlign = 'center';
-            backLink.style.marginTop = '10px';
-            backLink.innerHTML = `<a href="profile.html?userId=${encodeURIComponent(userId)}" style="color: #007bff; text-decoration: none;">&larr; Back to ${userId}'s Profile</a>`;
-            headerContainer.appendChild(backLink);
+        // Update page title
+        const headerElement = document.querySelector('.page-header h1');
+        if (headerElement) {
+            headerElement.textContent = `${displayName}'s Fish Tanks`;
+        }
+        
+        // Update page title in browser
+        document.title = `${displayName}'s Fish Tanks`;
+        
+        // Hide creation controls since this is view-only
+        const createControls = document.querySelectorAll('.create-tank-btn, .tank-actions .btn-edit, .tank-actions .btn-delete');
+        createControls.forEach(control => {
+            control.style.display = 'none';
+        });
+        
+        // Update tab label
+        const myTanksTab = document.querySelector('[onclick="showTab(\'my-tanks\')"]');
+        if (myTanksTab) {
+            myTanksTab.textContent = `${displayName}'s Tanks`;
+        }
+        
+        // Add note about viewing another user's tanks
+        const existingNote = document.querySelector('.user-tanks-note');
+        if (!existingNote) {
+            const note = document.createElement('p');
+            note.className = 'user-tanks-note';
+            note.style.textAlign = 'center';
+            note.style.color = '#666';
+            note.style.marginBottom = '20px';
+            note.textContent = `Viewing public tanks created by ${displayName}`;
+        
+            const headerContainer = document.querySelector('.page-header');
+            if (headerContainer) {
+                headerContainer.appendChild(note);
+                
+                // Add back to profile link
+                const backLink = document.createElement('p');
+                backLink.style.textAlign = 'center';
+                backLink.style.marginTop = '10px';
+                backLink.innerHTML = `<a href="profile.html?userId=${encodeURIComponent(userId)}" style="color: #007bff; text-decoration: none;">&larr; Back to ${displayName}'s Profile</a>`;
+                headerContainer.appendChild(backLink);
+            }
+        }
+    } catch (error) {
+        console.error('Error updating UI for viewing other user:', error);
+        // Fallback to using userId if profile fetch fails
+        const headerElement = document.querySelector('.page-header h1');
+        if (headerElement) {
+            headerElement.textContent = `${userId}'s Fish Tanks`;
+        }
+        document.title = `${userId}'s Fish Tanks`;
+        
+        // Hide creation controls since this is view-only
+        const createControls = document.querySelectorAll('.create-tank-btn, .tank-actions .btn-edit, .tank-actions .btn-delete');
+        createControls.forEach(control => {
+            control.style.display = 'none';
+        });
+        
+        // Update tab label
+        const myTanksTab = document.querySelector('[onclick="showTab(\'my-tanks\')"]');
+        if (myTanksTab) {
+            myTanksTab.textContent = `${userId}'s Tanks`;
         }
     }
 }

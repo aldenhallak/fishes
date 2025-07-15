@@ -451,6 +451,34 @@ function updateAuthenticationUI() {
     }
 }
 
+// Helper function to get display name from profile
+function getDisplayName(profile) {
+    if (profile && profile.displayName && profile.displayName !== 'Anonymous User') {
+        return profile.displayName;
+    }
+    return 'User';
+}
+
+// Get user profile data from API
+async function getUserProfile(userId) {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/profile/${encodeURIComponent(userId)}`);
+        
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error('User not found');
+            }
+            throw new Error(`Failed to fetch profile: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data.profile;
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        throw error;
+    }
+}
+
 // Navigation authentication utility
 function initializeAuthNavigation() {
     // Update UI on page load
