@@ -35,37 +35,6 @@
             color: #333;
         }
         
-        .profile-search {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .profile-search input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            width: 200px;
-        }
-        
-        .profile-search button {
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.2s ease;
-        }
-        
-        .profile-search button:hover {
-            background: #0056b3;
-        }
-        
         .profile-card {
             background: white;
             border: 2px solid #ddd;
@@ -299,7 +268,6 @@
         <a href="index.html">draw</a>
         <a href="tank.html">tank</a>
         <a href="rank.html">rankings</a>
-        <a href="leaderboard.html">leaderboard</a>
         <a href="fishtanks.html" id="my-tanks-link">my tanks</a>
         <a href="login.html" id="auth-link">login</a>
     </div>
@@ -308,7 +276,6 @@
         <div class="profile-header">
             <h1>User Profile</h1>
         </div>
-
         
         <div id="loading" class="loading" style="display: none;">
             Loading profile...
@@ -318,7 +285,7 @@
         
         <div id="profile-empty" class="profile-empty">
             <h2>No user logged in</h2>
-            <p>Please log in to view your profile, or search for another user above</p>
+            <p>Please log in to view your profile</p>
         </div>
         
         <div id="profile-content" class="profile-card" style="display: none;">
@@ -351,8 +318,8 @@
             </div>
             
             <div class="profile-actions">
+                <button id="edit-profile-btn" class="action-btn" onclick="toggleEditProfile()">Edit Profile</button>
                 <a href="#" id="view-fish-btn" class="action-btn">View All Fish</a>
-                <a href="leaderboard.html" class="action-btn">View Leaderboard</a>
                 <a href="#" id="visit-tank-btn" class="action-btn primary">Visit Tank</a>
                 <button onclick="shareProfile()" class="action-btn">Share Profile</button>
             </div>

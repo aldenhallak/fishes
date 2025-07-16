@@ -346,7 +346,8 @@ function createFishObject({
     peduncle = .4,
     upvotes = 0,
     downvotes = 0,
-    score = 0
+    score = 0,
+    userId = null
 }) {
     return {
         fishCanvas,
@@ -367,6 +368,7 @@ function createFishObject({
         upvotes,
         downvotes,
         score,
+        userId,
     };
 }
 
@@ -402,7 +404,8 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
                 height: fishSize.height,
                 upvotes: fishData.upvotes || 0,
                 downvotes: fishData.downvotes || 0,
-                score: fishData.score || 0
+                score: fishData.score || 0,
+                userId: fishData.userId || fishData.UserId || null
             });
             
             // Add entrance animation for new fish
@@ -920,7 +923,17 @@ function showFishInfoModal(fish) {
     let info = `<div style='text-align:center;'>`;
     info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto 10px auto;border:1px solid #808080;background:#ffffff;' alt='Fish'><br>`;
     info += `<div style='margin-bottom:10px;'>`;
-    info += `<strong>Artist:</strong> ${fish.artist || 'Anonymous'}<br>`;
+    
+    // Make artist name a clickable link to their profile if userId exists
+    const artistName = fish.artist || 'Anonymous';
+    const userId = fish.userId;
+    
+    if (userId) {
+        info += `<strong>Artist:</strong> <a href="profile.html?userId=${encodeURIComponent(userId)}" target="_blank" style="color: #0000EE; text-decoration: underline;">${artistName}</a><br>`;
+    } else {
+        info += `<strong>Artist:</strong> ${artistName}<br>`;
+    }
+    
     if (fish.createdAt) {
         info += `<strong>Created:</strong> ${formatDate(fish.createdAt)}<br>`;
     }
@@ -1069,23 +1082,50 @@ function handleTankTap(e) {
 function handleFishTap(e) {
     let rect = swimCanvas.getBoundingClientRect();
     let tapX, tapY;
+    
+    // Handle different event types
     if (e.touches && e.touches.length > 0) {
+        // Touch event with active touches
         tapX = e.touches[0].clientX - rect.left;
         tapY = e.touches[0].clientY - rect.top;
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
+        // Touch end event
+        tapX = e.changedTouches[0].clientX - rect.left;
+        tapY = e.changedTouches[0].clientY - rect.top;
     } else {
+        // Mouse event
         tapX = e.clientX - rect.left;
         tapY = e.clientY - rect.top;
     }
+    
+    // Check if tap hit any fish (iterate from top to bottom)
     for (let i = fishes.length - 1; i >= 0; i--) {
         const fish = fishes[i];
+        
+        // Calculate fish position including any swimming animation
+        const time = Date.now() / 500;
+        const fishX = fish.x;
+        let fishY = fish.y;
+        
+        // Account for swimming animation unless fish is dying
+        if (!fish.isDying) {
+            const foodDetectionData = foodDetectionCache.get(fish.docId || `fish_${i}`);
+            const hasNearbyFood = foodDetectionData ? foodDetectionData.hasNearbyFood : false;
+            const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
+            fishY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
+        }
+        
+        // Check if tap is within fish bounds
         if (
-            tapX >= fish.x && tapX <= fish.x + fish.width &&
-            tapY >= fish.y && tapY <= fish.y + fish.height
+            tapX >= fishX && tapX <= fishX + fish.width &&
+            tapY >= fishY && tapY <= fishY + fish.height
         ) {
             showFishInfoModal(fish);
-            return;
+            return; // Found a fish, don't handle tank tap
         }
     }
+    
+    // No fish was hit, handle tank tap
     handleTankTap(e);
 }
 
@@ -1102,7 +1142,7 @@ let lastTapTime = 0;
 let touchStartTime = 0;
 let touchStartPos = { x: 0, y: 0 };
 
-// Handle touch start for long press detection and fish interaction
+// Handle touch start for position tracking
 swimCanvas.addEventListener('touchstart', (e) => {
     touchStartTime = Date.now();
     const rect = swimCanvas.getBoundingClientRect();
@@ -1110,12 +1150,9 @@ swimCanvas.addEventListener('touchstart', (e) => {
         x: e.touches[0].clientX - rect.left,
         y: e.touches[0].clientY - rect.top
     };
-    
-    // Also handle fish tap detection on touch start
-    handleFishTap(e);
 });
 
-// Handle touch end for double tap and long press
+// Handle touch end for fish interaction and feeding
 swimCanvas.addEventListener('touchend', (e) => {
     e.preventDefault(); // Prevent default mobile behavior
     const currentTime = Date.now();
@@ -1141,6 +1178,16 @@ swimCanvas.addEventListener('touchend', (e) => {
         dropFoodPellet(tapX, tapY);
         return;
     }
+    
+    // Single tap - check for fish interaction first, then handle tank tap
+    // Create a mock event for handleFishTap with correct coordinates
+    const mockEvent = {
+        clientX: rect.left + tapX,
+        clientY: rect.top + tapY,
+        touches: null // Indicate this is from touch end
+    };
+    
+    handleFishTap(mockEvent);
     
     lastTapTime = currentTime;
 });

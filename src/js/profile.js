@@ -13,7 +13,6 @@ async function getUserProfile(userId) {
         }
 
         const data = await response.json();
-        console.log(data.profile); // Log the profile data for debugging
         return data.profile;
     } catch (error) {
         console.error('Error fetching profile:', error);
@@ -67,9 +66,24 @@ function displayProfile(profile, searchedUserId = null) {
     // Get avatar initial
     const initial = profile.displayName ? profile.displayName.charAt(0).toUpperCase() : 'U';
 
-    // Format dates
-    const createdDate = new Date(profile.createdAt).toLocaleDateString();
-    const updatedDate = new Date(profile.updatedAt).toLocaleDateString();
+    // Format dates safely - handle Firestore timestamp format
+    let createdDate = 'Unknown';
+    if (profile.createdAt) {
+        let date;
+        
+        // Handle Firestore timestamp format
+        if (profile.createdAt._seconds) {
+            // Convert Firestore timestamp to JavaScript Date
+            date = new Date(profile.createdAt._seconds * 1000);
+        } else {
+            // Handle regular date string/number
+            date = new Date(profile.createdAt);
+        }
+        
+        if (!isNaN(date.getTime())) {
+            createdDate = date.toLocaleDateString();
+        }
+    }
 
     // Check if this is the current user's profile
     const userData = JSON.parse(localStorage.getItem('userData') || '{}');
@@ -84,7 +98,13 @@ function displayProfile(profile, searchedUserId = null) {
     document.getElementById('profile-avatar').textContent = initial;
     const profileName = profile.displayName || 'Anonymous User';
     document.getElementById('profile-name').textContent = isCurrentUser ? `${profileName} (You)` : profileName;
-    document.getElementById('profile-email').textContent = profile.userEmail || 'No email provided';
+    
+    // Hide email field since profile endpoint doesn't return it
+    const emailElement = document.getElementById('profile-email');
+    if (emailElement) {
+        emailElement.style.display = 'none';
+    }
+    
     document.getElementById('profile-joined').textContent = `Joined: ${createdDate}`;
 
     // Update statistics
@@ -135,16 +155,26 @@ function showError(message) {
 }
 
 // Add enter key support for search
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('Profile page loading...');
+document.addEventListener('DOMContentLoaded', function () {    
+    // Check if there's a user ID in the URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchedUserId = urlParams.get('userId');
     
-    // Check authentication state
+    if (searchedUserId) {
+        // Load specific user's profile from URL
+        getUserProfile(searchedUserId).then(profile => {
+            displayProfile(profile, searchedUserId);
+        }).catch(error => {
+            console.error('Error loading user profile from URL:', error);
+            showError('User not found or error loading profile');
+        });
+        return;
+    }
+    
+    // Check authentication state for current user
     const token = localStorage.getItem('userToken');
     const userData = localStorage.getItem('userData');
-    
-    console.log('Token exists:', !!token);
-    console.log('User data exists:', !!userData);
-    
+        
     // Load current user's profile if logged in
     if (token && userData) {
         try {
@@ -215,7 +245,7 @@ function showEditProfileButton() {
         editBtn.id = 'edit-profile-btn';
         editBtn.textContent = 'Edit Profile';
         editBtn.className = 'action-btn';
-        editBtn.onclick = toggleEditMode;
+        editBtn.onclick = toggleEditProfile;
         profileActions.appendChild(editBtn);
     }
 
@@ -229,7 +259,7 @@ function hideEditProfileButton() {
     }
 }
 
-function toggleEditMode() {
+function toggleEditProfile() {
     isEditMode = !isEditMode;
 
     if (isEditMode) {
@@ -302,7 +332,7 @@ function exitEditMode() {
     const editBtn = document.getElementById('edit-profile-btn');
     editBtn.innerHTML = 'Edit Profile';
     editBtn.style.display = 'inline-block';
-    editBtn.onclick = toggleEditMode;
+    editBtn.onclick = toggleEditProfile;
 }
 
 function cancelEdit() {
