@@ -109,9 +109,17 @@ async function submitFish(artist, needsModeration = false) {
         document.head.appendChild(style);
     }
     try {
+        // Prepare headers with auth data if user is logged in
+        const headers = {};
+        const userToken = localStorage.getItem('userToken');
+        if (userToken) {
+            headers['Authorization'] = `Bearer ${userToken}`;
+        }
+        
         // Await server response
         const resp = await fetch(`${BACKEND_URL}/uploadfish`, {
             method: 'POST',
+            headers: headers,
             body: formData
         });
         const result = await resp.json();
