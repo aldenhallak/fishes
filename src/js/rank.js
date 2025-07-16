@@ -221,7 +221,7 @@ function createFishCard(fish) {
             </div>
             <div class="fish-info">
                 <div class="fish-artist">
-                    <a href="profile.html?userId=${encodeURIComponent(fish.UserId || fish.Artist || 'Anonymous')}" 
+                    <a href="profile.html?userId=${encodeURIComponent(fish.userId || 'Anonymous')}" 
                        style="color: inherit; text-decoration: none;">
                         ${fish.Artist || 'Anonymous'}
                     </a>
