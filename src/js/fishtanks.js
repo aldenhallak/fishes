@@ -6,12 +6,20 @@ let userFish = [];
 let publicTanksPage = 0;
 const publicTanksLimit = 12;
 let viewingUserId = null; // Track if we're viewing another user's tanks
+let allTanks = []; // Store all tanks for filtering
+let filteredTanks = []; // Store filtered tanks
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', async function() {
     // Check for userId parameter in URL
     const urlParams = new URLSearchParams(window.location.search);
     viewingUserId = urlParams.get('userId');
+    
+    // Show search controls for the default my-tanks tab
+    const searchControls = document.getElementById('search-controls');
+    if (searchControls) {
+        searchControls.style.display = 'block';
+    }
     
     if (viewingUserId) {
         // Viewing another user's tanks - don't require authentication
@@ -34,9 +42,28 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.getElementById('edit-tank-form').addEventListener('submit', handleEditTank);
     
     // Setup modal close events
-    window.addEventListener('click', function(event) {
+    document.addEventListener('click', function(event) {
+        // Close modal when clicking on the backdrop
         if (event.target.classList.contains('modal')) {
             event.target.style.display = 'none';
+            
+            // Reset current editing state
+            if (event.target.id === 'edit-tank-modal') {
+                currentEditingTank = null;
+            }
+            if (event.target.id === 'add-fish-modal') {
+                currentAddingFishTank = null;
+            }
+        }
+    });
+    
+    // Setup escape key to close modals
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const openModal = document.querySelector('.modal[style*="block"]');
+            if (openModal) {
+                closeModal(openModal.id);
+            }
         }
     });
 });
@@ -97,6 +124,14 @@ function showTab(tabName) {
     
     // Add active class to clicked button
     event.target.classList.add('active');
+    
+    // Show/hide search controls based on tab
+    const searchControls = document.getElementById('search-controls');
+    if (tabName === 'my-tanks' || tabName === 'public-tanks') {
+        searchControls.style.display = 'block';
+    } else {
+        searchControls.style.display = 'none';
+    }
     
     // Load data based on tab
     switch(tabName) {
@@ -299,11 +334,18 @@ async function loadPublicTanks(page = 0) {
 
 // Render tanks
 function renderTanks(tanks, container, isOwner) {
+    // Store tanks data for filtering
+    allTanks = tanks;
+    filteredTanks = [...tanks];
+    
     container.innerHTML = '';
     tanks.forEach(tank => {
         const tankCard = createTankCard(tank, isOwner);
         container.appendChild(tankCard);
     });
+    
+    // Update tank count
+    updateTankCount(tanks.length);
 }
 
 // Append tanks (for pagination)
@@ -318,16 +360,26 @@ function appendTanks(tanks, container, isOwner) {
 function createTankCard(tank, isOwner) {
     const card = document.createElement('div');
     card.className = 'tank-card';
+    card.setAttribute('data-tank-name', tank.name.toLowerCase());
+    card.setAttribute('data-tank-description', (tank.description || '').toLowerCase());
+    card.setAttribute('data-tank-privacy', tank.isPublic ? 'public' : 'private');
+    card.setAttribute('data-tank-fish-count', tank.fishCount || 0);
+    card.setAttribute('data-tank-view-count', tank.viewCount || 0);
+    card.setAttribute('data-tank-created', tank.createdAt._seconds);
+    card.setAttribute('data-tank-updated', tank.updatedAt._seconds);
+    
     const createdDate = new Date(tank.createdAt._seconds * 1000).toLocaleDateString();
     const updatedDate = new Date(tank.updatedAt._seconds * 1000).toLocaleDateString();
     
     card.innerHTML = `
+        <div class="tank-privacy-badge ${tank.isPublic ? 'public' : 'private'}">
+            ${tank.isPublic ? 'Public' : 'Private'}
+        </div>
         <h3>${tank.name}</h3>
         <div class="tank-info">
-            <p>${tank.description || 'No description'}</p>
+            <p>${tank.description || 'No description provided'}</p>
             <p><strong>Created:</strong> ${createdDate}</p>
             <p><strong>Updated:</strong> ${updatedDate}</p>
-            <p><strong>Privacy:</strong> ${tank.isPublic ? 'Public' : 'Private'}</p>
         </div>
         <div class="tank-stats">
             <div class="stat">
@@ -441,7 +493,14 @@ async function editTank(tankId) {
         document.getElementById('edit-tank-public').checked = tank.isPublic;
         
         // Show modal
-        document.getElementById('edit-tank-modal').style.display = 'block';
+        const modal = document.getElementById('edit-tank-modal');
+        modal.style.display = 'block';
+        
+        // Focus on the first input field
+        setTimeout(() => {
+            const firstInput = modal.querySelector('input');
+            if (firstInput) firstInput.focus();
+        }, 100);
         
     } catch (err) {
         console.error('Error loading tank for edit:', err);
@@ -483,8 +542,15 @@ async function handleEditTank(e) {
         }
         
         // Close modal
-        document.getElementById('edit-tank-modal').style.display = 'none';
+        const modal = document.getElementById('edit-tank-modal');
+        modal.style.display = 'none';
         currentEditingTank = null;
+        
+        // Clear any error messages
+        const errorElement = document.getElementById('edit-tank-error');
+        if (errorElement) {
+            errorElement.style.display = 'none';
+        }
         
         // Refresh tanks
         loadMyTanks();
@@ -498,25 +564,94 @@ async function handleEditTank(e) {
 // Share tank
 function shareTank(tankId, shareId) {
     const shareUrl = `${window.location.origin}/fishtank-view.html?id=${shareId}`;
-    document.getElementById('share-url').textContent = shareUrl;
-    document.getElementById('share-tank-modal').style.display = 'block';
+    const shareUrlElement = document.getElementById('share-url');
+    if (shareUrlElement) {
+        shareUrlElement.textContent = shareUrl;
+    }
+    
+    const modal = document.getElementById('share-tank-modal');
+    modal.style.display = 'block';
 }
 
 // Copy share URL
 function copyShareUrl() {
-    const shareUrl = document.getElementById('share-url').textContent;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-        alert('Share URL copied to clipboard!');
-    }).catch(() => {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = shareUrl;
-        document.body.appendChild(textArea);
-        textArea.select();
+    const shareUrlElement = document.getElementById('share-url');
+    if (!shareUrlElement) return;
+    
+    const shareUrl = shareUrlElement.textContent;
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            // Provide visual feedback
+            showTemporaryFeedback('Share URL copied to clipboard!');
+        }).catch(() => {
+            fallbackCopyToClipboard(shareUrl);
+        });
+    } else {
+        fallbackCopyToClipboard(shareUrl);
+    }
+}
+
+// Fallback copy method for older browsers
+function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
         document.execCommand('copy');
-        document.body.removeChild(textArea);
-        alert('Share URL copied to clipboard!');
-    });
+        showTemporaryFeedback('Share URL copied to clipboard!');
+    } catch (err) {
+        console.error('Failed to copy:', err);
+        showTemporaryFeedback('Failed to copy URL. Please copy manually.');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+// Show temporary feedback message
+function showTemporaryFeedback(message) {
+    // Create or update feedback element
+    let feedback = document.getElementById('copy-feedback');
+    if (!feedback) {
+        feedback = document.createElement('div');
+        feedback.id = 'copy-feedback';
+        feedback.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2000;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        document.body.appendChild(feedback);
+    }
+    
+    feedback.textContent = message;
+    feedback.style.display = 'block';
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        if (feedback) {
+            feedback.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => {
+                if (feedback && feedback.parentNode) {
+                    feedback.parentNode.removeChild(feedback);
+                }
+            }, 300);
+        }
+    }, 3000);
 }
 
 // Delete tank
@@ -550,14 +685,37 @@ async function deleteTank(tankId) {
 
 // Close modal
 function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-    
-    // Reset current editing state
-    if (modalId === 'edit-tank-modal') {
-        currentEditingTank = null;
-    }
-    if (modalId === 'add-fish-modal') {
-        currentAddingFishTank = null;
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        
+        // Reset current editing state
+        if (modalId === 'edit-tank-modal') {
+            currentEditingTank = null;
+            // Clear form
+            const form = document.getElementById('edit-tank-form');
+            if (form) form.reset();
+            // Clear error messages
+            const errorElement = document.getElementById('edit-tank-error');
+            if (errorElement) errorElement.style.display = 'none';
+        }
+        if (modalId === 'add-fish-modal') {
+            currentAddingFishTank = null;
+            // Clear fish grid and states
+            const fishGrid = document.getElementById('user-fish-grid');
+            if (fishGrid) fishGrid.innerHTML = '';
+            userFish = [];
+            // Clear error/success messages
+            const errorElement = document.getElementById('add-fish-error');
+            const successElement = document.getElementById('add-fish-success');
+            if (errorElement) errorElement.style.display = 'none';
+            if (successElement) successElement.style.display = 'none';
+        }
+        if (modalId === 'share-tank-modal') {
+            // Clear share URL
+            const shareUrlElement = document.getElementById('share-url');
+            if (shareUrlElement) shareUrlElement.textContent = '';
+        }
     }
 }
 
@@ -651,7 +809,8 @@ async function showAddFishModal(tankId) {
     }
     
     currentAddingFishTank = tankId;
-    document.getElementById('add-fish-modal').style.display = 'block';
+    const modal = document.getElementById('add-fish-modal');
+    modal.style.display = 'block';
     await loadAvailableFish();
 }
 
@@ -747,6 +906,92 @@ async function addFishToTank(fishId) {
     }
 }
 
+// Search and filter functions
+function filterTanks() {
+    const searchQuery = document.getElementById('tank-search').value.toLowerCase();
+    const privacyFilter = document.getElementById('tank-filter').value;
+    
+    // Filter tanks based on search query and privacy filter
+    filteredTanks = allTanks.filter(tank => {
+        const matchesSearch = tank.name.toLowerCase().includes(searchQuery) || 
+                             (tank.description || '').toLowerCase().includes(searchQuery);
+        
+        const matchesPrivacy = privacyFilter === 'all' || 
+                              (privacyFilter === 'public' && tank.isPublic) ||
+                              (privacyFilter === 'private' && !tank.isPublic);
+        
+        return matchesSearch && matchesPrivacy;
+    });
+    
+    // Apply current sort to filtered tanks
+    sortTanks(true);
+}
+
+function sortTanks(skipRefilter = false) {
+    if (!skipRefilter) {
+        filterTanks();
+        return;
+    }
+    
+    const sortBy = document.getElementById('tank-sort').value;
+    
+    filteredTanks.sort((a, b) => {
+        switch(sortBy) {
+            case 'updated':
+                return (b.updatedAt._seconds || 0) - (a.updatedAt._seconds || 0);
+            case 'created':
+                return (b.createdAt._seconds || 0) - (a.createdAt._seconds || 0);
+            case 'name':
+                return a.name.localeCompare(b.name);
+            case 'fish':
+                return (b.fishCount || 0) - (a.fishCount || 0);
+            case 'views':
+                return (b.viewCount || 0) - (a.viewCount || 0);
+            default:
+                return 0;
+        }
+    });
+    
+    // Re-render the filtered and sorted tanks
+    const activeTab = document.querySelector('.tab-content.active').id;
+    const container = document.getElementById(activeTab + '-grid');
+    const isOwner = activeTab === 'my-tanks';
+    
+    container.innerHTML = '';
+    filteredTanks.forEach(tank => {
+        const tankCard = createTankCard(tank, isOwner);
+        container.appendChild(tankCard);
+    });
+    
+    updateTankCount(filteredTanks.length);
+}
+
+function clearSearch() {
+    document.getElementById('tank-search').value = '';
+    document.getElementById('tank-filter').value = 'all';
+    filterTanks();
+}
+
+function updateTankCount(count) {
+    // Add or update tank count display
+    let countElement = document.querySelector('.tank-count');
+    if (!countElement) {
+        countElement = document.createElement('div');
+        countElement.className = 'tank-count';
+        const filterControls = document.querySelector('.filter-controls');
+        if (filterControls) {
+            filterControls.appendChild(countElement);
+        }
+    }
+    
+    const total = allTanks.length;
+    if (count === total) {
+        countElement.textContent = `${total} tank${total !== 1 ? 's' : ''}`;
+    } else {
+        countElement.textContent = `${count} of ${total} tank${total !== 1 ? 's' : ''}`;
+    }
+}
+
 // Global functions for inline event handlers
 window.showTab = showTab;
 window.viewTank = viewTank;
@@ -756,3 +1001,6 @@ window.deleteTank = deleteTank;
 window.closeModal = closeModal;
 window.copyShareUrl = copyShareUrl;
 window.showAddFishModal = showAddFishModal;
+window.filterTanks = filterTanks;
+window.sortTanks = sortTanks;
+window.clearSearch = clearSearch;

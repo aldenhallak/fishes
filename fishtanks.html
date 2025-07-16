@@ -105,50 +105,107 @@
         
         /* Tank grid */
         .tank-grid {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-        }
-        
-        .tank-grid td {
-            border: 1px solid #ddd;
-            padding: 15px;
-            vertical-align: top;
-            background: white;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+            padding: 0;
         }
         
         .tank-card {
             border: 2px solid #ddd;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 20px;
-            margin: 15px;
             background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         
         .tank-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            border-color: #333;
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #007bff;
         }
         
         .tank-card h3 {
-            margin: 0 0 10px 0;
+            margin: 0 0 12px 0;
             color: #333;
-            font-size: 1.3em;
+            font-size: 1.4em;
+            font-weight: 600;
+            line-height: 1.3;
         }
         
         .tank-info {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             color: #666;
+            line-height: 1.5;
+        }
+        
+        .tank-info p {
+            margin: 8px 0;
+            font-size: 14px;
         }
         
         .tank-stats {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #007bff;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tank-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .tank-privacy-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tank-privacy-badge.public {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .tank-privacy-badge.private {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
         
         /* Buttons */
@@ -178,124 +235,53 @@
             font-size: 12px;
         }
         
-        /* Forms */
-        .create-tank-form {
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            padding: 25px;
-            margin: 20px;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        /* Enhanced button styles */
+        .btn-view {
+            background: #007bff;
+            color: white;
+            border: 2px solid #007bff;
         }
         
-        .create-tank-form h2 {
-            margin-top: 0;
-            color: #333;
+        .btn-view:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+            transform: translateY(-1px);
         }
         
-        .form-group {
-            margin-bottom: 20px;
+        .btn-edit {
+            background: #28a745;
+            color: white;
+            border: 2px solid #28a745;
         }
         
-        .form-group label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
+        .btn-edit:hover {
+            background: #1e7e34;
+            border-color: #1e7e34;
+            transform: translateY(-1px);
         }
         
-        .form-group input, .form-group textarea {
-            width: 100%;
-            border: 2px solid #ddd;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.2s ease;
-            box-sizing: border-box;
+        .btn-share {
+            background: #17a2b8;
+            color: white;
+            border: 2px solid #17a2b8;
         }
         
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: #007bff;
+        .btn-share:hover {
+            background: #117a8b;
+            border-color: #117a8b;
+            transform: translateY(-1px);
         }
         
-        .form-group textarea {
-            height: 80px;
-            resize: vertical;
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            border: 2px solid #dc3545;
         }
         
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            margin: 0;
-        }
-        
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 10px;
-            margin: 100px auto;
-            padding: 25px;
-            width: 450px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        
-        .close {
-            float: right;
-            cursor: pointer;
-            font-size: 24px;
-            color: #666;
-            line-height: 1;
-        }
-        
-        .close:hover {
-            color: #333;
-        }
-        
-        .share-url {
-            border: 2px solid #ddd;
-            padding: 10px;
-            word-break: break-all;
-            border-radius: 5px;
-            background: #f8f9fa;
-            margin: 10px 0;
-        }
-        
-        /* Fish items */
-        .fish-item {
-            width: 40px;
-            height: 40px;
-            border: 2px solid #ddd;
-            margin: 5px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: all 0.2s ease;
-        }
-        
-        .fish-item:hover {
-            border-color: #007bff;
-            transform: scale(1.1);
-        }
-        
-        .fish-item.selected {
-            border: 3px solid #007bff;
-            box-shadow: 0 0 10px rgba(0,123,255,0.3);
+        .btn-delete:hover {
+            background: #c82333;
+            border-color: #c82333;
+            transform: translateY(-1px);
         }
         
         /* Status messages */
@@ -335,23 +321,545 @@
             font-size: 16px;
         }
         
+        /* Search and Filter Controls */
+        .search-controls {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .search-bar {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+            box-sizing: border-box;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .search-btn:hover {
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-controls select {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+            min-width: 150px;
+        }
+        
+        .filter-controls select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .tank-count {
+            margin-left: auto;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            margin: 5% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        /* Special styling for add-to-tank modal */
+        .modal-content.wide {
+            max-width: 600px;
+        }
+        
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #333;
+            text-decoration: none;
+        }
+        
+        .share-url {
+            border: 2px solid #ddd;
+            padding: 15px;
+            word-break: break-all;
+            border-radius: 8px;
+            background: #f8f9fa;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from { 
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to { 
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+        
         /* Responsive design */
         @media (max-width: 768px) {
             .fishtanks-container {
                 padding: 10px;
             }
             
+            .tank-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
             .tank-card {
-                margin: 10px 0;
+                margin: 0;
             }
             
             .create-tank-form {
                 margin: 10px 0;
+                padding: 20px 15px;
             }
             
             .modal-content {
-                width: 90%;
-                margin: 50px auto;
+                width: 95%;
+                margin: 10% auto;
+                padding: 20px 15px;
+                max-height: 90vh;
+            }
+            
+            .close {
+                top: 10px;
+                right: 15px;
+                font-size: 24px;
+            }
+            
+            .search-controls {
+                padding: 15px;
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .filter-controls select {
+                min-width: 100%;
+            }
+            
+            .tank-actions {
+                justify-content: center;
+            }
+            
+            .tank-stats {
+                padding: 12px;
+            }
+            
+            .page-header h1 {
+                font-size: 2em;
+            }
+            
+            .fish-preview {
+                grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+                gap: 8px;
+            }
+            
+            .fish-item {
+                width: 45px;
+                height: 45px;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .tank-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+        
+        @media (min-width: 1025px) {
+            .tank-grid {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            }
+        }
+        
+        /* Tank card animations */
+        .tank-card {
+            animation: fadeInUp 0.3s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Loading states */
+        .tank-grid.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .empty-state p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        /* Form styles for modals */
+        .modal .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .modal .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .modal .form-group input, 
+        .modal .form-group textarea {
+            width: 100%;
+            border: 2px solid #ddd;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        
+        .modal .form-group input:focus, 
+        .modal .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .modal .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .modal .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        
+        .modal .checkbox-group label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        /* Fish selection grid */
+        .fish-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .fish-item {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+        
+        .fish-item:hover {
+            border-color: #007bff;
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        }
+        
+        .fish-item.selected {
+            border-color: #007bff;
+            background: #e3f2fd;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+        }
+        
+        .fish-item canvas {
+            border-radius: 4px;
+        }
+        
+        /* Tank selection in modal */
+        .tank-selection-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .tank-selection-item {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 16px;
+            background: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .tank-selection-item:hover {
+            border-color: #007bff;
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+        }
+        
+        .tank-selection-item h4 {
+            margin: 0 0 8px 0;
+            color: #333;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .tank-selection-item .tank-description {
+            margin: 0 0 8px 0;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .tank-selection-stats {
+            display: flex;
+            gap: 15px;
+            margin: 8px 0 12px 0;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .tank-selection-stats .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .tank-privacy-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .tank-privacy-indicator.public {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .tank-privacy-indicator.private {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .add-to-tank-btn {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #007bff;
+            background: #007bff;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .add-to-tank-btn:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        
+        .no-tanks-message {
+            text-align: center;
+            padding: 30px 20px;
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            background: #f8f9fa;
+            color: #666;
+        }
+        
+        .no-tanks-message h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 1.2em;
+        }
+        
+        .no-tanks-message p {
+            margin: 0 0 15px 0;
+            line-height: 1.5;
+        }
+        
+        .no-tanks-message .btn {
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        /* Responsive design for tank selection modal */
+        @media (max-width: 768px) {
+            .tank-selection-grid {
+                max-height: 300px;
+                gap: 10px;
+            }
+            
+            .tank-selection-item {
+                padding: 12px;
+            }
+            
+            .tank-selection-item h4 {
+                font-size: 1em;
+            }
+            
+            .tank-selection-stats {
+                font-size: 12px;
+                gap: 12px;
+            }
+            
+            .add-to-tank-btn {
+                padding: 8px 12px;
+                font-size: 13px;
             }
         }
     </style>
@@ -382,11 +890,33 @@
             <button class="tab-btn" onclick="showTab('public-tanks')">Discover</button>
         </div>
 
+        <!-- Search and Filter Controls -->
+        <div class="search-controls" id="search-controls" style="display: none;">
+            <div class="search-bar">
+                <input type="text" id="tank-search" placeholder="Search tanks by name or description..." onkeyup="filterTanks()">
+                <button class="search-btn" onclick="clearSearch()">✕</button>
+            </div>
+            <div class="filter-controls">
+                <select id="tank-filter" onchange="filterTanks()">
+                    <option value="all">All Tanks</option>
+                    <option value="public">Public Only</option>
+                    <option value="private">Private Only</option>
+                </select>
+                <select id="tank-sort" onchange="sortTanks()">
+                    <option value="updated">Recently Updated</option>
+                    <option value="created">Recently Created</option>
+                    <option value="name">Name (A-Z)</option>
+                    <option value="fish">Most Fish</option>
+                    <option value="views">Most Views</option>
+                </select>
+            </div>
+        </div>
+
         <!-- My Tanks Tab -->
         <div id="my-tanks" class="tab-content active">
             <div id="my-tanks-loading" class="loading" style="display: none;">Loading your tanks...</div>
             <div id="my-tanks-error" class="error" style="display: none;"></div>
-            <table id="my-tanks-grid" class="tank-grid"></table>
+            <div id="my-tanks-grid" class="tank-grid"></div>
             <div id="my-tanks-empty" class="empty-state" style="display: none;">
                 <h3>No tanks found!</h3>
                 <p>Create your first fish tank to get started.</p>
@@ -428,7 +958,7 @@
         <div id="public-tanks" class="tab-content">
             <div id="public-tanks-loading" class="loading" style="display: none;">Loading public tanks...</div>
             <div id="public-tanks-error" class="error" style="display: none;"></div>
-            <table id="public-tanks-grid" class="tank-grid"></table>
+            <div id="public-tanks-grid" class="tank-grid"></div>
             <div class="control-panel" id="public-tanks-pagination"></div>
         </div>
     </div>
