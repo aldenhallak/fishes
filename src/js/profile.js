@@ -610,7 +610,7 @@ function showSignupPrompt() {
     infoBar.innerHTML = `
         <div class="signup-info-content">
             <div class="signup-info-text">
-                <strong>🐠 Save Your Fish Data!</strong> You have progress stored locally. 
+                <strong> Save Your Fish Data!</strong> It's stored locally rn.
                 Sign up or log in to preserve it across devices.
             </div>
             <div class="signup-info-actions">
