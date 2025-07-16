@@ -1098,6 +1098,8 @@ function handleFishTap(e) {
         tapY = e.clientY - rect.top;
     }
     
+    console.log('handleFishTap called:', { tapX, tapY, fishCount: fishes.length });
+    
     // Check if tap hit any fish (iterate from top to bottom)
     for (let i = fishes.length - 1; i >= 0; i--) {
         const fish = fishes[i];
@@ -1115,16 +1117,20 @@ function handleFishTap(e) {
             fishY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
         }
         
+        console.log(`Checking fish ${i}:`, { fishX, fishY, width: fish.width, height: fish.height, tapX, tapY });
+        
         // Check if tap is within fish bounds
         if (
             tapX >= fishX && tapX <= fishX + fish.width &&
             tapY >= fishY && tapY <= fishY + fish.height
         ) {
+            console.log(`Fish ${i} hit! Showing modal`);
             showFishInfoModal(fish);
             return; // Found a fish, don't handle tank tap
         }
     }
     
+    console.log('No fish hit, handling tank tap');
     // No fish was hit, handle tank tap
     handleTankTap(e);
 }
@@ -1161,6 +1167,9 @@ swimCanvas.addEventListener('touchend', (e) => {
     const tapX = e.changedTouches[0].clientX - rect.left;
     const tapY = e.changedTouches[0].clientY - rect.top;
     
+    // Debug logging for mobile touch issues
+    console.log('Touch end detected:', { tapX, tapY, touchDuration, canvasRect: rect });
+    
     // Check if finger moved significantly during touch
     const moveDistance = Math.sqrt(
         Math.pow(tapX - touchStartPos.x, 2) + 
@@ -1169,17 +1178,20 @@ swimCanvas.addEventListener('touchend', (e) => {
     
     // Long press for feeding (500ms+ and minimal movement)
     if (touchDuration >= 500 && moveDistance < 20) {
+        console.log('Long press detected - feeding');
         dropFoodPellet(tapX, tapY);
         return;
     }
     
     // Double tap for feeding
     if (currentTime - lastTapTime < 300 && moveDistance < 20) { // Double tap within 300ms
+        console.log('Double tap detected - feeding');
         dropFoodPellet(tapX, tapY);
         return;
     }
     
     // Single tap - check for fish interaction first, then handle tank tap
+    console.log('Single tap detected - checking for fish');
     // Create a mock event for handleFishTap with correct coordinates
     const mockEvent = {
         clientX: rect.left + tapX,
@@ -1193,15 +1205,27 @@ swimCanvas.addEventListener('touchend', (e) => {
 });
 
 function resizeForMobile() {
+    const isMobile = window.innerWidth <= 768;
     const oldWidth = swimCanvas.width;
     const oldHeight = swimCanvas.height;
 
-    swimCanvas.width = window.innerWidth;
-    swimCanvas.height = window.innerHeight;
-    swimCanvas.style.width = '100vw';
-    swimCanvas.style.height = '100vh';
-    swimCanvas.style.maxWidth = '100vw';
-    swimCanvas.style.maxHeight = '100vh';
+    if (isMobile) {
+        // Match the CSS dimensions for mobile
+        swimCanvas.width = window.innerWidth;
+        swimCanvas.height = window.innerHeight - 120; // Match calc(100vh - 120px)
+        swimCanvas.style.width = '100vw';
+        swimCanvas.style.height = 'calc(100vh - 120px)';
+        swimCanvas.style.maxWidth = '100vw';
+        swimCanvas.style.maxHeight = 'calc(100vh - 120px)';
+    } else {
+        // Desktop dimensions - full screen, controls below
+        swimCanvas.width = window.innerWidth;
+        swimCanvas.height = window.innerHeight; // Full viewport height
+        swimCanvas.style.width = '100vw';
+        swimCanvas.style.height = '100vh';
+        swimCanvas.style.maxWidth = '100vw';
+        swimCanvas.style.maxHeight = '100vh';
+    }
 
     // If canvas size changed significantly, rescale all fish
     const widthChange = Math.abs(oldWidth - swimCanvas.width) / oldWidth;
