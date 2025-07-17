@@ -941,7 +941,10 @@ async function downloadAllImages() {
 
                 const imageBlob = await response.blob();
 
-                // Create filename with fish info
+                // Create filename with fish info - organize by validity first
+                const validity = fish.isFish === true ? 'fish' : 
+                               fish.isFish === false ? 'not_fish' : 'unknown';
+                
                 const status = fish.deleted ? 'deleted' :
                     fish.approved ? 'approved' :
                         fish.flaggedForReview ? 'flagged' : 'pending';
@@ -960,7 +963,7 @@ async function downloadAllImages() {
                     extension = 'gif';
                 }
 
-                const filename = `${status}/${fishId}_${dateStr}_${status}.${extension}`;
+                const filename = `${validity}/${fishId}_${dateStr}_${status}.${extension}`;
 
                 // Add image to ZIP
                 zip.file(filename, imageBlob);
@@ -978,7 +981,8 @@ async function downloadAllImages() {
                     reportCount: fish.reportCount || 0,
                     flaggedForReview: fish.flaggedForReview || false,
                     approved: fish.approved || false,
-                    deleted: fish.deleted || false
+                    deleted: fish.deleted || false,
+                    isFish: fish.isFish
                 });
 
                 successCount++;
@@ -1000,9 +1004,9 @@ async function downloadAllImages() {
         zip.file('metadata.json', JSON.stringify(metadata, null, 2));
 
         // Create a CSV file for easy analysis
-        const csvHeaders = 'ID,Filename,Status,Created,Artist,Upvotes,Downvotes,Score,ReportCount,Flagged,Approved,Deleted\n';
+        const csvHeaders = 'ID,Filename,Validity,Status,Created,Artist,Upvotes,Downvotes,Score,ReportCount,Flagged,Approved,Deleted,IsFish\n';
         const csvData = fishData.map(fish =>
-            `${fish.id},${fish.filename},${fish.status},${fish.createdAt},${fish.artist},${fish.upvotes},${fish.downvotes},${fish.score},${fish.reportCount},${fish.flaggedForReview},${fish.approved},${fish.deleted}`
+            `${fish.id},${fish.filename},${fish.validity},${fish.status},${fish.createdAt},${fish.artist},${fish.upvotes},${fish.downvotes},${fish.score},${fish.reportCount},${fish.flaggedForReview},${fish.approved},${fish.deleted},${fish.isFish}`
         ).join('\n');
 
         zip.file('fish_data.csv', csvHeaders + csvData);
@@ -1031,7 +1035,7 @@ async function downloadAllImages() {
         downloadStatus.textContent = `Download complete! ${successCount} images downloaded, ${failedCount} failed.`;
 
         // Show summary
-        alert(`Download complete!\n\nSuccessfully downloaded: ${successCount} images\nFailed: ${failedCount} images\nTotal processed: ${totalFish} fish\n\nThe ZIP file includes:\n- All fish images organized by status (approved, deleted, flagged, pending)\n- metadata.json with detailed information\n- fish_data.csv for easy analysis`);
+        alert(`Download complete!\n\nSuccessfully downloaded: ${successCount} images\nFailed: ${failedCount} images\nTotal processed: ${totalFish} fish\n\nThe ZIP file includes:\n- All fish images organized by validity (fish, not_fish, unknown)\n- metadata.json with detailed information\n- fish_data.csv for easy analysis`);
 
     } catch (error) {
         console.error('Error downloading images:', error);
