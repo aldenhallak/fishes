@@ -304,6 +304,9 @@ function createFishCard(fishId, fish) {
             <button class="action-btn approve-btn" onclick="approveFish('${fishId}', this)">
                 ✅ Approve
             </button>
+            <button class="action-btn flip-btn" onclick="flipFish('${fishId}', this)" style="background: #9C27B0; color: white;">
+                🔄 Flip
+            </button>
         </div>
         
         <div class="validity-actions" style="margin-top: 10px;">
@@ -710,6 +713,41 @@ async function markAsNotFish(fishId, button) {
         alert('Error marking fish as not fish. Please try again.');
         button.disabled = false;
         button.textContent = '🚫 Mark as Not Fish';
+    }
+}
+
+// Flip a fish horizontally
+async function flipFish(fishId, button) {
+    if (!confirm('Are you sure you want to flip this fish horizontally?')) {
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Flipping...';
+
+    try {
+        const token = localStorage.getItem('userToken');
+        const response = await fetch(`${API_BASE_URL}/moderate/flip/${fishId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            alert('Fish flipped successfully');
+            await loadStats();
+            await loadFish();
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `Flip failed: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error flipping fish:', error);
+        alert('Error flipping fish. Please try again.');
+        button.disabled = false;
+        button.textContent = '🔄 Flip';
     }
 }
 
