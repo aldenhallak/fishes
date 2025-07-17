@@ -239,6 +239,7 @@ function renderFish() {
 function createFishCard(fishId, fish) {
     const card = document.createElement('div');
     card.className = 'fish-card';
+    card.setAttribute('data-fish-id', fishId); // Add data attribute for easy lookup
     const reportCount = fish.reportCount || 0;
     const flaggedForReview = fish.flaggedForReview || false;
     const approved = fish.approved || false;
@@ -429,9 +430,18 @@ async function bulkApprove() {
         if (response.ok) {
             const result = await response.json();
             alert(`Bulk approval completed: ${result.summary.successful} successful, ${result.summary.failed} failed`);
+            
+            // Update local state for successful approvals
+            if (result.results) {
+                result.results.forEach(item => {
+                    if (item.success) {
+                        updateFishCardState(item.fishId, { approved: true });
+                    }
+                });
+            }
+            
             clearSelection();
-            await loadStats();
-            await loadFish();
+            updateStatsAfterBulkAction('approve', result.summary.successful);
         } else {
             throw new Error('Failed to bulk approve');
         }
@@ -473,9 +483,18 @@ async function bulkDelete() {
         if (response.ok) {
             const result = await response.json();
             alert(`Bulk deletion completed: ${result.summary.successful} successful, ${result.summary.failed} failed`);
+            
+            // Update local state for successful deletions
+            if (result.results) {
+                result.results.forEach(item => {
+                    if (item.success) {
+                        updateFishCardState(item.fishId, { deleted: true });
+                    }
+                });
+            }
+            
             clearSelection();
-            await loadStats();
-            await loadFish();
+            updateStatsAfterBulkAction('delete', result.summary.successful);
         } else {
             throw new Error('Failed to bulk delete');
         }
@@ -511,9 +530,18 @@ async function bulkMarkAsFish() {
         if (response.ok) {
             const result = await response.json();
             alert(`Bulk marking as fish completed: ${result.summary.successful} successful, ${result.summary.failed} failed`);
+            
+            // Update local state for successful markings
+            if (result.results) {
+                result.results.forEach(item => {
+                    if (item.success) {
+                        updateFishCardState(item.fishId, { isFish: true });
+                    }
+                });
+            }
+            
             clearSelection();
-            await loadStats();
-            await loadFish();
+            updateStatsAfterBulkAction('mark_fish', result.summary.successful);
         } else {
             throw new Error('Failed to bulk mark as fish');
         }
@@ -556,9 +584,18 @@ async function bulkMarkAsNotFish() {
         if (response.ok) {
             const result = await response.json();
             alert(`Bulk marking as not fish completed: ${result.summary.successful} successful, ${result.summary.failed} failed`);
+            
+            // Update local state for successful markings
+            if (result.results) {
+                result.results.forEach(item => {
+                    if (item.success) {
+                        updateFishCardState(item.fishId, { isFish: false });
+                    }
+                });
+            }
+            
             clearSelection();
-            await loadStats();
-            await loadFish();
+            updateStatsAfterBulkAction('mark_not_fish', result.summary.successful);
         } else {
             throw new Error('Failed to bulk mark as not fish');
         }
@@ -593,8 +630,9 @@ async function deleteFish(fishId, button) {
 
         if (response.ok) {
             alert('Fish deleted successfully');
-            await loadStats();
-            await loadFish();
+            // Update local state instead of full reload
+            updateFishCardState(fishId, { deleted: true });
+            updateStatsAfterAction('delete');
         } else {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.error || `Delete failed: ${response.status}`);
@@ -628,8 +666,9 @@ async function approveFish(fishId, button) {
 
         if (response.ok) {
             alert('Fish approved successfully');
-            await loadStats();
-            await loadFish();
+            // Update local state instead of full reload
+            updateFishCardState(fishId, { approved: true });
+            updateStatsAfterAction('approve');
         } else {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.error || `Approval failed: ${response.status}`);
@@ -665,8 +704,9 @@ async function markAsFish(fishId, button) {
 
         if (response.ok) {
             alert('Fish marked as valid successfully');
-            await loadStats();
-            await loadFish();
+            // Update local state instead of full reload
+            updateFishCardState(fishId, { isFish: true });
+            updateStatsAfterAction('mark_fish');
         } else {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.error || `Marking failed: ${response.status}`);
@@ -702,8 +742,9 @@ async function markAsNotFish(fishId, button) {
 
         if (response.ok) {
             alert('Fish marked as not fish successfully');
-            await loadStats();
-            await loadFish();
+            // Update local state instead of full reload
+            updateFishCardState(fishId, { isFish: false });
+            updateStatsAfterAction('mark_not_fish');
         } else {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.error || `Marking failed: ${response.status}`);
@@ -737,8 +778,8 @@ async function flipFish(fishId, button) {
 
         if (response.ok) {
             alert('Fish flipped successfully');
-            await loadStats();
-            await loadFish();
+            // For flip, we need to reload the fish to get the new image URL
+            await refreshSingleFish(fishId);
         } else {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.error || `Flip failed: ${response.status}`);
@@ -1036,4 +1077,140 @@ function setupKeyboardShortcuts() {
             clearSelection();
         }
     });
+}
+
+// Helper function to update a fish card's state locally
+function updateFishCardState(fishId, updates) {
+    // Update the fish in the cache
+    const fishIndex = fishCache.findIndex(doc => doc.id === fishId);
+    if (fishIndex !== -1) {
+        const fishData = fishCache[fishIndex].data();
+        Object.assign(fishData, updates);
+        
+        // Update the visual card
+        const fishCard = document.querySelector(`[data-fish-id="${fishId}"]`);
+        if (fishCard) {
+            // Update the card's visual state
+            updateFishCardVisual(fishCard, fishId, fishData);
+        }
+    }
+}
+
+// Helper function to update the visual appearance of a fish card
+function updateFishCardVisual(card, fishId, fish) {
+    // Update CSS classes
+    card.classList.remove('reported', 'flagged', 'deleted', 'valid', 'invalid');
+    
+    const reportCount = fish.reportCount || 0;
+    const flaggedForReview = fish.flaggedForReview || false;
+    const approved = fish.approved || false;
+    const deleted = fish.deleted || false;
+
+    if (reportCount > 0) card.classList.add('reported');
+    if (flaggedForReview) card.classList.add('flagged');
+    if (deleted) card.classList.add('deleted');
+    if (fish.isFish === true) card.classList.add('valid');
+    if (fish.isFish === false) card.classList.add('invalid');
+
+    // Update the status text in the card
+    const statusElement = card.querySelector('.fish-info');
+    if (statusElement) {
+        const statusText = getStatusText(fish);
+        const validityText = fish.isFish === true ? '🐟 Valid Fish' : 
+                           fish.isFish === false ? '🚫 Not Fish' : '❓ Unknown';
+        
+        // Update the status and validity lines
+        statusElement.innerHTML = statusElement.innerHTML
+            .replace(/(<strong>Status:<\/strong>)[^<]*/, `$1 ${statusText}`)
+            .replace(/(<strong>Validity:<\/strong>)[^<]*/, `$1 ${validityText}`);
+    }
+
+    // Re-enable buttons
+    const buttons = card.querySelectorAll('button');
+    buttons.forEach(btn => {
+        btn.disabled = false;
+        // Reset button text
+        if (btn.textContent.includes('Deleting')) btn.textContent = '🗑️ Delete';
+        if (btn.textContent.includes('Approving')) btn.textContent = '✅ Approve';
+        if (btn.textContent.includes('Marking')) {
+            if (btn.textContent.includes('Fish')) btn.textContent = '🐟 Mark as Fish';
+            else btn.textContent = '🚫 Mark as Not Fish';
+        }
+        if (btn.textContent.includes('Flipping')) btn.textContent = '🔄 Flip';
+    });
+}
+
+// Helper function to update stats after an action
+function updateStatsAfterAction(action) {
+    switch (action) {
+        case 'delete':
+            stats.deleted++;
+            stats.pending = Math.max(0, stats.pending - 1);
+            break;
+        case 'approve':
+            stats.approved++;
+            stats.pending = Math.max(0, stats.pending - 1);
+            break;
+        case 'mark_fish':
+            stats.valid++;
+            break;
+        case 'mark_not_fish':
+            stats.invalid++;
+            break;
+    }
+    updateStatsDisplay();
+}
+
+// Helper function to update stats after bulk actions
+function updateStatsAfterBulkAction(action, count) {
+    switch (action) {
+        case 'delete':
+            stats.deleted += count;
+            stats.pending = Math.max(0, stats.pending - count);
+            break;
+        case 'approve':
+            stats.approved += count;
+            stats.pending = Math.max(0, stats.pending - count);
+            break;
+        case 'mark_fish':
+            stats.valid += count;
+            break;
+        case 'mark_not_fish':
+            stats.invalid += count;
+            break;
+    }
+    updateStatsDisplay();
+}
+
+// Helper function to refresh a single fish (useful for flip action)
+async function refreshSingleFish(fishId) {
+    try {
+        const doc = await window.db.collection('fishes_test').doc(fishId).get();
+        if (doc.exists) {
+            const fish = doc.data();
+            const fishCard = document.querySelector(`[data-fish-id="${fishId}"]`);
+            if (fishCard) {
+                // Update the image source
+                const img = fishCard.querySelector('.fish-image');
+                if (img) {
+                    img.src = fish.image || fish.Image;
+                }
+                
+                // Update the fish data in cache
+                const fishIndex = fishCache.findIndex(d => d.id === fishId);
+                if (fishIndex !== -1) {
+                    fishCache[fishIndex] = { id: fishId, data: () => fish };
+                }
+                
+                // Re-enable the flip button
+                const flipBtn = fishCard.querySelector('button[onclick*="flipFish"]');
+                if (flipBtn) {
+                    flipBtn.disabled = false;
+                    flipBtn.textContent = '🔄 Flip';
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error refreshing single fish:', error);
+    }
 }
