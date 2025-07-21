@@ -491,3 +491,29 @@ function initializeAuthNavigation() {
         }
     });
 }
+
+// Get the current user's ID for highlighting their fish
+function getCurrentUserId() {
+    const userData = localStorage.getItem('userData');
+    const userIdFromStorage = localStorage.getItem('userId');
+    
+    if (userData) {
+        try {
+            const parsed = JSON.parse(userData);
+            return userIdFromStorage || parsed.uid || parsed.userId || parsed.id || parsed.email;
+        } catch (e) {
+            return userIdFromStorage;
+        }
+    }
+    
+    return userIdFromStorage;
+}
+
+// Check if a fish belongs to the current user
+function isUserFish(fish) {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId || !fish.userId) {
+        return false;
+    }
+    return currentUserId === fish.userId;
+}

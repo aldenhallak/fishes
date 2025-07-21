@@ -921,6 +921,13 @@ function showFishInfoModal(fish) {
     const modalHeight = Math.min(80, fish.height);
 
     let info = `<div style='text-align:center;'>`;
+    
+    // Add highlighting if this is the user's fish
+    const isCurrentUserFish = isUserFish(fish);
+    if (isCurrentUserFish) {
+        info += `<div style='margin-bottom: 10px; padding: 8px; background: linear-gradient(135deg, #fff9e6, #fff3d0); border: 2px solid #ffd700; border-radius: 6px; color: #333; font-weight: bold; font-size: 12px; box-shadow: 0 2px 6px rgba(255,215,0,0.3);'>Your Fish</div>`;
+    }
+    
     info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto 10px auto;border:1px solid #808080;background:#ffffff;' alt='Fish'><br>`;
     info += `<div style='margin-bottom:10px;'>`;
     
@@ -1464,6 +1471,53 @@ function drawWigglingFish(fish, x, y, direction, time, phase) {
     const w = fish.width;
     const h = fish.height;
     const tailEnd = Math.floor(w * fish.peduncle);
+    
+    // Check if this is the current user's fish
+    const isCurrentUserFish = isUserFish(fish);
+    
+    // Add highlighting effect for user's fish
+    if (isCurrentUserFish && !fish.isDying) {
+        swimCtx.save();
+        
+        // Draw explosive lines radiating from the fish
+        const centerX = x + w / 2;
+        const centerY = y + h / 2;
+        const maxRadius = Math.max(w, h) / 2 + 15;
+        const lineCount = 12;
+        const lineLength = 15;
+        const timeOffset = time * 0.002; // Slow rotation
+        
+        swimCtx.strokeStyle = 'rgba(255, 215, 0, 0.8)'; // Bright gold
+        swimCtx.lineWidth = 2;
+        swimCtx.lineCap = 'round';
+        
+        // Draw radiating lines with slight animation
+        for (let i = 0; i < lineCount; i++) {
+            const angle = (i / lineCount) * Math.PI * 2 + timeOffset;
+            const startRadius = maxRadius + 5;
+            const endRadius = startRadius + lineLength;
+            
+            // Add some variation to line lengths
+            const lengthVariation = Math.sin(angle * 3 + timeOffset * 2) * 3;
+            const actualEndRadius = endRadius + lengthVariation;
+            
+            const startX = centerX + Math.cos(angle) * startRadius;
+            const startY = centerY + Math.sin(angle) * startRadius;
+            const endX = centerX + Math.cos(angle) * actualEndRadius;
+            const endY = centerY + Math.sin(angle) * actualEndRadius;
+            
+            // Fade out lines at the edges
+            const fadeAlpha = 0.8 - (i % 3) * 0.2;
+            swimCtx.strokeStyle = `rgba(255, 215, 0, ${fadeAlpha})`;
+            
+            swimCtx.beginPath();
+            swimCtx.moveTo(startX, startY);
+            swimCtx.lineTo(endX, endY);
+            swimCtx.stroke();
+        }
+        
+        swimCtx.restore();
+    }
     
     // Set opacity for dying or entering fish
     if ((fish.isDying || fish.isEntering) && fish.opacity !== undefined) {
