@@ -37,16 +37,6 @@ function getTankId() {
     return urlParams.get('id');
 }
 
-// Debug function to log fish data
-function debugFishData() {
-    tankFish.forEach((fish, index) => {
-            id: fish.id || fish.docId,
-            Artist: fish.Artist,
-            image: fish.image || fish.Image,
-            hasCanvas: !!(window.fishes && window.fishes[index]?.fishCanvas)
-        });
-    });
-}
 
 // Load tank data
 async function loadTank() {
@@ -90,9 +80,6 @@ async function loadTank() {
         
         renderTank();
         initializeTankAnimation();
-        
-        // Debug: log fish data
-        debugFishData();
         
     } catch (err) {
         console.error('Error loading tank:', err);
@@ -600,6 +587,5 @@ window.refreshTank = refreshTank;
 window.showAddFishModal = showAddFishModal;
 window.removeFish = removeFish;
 window.closeModal = closeModal;
-window.debugFishData = debugFishData;
 window.shareTank = shareTank;
 // handleVote and handleReport are provided by tank.js
