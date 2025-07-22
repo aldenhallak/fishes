@@ -269,6 +269,8 @@ function undo() {
     } else {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+    // Recalculate fish probability after undo
+    checkFishAfterStroke();
 }
 
 function createUndoButton() {
