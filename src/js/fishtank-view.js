@@ -39,10 +39,7 @@ function getTankId() {
 
 // Debug function to log fish data
 function debugFishData() {
-    console.log('Tank Fish Data:', tankFish);
-    console.log('Tank.js Fish Objects:', window.fishes);
     tankFish.forEach((fish, index) => {
-        console.log(`Fish ${index}:`, {
             id: fish.id || fish.docId,
             Artist: fish.Artist,
             image: fish.image || fish.Image,
@@ -89,7 +86,6 @@ async function loadTank() {
         
         const data = await response.json();
         currentTank = data.fishtank;
-        console.log('Loaded tank:', currentTank);
         tankFish = data.fish || [];
         
         renderTank();

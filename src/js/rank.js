@@ -67,7 +67,6 @@ function createFishImageDataUrl(imgUrl, callback) {
     // Check validation cache first - don't try to load images that we know are invalid
     const cached = imageValidationCache.get(imgUrl);
     if (cached && !cached.isValid && (Date.now() - cached.timestamp) < 300000) {
-        console.log('Skipping display for cached invalid image:', imgUrl);
         callback(null);
         return;
     }
@@ -563,7 +562,6 @@ async function updatePageHeaderForUser(userId) {
         // Fetch user profile to get display name
         const profile = await getUserProfile(userId);
         const displayName = getDisplayName(profile);
-        console.log(`Updating page header for user: ${displayName} (${userId})`);
         
         const headerElement = document.querySelector('.ranking-header h1');
         if (headerElement) {

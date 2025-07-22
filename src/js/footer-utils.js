@@ -72,27 +72,16 @@ function insertFooter(special = false) {
     }
     
     // Debug log to verify insertion
-    console.log('Footer inserted:', special ? 'special' : 'regular');
-    console.log('Footer element:', footer);
-    console.log('Footer parent:', footer.parentNode);
-    console.log('Footer in DOM:', document.querySelector('#footer-love, footer'));
 }
 
 // Auto-initialize footer when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing footer...');
-    console.log('Body element:', document.body);
-    console.log('Body children before footer:', document.body.children.length);
-    
     // Check if this is fishtank-view.html based on the page structure or URL
     const isSpecialFooter = document.querySelector('#tank-content') !== null || 
                            window.location.pathname.includes('fishtank-view.html');
-    console.log('Footer utility loaded. Special footer:', isSpecialFooter);
     
     insertFooter(isSpecialFooter);
     
-    console.log('Body children after footer:', document.body.children.length);
-    console.log('Last body child:', document.body.lastElementChild);
 });
 
 // Export functions for manual usage if needed

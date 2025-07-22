@@ -1130,9 +1130,7 @@ function handleFishTap(e) {
         tapX = e.clientX - rect.left;
         tapY = e.clientY - rect.top;
     }
-    
-    console.log('handleFishTap called:', { tapX, tapY, fishCount: fishes.length });
-    
+        
     // Check if tap hit any fish (iterate from top to bottom)
     for (let i = fishes.length - 1; i >= 0; i--) {
         const fish = fishes[i];
@@ -1149,21 +1147,17 @@ function handleFishTap(e) {
             const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
             fishY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
         }
-        
-        console.log(`Checking fish ${i}:`, { fishX, fishY, width: fish.width, height: fish.height, tapX, tapY });
-        
+                
         // Check if tap is within fish bounds
         if (
             tapX >= fishX && tapX <= fishX + fish.width &&
             tapY >= fishY && tapY <= fishY + fish.height
         ) {
-            console.log(`Fish ${i} hit! Showing modal`);
             showFishInfoModal(fish);
             return; // Found a fish, don't handle tank tap
         }
     }
     
-    console.log('No fish hit, handling tank tap');
     // No fish was hit, handle tank tap
     handleTankTap(e);
 }
@@ -1201,7 +1195,6 @@ swimCanvas.addEventListener('touchend', (e) => {
     const tapY = e.changedTouches[0].clientY - rect.top;
     
     // Debug logging for mobile touch issues
-    console.log('Touch end detected:', { tapX, tapY, touchDuration, canvasRect: rect });
     
     // Check if finger moved significantly during touch
     const moveDistance = Math.sqrt(
@@ -1211,20 +1204,17 @@ swimCanvas.addEventListener('touchend', (e) => {
     
     // Long press for feeding (500ms+ and minimal movement)
     if (touchDuration >= 500 && moveDistance < 20) {
-        console.log('Long press detected - feeding');
         dropFoodPellet(tapX, tapY);
         return;
     }
     
     // Double tap for feeding
     if (currentTime - lastTapTime < 300 && moveDistance < 20) { // Double tap within 300ms
-        console.log('Double tap detected - feeding');
         dropFoodPellet(tapX, tapY);
         return;
     }
     
     // Single tap - check for fish interaction first, then handle tank tap
-    console.log('Single tap detected - checking for fish');
     // Create a mock event for handleFishTap with correct coordinates
     const mockEvent = {
         clientX: rect.left + tapX,

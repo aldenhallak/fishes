@@ -192,7 +192,6 @@ async function updateUIForViewingOtherUser(userId) {
         // Fetch user profile to get display name
         const profile = await getUserProfile(userId);
         const displayName = getDisplayName(profile);
-        console.log(`Updating UI for viewing user: ${displayName} (${userId})`);
         
         // Update page title
         const headerElement = document.querySelector('.page-header h1');
