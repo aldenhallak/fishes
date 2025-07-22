@@ -516,10 +516,17 @@ async function updateTankCapacity(newCapacity) {
         const currentFishCount = fishes.filter(f => !f.isDying).length;
         const excessCount = Math.max(0, currentFishCount - newCapacity);
                 
-        // Get references to fish that are not already dying
-        const aliveFish = fishes.filter(f => !f.isDying);
+        // Get references to fish that are not already dying, sorted by creation date (oldest first)
+        const aliveFish = fishes.filter(f => !f.isDying).sort((a, b) => {
+            const dateA = a.createdAt;
+            const dateB = b.createdAt;
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return -1; // Fish without creation date go first
+            if (!dateB) return 1;
+            return dateA.toDate() - dateB.toDate(); // Oldest first
+        });
         
-        // Only remove the excess amount, not all fish
+        // Remove the oldest fish first
         const fishToRemove = aliveFish.slice(0, excessCount);
                 
         // Stagger the death animations to avoid overwhelming the system
@@ -751,8 +758,27 @@ function setupNewFishListener() {
                 if (!fishes.some(f => f.docId === doc.id)) {
                     // If at capacity, animate death of oldest fish, then add new one
                     if (fishes.length >= maxTankCapacity) {
-                       // Find the oldest fish (first non-dying fish)
-                        const oldestFishIndex = fishes.findIndex(f => !f.isDying);
+                       // Find the oldest fish by creation date (excluding dying fish)
+                        const aliveFish = fishes.filter(f => !f.isDying);
+                        let oldestFishIndex = -1;
+                        let oldestDate = null;
+                        
+                        aliveFish.forEach((fish, index) => {
+                            const fishDate = fish.createdAt;
+                            if (!oldestDate) {
+                                // First fish or no previous date found
+                                oldestDate = fishDate;
+                                oldestFishIndex = fishes.indexOf(fish);
+                            } else if (!fishDate) {
+                                // Fish without creation date should be considered oldest
+                                oldestDate = null;
+                                oldestFishIndex = fishes.indexOf(fish);
+                            } else if (oldestDate && fishDate.toDate() < oldestDate.toDate()) {
+                                // Found an older fish
+                                oldestDate = fishDate;
+                                oldestFishIndex = fishes.indexOf(fish);
+                            }
+                        });
                         
                         if (oldestFishIndex !== -1) {
                             animateFishDeath(oldestFishIndex, () => {
