@@ -117,6 +117,28 @@
             background: #0056b3;
             border-color: #0056b3;
         }
+
+        .home-btn-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .home-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .home-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
     </style>
 </head>
 
@@ -188,7 +210,12 @@
         </div>
     </div>
 
+    <div class="home-btn-container">
+        <a href="index.html" class="home-btn">Back To Draw</a>
+    </div>
+
     <!-- Load Google's auth2 -->
+    <script src="src/js/footer-utils.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="src/js/fish-utils.js"></script>
     <script src="src/js/firebase-init.js"></script>
