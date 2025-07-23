@@ -426,9 +426,6 @@ function clearSelection() {
 async function bulkApprove() {
     if (selectedFish.size === 0) return;
 
-    const reason = prompt('Enter reason for bulk approval (optional):');
-    if (reason === null) return; // User cancelled
-
     try {
         const token = localStorage.getItem('userToken');
         const response = await fetch(`${API_BASE_URL}/moderate/bulk-review`, {
@@ -440,13 +437,12 @@ async function bulkApprove() {
             body: JSON.stringify({
                 fishIds: Array.from(selectedFish),
                 action: 'approve',
-                reason: reason
+                reason: 'Bulk approval'
             })
         });
 
         if (response.ok) {
             const result = await response.json();
-            alert(`Bulk approval completed: ${result.summary.successful} successful, ${result.summary.failed} failed`);
             
             // Update local state for successful approvals
             if (result.results) {
@@ -459,28 +455,15 @@ async function bulkApprove() {
             
             clearSelection();
             updateStatsAfterBulkAction('approve', result.summary.successful);
-        } else {
-            throw new Error('Failed to bulk approve');
         }
     } catch (error) {
         console.error('Error in bulk approve:', error);
-        alert('Error performing bulk approval');
     }
 }
 
 // Bulk delete selected fish
 async function bulkDelete() {
     if (selectedFish.size === 0) return;
-
-    const reason = prompt('Enter reason for bulk deletion (required):');
-    if (!reason) {
-        alert('Reason is required for deletion');
-        return;
-    }
-
-    if (!confirm(`Are you sure you want to delete ${selectedFish.size} fish?`)) {
-        return;
-    }
 
     try {
         const token = localStorage.getItem('userToken');
@@ -493,13 +476,12 @@ async function bulkDelete() {
             body: JSON.stringify({
                 fishIds: Array.from(selectedFish),
                 action: 'delete',
-                reason: reason
+                reason: 'Bulk deletion'
             })
         });
 
         if (response.ok) {
             const result = await response.json();
-            alert(`Bulk deletion completed: ${result.summary.successful} successful, ${result.summary.failed} failed`);
             
             // Update local state for successful deletions
             if (result.results) {
@@ -512,21 +494,15 @@ async function bulkDelete() {
             
             clearSelection();
             updateStatsAfterBulkAction('delete', result.summary.successful);
-        } else {
-            throw new Error('Failed to bulk delete');
         }
     } catch (error) {
         console.error('Error in bulk delete:', error);
-        alert('Error performing bulk deletion');
     }
 }
 
 // Bulk mark selected fish as valid fish
 async function bulkMarkAsFish() {
     if (selectedFish.size === 0) return;
-
-    const reason = prompt('Enter reason for bulk marking as fish (optional):');
-    if (reason === null) return; // User cancelled
 
     try {
         const token = localStorage.getItem('userToken');
@@ -540,13 +516,12 @@ async function bulkMarkAsFish() {
                 fishIds: Array.from(selectedFish),
                 action: 'mark_validity',
                 isFish: true,
-                reason: reason || 'Bulk marked as valid fish'
+                reason: 'Bulk marked as valid fish'
             })
         });
 
         if (response.ok) {
             const result = await response.json();
-            alert(`Bulk marking as fish completed: ${result.summary.successful} successful, ${result.summary.failed} failed`);
             
             // Update local state for successful markings
             if (result.results) {
@@ -559,28 +534,15 @@ async function bulkMarkAsFish() {
             
             clearSelection();
             updateStatsAfterBulkAction('mark_fish', result.summary.successful);
-        } else {
-            throw new Error('Failed to bulk mark as fish');
         }
     } catch (error) {
         console.error('Error in bulk mark as fish:', error);
-        alert('Error performing bulk marking as fish');
     }
 }
 
 // Bulk mark selected fish as not fish
 async function bulkMarkAsNotFish() {
     if (selectedFish.size === 0) return;
-
-    const reason = prompt('Enter reason for bulk marking as not fish (required):');
-    if (!reason) {
-        alert('Reason is required for marking as not fish');
-        return;
-    }
-
-    if (!confirm(`Are you sure you want to mark ${selectedFish.size} fish as not fish?`)) {
-        return;
-    }
 
     try {
         const token = localStorage.getItem('userToken');
@@ -594,13 +556,12 @@ async function bulkMarkAsNotFish() {
                 fishIds: Array.from(selectedFish),
                 action: 'mark_validity',
                 isFish: false,
-                reason: reason
+                reason: 'Bulk marked as not fish'
             })
         });
 
         if (response.ok) {
             const result = await response.json();
-            alert(`Bulk marking as not fish completed: ${result.summary.successful} successful, ${result.summary.failed} failed`);
             
             // Update local state for successful markings
             if (result.results) {
@@ -613,12 +574,9 @@ async function bulkMarkAsNotFish() {
             
             clearSelection();
             updateStatsAfterBulkAction('mark_not_fish', result.summary.successful);
-        } else {
-            throw new Error('Failed to bulk mark as not fish');
         }
     } catch (error) {
         console.error('Error in bulk mark as not fish:', error);
-        alert('Error performing bulk marking as not fish');
     }
 }
 
@@ -626,13 +584,6 @@ async function bulkMarkAsNotFish() {
 
 // Delete a fish
 async function deleteFish(fishId, button) {
-    if (!confirm('Are you sure you want to delete this fish?')) {
-        return;
-    }
-
-    const reason = prompt('Enter reason for deletion (optional):');
-    if (reason === null) return; // User cancelled
-
     button.disabled = true;
     button.textContent = 'Deleting...';
 
@@ -644,21 +595,19 @@ async function deleteFish(fishId, button) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ reason })
+            body: JSON.stringify({ reason: 'Deleted via moderation panel' })
         });
 
         if (response.ok) {
-            alert('Fish deleted successfully');
             // Update local state instead of full reload
             updateFishCardState(fishId, { deleted: true });
             updateStatsAfterAction('delete');
         } else {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Delete failed: ${response.status}`);
+            button.disabled = false;
+            button.textContent = '🗑️ Delete';
         }
     } catch (error) {
         console.error('Error deleting fish:', error);
-        alert('Error deleting fish. Please try again.');
         button.disabled = false;
         button.textContent = '🗑️ Delete';
     }
@@ -666,9 +615,6 @@ async function deleteFish(fishId, button) {
 
 // Approve a fish
 async function approveFish(fishId, button) {
-    const reason = prompt('Enter reason for approval (optional):');
-    if (reason === null) return; // User cancelled
-
     button.disabled = true;
     button.textContent = 'Approving...';
 
@@ -680,21 +626,19 @@ async function approveFish(fishId, button) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ reason })
+            body: JSON.stringify({ reason: 'Approved via moderation panel' })
         });
 
         if (response.ok) {
-            alert('Fish approved successfully');
             // Update local state instead of full reload
             updateFishCardState(fishId, { approved: true });
             updateStatsAfterAction('approve');
         } else {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Approval failed: ${response.status}`);
+            button.disabled = false;
+            button.textContent = '✅ Approve';
         }
     } catch (error) {
         console.error('Error approving fish:', error);
-        alert('Error approving fish. Please try again.');
         button.disabled = false;
         button.textContent = '✅ Approve';
     }
@@ -702,8 +646,6 @@ async function approveFish(fishId, button) {
 
 // Mark a fish as valid fish
 async function markAsFish(fishId, button) {
-    const reason = prompt('Enter reason for marking as fish (optional):');
-
     button.disabled = true;
     button.textContent = 'Marking...';
 
@@ -717,22 +659,20 @@ async function markAsFish(fishId, button) {
             },
             body: JSON.stringify({
                 isFish: true,
-                reason: reason || 'Marked as valid fish'
+                reason: 'Marked as valid fish'
             })
         });
 
         if (response.ok) {
-            alert('Fish marked as valid successfully');
             // Update local state instead of full reload
             updateFishCardState(fishId, { isFish: true });
             updateStatsAfterAction('mark_fish');
         } else {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Marking failed: ${response.status}`);
+            button.disabled = false;
+            button.textContent = '🐟 Mark as Fish';
         }
     } catch (error) {
         console.error('Error marking fish as valid:', error);
-        alert('Error marking fish as valid. Please try again.');
         button.disabled = false;
         button.textContent = '🐟 Mark as Fish';
     }
@@ -740,8 +680,6 @@ async function markAsFish(fishId, button) {
 
 // Mark a fish as not fish
 async function markAsNotFish(fishId, button) {
-    const reason = prompt('Enter reason for marking as not fish (optional):');
-
     button.disabled = true;
     button.textContent = 'Marking...';
 
@@ -755,22 +693,20 @@ async function markAsNotFish(fishId, button) {
             },
             body: JSON.stringify({
                 isFish: false,
-                reason: reason
+                reason: 'Marked as not fish'
             })
         });
 
         if (response.ok) {
-            alert('Fish marked as not fish successfully');
             // Update local state instead of full reload
             updateFishCardState(fishId, { isFish: false });
             updateStatsAfterAction('mark_not_fish');
         } else {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Marking failed: ${response.status}`);
+            button.disabled = false;
+            button.textContent = '🚫 Mark as Not Fish';
         }
     } catch (error) {
         console.error('Error marking fish as not fish:', error);
-        alert('Error marking fish as not fish. Please try again.');
         button.disabled = false;
         button.textContent = '🚫 Mark as Not Fish';
     }
@@ -778,10 +714,6 @@ async function markAsNotFish(fishId, button) {
 
 // Flip a fish horizontally
 async function flipFish(fishId, button) {
-    if (!confirm('Are you sure you want to flip this fish horizontally?')) {
-        return;
-    }
-
     button.disabled = true;
     button.textContent = 'Flipping...';
 
@@ -796,16 +728,14 @@ async function flipFish(fishId, button) {
         });
 
         if (response.ok) {
-            alert('Fish flipped successfully');
             // For flip, we need to reload the fish to get the new image URL
             await refreshSingleFish(fishId);
         } else {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Flip failed: ${response.status}`);
+            button.disabled = false;
+            button.textContent = '🔄 Flip';
         }
     } catch (error) {
         console.error('Error flipping fish:', error);
-        alert('Error flipping fish. Please try again.');
         button.disabled = false;
         button.textContent = '🔄 Flip';
     }
@@ -842,7 +772,7 @@ async function loadReportsForFish(fishId) {
             .get();
 
         if (reportsSnapshot.empty) {
-            alert('No reports found for this fish.');
+            console.log('No reports found for this fish.');
             return;
         }
 
@@ -856,10 +786,9 @@ async function loadReportsForFish(fishId) {
             reportText += `Status: ${report.status || 'pending'}\n\n`;
         });
 
-        alert(reportText);
+        console.log(reportText);
     } catch (error) {
         console.error('Error loading reports:', error);
-        alert('Error loading reports. Please try again.');
     }
 }
 
@@ -1241,17 +1170,6 @@ async function refreshSingleFish(fishId) {
 // Ban a user
 async function banUser(userId, userName, button) {
     if (!userId) {
-        alert('Cannot ban user: No user ID available');
-        return;
-    }
-
-    const reason = prompt(`Enter reason for banning user "${userName}" (required):`);
-    if (!reason || reason.trim() === '') {
-        alert('Reason is required for banning a user');
-        return;
-    }
-
-    if (!confirm(`Are you sure you want to ban user "${userName}"?\n\nThis will:\n- Ban their account\n- Add their IP to the banned list\n- Hide all their fish\n- Log the moderation action\n\nReason: ${reason}`)) {
         return;
     }
 
@@ -1266,20 +1184,18 @@ async function banUser(userId, userName, button) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ reason })
+            body: JSON.stringify({ reason: 'Banned via moderation panel' })
         });
 
         if (response.ok) {
-            alert(`User "${userName}" banned successfully`);
             // Refresh the page to update all fish from this user
             loadFish();
         } else {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Ban failed: ${response.status}`);
+            button.disabled = false;
+            button.textContent = '🚫 Ban User';
         }
     } catch (error) {
         console.error('Error banning user:', error);
-        alert('Error banning user. Please try again.');
         button.disabled = false;
         button.textContent = '🚫 Ban User';
     }
@@ -1288,14 +1204,6 @@ async function banUser(userId, userName, button) {
 // Unban a user
 async function unbanUser(userId, userName, button) {
     if (!userId) {
-        alert('Cannot unban user: No user ID available');
-        return;
-    }
-
-    const reason = prompt(`Enter reason for unbanning user "${userName}" (optional):`);
-    if (reason === null) return; // User cancelled
-
-    if (!confirm(`Are you sure you want to unban user "${userName}"?\n\nThis will:\n- Unban their account\n- Remove their IP from the banned list\n- Restore fish visibility (if hidden due to ban)\n- Log the moderation action`)) {
         return;
     }
 
@@ -1310,20 +1218,18 @@ async function unbanUser(userId, userName, button) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ reason: reason || 'User unbanned' })
+            body: JSON.stringify({ reason: 'User unbanned' })
         });
 
         if (response.ok) {
-            alert(`User "${userName}" unbanned successfully`);
             // Refresh the page to update all fish from this user
             loadFish();
         } else {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Unban failed: ${response.status}`);
+            button.disabled = false;
+            button.textContent = '✅ Unban User';
         }
     } catch (error) {
         console.error('Error unbanning user:', error);
-        alert('Error unbanning user. Please try again.');
         button.disabled = false;
         button.textContent = '✅ Unban User';
     }
