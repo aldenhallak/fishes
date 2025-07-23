@@ -89,12 +89,13 @@
         </div>
         
         <div class="bulk-actions" style="margin-bottom: 20px; display: none;" id="bulkActions">
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <span id="selectedCount">0 selected</span>
                 <button class="action-btn approve-btn" onclick="bulkApprove()">Bulk Approve</button>
                 <button class="action-btn delete-btn" onclick="bulkDelete()">Bulk Delete</button>
                 <button class="action-btn" onclick="bulkMarkAsFish()" style="background: #2196F3; color: white;">Mark as Fish</button>
                 <button class="action-btn" onclick="bulkMarkAsNotFish()" style="background: #FF9800; color: white;">Mark as Not Fish</button>
+                <button class="action-btn ban-btn" onclick="bulkBanUsers()" style="background: #dc3545; color: white;">Ban Users</button>
                 <button class="filter-btn" onclick="clearSelection()">Clear Selection</button>
             </div>
         </div>

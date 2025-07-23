@@ -266,6 +266,9 @@ function createFishCard(fishId, fish) {
     const upvotes = fish.upvotes || 0;
     const downvotes = fish.downvotes || 0;
     const lastReportedAt = fish.lastReportedAt ? formatDate(fish.lastReportedAt) : null;
+    
+    // Check if we have user info for ban functionality
+    const hasUserInfo = fish.userId && fish.Artist && fish.Artist !== 'Anonymous';
 
     card.innerHTML = `
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
@@ -279,7 +282,9 @@ function createFishCard(fishId, fish) {
             <strong>ID:</strong> ${fishId}<br>
             <strong>Created:</strong> ${createdAt}<br>
             <strong>Score:</strong> ${score} (👍${upvotes} 👎${downvotes})<br>
-            <strong>Artist:</strong> ${fish.Artist || 'Anonymous'}<br>
+            <strong>Artist:</strong> ${hasUserInfo ? 
+                `<a href="profile.html?userId=${encodeURIComponent(fish.userId)}" target="_blank" style="color: #0288d1; text-decoration: underline;">${fish.Artist}</a>` : 
+                (fish.Artist || 'Anonymous')}<br>
             <strong>Status:</strong> ${getStatusText(fish)}<br>
             <strong>Validity:</strong> ${fish.isFish === true ? '🐟 Valid Fish' : fish.isFish === false ? '🚫 Not Fish' : '❓ Unknown'}<br>
             ${reportCount > 0 ? `<strong>Reports:</strong> ${reportCount}` : ''}
@@ -318,6 +323,18 @@ function createFishCard(fishId, fish) {
                 🚫 Mark as Not Fish
             </button>
         </div>
+        
+        ${hasUserInfo ? `
+            <div class="user-actions" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                <strong style="color: #dc3545;">User Management:</strong><br>
+                <button class="action-btn ban-btn" onclick="banUser('${fish.userId}', '${fish.Artist}', this)" style="background: #dc3545; color: white; margin-top: 5px;">
+                    🚫 Ban User
+                </button>
+                <button class="action-btn unban-btn" onclick="unbanUser('${fish.userId}', '${fish.Artist}', this)" style="background: #28a745; color: white; margin-top: 5px; margin-left: 5px;">
+                    ✅ Unban User
+                </button>
+            </div>
+        ` : ''}
     `;
 
     return card;
@@ -604,6 +621,8 @@ async function bulkMarkAsNotFish() {
         alert('Error performing bulk marking as not fish');
     }
 }
+
+
 
 // Delete a fish
 async function deleteFish(fishId, button) {
@@ -1216,5 +1235,96 @@ async function refreshSingleFish(fishId) {
         }
     } catch (error) {
         console.error('Error refreshing single fish:', error);
+    }
+}
+
+// Ban a user
+async function banUser(userId, userName, button) {
+    if (!userId) {
+        alert('Cannot ban user: No user ID available');
+        return;
+    }
+
+    const reason = prompt(`Enter reason for banning user "${userName}" (required):`);
+    if (!reason || reason.trim() === '') {
+        alert('Reason is required for banning a user');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to ban user "${userName}"?\n\nThis will:\n- Ban their account\n- Add their IP to the banned list\n- Hide all their fish\n- Log the moderation action\n\nReason: ${reason}`)) {
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Banning...';
+
+    try {
+        const token = localStorage.getItem('userToken');
+        const response = await fetch(`${API_BASE_URL}/moderate/ban/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason })
+        });
+
+        if (response.ok) {
+            alert(`User "${userName}" banned successfully`);
+            // Refresh the page to update all fish from this user
+            loadFish();
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `Ban failed: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error banning user:', error);
+        alert('Error banning user. Please try again.');
+        button.disabled = false;
+        button.textContent = '🚫 Ban User';
+    }
+}
+
+// Unban a user
+async function unbanUser(userId, userName, button) {
+    if (!userId) {
+        alert('Cannot unban user: No user ID available');
+        return;
+    }
+
+    const reason = prompt(`Enter reason for unbanning user "${userName}" (optional):`);
+    if (reason === null) return; // User cancelled
+
+    if (!confirm(`Are you sure you want to unban user "${userName}"?\n\nThis will:\n- Unban their account\n- Remove their IP from the banned list\n- Restore fish visibility (if hidden due to ban)\n- Log the moderation action`)) {
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Unbanning...';
+
+    try {
+        const token = localStorage.getItem('userToken');
+        const response = await fetch(`${API_BASE_URL}/moderate/unban/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason || 'User unbanned' })
+        });
+
+        if (response.ok) {
+            alert(`User "${userName}" unbanned successfully`);
+            // Refresh the page to update all fish from this user
+            loadFish();
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `Unban failed: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error unbanning user:', error);
+        alert('Error unbanning user. Please try again.');
+        button.disabled = false;
+        button.textContent = '✅ Unban User';
     }
 }
