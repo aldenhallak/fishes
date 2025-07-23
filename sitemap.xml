@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    
+    <!-- Main drawing page -->
+    <url>
+        <loc>https://drawafish.com/</loc>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+        <lastmod>2025-07-23</lastmod>
+    </url>
+    
+    <!-- Fish tank page -->
+    <url>
+        <loc>https://drawafish.com/tank.html</loc>
+        <changefreq>hourly</changefreq>
+        <priority>0.9</priority>
+        <lastmod>2025-07-23</lastmod>
+    </url>
+    
+    <!-- Rankings page -->
+    <url>
+        <loc>https://drawafish.com/rank.html</loc>
+        <changefreq>hourly</changefreq>
+        <priority>0.9</priority>
+        <lastmod>2025-07-23</lastmod>
+    </url>
+    
+    <!-- Fish tanks page -->
+    <url>
+        <loc>https://drawafish.com/fishtanks.html</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+        <lastmod>2025-07-23</lastmod>
+    </url>
+    
+    <!-- Profile page -->
+    <url>
+        <loc>https://drawafish.com/profile.html</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+        <lastmod>2025-07-23</lastmod>
+    </url>
+    
+    <!-- Login page -->
+    <url>
+        <loc>https://drawafish.com/login.html</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+        <lastmod>2025-07-23</lastmod>
+    </url>
+
+</urlset>

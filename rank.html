@@ -3,7 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fish Ranking</title>
+    <title>Fish Rankings - Vote on Community Fish Art | DrawAFish.com</title>
+    <meta name="description" content="Vote on and rank the best fish drawings from our community. Discover trending fish art, sort by popularity, score, or date.">
+    <meta name="keywords" content="fish rankings, vote fish art, community voting, fish art gallery, digital art contest, fish drawing competition">
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="Fish Rankings - Vote on Community Fish Art">
+    <meta property="og:description" content="Vote on and rank the best fish drawings from our community. Discover trending fish art.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://drawafish.com/rank.html">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://drawafish.com/rank.html">
+    
     <link rel="stylesheet" href="src/css/style.css">
     <link rel="icon" href="public/favicon.ico">
     
@@ -15,6 +27,40 @@
       gtag('js', new Date());
 
       gtag('config', 'G-GS1GYSFBPX');
+    </script>
+    
+    <!-- Structured Data for Rankings -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Fish Rankings - Community Art Gallery",
+      "description": "Browse and vote on fish artwork from our creative community. Discover trending artists and see the most popular fish drawings.",
+      "url": "https://drawafish.com/rank.html",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://drawafish.com"
+          },
+          {
+            "@type": "ListItem", 
+            "position": 2,
+            "name": "Rankings",
+            "item": "https://drawafish.com/rank.html"
+          }
+        ]
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": "Fish Art Rankings",
+        "description": "Community-voted rankings of fish drawings",
+        "numberOfItems": "500+"
+      }
+    }
     </script>
     
     <style>

@@ -1,19 +1,79 @@
-# DrawAFish.com
+# DrawAFish.com - Interactive Fish Drawing
 
-DrawAFish.com is a playful browser-based drawing app that lets users doodle a fish, have it automatically classified by an AI model, and make it swim in a shared online tank! The app provides instant feedback using a neural network, and only valid fish can join the tank.
+🐟 **[DrawAFish.com](https://drawafish.com)** 🐟
 
-## Features
-- Draw a fish (facing right) on the canvas.
-- AI-powered fish classifier (ONNX model, originally trained in PyTorch) checks your doodle after every stroke.
-- Immediate feedback: background color and probability indicator.
-- Only valid fish can be submitted.
-- Sign the art before submitting (default: Anonymous).
-- See your fish swim with others in a lively, interactive tank.
+Users have their fish drawings AI-validated in real time and watch their creations swim in a shared tank. 
 
-## How it Works
-- The app runs entirely in the browser, using ONNX Runtime Web for client-side inference.
-- Preprocessing in JavaScript matches the PyTorch training pipeline (crop, resize, grayscale, normalization, etc.).
-- When you submit a fish, the image and metadata are sent to the backend, which stores and returns the processed fish image for display in the tank.
+[![Fish Drawing](https://img.shields.io/badge/Game-Live-brightgreen)](https://drawafish.com)
+[![AI Powered](https://img.shields.io/badge/AI-ONNX-blue)](https://onnx.ai/)
+[![Community](https://img.shields.io/badge/Community-Voting-orange)](#features)
+
+## 🎮 Features
+
+### 🎨 **Interactive Drawing**
+- **Real-time AI validation** - Draw fish and get instant feedback from our neural network.
+- **Smart canvas** - Intuitive drawing tools with pressure-sensitive input
+- **Live classification** - Background color changes as the AI recognizes your fish
+- **Drawing hints** - Visual cues help you create better fish drawings
+
+### 🏊 **Community Fish Tank**
+- **Shared aquarium** - Watch your fish swim with creations from artists worldwide
+- **Multiple view modes** - See most recent, popular, or random fish
+- **Smooth animations** - Fish move naturally through the virtual water
+- **Interactive experience** - Click fish to learn about their creators
+
+### 🗳️ **Voting & Rankings**
+- **Community voting** - Rate fish drawings from other artists
+- **Smart ranking system** - Algorithm balances recency and popularity
+- **Artist profiles** - Track your stats and see your fish collection
+- **Leaderboards** - Discover the most loved fish in the community
+
+### 🗂️ **Personal Collections**
+- **Custom fish tanks** - Create themed collections of your favorite fish
+- **Share collections** - Let friends explore your curated tanks
+- **Privacy controls** - Make tanks public or keep them private
+- **Organize by theme** - Group fish by color, style, or any criteria
+
+## 🧠 How the AI Works
+
+The app uses machine learning for real-time fish recognition:
+
+- **ONNX Runtime Web** - Runs neural network inference entirely in your browser
+- **PyTorch-trained model** - Originally developed and trained using PyTorch
+- **Instant feedback** - Classification happens with every brush stroke
+- **Quality control** - Only validated fish can join the community tank
+
+## 🚀 Getting Started
+
+1. **Visit [DrawAFish.com](https://drawafish.com)**
+2. **Start drawing** on the canvas (fish should face right!)
+3. **Watch the AI** give feedback through background color changes
+4. **Submit your fish** when you're happy with it
+5. **See it swim** in the community tank with other creations
+6. **Vote and explore** other artists' fish in the rankings
+
+## 📱 Cross-Platform Compatible
+
+- **Desktop browsers** - Full experience with mouse/trackpad drawing
+- **Tablet friendly** - Touch-optimized for iPad and Android tablets  
+- **Mobile responsive** - Works on phones with simplified interface
+- **Progressive Web App** - Can be installed like a native app
+
+## 🌟 Community Features
+
+### For Artists
+- **Profile system** - Track your fish creations and statistics
+- **Personal galleries** - Showcase your best work
+- **Achievement tracking** - See your voting scores and community engagement
+- **Social sharing** - Share your fish and tanks on social media
+
+### For Viewers  
+- **Discovery tools** - Find new artists and trending fish
+- **Voting system** - Help surface the best community content
+- **Collections** - Save favorites to personal fish tanks
+- **Commenting** - Engage with the community (coming soon)
+
+## 🔧 Technical Details
 
 ## Project Structure
 

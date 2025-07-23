@@ -1,9 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fish!</title>
+    <title>DrawAFish.com</title>
+    <meta name="description" content="Draw and create your own fish. Watch them swim in the community tank. Rank them, add them to your own tank. Have some fun with it.">
+    <meta name="keywords" content="draw fish, fish drawing game, online drawing, fish art, digital drawing, creative game, fish tank, community art">
+    <meta name="author" content="fifteen.games">
+    
+    <!-- Open Graph tags for social media -->
+    <meta property="og:title" content="Draw a Fish Dot Com">
+    <meta property="og:description" content="Draw and create your own fish. Share your fish creations, vote on others, and watch them swim.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://drawafish.com">
+    <meta property="og:image" content="https://drawafish.com/public/favicon.ico">
+    <meta property="og:site_name" content="DrawAFish.com">
+    
+    <!-- Twitter Card tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:creator" content="@MCBananaPeelz">
+    <meta name="twitter:title" content="Draw a Fish - Interactive Fish Drawing Game">
+    <meta name="twitter:description" content="Draw and create your own fish. Share your fish creations, vote on others, and watch them swim.">
+    <meta name="twitter:image" content="https://drawafish.com/public/favicon.ico">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://drawafish.com">
+    
     <link rel="stylesheet" href="src/css/style.css">
     <link rel="icon" href="public/favicon.ico">
     
@@ -16,22 +38,70 @@
 
       gtag('config', 'G-GS1GYSFBPX');
     </script>
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "DrawAFish.com",
+      "description": "Interactive fish drawing game where users can draw fish, vote on community creations, and watch them swim in virtual tanks",
+      "url": "https://drawafish.com",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "fifteen.games",
+        "url": "https://fifteen.games"
+      },
+      "keywords": "fish drawing, online game, digital art, community creation, interactive drawing",
+      "screenshot": "https://drawafish.com/public/favicon.ico",
+      "featureList": [
+        "Draw custom fish artwork",
+        "Community voting system", 
+        "Animated fish tank display",
+        "User profiles and statistics",
+        "Custom fish tank collections"
+      ]
+    }
+    </script>
 </head>
 <body>
-  <div id="draw-ui">
-    <!-- The paint bar will be injected here by JS -->
-    <!-- Welcome back message for returning users -->
-    <div id="welcome-back-message" style="display: none; margin: 10px auto; padding: 8px 12px; background: #ffffcc; border: 1px solid #cccc99; border-radius: 4px; text-align: center; max-width: 400px; font-size: 12px; color: #666;">
+  <header>
+    <nav role="navigation" aria-label="Main navigation">
+      <a href="tank.html">tank</a>
+      <a href="rank.html">rank</a>
+      <a href="fishtanks.html" id="my-tanks-link">my tanks</a>
+    </nav>
+  </header>
+  
+  <main role="main">
+    <div id="draw-ui">
+      <!-- The paint bar will be injected here by JS -->
+      <!-- Welcome back message for returning users -->
+      <div id="welcome-back-message" style="display: none; margin: 10px auto; padding: 8px 12px; background: #ffffcc; border: 1px solid #cccc99; border-radius: 4px; text-align: center; max-width: 400px; font-size: 12px; color: #666;">
+      </div>
+      
+      <section id="drawing-section">
+        <h1>Draw a Fish!</h1>
+        <h2>(facing right please)</h2>
+        <canvas id="draw-canvas" width="400" height="240" aria-label="Fish drawing canvas"></canvas>
+        <br><br>
+        
+        <nav role="navigation" aria-label="Action buttons">
+          <a href="tank.html">tank</a>
+          <button id="swim-btn">make it swim!</button>
+          <a href="rank.html">rank</a>
+          <a href="fishtanks.html" id="my-tanks-link">my tanks</a>
+        </nav>
+      </section>
     </div>
-    <h1>Draw a Fish!</h1>
-    <h2>(facing right please)</h2>
-    <canvas id="draw-canvas" width="400" height="240"></canvas>
-    <br><br>
-    <a href="tank.html">tank</a>
-    <button id="swim-btn">make it swim!</button>
-    <a href="rank.html">rank</a>
-    <a href="fishtanks.html" id="my-tanks-link">my tanks</a>
-  </div>
+  </main>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>

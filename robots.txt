@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Allow crawling of main content
+Allow: /index.html
+Allow: /tank.html
+Allow: /rank.html
+Allow: /fishtanks.html
+Allow: /profile.html
+Allow: /login.html
+
+# Block moderation and admin pages
+Disallow: /moderation.html
+Disallow: /reset-password.html
+
+# Allow CSS and JS files
+Allow: /src/css/
+Allow: /src/js/
+Allow: /public/
+
+# Sitemap location
+Sitemap: https://drawafish.com/sitemap.xml
