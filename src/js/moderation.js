@@ -134,7 +134,7 @@ async function loadFish(loadMore = false) {
 
         // Use backend API for flagged filter
         if (currentFilter === 'flagged') {
-            const response = await fetch(`${API_BASE_URL}/moderate/flagged?limit=20&offset=${currentPage * 20}`, {
+            const response = await fetch(`${API_BASE_URL}/moderate/flagged?limit=50&offset=${currentPage * 50}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -166,7 +166,7 @@ async function loadFish(loadMore = false) {
         }
 
         document.getElementById('loadMore').style.display =
-            fishData && fishData.length === 20 ? 'block' : 'none';
+            fishData && fishData.length === 50 ? 'block' : 'none';
 
     } catch (error) {
         console.error('Error loading fish:', error);
@@ -219,7 +219,7 @@ async function loadFishFromFirebase(loadMore) {
         query = query.startAfter(lastDoc);
     }
 
-    const snapshot = await query.limit(20).get();
+    const snapshot = await query.limit(50).get();
     return snapshot.docs;
 }
 
