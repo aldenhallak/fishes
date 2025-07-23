@@ -822,7 +822,7 @@ function formatDate(dateValue) {
     });
 }
 
-// Download all images including deleted ones for training
+// Download only explicitly valid/invalid fish for training
 async function downloadAllImages() {
     const downloadBtn = document.getElementById('downloadBtn');
     const downloadStatus = document.getElementById('downloadStatus');
@@ -830,19 +830,29 @@ async function downloadAllImages() {
     // Disable button and show loading state
     downloadBtn.disabled = true;
     downloadBtn.textContent = 'Preparing Download...';
-    downloadStatus.textContent = 'Fetching all fish data...';
+    downloadStatus.textContent = 'Fetching valid and invalid fish data...';
 
     try {
-        // Fetch all fish from Firebase (including deleted ones)
-        const allFishSnapshot = await window.db.collection('fishes_test').get();
+        // Fetch only fish that have been explicitly marked as fish or not fish
+        const validFishSnapshot = await window.db.collection('fishes_test')
+            .where('isFish', '==', true)
+            .get();
+        
+        const invalidFishSnapshot = await window.db.collection('fishes_test')
+            .where('isFish', '==', false)
+            .get();
 
-        if (allFishSnapshot.empty) {
-            alert('No fish found to download.');
+        const validFish = validFishSnapshot.docs;
+        const invalidFish = invalidFishSnapshot.docs;
+        const allLabeledFish = [...validFish, ...invalidFish];
+
+        if (allLabeledFish.length === 0) {
+            alert('No explicitly labeled fish found to download.');
             return;
         }
 
-        const totalFish = allFishSnapshot.size;
-        downloadStatus.textContent = `Found ${totalFish} fish. Creating ZIP file...`;
+        const totalFish = allLabeledFish.length;
+        downloadStatus.textContent = `Found ${totalFish} labeled fish (${validFish.length} valid, ${invalidFish.length} invalid). Creating ZIP file...`;
 
         // Create a new ZIP file
         const zip = new JSZip();
@@ -851,8 +861,10 @@ async function downloadAllImages() {
         const metadata = {
             exportDate: new Date().toISOString(),
             totalFish: totalFish,
+            validFish: validFish.length,
+            invalidFish: invalidFish.length,
             exportedBy: 'Fish Moderation Panel',
-            description: 'All fish images including deleted ones for training purposes'
+            description: 'Only explicitly labeled fish (valid/invalid) for training purposes'
         };
 
         const fishData = [];
@@ -860,85 +872,106 @@ async function downloadAllImages() {
         let successCount = 0;
         let failedCount = 0;
 
-        // Process each fish
-        for (const doc of allFishSnapshot.docs) {
-            const fish = doc.data();
-            const fishId = doc.id;
+        // Process downloads in parallel batches for speed
+        const batchSize = 100; // Process 100 images at a time
+        const batches = [];
+        
+        for (let i = 0; i < allLabeledFish.length; i += batchSize) {
+            batches.push(allLabeledFish.slice(i, i + batchSize));
+        }
 
-            try {
-                // Update progress
+        for (const batch of batches) {
+            // Process batch in parallel
+            const batchPromises = batch.map(async (doc) => {
+                const fish = doc.data();
+                const fishId = doc.id;
+
+                try {
+                    // Only process if explicitly labeled
+                    if (fish.isFish !== true && fish.isFish !== false) {
+                        return { success: false, reason: 'Not explicitly labeled' };
+                    }
+
+                    // Get the image URL
+                    const imageUrl = fish.image || fish.Image;
+
+                    if (!imageUrl) {
+                        console.warn(`No image URL found for fish ${fishId}`);
+                        return { success: false, reason: 'No image URL' };
+                    }
+
+                    // Fetch the image
+                    const response = await fetch(imageUrl);
+                    if (!response.ok) {
+                        console.warn(`Failed to fetch image for fish ${fishId}: ${response.status}`);
+                        return { success: false, reason: `HTTP ${response.status}` };
+                    }
+
+                    const imageBlob = await response.blob();
+
+                    // Create filename with fish info - organize by validity
+                    const validity = fish.isFish === true ? 'fish' : 'not_fish';
+                    
+                    const createdAt = fish.CreatedAt ?
+                        (fish.CreatedAt.toDate ? fish.CreatedAt.toDate() : new Date(fish.CreatedAt)) :
+                        new Date();
+
+                    const dateStr = createdAt.toISOString().split('T')[0];
+
+                    // Determine file extension from blob type or URL
+                    let extension = 'png';
+                    if (imageBlob.type === 'image/jpeg') {
+                        extension = 'jpg';
+                    } else if (imageBlob.type === 'image/gif') {
+                        extension = 'gif';
+                    }
+
+                    const filename = `${validity}/${fishId}_${dateStr}.${extension}`;
+
+                    // Add image to ZIP
+                    zip.file(filename, imageBlob);
+
+                    // Add fish metadata
+                    const fishMetadata = {
+                        id: fishId,
+                        filename: filename,
+                        validity: validity,
+                        createdAt: createdAt.toISOString(),
+                        artist: fish.Artist || 'Anonymous',
+                        upvotes: fish.upvotes || 0,
+                        downvotes: fish.downvotes || 0,
+                        score: calculateScore(fish),
+                        reportCount: fish.reportCount || 0,
+                        flaggedForReview: fish.flaggedForReview || false,
+                        approved: fish.approved || false,
+                        deleted: fish.deleted || false,
+                        isFish: fish.isFish
+                    };
+
+                    return { success: true, metadata: fishMetadata };
+
+                } catch (error) {
+                    console.error(`Error processing fish ${fishId}:`, error);
+                    return { success: false, reason: error.message };
+                }
+            });
+
+            // Wait for batch to complete
+            const batchResults = await Promise.all(batchPromises);
+            
+            // Process results
+            batchResults.forEach(result => {
                 processedCount++;
-                downloadStatus.textContent = `Processing fish ${processedCount}/${totalFish}...`;
-
-                // Get the image URL
-                const imageUrl = fish.image || fish.Image;
-
-                if (!imageUrl) {
-                    console.warn(`No image URL found for fish ${fishId}`);
+                if (result.success) {
+                    successCount++;
+                    fishData.push(result.metadata);
+                } else {
                     failedCount++;
-                    continue;
                 }
+            });
 
-                // Fetch the image
-                const response = await fetch(imageUrl);
-                if (!response.ok) {
-                    console.warn(`Failed to fetch image for fish ${fishId}: ${response.status}`);
-                    failedCount++;
-                    continue;
-                }
-
-                const imageBlob = await response.blob();
-
-                // Create filename with fish info - organize by validity first
-                const validity = fish.isFish === true ? 'fish' : 
-                               fish.isFish === false ? 'not_fish' : 'unknown';
-                
-                const status = fish.deleted ? 'deleted' :
-                    fish.approved ? 'approved' :
-                        fish.flaggedForReview ? 'flagged' : 'pending';
-
-                const createdAt = fish.CreatedAt ?
-                    (fish.CreatedAt.toDate ? fish.CreatedAt.toDate() : new Date(fish.CreatedAt)) :
-                    new Date();
-
-                const dateStr = createdAt.toISOString().split('T')[0];
-
-                // Determine file extension from blob type or URL
-                let extension = 'png';
-                if (imageBlob.type === 'image/jpeg') {
-                    extension = 'jpg';
-                } else if (imageBlob.type === 'image/gif') {
-                    extension = 'gif';
-                }
-
-                const filename = `${validity}/${fishId}_${dateStr}_${status}.${extension}`;
-
-                // Add image to ZIP
-                zip.file(filename, imageBlob);
-
-                // Add fish metadata
-                fishData.push({
-                    id: fishId,
-                    filename: filename,
-                    status: status,
-                    createdAt: createdAt.toISOString(),
-                    artist: fish.Artist || 'Anonymous',
-                    upvotes: fish.upvotes || 0,
-                    downvotes: fish.downvotes || 0,
-                    score: calculateScore(fish),
-                    reportCount: fish.reportCount || 0,
-                    flaggedForReview: fish.flaggedForReview || false,
-                    approved: fish.approved || false,
-                    deleted: fish.deleted || false,
-                    isFish: fish.isFish
-                });
-
-                successCount++;
-
-            } catch (error) {
-                console.error(`Error processing fish ${fishId}:`, error);
-                failedCount++;
-            }
+            // Update progress
+            downloadStatus.textContent = `Processing: ${processedCount}/${totalFish} (${successCount} successful, ${failedCount} failed)`;
         }
 
         // Add metadata files to ZIP
@@ -952,9 +985,9 @@ async function downloadAllImages() {
         zip.file('metadata.json', JSON.stringify(metadata, null, 2));
 
         // Create a CSV file for easy analysis
-        const csvHeaders = 'ID,Filename,Validity,Status,Created,Artist,Upvotes,Downvotes,Score,ReportCount,Flagged,Approved,Deleted,IsFish\n';
+        const csvHeaders = 'ID,Filename,Validity,Created,Artist,Upvotes,Downvotes,Score,ReportCount,Flagged,Approved,Deleted,IsFish\n';
         const csvData = fishData.map(fish =>
-            `${fish.id},${fish.filename},${fish.validity},${fish.status},${fish.createdAt},${fish.artist},${fish.upvotes},${fish.downvotes},${fish.score},${fish.reportCount},${fish.flaggedForReview},${fish.approved},${fish.deleted},${fish.isFish}`
+            `${fish.id},${fish.filename},${fish.validity},${fish.createdAt},${fish.artist},${fish.upvotes},${fish.downvotes},${fish.score},${fish.reportCount},${fish.flaggedForReview},${fish.approved},${fish.deleted},${fish.isFish}`
         ).join('\n');
 
         zip.file('fish_data.csv', csvHeaders + csvData);
@@ -974,7 +1007,7 @@ async function downloadAllImages() {
         const url = window.URL.createObjectURL(content);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `fish_training_data_${new Date().toISOString().split('T')[0]}.zip`;
+        a.download = `fish_training_data_labeled_${new Date().toISOString().split('T')[0]}.zip`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -983,7 +1016,7 @@ async function downloadAllImages() {
         downloadStatus.textContent = `Download complete! ${successCount} images downloaded, ${failedCount} failed.`;
 
         // Show summary
-        alert(`Download complete!\n\nSuccessfully downloaded: ${successCount} images\nFailed: ${failedCount} images\nTotal processed: ${totalFish} fish\n\nThe ZIP file includes:\n- All fish images organized by validity (fish, not_fish, unknown)\n- metadata.json with detailed information\n- fish_data.csv for easy analysis`);
+        alert(`Download complete!\n\nSuccessfully downloaded: ${successCount} images\nFailed: ${failedCount} images\nTotal labeled fish: ${totalFish} (${validFish.length} valid, ${invalidFish.length} invalid)\n\nThe ZIP file includes:\n- Fish images organized by validity (fish, not_fish)\n- metadata.json with detailed information\n- fish_data.csv for easy analysis`);
 
     } catch (error) {
         console.error('Error downloading images:', error);
@@ -992,7 +1025,7 @@ async function downloadAllImages() {
     } finally {
         // Re-enable button
         downloadBtn.disabled = false;
-        downloadBtn.textContent = '📥 Download All Images (Including Deleted)';
+        downloadBtn.textContent = '📥 Download Labeled Fish Only';
     }
 }
 
