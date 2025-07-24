@@ -514,7 +514,7 @@ async function verifyFishDoodle(canvas) {
         }
     }
     probDiv.textContent = `Fish probability: ${(fishProbability * 100).toFixed(1)}%`;
-    probDiv.style.color = fishProbability >= 0.5 ? '#218838' : '#c0392b';
+    probDiv.style.color = isFish ? '#218838' : '#c0392b';
     return isFish;
 }
 
