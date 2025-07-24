@@ -489,7 +489,7 @@ async function verifyFishDoodle(canvas) {
     // Since the model was trained with inverted labels (fish=0, not_fish=1)
     // A low probability means it's more likely to be a fish
     const fishProbability = 1 - prob;
-    const isFish = fishProbability >= 0.5;  // Threshold for fish classification
+    const isFish = fishProbability >= 0.6;  // Threshold for fish classification
         
     // Update UI with fish probability
     let probDiv = document.getElementById('fish-probability');
