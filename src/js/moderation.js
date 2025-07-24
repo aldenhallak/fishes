@@ -283,8 +283,8 @@ function createFishCard(fishId, fish) {
             <strong>Created:</strong> ${createdAt}<br>
             <strong>Score:</strong> ${score} (👍${upvotes} 👎${downvotes})<br>
             <strong>Artist:</strong> ${hasUserInfo ? 
-                `<a href="profile.html?userId=${encodeURIComponent(fish.userId)}" target="_blank" style="color: #0288d1; text-decoration: underline;">${fish.Artist}</a>` : 
-                (fish.Artist || 'Anonymous')}<br>
+                `<a href="profile.html?userId=${encodeURIComponent(fish.userId)}" target="_blank" style="color: #0288d1; text-decoration: underline;">${escapeHtml(fish.Artist)}</a>` : 
+                escapeHtml(fish.Artist || 'Anonymous')}<br>
             <strong>Status:</strong> ${getStatusText(fish)}<br>
             <strong>Validity:</strong> ${fish.isFish === true ? '🐟 Valid Fish' : fish.isFish === false ? '🚫 Not Fish' : '❓ Unknown'}<br>
             ${reportCount > 0 ? `<strong>Reports:</strong> ${reportCount}` : ''}
@@ -327,10 +327,10 @@ function createFishCard(fishId, fish) {
         ${hasUserInfo ? `
             <div class="user-actions" style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
                 <strong style="color: #dc3545;">User Management:</strong><br>
-                <button class="action-btn ban-btn" onclick="banUser('${fish.userId}', '${fish.Artist}', this)" style="background: #dc3545; color: white; margin-top: 5px;">
+                <button class="action-btn ban-btn" onclick="banUser('${encodeURIComponent(fish.userId)}', '${encodeURIComponent(fish.Artist)}', this)" style="background: #dc3545; color: white; margin-top: 5px;">
                     🚫 Ban User
                 </button>
-                <button class="action-btn unban-btn" onclick="unbanUser('${fish.userId}', '${fish.Artist}', this)" style="background: #28a745; color: white; margin-top: 5px; margin-left: 5px;">
+                <button class="action-btn unban-btn" onclick="unbanUser('${encodeURIComponent(fish.userId)}', '${encodeURIComponent(fish.Artist)}', this)" style="background: #28a745; color: white; margin-top: 5px; margin-left: 5px;">
                     ✅ Unban User
                 </button>
             </div>

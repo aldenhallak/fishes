@@ -232,7 +232,7 @@ async function updateUIForViewingOtherUser(userId) {
                 const backLink = document.createElement('p');
                 backLink.style.textAlign = 'center';
                 backLink.style.marginTop = '10px';
-                backLink.innerHTML = `<a href="profile.html?userId=${encodeURIComponent(userId)}" style="color: #007bff; text-decoration: none;">&larr; Back to ${displayName}'s Profile</a>`;
+                backLink.innerHTML = `<a href="profile.html?userId=${encodeURIComponent(userId)}" style="color: #007bff; text-decoration: none;">&larr; Back to ${escapeHtml(displayName)}'s Profile</a>`;
                 headerContainer.appendChild(backLink);
             }
         }

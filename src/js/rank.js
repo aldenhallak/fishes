@@ -13,8 +13,6 @@ let currentUserId = null; // Track user filter for showing specific user's fish
 // Cache for image validation results to avoid testing the same image multiple times
 const imageValidationCache = new Map(); // url -> {isValid: boolean, timestamp: number}
 
-// Random fish selection and getFishBySort are now in fish-utils.js
-
 // Test if an image URL is valid and loads successfully
 function testImageUrl(imgUrl) {
     // Check cache first (valid for 5 minutes)
@@ -228,7 +226,7 @@ function createFishCard(fish) {
                 <div class="fish-artist">
                     <a href="profile.html?userId=${encodeURIComponent(fish.userId || 'Anonymous')}" 
                        style="color: inherit; text-decoration: none;">
-                        ${fish.Artist || 'Anonymous'}
+                        ${escapeHtml(fish.Artist || 'Anonymous')}
                     </a>
                 </div>
                 <div class="fish-date">${formatDate(fish.CreatedAt)}</div>

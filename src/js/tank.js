@@ -962,9 +962,9 @@ function showFishInfoModal(fish) {
     const userId = fish.userId;
     
     if (userId) {
-        info += `<strong>Artist:</strong> <a href="profile.html?userId=${encodeURIComponent(userId)}" target="_blank" style="color: #0000EE; text-decoration: underline;">${artistName}</a><br>`;
+        info += `<strong>Artist:</strong> <a href="profile.html?userId=${encodeURIComponent(userId)}" target="_blank" style="color: #0000EE; text-decoration: underline;">${escapeHtml(artistName)}</a><br>`;
     } else {
-        info += `<strong>Artist:</strong> ${artistName}<br>`;
+        info += `<strong>Artist:</strong> ${escapeHtml(artistName)}<br>`;
     }
     
     if (fish.createdAt) {

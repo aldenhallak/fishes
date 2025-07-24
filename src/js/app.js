@@ -173,7 +173,7 @@ swimBtn.addEventListener('click', async () => {
         showModal(`<div style='text-align:center;'>
             <div style='color:#ff6b35;font-weight:bold;margin-bottom:12px;'>Low Fish Score</div>
             <div style='margin-bottom:16px;line-height:1.4;'>i dont think this is a fish but you can submit it anyway and ill review it</div>
-            <div style='margin-bottom:16px;'>Sign your art:<br><input id='artist-name' value='${defaultName}' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'></div>
+            <div style='margin-bottom:16px;'>Sign your art:<br><input id='artist-name' value='${escapeHtml(defaultName)}' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'></div>
             <button id='submit-fish' >Submit for Review</button>
             <button id='cancel-fish' >Cancel</button>
         </div>`, () => { });
@@ -181,7 +181,7 @@ swimBtn.addEventListener('click', async () => {
         // Show normal submission modal for good fish
         showModal(`<div style='text-align:center;'>
             <div style='color:#27ae60;font-weight:bold;margin-bottom:12px;'>Great Fish!</div>
-            <div style='margin-bottom:16px;'>Sign your art:<br><input id='artist-name' value='${defaultName}' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'></div>
+            <div style='margin-bottom:16px;'>Sign your art:<br><input id='artist-name' value='${escapeHtml(defaultName)}' style='margin:10px 0 16px 0;padding:6px;width:80%;max-width:180px;'></div>
             <button id='submit-fish' style='padding:6px 18px;background:#27ae60;color:white;border:none;border-radius:4px;'>Submit</button>
             <button id='cancel-fish' style='padding:6px 18px;margin-left:10px;background:#ccc;border:none;border-radius:4px;'>Cancel</button>
         </div>`, () => { });
@@ -578,7 +578,7 @@ function showWelcomeBackMessage() {
     // Only show for users who have interacted before but haven't created an account
     if (userId && artistName && artistName !== 'Anonymous' && !userToken) {
         welcomeElement.innerHTML = `
-            Welcome back, <strong>${artistName}</strong>! 
+            Welcome back, <strong>${escapeHtml(artistName)}</strong>! 
             <a href="login.html" style="color: #0066cc; text-decoration: underline;">Create an account</a> 
             to build custom tanks and share with friends.
         `;
@@ -588,7 +588,7 @@ function showWelcomeBackMessage() {
         try {
             const user = JSON.parse(userData);
             const displayName = user.displayName || 'Artist';
-            welcomeElement.innerHTML = `Welcome back, <strong>${displayName}</strong>! 🎨`;
+            welcomeElement.innerHTML = `Welcome back, <strong>${escapeHtml(displayName)}</strong>! 🎨`;
             welcomeElement.style.background = '#e8f5e8';
             welcomeElement.style.borderColor = '#b3d9b3';
             welcomeElement.style.display = 'block';
