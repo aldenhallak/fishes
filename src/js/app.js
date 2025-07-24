@@ -500,7 +500,7 @@ async function verifyFishDoodle(canvas) {
         probDiv.style.margin = '10px 0 0 0';
         probDiv.style.fontWeight = 'bold';
         probDiv.style.fontSize = '1.1em';
-        probDiv.style.color = fishProbability >= 0.5 ? '#218838' : '#c0392b';
+        probDiv.style.color = isFish ? '#218838' : '#c0392b';
         const drawCanvas = document.getElementById('draw-canvas');
         if (drawCanvas && drawCanvas.parentNode) {
             if (drawCanvas.nextSibling) {
