@@ -1,6 +1,19 @@
 // Shared utilities for fish functionality across tank.js and rank.js
 // This file contains common functions to avoid code duplication
 
+// HTML escaping function to prevent XSS attacks
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') {
+        return String(unsafe || '');
+    }
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 // Configuration for backend URL - automatically detects environment with URL override support
 const isLocalhost = window.location.hostname === 'localhost' || 
                    window.location.hostname === '127.0.0.1' ||

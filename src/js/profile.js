@@ -333,7 +333,7 @@ function enterEditMode() {
 
     // Replace name display with input field
     profileName.innerHTML = `
-        <input type="text" id="edit-name-input" value="${currentName}" class="edit-name-input" maxlength="50" placeholder="Enter your display name">
+        <input type="text" id="edit-name-input" value="${escapeHtml(currentName)}" class="edit-name-input" maxlength="50" placeholder="Enter your display name">
         <div class="edit-buttons">
             <button onclick="saveProfile()" class="save-btn">Save</button>
             <button onclick="cancelEdit()" class="cancel-btn">Cancel</button>
