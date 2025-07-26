@@ -385,14 +385,14 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
             const x = Math.floor(Math.random() * maxX);
             const y = Math.floor(Math.random() * maxY);
             const direction = Math.random() < 0.5 ? -1 : 1;
-            const speed = fishData.speed || 2;
+            const speed = fishData.speed || Math.random() * 2 + 1;
             const fishObj = createFishObject({
                 fishCanvas: displayCanvas,
                 x,
                 y,
                 direction: direction,
-                phase: fishData.phase || 0,
-                amplitude: fishData.amplitude || 32,
+                phase: fishData.phase || Math.random() * 2 - 1,
+                amplitude: fishData.amplitude || Math.random() * 16 + 16,
                 speed: speed,
                 vx: speed * direction * 0.1, // Initialize with base velocity
                 vy: (Math.random() - 0.5) * 0.5, // Small random vertical velocity
