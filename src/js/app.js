@@ -50,6 +50,14 @@ canvas.addEventListener('touchcancel', () => {
     drawing = false;
 });
 
+// Ctrl + Z to undo
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        undo();
+    }
+});
+
 // Swim logic (submission only)
 const swimBtn = document.getElementById('swim-btn');
 
@@ -231,27 +239,44 @@ function createPaintOptions() {
         btn.style.cursor = 'pointer';
         btn.title = color;
         btn.onclick = () => {
+            ctx.globalCompositeOperation = 'source-over';
             currentColor = color;
+            ctx.strokeStyle = color;
         };
-        paintBar.appendChild(btn);
+        paintBar.appendChild(btn); 
     });
+
+    // Eraser
+    const eraserBtn = document.createElement('button');
+    eraserBtn.textContent = 'Eraser';
+    eraserBtn.style.marginLeft = '16px';
+    eraserBtn.style.padding = '0 12px';
+    eraserBtn.style.height = '28px';
+    eraserBtn.style.borderRadius = '6px';
+    eraserBtn.style.cursor = 'pointer';
+    eraserBtn.onclick = () => {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = currentLineWidth;
+    };
+    paintBar.appendChild(eraserBtn);
+
     // Line width
     const widthLabel = document.createElement('span');
-    widthLabel.textContent = 'Line:';
+    widthLabel.textContent = 'Line width:';
     widthLabel.style.marginLeft = '12px';
     paintBar.appendChild(widthLabel);
-    [4, 6, 10, 16].forEach(w => {
-        const btn = document.createElement('button');
-        btn.textContent = w;
-        btn.style.width = '28px';
-        btn.style.height = '28px';
-        btn.style.border = '1px solid #000';
-        btn.style.cursor = 'pointer';
-        btn.onclick = () => {
-            currentLineWidth = w;
-        };
-        paintBar.appendChild(btn);
-    });
+    const widthSlider = document.createElement('input');
+    widthSlider.type = 'range';
+    widthSlider.min = 1;
+    widthSlider.max = 20;
+    widthSlider.value = currentLineWidth;
+    widthSlider.style.width = '100px';
+    widthSlider.style.marginLeft = '12px';
+    widthSlider.oninput = () => {
+        currentLineWidth = widthSlider.value;
+    };
+    paintBar.appendChild(widthSlider);
 }
 createPaintOptions();
 
@@ -273,6 +298,11 @@ function undo() {
     checkFishAfterStroke();
 }
 
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    checkFishAfterStroke();
+}
+
 function createUndoButton() {
     let paintBar = document.getElementById('paint-bar');
     if (paintBar) {
@@ -288,12 +318,30 @@ function createUndoButton() {
     }
 }
 
+function createClearButton() {
+    let paintBar = document.getElementById('paint-bar');
+    if (paintBar) {
+        const clearBtn = document.createElement('button');
+        clearBtn.textContent = 'Clear';
+        clearBtn.style.marginLeft = '16px';
+        clearBtn.style.padding = '0 12px';
+        clearBtn.style.height = '28px';
+        clearBtn.style.borderRadius = '6px';
+        clearBtn.style.cursor = 'pointer';
+        clearBtn.onclick = clearCanvas;
+        paintBar.appendChild(clearBtn);
+    }
+}
+
 // Push to undo stack before every new stroke
 canvas.addEventListener('mousedown', pushUndo);
 canvas.addEventListener('touchstart', pushUndo);
 
 // Add undo button to paint bar
 createUndoButton();
+
+// Add clear button to paint bar
+createClearButton();
 
 // Update drawing color and line width
 canvas.addEventListener('mousedown', () => {
