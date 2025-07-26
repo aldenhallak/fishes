@@ -255,21 +255,20 @@ function createPaintOptions() {
 
     // Line width
     const widthLabel = document.createElement('span');
-    widthLabel.textContent = 'Line:';
+    widthLabel.textContent = 'Line width:';
     widthLabel.style.marginLeft = '12px';
     paintBar.appendChild(widthLabel);
-    [4, 6, 10, 16].forEach(w => {
-        const btn = document.createElement('button');
-        btn.textContent = w;
-        btn.style.width = '28px';
-        btn.style.height = '28px';
-        btn.style.border = '1px solid #000';
-        btn.style.cursor = 'pointer';
-        btn.onclick = () => {
-            currentLineWidth = w;
-        };
-        paintBar.appendChild(btn);
-    });
+    const widthSlider = document.createElement('input');
+    widthSlider.type = 'range';
+    widthSlider.min = 1;
+    widthSlider.max = 20;
+    widthSlider.value = currentLineWidth;
+    widthSlider.style.width = '100px';
+    widthSlider.style.marginLeft = '12px';
+    widthSlider.oninput = () => {
+        currentLineWidth = widthSlider.value;
+    };
+    paintBar.appendChild(widthSlider);
 }
 createPaintOptions();
 
