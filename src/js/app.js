@@ -231,10 +231,28 @@ function createPaintOptions() {
         btn.style.cursor = 'pointer';
         btn.title = color;
         btn.onclick = () => {
+            ctx.globalCompositeOperation = 'source-over';
             currentColor = color;
+            ctx.strokeStyle = color;
         };
-        paintBar.appendChild(btn);
+        paintBar.appendChild(btn); 
     });
+
+    // Eraser
+    const eraserBtn = document.createElement('button');
+    eraserBtn.textContent = 'Eraser';
+    eraserBtn.style.marginLeft = '16px';
+    eraserBtn.style.padding = '0 12px';
+    eraserBtn.style.height = '28px';
+    eraserBtn.style.borderRadius = '6px';
+    eraserBtn.style.cursor = 'pointer';
+    eraserBtn.onclick = () => {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = currentLineWidth;
+    };
+    paintBar.appendChild(eraserBtn);
+
     // Line width
     const widthLabel = document.createElement('span');
     widthLabel.textContent = 'Line:';
