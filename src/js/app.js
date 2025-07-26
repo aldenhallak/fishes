@@ -50,6 +50,14 @@ canvas.addEventListener('touchcancel', () => {
     drawing = false;
 });
 
+// Ctrl + Z to undo
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        undo();
+    }
+});
+
 // Swim logic (submission only)
 const swimBtn = document.getElementById('swim-btn');
 
