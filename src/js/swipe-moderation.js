@@ -7,6 +7,9 @@ let startX = 0;
 let startY = 0;
 let currentX = 0;
 let currentY = 0;
+let isLoadingMore = false;
+let lastDoc = null;
+let hasMoreFish = true;
 
 // Use the same backend URL from fish-utils.js
 const API_BASE_URL = `${BACKEND_URL}/api`;
@@ -38,12 +41,20 @@ window.onload = async function () {
 };
 
 // Load flagged fish from backend
-async function loadFlaggedFish() {
-    document.getElementById('loading').style.display = 'block';
+async function loadFlaggedFish(loadMore = false) {
+    if (!loadMore) {
+        document.getElementById('loading').style.display = 'block';
+        flaggedFish = [];
+        currentIndex = 0;
+        lastDoc = null;
+        hasMoreFish = true;
+        stats = { remaining: 0, approved: 0, rejected: 0, skipped: 0 };
+    }
     
     try {
         const token = localStorage.getItem('userToken');
-        const response = await fetch(`${API_BASE_URL}/moderate/flagged?limit=100&sort=oldest`, {
+        // Remove the limit=100 constraint for infinite loading
+        const response = await fetch(`${API_BASE_URL}/moderate/flagged?limit=200&sort=oldest`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -52,58 +63,96 @@ async function loadFlaggedFish() {
 
         if (response.ok) {
             const data = await response.json();
-            flaggedFish = data.items;
-            stats.remaining = flaggedFish.length;
+            const newFish = data.items;
+            
+            if (loadMore) {
+                flaggedFish = [...flaggedFish, ...newFish];
+            } else {
+                flaggedFish = newFish;
+            }
+            
+            // Check if we got fewer fish than requested (might be end of data)
+            if (newFish.length < 200) {
+                hasMoreFish = false;
+            }
+            
+            stats.remaining = flaggedFish.length - currentIndex;
             updateStats();
             
             if (flaggedFish.length === 0) {
                 showNoMoreFish();
-            } else {
-                // Initialize progress text
+            } else if (!loadMore) {
+                // Initialize progress text only on initial load
                 document.getElementById('progressText').textContent = 
-                    `0 of ${flaggedFish.length} moderated (0%)`;
+                    `0 of ${flaggedFish.length}+ moderated (0%)`;
             }
         } else {
             // Fallback to Firebase
-            await loadFlaggedFishFromFirebase();
+            await loadFlaggedFishFromFirebase(loadMore);
         }
     } catch (error) {
         console.error('Error loading flagged fish:', error);
         // Fallback to Firebase
-        await loadFlaggedFishFromFirebase();
+        await loadFlaggedFishFromFirebase(loadMore);
     } finally {
-        document.getElementById('loading').style.display = 'none';
+        if (!loadMore) {
+            document.getElementById('loading').style.display = 'none';
+        }
     }
 }
 
 // Fallback Firebase loading
-async function loadFlaggedFishFromFirebase() {
+async function loadFlaggedFishFromFirebase(loadMore = false) {
     try {
-        const query = window.db.collection('fishes_test')
+        let query = window.db.collection('fishes_test')
             .where('flaggedForReview', '==', true)
             .where('deleted', '==', false)
-            .orderBy('CreatedAt', 'asc') // Oldest first
-            .limit(100);
+            .orderBy('CreatedAt', 'asc'); // Oldest first
+        
+        // Add pagination for infinite loading
+        if (loadMore && lastDoc) {
+            query = query.startAfter(lastDoc);
+        }
+        
+        query = query.limit(200); // Increased batch size
 
         const snapshot = await query.get();
-        flaggedFish = snapshot.docs.map(doc => ({
+        const newFish = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         }));
         
-        stats.remaining = flaggedFish.length;
+        // Update lastDoc for pagination
+        if (snapshot.docs.length > 0) {
+            lastDoc = snapshot.docs[snapshot.docs.length - 1];
+        }
+        
+        // Check if we got fewer fish than requested (might be end of data)
+        if (snapshot.docs.length < 200) {
+            hasMoreFish = false;
+        }
+        
+        if (loadMore) {
+            flaggedFish = [...flaggedFish, ...newFish];
+        } else {
+            flaggedFish = newFish;
+        }
+        
+        stats.remaining = flaggedFish.length - currentIndex;
         updateStats();
         
         if (flaggedFish.length === 0) {
             showNoMoreFish();
-        } else {
-            // Initialize progress text
+        } else if (!loadMore) {
+            // Initialize progress text only on initial load
             document.getElementById('progressText').textContent = 
-                `0 of ${flaggedFish.length} moderated (0%)`;
+                `0 of ${flaggedFish.length}+ moderated (0%)`;
         }
     } catch (error) {
         console.error('Error loading flagged fish from Firebase:', error);
-        alert('Error loading fish. Please try again.');
+        if (!loadMore) {
+            alert('Error loading fish. Please try again.');
+        }
     }
 }
 
@@ -112,8 +161,19 @@ function showCurrentFish() {
     const deck = document.getElementById('swipeDeck');
     
     if (currentIndex >= flaggedFish.length) {
+        // Check if we can load more fish
+        if (hasMoreFish && !isLoadingMore) {
+            loadMoreFishIfNeeded();
+            return;
+        }
         showNoMoreFish();
         return;
+    }
+
+    // Check if we're running low on fish and need to load more
+    const remainingFish = flaggedFish.length - currentIndex;
+    if (remainingFish <= 10 && hasMoreFish && !isLoadingMore) {
+        loadMoreFishIfNeeded();
     }
 
     // Clear the deck completely to avoid showing old cards
@@ -142,6 +202,49 @@ function showCurrentFish() {
                 'translateX(-50%)' : 
                 `translateX(-50%) translateY(${i * 8}px) scale(${1 - i * 0.05})`;
         }, i * 10 + 10); // Much faster stagger
+    }
+}
+
+// Load more fish when running low
+async function loadMoreFishIfNeeded() {
+    if (isLoadingMore || !hasMoreFish) return;
+    
+    isLoadingMore = true;
+    console.log('Loading more fish...');
+    
+    // Show subtle loading indicator
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.id = 'loading-more-indicator';
+    loadingIndicator.textContent = '🐟 Loading more fish...';
+    loadingIndicator.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #007bff;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        z-index: 1000;
+        opacity: 0.8;
+        animation: pulse 1.5s infinite;
+    `;
+    document.body.appendChild(loadingIndicator);
+    
+    try {
+        await loadFlaggedFish(true);
+    } catch (error) {
+        console.error('Error loading more fish:', error);
+    } finally {
+        isLoadingMore = false;
+        // Remove loading indicator
+        if (document.getElementById('loading-more-indicator')) {
+            document.body.removeChild(loadingIndicator);
+        }
+        // Update the display if we successfully loaded more
+        if (currentIndex < flaggedFish.length) {
+            showCurrentFish();
+        }
     }
 }
 
@@ -462,39 +565,21 @@ async function performSwipeAction(action, card) {
         else if (action === 'mark-valid') stats.approved++;
         else if (action === 'mark-invalid') stats.rejected++;
         updateStats();
+        
+        // Move to next fish immediately for better responsiveness
+        currentIndex++;
+        
+        // Show the new fish stack with minimal delay
+        setTimeout(() => {
+            showCurrentFish();
+        }, 50);
     }
+    
     // Show success message
     showActionFeedback(action);
     
-    // Perform backend action
-    try {
-        await processSwipeAction(action, fishId);
-    } catch (error) {
-        console.error(`Error processing ${action} action:`, error);
-        // Revert stats on error (only for actions that remove the card)
-        if (['approve', 'approve-only', 'reject', 'reject-only', 'skip', 'mark-valid', 'mark-invalid'].includes(action)) {
-            stats.remaining++;
-            if (action === 'approve' || action === 'approve-only') stats.approved--;
-            else if (action === 'reject' || action === 'reject-only') stats.rejected--;
-            else if (action === 'skip') stats.skipped--;
-            else if (action === 'mark-valid') stats.approved--;
-            else if (action === 'mark-invalid') stats.rejected--;
-            updateStats();
-        }
-        showActionFeedback('error', `Failed to ${action.replace('-', ' ')} fish`);
-        return;
-    }
-    
-    // Move to next fish immediately but with proper animation (only for actions that remove the card)
-    if (['approve', 'approve-only', 'reject', 'reject-only', 'skip', 'mark-valid', 'mark-invalid'].includes(action)) {
-        // Immediately update the index and start showing the new stack
-        currentIndex++;
-        
-        // Show the new fish stack with a minimal delay
-        setTimeout(() => {
-            showCurrentFish();
-        }, 50); // Reduced from 200ms to 50ms for much faster response
-    }
+    // Process backend action asynchronously in the background
+    processSwipeActionAsync(action, fishId);
 }
 
 // Show action feedback
@@ -557,6 +642,18 @@ function showActionFeedback(action, customMessage = null) {
         feedback.style.transform = 'translateX(-50%) translateY(-10px)';
         setTimeout(() => document.body.removeChild(feedback), 100);
     }, 800);
+}
+
+// Process backend action asynchronously without blocking UI
+async function processSwipeActionAsync(action, fishId) {
+    try {
+        await processSwipeAction(action, fishId);
+    } catch (error) {
+        console.error(`Error processing ${action} action:`, error);
+        // Show a subtle error notification without reverting the UI
+        // (fish has already moved on)
+        showActionFeedback('error', `Background error: ${action.replace('-', ' ')} failed`);
+    }
 }
 
 // Refresh fish image after flip
@@ -818,21 +915,37 @@ function updateStats() {
     document.getElementById('rejectedCount').textContent = stats.rejected;
     document.getElementById('skippedCount').textContent = stats.skipped;
     
-    // Update progress bar
+    // Update progress bar - handle infinite loading gracefully
     const totalProcessed = stats.approved + stats.rejected + stats.skipped;
-    const totalFish = totalProcessed + stats.remaining;
-    const progressPercent = totalFish > 0 ? (totalProcessed / totalFish) * 100 : 0;
+    const totalLoaded = flaggedFish.length;
     
-    document.getElementById('progressFill').style.width = `${progressPercent}%`;
-    document.getElementById('progressText').textContent = 
-        `${totalProcessed} of ${totalFish} moderated (${Math.round(progressPercent)}%)`;
+    if (hasMoreFish) {
+        // Show progress based on loaded fish with indication of more available
+        const progressPercent = totalLoaded > 0 ? (totalProcessed / totalLoaded) * 100 : 0;
+        document.getElementById('progressFill').style.width = `${progressPercent}%`;
+        document.getElementById('progressText').textContent = 
+            `${totalProcessed} of ${totalLoaded}+ moderated (${Math.round(progressPercent)}% of loaded)`;
+    } else {
+        // Show final progress when all fish are loaded
+        const totalFish = totalProcessed + stats.remaining;
+        const progressPercent = totalFish > 0 ? (totalProcessed / totalFish) * 100 : 0;
+        document.getElementById('progressFill').style.width = `${progressPercent}%`;
+        document.getElementById('progressText').textContent = 
+            `${totalProcessed} of ${totalFish} moderated (${Math.round(progressPercent)}%)`;
+    }
 }
 
 // Show no more fish message
 function showNoMoreFish() {
-    document.getElementById('swipeDeck').style.display = 'none';
-    document.querySelector('.action-buttons').style.display = 'none';
-    document.getElementById('noMoreFish').style.display = 'block';
+    // Only show "no more fish" if we've truly reached the end
+    if (!hasMoreFish) {
+        document.getElementById('swipeDeck').style.display = 'none';
+        document.querySelector('.action-buttons').style.display = 'none';
+        document.getElementById('noMoreFish').style.display = 'block';
+    } else {
+        // Try to load more fish one more time
+        loadMoreFishIfNeeded();
+    }
 }
 
 // Setup global event listeners
