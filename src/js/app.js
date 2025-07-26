@@ -273,6 +273,11 @@ function undo() {
     checkFishAfterStroke();
 }
 
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    checkFishAfterStroke();
+}
+
 function createUndoButton() {
     let paintBar = document.getElementById('paint-bar');
     if (paintBar) {
@@ -288,12 +293,30 @@ function createUndoButton() {
     }
 }
 
+function createClearButton() {
+    let paintBar = document.getElementById('paint-bar');
+    if (paintBar) {
+        const clearBtn = document.createElement('button');
+        clearBtn.textContent = 'Clear';
+        clearBtn.style.marginLeft = '16px';
+        clearBtn.style.padding = '0 12px';
+        clearBtn.style.height = '28px';
+        clearBtn.style.borderRadius = '6px';
+        clearBtn.style.cursor = 'pointer';
+        clearBtn.onclick = clearCanvas;
+        paintBar.appendChild(clearBtn);
+    }
+}
+
 // Push to undo stack before every new stroke
 canvas.addEventListener('mousedown', pushUndo);
 canvas.addEventListener('touchstart', pushUndo);
 
 // Add undo button to paint bar
 createUndoButton();
+
+// Add clear button to paint bar
+createClearButton();
 
 // Update drawing color and line width
 canvas.addEventListener('mousedown', () => {
