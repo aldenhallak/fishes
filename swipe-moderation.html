@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swipe Fish Moderation</title>
+    <link rel="stylesheet" href="src/css/style.css">
+    <link rel="stylesheet" href="src/css/swipe-moderation.css">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GS1GYSFBPX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-GS1GYSFBPX');
+    </script>
+</head>
+<body>
+    <div class="swipe-container">
+        <div class="swipe-header">
+            <h1>🐟 Swipe to Moderate</h1>
+            <div class="header-controls">
+                <button class="help-btn" onclick="showHelpModal()">❓ Help</button>
+                <button class="back-btn" onclick="window.location.href='moderation.html'">← Back to Full Moderation</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number" id="remainingCount">-</div>
+                <div>Remaining</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="approvedCount">0</div>
+                <div>Approved</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="rejectedCount">0</div>
+                <div>Rejected</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="skippedCount">0</div>
+                <div>Skipped</div>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Loading...</div>
+        </div>
+
+        <div class="instructions">
+            <div class="instruction-item">
+                <span class="swipe-left">⬅️ Swipe Left</span>
+                <span>Delete & Mark Invalid</span>
+            </div>
+            <div class="instruction-item">
+                <span class="swipe-right">➡️ Swipe Right</span>
+                <span>Approve & Mark Valid</span>
+            </div>
+            <div class="instruction-item">
+                <span class="swipe-up">⬆️ Swipe Up</span>
+                <span>Skip</span>
+            </div>
+            <div class="instruction-item">
+                <span class="swipe-down">⬇️ Swipe Down</span>
+                <span>Flip Image Horizontally</span>
+            </div>
+        </div>
+
+        <div class="swipe-deck-container">
+            <div id="swipeDeck" class="swipe-deck">
+                <!-- Fish cards will be dynamically loaded here -->
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn reject-btn" onclick="swipeAction('reject')" title="Delete Only (No Validity Marking)">
+                    🗑️ Delete
+                </button>
+                <button class="action-btn validity-btn invalid-btn" onclick="swipeAction('mark-invalid')" title="Mark as Invalid Fish">
+                    🚫 Invalid
+                </button>
+                <button class="action-btn rotate-btn" onclick="swipeAction('rotate')" title="Flip Image Horizontally">
+                    🔄 Flip
+                </button>
+                <button class="action-btn skip-btn" onclick="swipeAction('skip')" title="Skip">
+                    ⏭️ Skip
+                </button>
+                <button class="action-btn validity-btn valid-btn" onclick="swipeAction('mark-valid')" title="Mark as Valid Fish">
+                    🐟 Valid
+                </button>
+                <button class="action-btn approve-btn" onclick="swipeAction('approve')" title="Approve Only (No Validity Marking)">
+                    ✅ Approve
+                </button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            Loading flagged fish...
+        </div>
+
+        <div id="noMoreFish" class="no-more-fish" style="display: none;">
+            <div class="celebration">🎉</div>
+            <h2>All done!</h2>
+            <p>No more flagged fish to moderate.</p>
+            <button onclick="window.location.href='moderation.html'" class="action-btn">
+                Return to Moderation Panel
+            </button>
+        </div>
+
+        <div class="keyboard-shortcuts">
+            <strong>Keyboard Shortcuts:</strong>
+            <span>A = Approve</span>
+            <span>D = Delete</span>
+            <span>S = Skip</span>
+            <span>R = Rotate</span>
+            <span>V = Mark Valid</span>
+            <span>I = Mark Invalid</span>
+            <span>Space = Skip</span>
+        </div>
+
+        <!-- Help Modal -->
+        <div id="helpModal" class="help-modal" style="display: none;">
+            <div class="help-modal-content">
+                <div class="help-header">
+                    <h2>🐟 Swipe Moderation Guide</h2>
+                    <button class="close-btn" onclick="hideHelpModal()">✕</button>
+                </div>
+                <div class="help-body">
+                    <div class="help-section">
+                        <h3>🎯 Swipe Actions</h3>
+                        <div class="help-grid">
+                            <div class="help-item">
+                                <span class="help-swipe swipe-left">⬅️ Left</span>
+                                <span>Delete fish (removes from site)</span>
+                            </div>
+                            <div class="help-item">
+                                <span class="help-swipe swipe-right">➡️ Right</span>
+                                <span>Approve fish (allows on site)</span>
+                            </div>
+                            <div class="help-item">
+                                <span class="help-swipe swipe-up">⬆️ Up</span>
+                                <span>Skip (remove from flagged queue)</span>
+                            </div>
+                            <div class="help-item">
+                                <span class="help-swipe swipe-down">⬇️ Down</span>
+                                <span>Rotate image 90 degrees</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>🔧 Button Actions</h3>
+                        <div class="help-grid">
+                            <div class="help-item">
+                                <span class="help-btn reject-btn">🗑️ Delete</span>
+                                <span>Remove fish from site</span>
+                            </div>
+                            <div class="help-item">
+                                <span class="help-btn invalid-btn">🚫 Invalid</span>
+                                <span>Mark as "not a fish" for training</span>
+                            </div>
+                            <div class="help-item">
+                                <span class="help-btn rotate-btn">🔄 Rotate</span>
+                                <span>Rotate image orientation</span>
+                            </div>
+                            <div class="help-item">
+                                <span class="help-btn skip-btn">⏭️ Skip</span>
+                                <span>Skip this fish for now</span>
+                            </div>
+                            <div class="help-item">
+                                <span class="help-btn valid-btn">🐟 Valid</span>
+                                <span>Mark as "valid fish" for training</span>
+                            </div>
+                            <div class="help-item">
+                                <span class="help-btn approve-btn">✅ Approve</span>
+                                <span>Allow fish on the site</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h3>⌨️ Keyboard Shortcuts</h3>
+                        <div class="help-shortcuts">
+                            <span><kbd>A</kbd> = Approve</span>
+                            <span><kbd>D</kbd> = Delete</span>
+                            <span><kbd>S</kbd> = Skip</span>
+                            <span><kbd>R</kbd> = Rotate</span>
+                            <span><kbd>V</kbd> = Valid Fish</span>
+                            <span><kbd>I</kbd> = Invalid Fish</span>
+                        </div>
+                    </div>
+                    
+                    <div class="help-note">
+                        <strong>💡 Tip:</strong> Actions like "Delete" and "Approve" affect whether the fish appears on the site. 
+                        "Valid" and "Invalid" markings are used for training the AI fish classifier.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="src/js/footer-utils.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script src="src/js/firebase-init.js"></script>
+    <script src="src/js/fish-utils.js"></script>
+    <script src="src/js/swipe-moderation.js"></script>
+</body>
+</html>

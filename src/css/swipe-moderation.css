@@ -1,0 +1,770 @@
+/* Swipe Moderation Styles */
+.swipe-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.swipe-header {
+    background: #0288d1;
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.swipe-header h1 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+.header-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.back-btn, .logout-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.help-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.back-btn:hover, .logout-btn:hover, .help-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Help Modal Styles */
+.help-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+
+.help-modal-content {
+    background: white;
+    border-radius: 20px;
+    max-width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.05s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.help-header {
+    background: linear-gradient(135deg, #0288d1, #29b6f6);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.help-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background 0.3s;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.help-body {
+    padding: 30px;
+}
+
+.help-section {
+    margin-bottom: 30px;
+}
+
+.help-section h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.help-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.help-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.help-swipe {
+    min-width: 60px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.help-btn {
+    min-width: 100px;
+    padding: 8px 12px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.help-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.help-shortcuts span {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.help-shortcuts kbd {
+    background: #333;
+    color: white;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.help-note {
+    background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #2196F3;
+    margin-top: 20px;
+}
+
+.stats-bar {
+    display: flex;
+    justify-content: space-around;
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2em;
+    font-weight: bold;
+    color: #0288d1;
+}
+
+.progress-container {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0288d1, #29b6f6);
+    border-radius: 4px;
+    transition: width 0.1s ease;
+    width: 0%;
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 0.9em;
+    color: #666;
+    font-weight: 500;
+}
+
+.swipe-down {
+    color: #9c27b0;
+    font-weight: bold;
+}
+
+.instructions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 30px;
+    font-size: 0.9em;
+}
+
+.instruction-item {
+    text-align: center;
+}
+
+.swipe-left {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.swipe-right {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.swipe-up {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.swipe-deck-container {
+    position: relative;
+    height: 600px;
+    margin-bottom: 30px;
+}
+
+.swipe-deck {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    perspective: 1000px;
+}
+
+.fish-card {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 350px;
+    height: 480px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    cursor: grab;
+    user-select: none;
+    overflow: hidden;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    border: 3px solid #e0e0e0;
+}
+
+.fish-card:hover {
+    transform: translateX(-50%) translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+
+.fish-card.dragging {
+    cursor: grabbing;
+    transform: translateX(-50%) scale(1.02);
+    z-index: 100;
+}
+
+.fish-card.swiping-left {
+    transform: translateX(-150%) rotate(-20deg);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.fish-card.swiping-right {
+    transform: translateX(50%) rotate(20deg);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.fish-card.swiping-up {
+    transform: translateX(-50%) translateY(-150%) scale(0.8);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.fish-card.flagged {
+    border-color: #ff9800;
+    background: linear-gradient(135deg, #fff3e0 0%, #ffffff 100%);
+}
+
+.fish-card.reported {
+    border-color: #f44336;
+    background: linear-gradient(135deg, #ffebee 0%, #ffffff 100%);
+}
+
+.fish-image {
+    width: 100%;
+    height: 280px;
+    object-fit: contain;
+    background: #f9f9f9;
+    border-bottom: 1px solid #eee;
+}
+
+.fish-content {
+    padding: 20px;
+}
+
+.fish-info {
+    margin-bottom: 15px;
+}
+
+.fish-info h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.fish-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.fish-status {
+    margin-top: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.status-flagged {
+    background: #fff3e0;
+    color: #f57c00;
+    border: 1px solid #ffb74d;
+}
+
+.status-reported {
+    background: #ffebee;
+    color: #d32f2f;
+    border: 1px solid #ef5350;
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.action-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    min-width: 100px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.1s;
+}
+
+.action-btn:hover::before {
+    left: 100%;
+}
+
+.reject-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.reject-btn:hover {
+    background: #c82333;
+    transform: scale(1.05);
+}
+
+.skip-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.skip-btn:hover {
+    background: #5a6268;
+    transform: scale(1.05);
+}
+
+.approve-btn {
+    background: #28a745;
+    color: white;
+}
+
+.approve-btn:hover {
+    background: #218838;
+    transform: scale(1.05);
+}
+
+.validity-btn {
+    color: white;
+    font-size: 0.9em;
+}
+
+.valid-btn {
+    background: #2196F3;
+}
+
+.valid-btn:hover {
+    background: #1976D2;
+    transform: scale(1.05);
+}
+
+.invalid-btn {
+    background: #FF9800;
+}
+
+.invalid-btn:hover {
+    background: #F57C00;
+    transform: scale(1.05);
+}
+
+.rotate-btn {
+    background: #9C27B0;
+    color: white;
+}
+
+.rotate-btn:hover {
+    background: #7B1FA2;
+    transform: scale(1.05);
+}
+
+.loading {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2em;
+    color: #666;
+}
+
+.no-more-fish {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.celebration {
+    font-size: 4em;
+    margin-bottom: 20px;
+    animation: bounce 1s ease-in-out infinite alternate;
+}
+
+@keyframes bounce {
+    from { transform: translateY(0px); }
+    to { transform: translateY(-10px); }
+}
+
+.no-more-fish h2 {
+    color: #333;
+    margin: 0 0 15px 0;
+}
+
+.no-more-fish p {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.keyboard-shortcuts {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.keyboard-shortcuts strong {
+    color: #333;
+    margin-right: 15px;
+}
+
+.keyboard-shortcuts span {
+    margin: 0 10px;
+    background: white;
+    padding: 4px 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* Swipe indicators */
+.swipe-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 6em;
+    font-weight: bold;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.05s ease;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 50%;
+    backdrop-filter: blur(5px);
+}
+
+.swipe-indicator.reject {
+    color: #dc3545;
+    border: 4px solid #dc3545;
+}
+
+.swipe-indicator.approve {
+    color: #28a745;
+    border: 4px solid #28a745;
+}
+
+.swipe-indicator.skip {
+    color: #6c757d;
+    border: 4px solid #6c757d;
+}
+
+.swipe-indicator.rotate {
+    color: #9c27b0;
+    border: 4px solid #9c27b0;
+}
+
+.swipe-indicator.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Card stacking animation */
+.fish-card {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 350px;
+    height: 480px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    cursor: grab;
+    user-select: none;
+    overflow: hidden;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+    border: 3px solid #e0e0e0;
+    backdrop-filter: blur(10px);
+}
+
+.fish-card:nth-child(1) {
+    z-index: 10;
+}
+
+.fish-card:nth-child(2) {
+    z-index: 9;
+    transform: translateX(-50%) translateY(8px) scale(0.95);
+    opacity: 0.8;
+}
+
+.fish-card:nth-child(3) {
+    z-index: 8;
+    transform: translateX(-50%) translateY(16px) scale(0.9);
+    opacity: 0.6;
+}
+
+.fish-card:hover {
+    transform: translateX(-50%) translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+}
+
+.fish-card:nth-child(2):hover {
+    transform: translateX(-50%) translateY(3px) scale(0.97);
+}
+
+.fish-card:nth-child(3):hover {
+    transform: translateX(-50%) translateY(11px) scale(0.92);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .swipe-container {
+        padding: 10px;
+    }
+    
+    .fish-card {
+        width: 300px;
+        height: 450px;
+    }
+    
+    .swipe-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .header-controls {
+        justify-content: center;
+    }
+    
+    .stats-bar {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .instructions {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .action-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .action-btn {
+        min-width: 80px;
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+    
+    .keyboard-shortcuts {
+        font-size: 0.8em;
+    }
+    
+    .keyboard-shortcuts span {
+        margin: 0 5px;
+        padding: 3px 6px;
+    }
+}
+
+/* Touch feedback for mobile */
+@media (hover: none) {
+    .fish-card:active {
+        transform: translateX(-50%) scale(0.98);
+    }
+    
+    .action-btn:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Action feedback animations */
+.action-feedback {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Loading animations */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Enhanced card animations */
+.fish-card.swiping-left {
+    transform: translateX(-200%) rotate(-30deg) scale(0.8);
+    opacity: 0;
+    transition: all 0.1s ease;
+}
+
+.fish-card.swiping-right {
+    transform: translateX(100%) rotate(30deg) scale(0.8);
+    opacity: 0;
+    transition: all 0.1s ease;
+}
+
+.fish-card.swiping-up {
+    transform: translateX(-50%) translateY(-200%) scale(0.6) rotate(5deg);
+    opacity: 0;
+    transition: all 0.1s ease;
+}
+
+.fish-card.swiping-down {
+    transform: translateX(-50%) translateY(200%) scale(0.8) rotate(-10deg);
+    opacity: 0;
+    transition: all 0.1s ease;
+}
+
+.fish-card.rotating {
+    transform: translateX(-50%) rotate(360deg) scale(1.1);
+    transition: transform 0.1s ease;
+}
+
+.fish-card.rotating .fish-image {
+    transform: scaleX(-1);
+    transition: transform 0.1s ease;
+}
+
+/* Image flip animation keyframes */
+@keyframes imageFlip {
+    0% { transform: scaleX(1); }
+    100% { transform: scaleX(-1); }
+}
