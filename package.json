@@ -1,0 +1,19 @@
+{
+  "name": "fish-art-battle",
+  "version": "1.0.0",
+  "description": "Fish battle system with real-time collision detection",
+  "scripts": {
+    "dev": "vercel dev",
+    "test:hasura": "node scripts/test-hasura-connection.js",
+    "test:redis": "node scripts/test-redis-connection.js",
+    "download:fish": "node scripts/download-fish-data.js",
+    "migrate:db": "echo 'Please run scripts/migrate-database.sql in your Hasura console'"
+  },
+  "dependencies": {
+    "ioredis": "^5.3.2"
+  },
+  "devDependencies": {
+    "dotenv": "^16.3.1"
+  }
+}
+

@@ -1,84 +1,20 @@
 {
   "version": 2,
-  "public": true,
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
-    },
-    {
-      "source": "/src/css/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/src/js/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/(.*).onnx",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/:path*.(jpg|jpeg|gif|png|svg|ico|webp)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
+  "functions": {
+    "api/**/*.js": {
+      "memory": 512,
+      "maxDuration": 10
     }
-  ],
-  "redirects": [
-    {
-      "source": "/fish",
-      "destination": "/index.html",
-      "permanent": false
-    },
-    {
-      "source": "/draw",
-      "destination": "/index.html",
-      "permanent": false
-    }
-  ],
+  },
+  "env": {
+    "HASURA_GRAPHQL_ENDPOINT": "@hasura-endpoint",
+    "HASURA_ADMIN_SECRET": "@hasura-secret",
+    "UPSTASH_REDIS_URL": "@redis-url"
+  },
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/index.html"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     }
   ]
 }
-
