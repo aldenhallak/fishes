@@ -1,20 +1,13 @@
 /**
  * 战斗模式心跳API
  * POST /api/battle/heartbeat
+ * 前端每60秒调用一次，保持在线状态
  */
 
+require('dotenv').config({ path: '.env.local' });
 const redis = require('../../lib/redis');
 
-module.exports = async (req, res) => {
-  // 设置CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -24,27 +17,41 @@ module.exports = async (req, res) => {
     
     if (!userId || !fishId) {
       return res.status(400).json({ 
-        error: '缺少必需参数：userId 和 fishId' 
+        success: false,
+        error: 'Missing required fields' 
       });
     }
     
-    // 更新心跳（延长30分钟）
-    await redis.updateHeartbeat(userId, fishId);
+    // 1. 检查用户是否在战斗模式
+    const isIn = await redis.isBattleUser(userId);
+    if (!isIn) {
+      return res.json({
+        success: false,
+        inBattleMode: false,
+        message: '您不在战斗模式中'
+      });
+    }
     
-    // 返回当前状态
-    const stats = await redis.getStats();
+    // 2. 刷新心跳（重置过期时间）
+    await redis.refreshHeartbeat(userId, fishId);
     
-    return res.status(200).json({
+    // 3. 获取当前状态
+    const currentUsers = await redis.getBattleUserCount();
+    const MAX_BATTLE_USERS = parseInt(process.env.MAX_BATTLE_USERS) || 100;
+    
+    return res.json({
       success: true,
-      ...stats
+      inBattleMode: true,
+      currentUsers,
+      maxUsers: MAX_BATTLE_USERS,
+      timestamp: new Date().toISOString()
     });
     
   } catch (error) {
-    console.error('心跳更新失败:', error);
-    return res.status(500).json({ 
-      error: '服务器错误',
-      message: error.message 
+    console.error('心跳失败:', error);
+    return res.status(500).json({
+      success: false,
+      error: '服务器错误'
     });
   }
 };
-

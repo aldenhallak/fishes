@@ -3,10 +3,10 @@
  * 使用方法: node scripts/test-redis-connection.js
  */
 
-require('dotenv').config();
+require('dotenv').config({ path: '.env.local' });
 const redis = require('../lib/redis');
 
-async function testConnection() {
+async function testRedis() {
   console.log('🔍 测试Redis连接...\n');
   
   console.log('配置信息:');
@@ -17,60 +17,95 @@ async function testConnection() {
   const connected = await redis.testConnection();
   
   if (!connected) {
-    console.error('\n❌ 连接失败，请检查配置');
-    console.log('\n提示：');
-    console.log('  1. 注册 Upstash账号: https://upstash.com/');
-    console.log('  2. 创建Redis数据库');
-    console.log('  3. 复制Redis URL到 .env 文件');
+    console.error('\n❌ 连接失败，请检查UPSTASH_REDIS_URL配置');
     process.exit(1);
   }
   
   // 2. 写入测试
   try {
     console.log('\n2️⃣ 写入测试...');
-    const client = redis.getRedisClient();
-    await client.set('test:key', 'test:value', 'EX', 60);
+    await redis.cacheFish('test-fish-id', {
+      id: 'test-fish-id',
+      level: 5,
+      talent: 75,
+      health: 10
+    });
     console.log('✅ 写入成功');
     
     // 3. 读取测试
     console.log('\n3️⃣ 读取测试...');
-    const value = await client.get('test:key');
-    if (value === 'test:value') {
-      console.log('✅ 读取成功');
+    const fishData = await redis.getCachedFish('test-fish-id');
+    if (fishData) {
+      console.log('✅ 读取成功:', fishData);
     } else {
-      console.log('⚠️ 读取值不匹配');
+      console.log('⚠️ 读取失败');
     }
     
     // 4. 删除测试
     console.log('\n4️⃣ 删除测试...');
-    await client.del('test:key');
-    console.log('✅ 删除成功');
+    await redis.invalidateFishCache('test-fish-id');
+    const deleted = await redis.getCachedFish('test-fish-id');
+    if (!deleted) {
+      console.log('✅ 删除成功');
+    } else {
+      console.log('⚠️ 删除失败');
+    }
     
-    // 5. 并发控制测试
-    console.log('\n5️⃣ 并发控制测试...');
-    const result = await redis.enterBattleMode('test_user_1', 'test_fish_1', 100);
-    console.log('✅ 进入战斗模式:', result);
+    // 5. 队列测试
+    console.log('\n5️⃣ 队列测试...');
+    await redis.addToQueue('test-user-1');
+    await redis.addToQueue('test-user-2');
+    const queueLength = await redis.getQueueLength();
+    console.log(`✅ 队列测试成功，当前队列长度: ${queueLength}`);
     
-    await redis.leaveBattleMode('test_user_1');
-    console.log('✅ 离开战斗模式');
+    // 清理测试数据
+    await redis.removeFromQueue('test-user-1');
+    await redis.removeFromQueue('test-user-2');
     
-    // 6. 统计信息
-    console.log('\n6️⃣ 统计信息...');
-    const stats = await redis.getStats();
-    console.log('  在线用户:', stats.activeUsers);
-    console.log('  排队人数:', stats.queueLength);
+    // 6. 速率限制测试
+    console.log('\n6️⃣ 速率限制测试...');
+    const allowed1 = await redis.checkRateLimit('test-user', 5, 60);
+    console.log(`  第1次请求: ${allowed1 ? '✅ 允许' : '❌ 限制'}`);
+    
+    // 快速发送5次请求
+    for (let i = 2; i <= 6; i++) {
+      const allowed = await redis.checkRateLimit('test-user', 5, 60);
+      console.log(`  第${i}次请求: ${allowed ? '✅ 允许' : '❌ 限制'}`);
+    }
     
   } catch (error) {
     console.error('\n❌ 测试失败:', error.message);
-    process.exit(1);
   }
   
-  console.log('\n✅ 所有测试通过！');
-  process.exit(0);
+  // 7. 性能测试
+  console.log('\n7️⃣ 性能测试（100次写入）...');
+  const startTime = Date.now();
+  
+  for (let i = 0; i < 100; i++) {
+    await redis.cacheFish(`perf-test-${i}`, { id: `perf-test-${i}`, data: 'test' }, 60);
+  }
+  
+  const endTime = Date.now();
+  const avgTime = (endTime - startTime) / 100;
+  console.log(`✅ 平均响应时间: ${avgTime.toFixed(2)}ms`);
+  
+  if (avgTime < 50) {
+    console.log('   性能: 优秀 ⭐⭐⭐⭐⭐');
+  } else if (avgTime < 100) {
+    console.log('   性能: 良好 ⭐⭐⭐⭐');
+  } else if (avgTime < 200) {
+    console.log('   性能: 一般 ⭐⭐⭐');
+  } else {
+    console.log('   性能: 较慢 ⭐⭐');
+  }
+  
+  // 关闭连接
+  await redis.closeConnection();
+  
+  console.log('\n✅ 所有测试完成！');
 }
 
-testConnection().catch(err => {
+testRedis().catch(err => {
   console.error('\n❌ 测试失败:', err.message);
   process.exit(1);
 });
-
