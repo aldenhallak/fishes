@@ -1,0 +1,21 @@
+{
+  "schema": [
+    {
+      "http://hasura-fishart-1.weweknow.com/v1/graphql": {
+        "headers": {
+          "x-hasura-admin-secret": "${HASURA_ADMIN_SECRET:admin_secret}"
+        }
+      }
+    }
+  ],
+  "documents": [],
+  "generates": {
+    "./graphql/schema.graphql": {
+      "plugins": ["schema-ast"]
+    },
+    "./src/types/graphql.ts": {
+      "plugins": ["typescript"]
+    }
+  }
+}
+

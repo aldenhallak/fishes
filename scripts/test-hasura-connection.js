@@ -3,7 +3,7 @@
  * 使用方法: node scripts/test-hasura-connection.js
  */
 
-require('dotenv').config();
+require('dotenv').config({ path: '.env.local' });
 const hasura = require('../lib/hasura');
 
 async function testConnection() {

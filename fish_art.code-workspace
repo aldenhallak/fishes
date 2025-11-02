@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../AIGF_web"
 		}
 	],
 	"settings": {}

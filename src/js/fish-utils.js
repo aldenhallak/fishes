@@ -368,16 +368,15 @@ function createFishImageDataUrl(imgUrl, callback) {
     img.src = imgUrl;
 }
 
-// Authentication utilities
-function isUserLoggedIn() {
-    const token = localStorage.getItem('userToken');
-    const userData = localStorage.getItem('userData');
-    return !!(token && userData);
+// Authentication utilities - Supabase版本
+async function isUserLoggedIn() {
+    if (!window.supabaseAuth) return false;
+    return await window.supabaseAuth.isLoggedIn();
 }
 
-function getCurrentUser() {
-    const userData = localStorage.getItem('userData');
-    return userData ? JSON.parse(userData) : null;
+async function getCurrentUser() {
+    if (!window.supabaseAuth) return null;
+    return await window.supabaseAuth.getCurrentUser();
 }
 
 function redirectToLogin(currentPage = null) {
@@ -395,16 +394,18 @@ function redirectToLogin(currentPage = null) {
     window.location.href = loginUrl.toString();
 }
 
-function logout() {
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userData');
+async function logout() {
+    if (window.supabaseAuth) {
+        await window.supabaseAuth.signOut();
+    }
     localStorage.removeItem('loginRedirect');
     window.location.href = '/login.html';
 }
 
 // Check if authentication is required and redirect if needed
-function requireAuthentication(redirectToCurrentPage = true) {
-    if (!isUserLoggedIn()) {
+async function requireAuthentication(redirectToCurrentPage = true) {
+    const loggedIn = await isUserLoggedIn();
+    if (!loggedIn) {
         if (redirectToCurrentPage) {
             redirectToLogin(window.location.href);
         } else {
@@ -416,9 +417,9 @@ function requireAuthentication(redirectToCurrentPage = true) {
 }
 
 // Update authentication-related UI elements
-function updateAuthenticationUI() {
-    const isLoggedIn = isUserLoggedIn();
-    const currentUser = getCurrentUser();
+async function updateAuthenticationUI() {
+    const isLoggedIn = await isUserLoggedIn();
+    const currentUser = await getCurrentUser();
 
     // Update "my tanks" link visibility
     const myTanksLink = document.getElementById('my-tanks-link');
@@ -431,9 +432,9 @@ function updateAuthenticationUI() {
         if (isLoggedIn) {
             authLink.textContent = 'Logout';
             authLink.href = '#';
-            authLink.onclick = (e) => {
+            authLink.onclick = async (e) => {
                 e.preventDefault();
-                logout();
+                await logout();
             };
         } else {
             authLink.textContent = 'Login';
@@ -447,7 +448,10 @@ function updateAuthenticationUI() {
     const authStatus = document.getElementById('auth-status');
     if (authStatus) {
         if (isLoggedIn) {
-            authStatus.textContent = `Welcome, ${currentUser.displayName || currentUser.email}!`;
+            const displayName = currentUser?.user_metadata?.name || 
+                               currentUser?.email?.split('@')[0] || 
+                               'User';
+            authStatus.textContent = `Welcome, ${displayName}!`;
         } else {
             authStatus.textContent = 'Please log in to access this feature';
         }
@@ -485,36 +489,31 @@ async function getUserProfile(userId) {
 // Navigation authentication utility
 function initializeAuthNavigation() {
     // Update UI on page load
-    document.addEventListener('DOMContentLoaded', updateAuthenticationUI);
-
-    // Also check when localStorage changes (for cross-tab login/logout)
-    window.addEventListener('storage', function (e) {
-        if (e.key === 'userToken' || e.key === 'userData') {
-            updateAuthenticationUI();
-        }
+    document.addEventListener('DOMContentLoaded', async () => {
+        await updateAuthenticationUI();
     });
+
+    // Listen for Supabase auth state changes
+    if (window.supabaseAuth) {
+        window.supabaseAuth.onAuthStateChange(async (event, session) => {
+            console.log('Auth state changed:', event);
+            await updateAuthenticationUI();
+        });
+    }
 }
 
 // Get the current user's ID for highlighting their fish
-function getCurrentUserId() {
-    const userData = localStorage.getItem('userData');
-    const userIdFromStorage = localStorage.getItem('userId');
-
-    if (userData) {
-        try {
-            const parsed = JSON.parse(userData);
-            return userIdFromStorage || parsed.uid || parsed.userId || parsed.id || parsed.email;
-        } catch (e) {
-            return userIdFromStorage;
-        }
-    }
-
-    return userIdFromStorage;
+async function getCurrentUserId() {
+    const user = await getCurrentUser();
+    if (!user) return null;
+    
+    // Supabase用户ID是 user.id
+    return user.id;
 }
 
 // Check if a fish belongs to the current user
-function isUserFish(fish) {
-    const currentUserId = getCurrentUserId();
+async function isUserFish(fish) {
+    const currentUserId = await getCurrentUserId();
     if (!currentUserId || !fish.userId) {
         return false;
     }

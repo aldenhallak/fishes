@@ -1,0 +1,5516 @@
+schema {
+  query: query_root
+  mutation: mutation_root
+  subscription: subscription_root
+}
+
+"""whether this query should be cached (Hasura Cloud only)"""
+directive @cached(
+  """refresh the cache entry"""
+  refresh: Boolean! = false
+
+  """measured in seconds"""
+  ttl: Int! = 60
+) on QUERY
+
+"""
+Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'.
+"""
+input Boolean_comparison_exp {
+  _eq: Boolean
+  _gt: Boolean
+  _gte: Boolean
+  _in: [Boolean!]
+  _is_null: Boolean
+  _lt: Boolean
+  _lte: Boolean
+  _neq: Boolean
+  _nin: [Boolean!]
+}
+
+"""
+Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'.
+"""
+input Int_comparison_exp {
+  _eq: Int
+  _gt: Int
+  _gte: Int
+  _in: [Int!]
+  _is_null: Boolean
+  _lt: Int
+  _lte: Int
+  _neq: Int
+  _nin: [Int!]
+}
+
+"""
+Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
+"""
+input String_comparison_exp {
+  _eq: String
+  _gt: String
+  _gte: String
+
+  """does the column match the given case-insensitive pattern"""
+  _ilike: String
+  _in: [String!]
+
+  """
+  does the column match the given POSIX regular expression, case insensitive
+  """
+  _iregex: String
+  _is_null: Boolean
+
+  """does the column match the given pattern"""
+  _like: String
+  _lt: String
+  _lte: String
+  _neq: String
+
+  """does the column NOT match the given case-insensitive pattern"""
+  _nilike: String
+  _nin: [String!]
+
+  """
+  does the column NOT match the given POSIX regular expression, case insensitive
+  """
+  _niregex: String
+
+  """does the column NOT match the given pattern"""
+  _nlike: String
+
+  """
+  does the column NOT match the given POSIX regular expression, case sensitive
+  """
+  _nregex: String
+
+  """does the column NOT match the given SQL regular expression"""
+  _nsimilar: String
+
+  """
+  does the column match the given POSIX regular expression, case sensitive
+  """
+  _regex: String
+
+  """does the column match the given SQL regular expression"""
+  _similar: String
+}
+
+"""
+columns and relationships of "battle_config"
+"""
+type battle_config {
+  exp_for_level_up_base: Int
+  exp_for_level_up_multiplier: numeric
+  exp_per_second: Int
+  exp_per_win: Int
+  health_loss_per_defeat: Int
+  health_per_feed: Int
+  id: Int!
+  level_weight: numeric
+  max_health_per_level: Int
+  random_factor: numeric
+  talent_weight: numeric
+  updated_at: timestamp
+  upvote_weight: numeric
+}
+
+"""
+aggregated selection of "battle_config"
+"""
+type battle_config_aggregate {
+  aggregate: battle_config_aggregate_fields
+  nodes: [battle_config!]!
+}
+
+"""
+aggregate fields of "battle_config"
+"""
+type battle_config_aggregate_fields {
+  avg: battle_config_avg_fields
+  count(columns: [battle_config_select_column!], distinct: Boolean): Int!
+  max: battle_config_max_fields
+  min: battle_config_min_fields
+  stddev: battle_config_stddev_fields
+  stddev_pop: battle_config_stddev_pop_fields
+  stddev_samp: battle_config_stddev_samp_fields
+  sum: battle_config_sum_fields
+  var_pop: battle_config_var_pop_fields
+  var_samp: battle_config_var_samp_fields
+  variance: battle_config_variance_fields
+}
+
+"""aggregate avg on columns"""
+type battle_config_avg_fields {
+  exp_for_level_up_base: Float
+  exp_for_level_up_multiplier: Float
+  exp_per_second: Float
+  exp_per_win: Float
+  health_loss_per_defeat: Float
+  health_per_feed: Float
+  id: Float
+  level_weight: Float
+  max_health_per_level: Float
+  random_factor: Float
+  talent_weight: Float
+  upvote_weight: Float
+}
+
+"""
+Boolean expression to filter rows from the table "battle_config". All fields are combined with a logical 'AND'.
+"""
+input battle_config_bool_exp {
+  _and: [battle_config_bool_exp!]
+  _not: battle_config_bool_exp
+  _or: [battle_config_bool_exp!]
+  exp_for_level_up_base: Int_comparison_exp
+  exp_for_level_up_multiplier: numeric_comparison_exp
+  exp_per_second: Int_comparison_exp
+  exp_per_win: Int_comparison_exp
+  health_loss_per_defeat: Int_comparison_exp
+  health_per_feed: Int_comparison_exp
+  id: Int_comparison_exp
+  level_weight: numeric_comparison_exp
+  max_health_per_level: Int_comparison_exp
+  random_factor: numeric_comparison_exp
+  talent_weight: numeric_comparison_exp
+  updated_at: timestamp_comparison_exp
+  upvote_weight: numeric_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "battle_config"
+"""
+enum battle_config_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  battle_config_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "battle_config"
+"""
+input battle_config_inc_input {
+  exp_for_level_up_base: Int
+  exp_for_level_up_multiplier: numeric
+  exp_per_second: Int
+  exp_per_win: Int
+  health_loss_per_defeat: Int
+  health_per_feed: Int
+  id: Int
+  level_weight: numeric
+  max_health_per_level: Int
+  random_factor: numeric
+  talent_weight: numeric
+  upvote_weight: numeric
+}
+
+"""
+input type for inserting data into table "battle_config"
+"""
+input battle_config_insert_input {
+  exp_for_level_up_base: Int
+  exp_for_level_up_multiplier: numeric
+  exp_per_second: Int
+  exp_per_win: Int
+  health_loss_per_defeat: Int
+  health_per_feed: Int
+  id: Int
+  level_weight: numeric
+  max_health_per_level: Int
+  random_factor: numeric
+  talent_weight: numeric
+  updated_at: timestamp
+  upvote_weight: numeric
+}
+
+"""aggregate max on columns"""
+type battle_config_max_fields {
+  exp_for_level_up_base: Int
+  exp_for_level_up_multiplier: numeric
+  exp_per_second: Int
+  exp_per_win: Int
+  health_loss_per_defeat: Int
+  health_per_feed: Int
+  id: Int
+  level_weight: numeric
+  max_health_per_level: Int
+  random_factor: numeric
+  talent_weight: numeric
+  updated_at: timestamp
+  upvote_weight: numeric
+}
+
+"""aggregate min on columns"""
+type battle_config_min_fields {
+  exp_for_level_up_base: Int
+  exp_for_level_up_multiplier: numeric
+  exp_per_second: Int
+  exp_per_win: Int
+  health_loss_per_defeat: Int
+  health_per_feed: Int
+  id: Int
+  level_weight: numeric
+  max_health_per_level: Int
+  random_factor: numeric
+  talent_weight: numeric
+  updated_at: timestamp
+  upvote_weight: numeric
+}
+
+"""
+response of any mutation on the table "battle_config"
+"""
+type battle_config_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [battle_config!]!
+}
+
+"""
+on_conflict condition type for table "battle_config"
+"""
+input battle_config_on_conflict {
+  constraint: battle_config_constraint!
+  update_columns: [battle_config_update_column!]! = []
+  where: battle_config_bool_exp
+}
+
+"""Ordering options when selecting data from "battle_config"."""
+input battle_config_order_by {
+  exp_for_level_up_base: order_by
+  exp_for_level_up_multiplier: order_by
+  exp_per_second: order_by
+  exp_per_win: order_by
+  health_loss_per_defeat: order_by
+  health_per_feed: order_by
+  id: order_by
+  level_weight: order_by
+  max_health_per_level: order_by
+  random_factor: order_by
+  talent_weight: order_by
+  updated_at: order_by
+  upvote_weight: order_by
+}
+
+"""primary key columns input for table: battle_config"""
+input battle_config_pk_columns_input {
+  id: Int!
+}
+
+"""
+select columns of table "battle_config"
+"""
+enum battle_config_select_column {
+  """column name"""
+  exp_for_level_up_base
+
+  """column name"""
+  exp_for_level_up_multiplier
+
+  """column name"""
+  exp_per_second
+
+  """column name"""
+  exp_per_win
+
+  """column name"""
+  health_loss_per_defeat
+
+  """column name"""
+  health_per_feed
+
+  """column name"""
+  id
+
+  """column name"""
+  level_weight
+
+  """column name"""
+  max_health_per_level
+
+  """column name"""
+  random_factor
+
+  """column name"""
+  talent_weight
+
+  """column name"""
+  updated_at
+
+  """column name"""
+  upvote_weight
+}
+
+"""
+input type for updating data in table "battle_config"
+"""
+input battle_config_set_input {
+  exp_for_level_up_base: Int
+  exp_for_level_up_multiplier: numeric
+  exp_per_second: Int
+  exp_per_win: Int
+  health_loss_per_defeat: Int
+  health_per_feed: Int
+  id: Int
+  level_weight: numeric
+  max_health_per_level: Int
+  random_factor: numeric
+  talent_weight: numeric
+  updated_at: timestamp
+  upvote_weight: numeric
+}
+
+"""aggregate stddev on columns"""
+type battle_config_stddev_fields {
+  exp_for_level_up_base: Float
+  exp_for_level_up_multiplier: Float
+  exp_per_second: Float
+  exp_per_win: Float
+  health_loss_per_defeat: Float
+  health_per_feed: Float
+  id: Float
+  level_weight: Float
+  max_health_per_level: Float
+  random_factor: Float
+  talent_weight: Float
+  upvote_weight: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type battle_config_stddev_pop_fields {
+  exp_for_level_up_base: Float
+  exp_for_level_up_multiplier: Float
+  exp_per_second: Float
+  exp_per_win: Float
+  health_loss_per_defeat: Float
+  health_per_feed: Float
+  id: Float
+  level_weight: Float
+  max_health_per_level: Float
+  random_factor: Float
+  talent_weight: Float
+  upvote_weight: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type battle_config_stddev_samp_fields {
+  exp_for_level_up_base: Float
+  exp_for_level_up_multiplier: Float
+  exp_per_second: Float
+  exp_per_win: Float
+  health_loss_per_defeat: Float
+  health_per_feed: Float
+  id: Float
+  level_weight: Float
+  max_health_per_level: Float
+  random_factor: Float
+  talent_weight: Float
+  upvote_weight: Float
+}
+
+"""
+Streaming cursor of the table "battle_config"
+"""
+input battle_config_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: battle_config_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input battle_config_stream_cursor_value_input {
+  exp_for_level_up_base: Int
+  exp_for_level_up_multiplier: numeric
+  exp_per_second: Int
+  exp_per_win: Int
+  health_loss_per_defeat: Int
+  health_per_feed: Int
+  id: Int
+  level_weight: numeric
+  max_health_per_level: Int
+  random_factor: numeric
+  talent_weight: numeric
+  updated_at: timestamp
+  upvote_weight: numeric
+}
+
+"""aggregate sum on columns"""
+type battle_config_sum_fields {
+  exp_for_level_up_base: Int
+  exp_for_level_up_multiplier: numeric
+  exp_per_second: Int
+  exp_per_win: Int
+  health_loss_per_defeat: Int
+  health_per_feed: Int
+  id: Int
+  level_weight: numeric
+  max_health_per_level: Int
+  random_factor: numeric
+  talent_weight: numeric
+  upvote_weight: numeric
+}
+
+"""
+update columns of table "battle_config"
+"""
+enum battle_config_update_column {
+  """column name"""
+  exp_for_level_up_base
+
+  """column name"""
+  exp_for_level_up_multiplier
+
+  """column name"""
+  exp_per_second
+
+  """column name"""
+  exp_per_win
+
+  """column name"""
+  health_loss_per_defeat
+
+  """column name"""
+  health_per_feed
+
+  """column name"""
+  id
+
+  """column name"""
+  level_weight
+
+  """column name"""
+  max_health_per_level
+
+  """column name"""
+  random_factor
+
+  """column name"""
+  talent_weight
+
+  """column name"""
+  updated_at
+
+  """column name"""
+  upvote_weight
+}
+
+input battle_config_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: battle_config_inc_input
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: battle_config_set_input
+
+  """filter the rows which have to be updated"""
+  where: battle_config_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type battle_config_var_pop_fields {
+  exp_for_level_up_base: Float
+  exp_for_level_up_multiplier: Float
+  exp_per_second: Float
+  exp_per_win: Float
+  health_loss_per_defeat: Float
+  health_per_feed: Float
+  id: Float
+  level_weight: Float
+  max_health_per_level: Float
+  random_factor: Float
+  talent_weight: Float
+  upvote_weight: Float
+}
+
+"""aggregate var_samp on columns"""
+type battle_config_var_samp_fields {
+  exp_for_level_up_base: Float
+  exp_for_level_up_multiplier: Float
+  exp_per_second: Float
+  exp_per_win: Float
+  health_loss_per_defeat: Float
+  health_per_feed: Float
+  id: Float
+  level_weight: Float
+  max_health_per_level: Float
+  random_factor: Float
+  talent_weight: Float
+  upvote_weight: Float
+}
+
+"""aggregate variance on columns"""
+type battle_config_variance_fields {
+  exp_for_level_up_base: Float
+  exp_for_level_up_multiplier: Float
+  exp_per_second: Float
+  exp_per_win: Float
+  health_loss_per_defeat: Float
+  health_per_feed: Float
+  id: Float
+  level_weight: Float
+  max_health_per_level: Float
+  random_factor: Float
+  talent_weight: Float
+  upvote_weight: Float
+}
+
+"""
+columns and relationships of "battle_fish"
+"""
+type battle_fish {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""
+aggregated selection of "battle_fish"
+"""
+type battle_fish_aggregate {
+  aggregate: battle_fish_aggregate_fields
+  nodes: [battle_fish!]!
+}
+
+"""
+aggregate fields of "battle_fish"
+"""
+type battle_fish_aggregate_fields {
+  avg: battle_fish_avg_fields
+  count(columns: [battle_fish_select_column!], distinct: Boolean): Int!
+  max: battle_fish_max_fields
+  min: battle_fish_min_fields
+  stddev: battle_fish_stddev_fields
+  stddev_pop: battle_fish_stddev_pop_fields
+  stddev_samp: battle_fish_stddev_samp_fields
+  sum: battle_fish_sum_fields
+  var_pop: battle_fish_var_pop_fields
+  var_samp: battle_fish_var_samp_fields
+  variance: battle_fish_variance_fields
+}
+
+"""aggregate avg on columns"""
+type battle_fish_avg_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""
+Boolean expression to filter rows from the table "battle_fish". All fields are combined with a logical 'AND'.
+"""
+input battle_fish_bool_exp {
+  _and: [battle_fish_bool_exp!]
+  _not: battle_fish_bool_exp
+  _or: [battle_fish_bool_exp!]
+  artist: String_comparison_exp
+  battle_power: numeric_comparison_exp
+  created_at: timestamp_comparison_exp
+  downvotes: Int_comparison_exp
+  experience: Int_comparison_exp
+  health: Int_comparison_exp
+  id: uuid_comparison_exp
+  image_url: String_comparison_exp
+  is_alive: Boolean_comparison_exp
+  is_approved: Boolean_comparison_exp
+  is_in_battle_mode: Boolean_comparison_exp
+  last_exp_update: timestamp_comparison_exp
+  level: Int_comparison_exp
+  max_health: Int_comparison_exp
+  moderator_notes: String_comparison_exp
+  position_row: Int_comparison_exp
+  report_count: Int_comparison_exp
+  reported: Boolean_comparison_exp
+  score: Int_comparison_exp
+  talent: Int_comparison_exp
+  total_losses: Int_comparison_exp
+  total_wins: Int_comparison_exp
+  upvotes: Int_comparison_exp
+  user_id: String_comparison_exp
+}
+
+"""
+input type for incrementing numeric columns in table "battle_fish"
+"""
+input battle_fish_inc_input {
+  battle_power: numeric
+  downvotes: Int
+  experience: Int
+  health: Int
+  level: Int
+  max_health: Int
+  position_row: Int
+  report_count: Int
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+}
+
+"""
+input type for inserting data into table "battle_fish"
+"""
+input battle_fish_insert_input {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate max on columns"""
+type battle_fish_max_fields {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate min on columns"""
+type battle_fish_min_fields {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""
+response of any mutation on the table "battle_fish"
+"""
+type battle_fish_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [battle_fish!]!
+}
+
+"""Ordering options when selecting data from "battle_fish"."""
+input battle_fish_order_by {
+  artist: order_by
+  battle_power: order_by
+  created_at: order_by
+  downvotes: order_by
+  experience: order_by
+  health: order_by
+  id: order_by
+  image_url: order_by
+  is_alive: order_by
+  is_approved: order_by
+  is_in_battle_mode: order_by
+  last_exp_update: order_by
+  level: order_by
+  max_health: order_by
+  moderator_notes: order_by
+  position_row: order_by
+  report_count: order_by
+  reported: order_by
+  score: order_by
+  talent: order_by
+  total_losses: order_by
+  total_wins: order_by
+  upvotes: order_by
+  user_id: order_by
+}
+
+"""
+select columns of table "battle_fish"
+"""
+enum battle_fish_select_column {
+  """column name"""
+  artist
+
+  """column name"""
+  battle_power
+
+  """column name"""
+  created_at
+
+  """column name"""
+  downvotes
+
+  """column name"""
+  experience
+
+  """column name"""
+  health
+
+  """column name"""
+  id
+
+  """column name"""
+  image_url
+
+  """column name"""
+  is_alive
+
+  """column name"""
+  is_approved
+
+  """column name"""
+  is_in_battle_mode
+
+  """column name"""
+  last_exp_update
+
+  """column name"""
+  level
+
+  """column name"""
+  max_health
+
+  """column name"""
+  moderator_notes
+
+  """column name"""
+  position_row
+
+  """column name"""
+  report_count
+
+  """column name"""
+  reported
+
+  """column name"""
+  score
+
+  """column name"""
+  talent
+
+  """column name"""
+  total_losses
+
+  """column name"""
+  total_wins
+
+  """column name"""
+  upvotes
+
+  """column name"""
+  user_id
+}
+
+"""
+input type for updating data in table "battle_fish"
+"""
+input battle_fish_set_input {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate stddev on columns"""
+type battle_fish_stddev_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type battle_fish_stddev_pop_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type battle_fish_stddev_samp_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""
+Streaming cursor of the table "battle_fish"
+"""
+input battle_fish_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: battle_fish_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input battle_fish_stream_cursor_value_input {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate sum on columns"""
+type battle_fish_sum_fields {
+  battle_power: numeric
+  downvotes: Int
+  experience: Int
+  health: Int
+  level: Int
+  max_health: Int
+  position_row: Int
+  report_count: Int
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+}
+
+input battle_fish_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: battle_fish_inc_input
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: battle_fish_set_input
+
+  """filter the rows which have to be updated"""
+  where: battle_fish_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type battle_fish_var_pop_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate var_samp on columns"""
+type battle_fish_var_samp_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate variance on columns"""
+type battle_fish_variance_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""
+columns and relationships of "battle_log"
+"""
+type battle_log {
+  attacker_id: uuid
+  attacker_power: numeric
+  created_at: timestamp
+  defender_id: uuid
+  defender_power: numeric
+  exp_gained: Int
+  health_lost: Int
+  id: uuid!
+  random_factor: numeric
+  winner_id: uuid
+}
+
+"""
+aggregated selection of "battle_log"
+"""
+type battle_log_aggregate {
+  aggregate: battle_log_aggregate_fields
+  nodes: [battle_log!]!
+}
+
+"""
+aggregate fields of "battle_log"
+"""
+type battle_log_aggregate_fields {
+  avg: battle_log_avg_fields
+  count(columns: [battle_log_select_column!], distinct: Boolean): Int!
+  max: battle_log_max_fields
+  min: battle_log_min_fields
+  stddev: battle_log_stddev_fields
+  stddev_pop: battle_log_stddev_pop_fields
+  stddev_samp: battle_log_stddev_samp_fields
+  sum: battle_log_sum_fields
+  var_pop: battle_log_var_pop_fields
+  var_samp: battle_log_var_samp_fields
+  variance: battle_log_variance_fields
+}
+
+"""aggregate avg on columns"""
+type battle_log_avg_fields {
+  attacker_power: Float
+  defender_power: Float
+  exp_gained: Float
+  health_lost: Float
+  random_factor: Float
+}
+
+"""
+Boolean expression to filter rows from the table "battle_log". All fields are combined with a logical 'AND'.
+"""
+input battle_log_bool_exp {
+  _and: [battle_log_bool_exp!]
+  _not: battle_log_bool_exp
+  _or: [battle_log_bool_exp!]
+  attacker_id: uuid_comparison_exp
+  attacker_power: numeric_comparison_exp
+  created_at: timestamp_comparison_exp
+  defender_id: uuid_comparison_exp
+  defender_power: numeric_comparison_exp
+  exp_gained: Int_comparison_exp
+  health_lost: Int_comparison_exp
+  id: uuid_comparison_exp
+  random_factor: numeric_comparison_exp
+  winner_id: uuid_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "battle_log"
+"""
+enum battle_log_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  battle_log_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "battle_log"
+"""
+input battle_log_inc_input {
+  attacker_power: numeric
+  defender_power: numeric
+  exp_gained: Int
+  health_lost: Int
+  random_factor: numeric
+}
+
+"""
+input type for inserting data into table "battle_log"
+"""
+input battle_log_insert_input {
+  attacker_id: uuid
+  attacker_power: numeric
+  created_at: timestamp
+  defender_id: uuid
+  defender_power: numeric
+  exp_gained: Int
+  health_lost: Int
+  id: uuid
+  random_factor: numeric
+  winner_id: uuid
+}
+
+"""aggregate max on columns"""
+type battle_log_max_fields {
+  attacker_id: uuid
+  attacker_power: numeric
+  created_at: timestamp
+  defender_id: uuid
+  defender_power: numeric
+  exp_gained: Int
+  health_lost: Int
+  id: uuid
+  random_factor: numeric
+  winner_id: uuid
+}
+
+"""aggregate min on columns"""
+type battle_log_min_fields {
+  attacker_id: uuid
+  attacker_power: numeric
+  created_at: timestamp
+  defender_id: uuid
+  defender_power: numeric
+  exp_gained: Int
+  health_lost: Int
+  id: uuid
+  random_factor: numeric
+  winner_id: uuid
+}
+
+"""
+response of any mutation on the table "battle_log"
+"""
+type battle_log_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [battle_log!]!
+}
+
+"""
+on_conflict condition type for table "battle_log"
+"""
+input battle_log_on_conflict {
+  constraint: battle_log_constraint!
+  update_columns: [battle_log_update_column!]! = []
+  where: battle_log_bool_exp
+}
+
+"""Ordering options when selecting data from "battle_log"."""
+input battle_log_order_by {
+  attacker_id: order_by
+  attacker_power: order_by
+  created_at: order_by
+  defender_id: order_by
+  defender_power: order_by
+  exp_gained: order_by
+  health_lost: order_by
+  id: order_by
+  random_factor: order_by
+  winner_id: order_by
+}
+
+"""primary key columns input for table: battle_log"""
+input battle_log_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "battle_log"
+"""
+enum battle_log_select_column {
+  """column name"""
+  attacker_id
+
+  """column name"""
+  attacker_power
+
+  """column name"""
+  created_at
+
+  """column name"""
+  defender_id
+
+  """column name"""
+  defender_power
+
+  """column name"""
+  exp_gained
+
+  """column name"""
+  health_lost
+
+  """column name"""
+  id
+
+  """column name"""
+  random_factor
+
+  """column name"""
+  winner_id
+}
+
+"""
+input type for updating data in table "battle_log"
+"""
+input battle_log_set_input {
+  attacker_id: uuid
+  attacker_power: numeric
+  created_at: timestamp
+  defender_id: uuid
+  defender_power: numeric
+  exp_gained: Int
+  health_lost: Int
+  id: uuid
+  random_factor: numeric
+  winner_id: uuid
+}
+
+"""aggregate stddev on columns"""
+type battle_log_stddev_fields {
+  attacker_power: Float
+  defender_power: Float
+  exp_gained: Float
+  health_lost: Float
+  random_factor: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type battle_log_stddev_pop_fields {
+  attacker_power: Float
+  defender_power: Float
+  exp_gained: Float
+  health_lost: Float
+  random_factor: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type battle_log_stddev_samp_fields {
+  attacker_power: Float
+  defender_power: Float
+  exp_gained: Float
+  health_lost: Float
+  random_factor: Float
+}
+
+"""
+Streaming cursor of the table "battle_log"
+"""
+input battle_log_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: battle_log_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input battle_log_stream_cursor_value_input {
+  attacker_id: uuid
+  attacker_power: numeric
+  created_at: timestamp
+  defender_id: uuid
+  defender_power: numeric
+  exp_gained: Int
+  health_lost: Int
+  id: uuid
+  random_factor: numeric
+  winner_id: uuid
+}
+
+"""aggregate sum on columns"""
+type battle_log_sum_fields {
+  attacker_power: numeric
+  defender_power: numeric
+  exp_gained: Int
+  health_lost: Int
+  random_factor: numeric
+}
+
+"""
+update columns of table "battle_log"
+"""
+enum battle_log_update_column {
+  """column name"""
+  attacker_id
+
+  """column name"""
+  attacker_power
+
+  """column name"""
+  created_at
+
+  """column name"""
+  defender_id
+
+  """column name"""
+  defender_power
+
+  """column name"""
+  exp_gained
+
+  """column name"""
+  health_lost
+
+  """column name"""
+  id
+
+  """column name"""
+  random_factor
+
+  """column name"""
+  winner_id
+}
+
+input battle_log_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: battle_log_inc_input
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: battle_log_set_input
+
+  """filter the rows which have to be updated"""
+  where: battle_log_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type battle_log_var_pop_fields {
+  attacker_power: Float
+  defender_power: Float
+  exp_gained: Float
+  health_lost: Float
+  random_factor: Float
+}
+
+"""aggregate var_samp on columns"""
+type battle_log_var_samp_fields {
+  attacker_power: Float
+  defender_power: Float
+  exp_gained: Float
+  health_lost: Float
+  random_factor: Float
+}
+
+"""aggregate variance on columns"""
+type battle_log_variance_fields {
+  attacker_power: Float
+  defender_power: Float
+  exp_gained: Float
+  health_lost: Float
+  random_factor: Float
+}
+
+scalar bigint
+
+"""
+Boolean expression to compare columns of type "bigint". All fields are combined with logical 'AND'.
+"""
+input bigint_comparison_exp {
+  _eq: bigint
+  _gt: bigint
+  _gte: bigint
+  _in: [bigint!]
+  _is_null: Boolean
+  _lt: bigint
+  _lte: bigint
+  _neq: bigint
+  _nin: [bigint!]
+}
+
+"""ordering argument of a cursor"""
+enum cursor_ordering {
+  """ascending ordering of the cursor"""
+  ASC
+
+  """descending ordering of the cursor"""
+  DESC
+}
+
+"""
+columns and relationships of "economy_log"
+"""
+type economy_log {
+  action: String!
+  amount: Int!
+  balance_after: Int!
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid!
+  user_id: String!
+}
+
+"""
+aggregated selection of "economy_log"
+"""
+type economy_log_aggregate {
+  aggregate: economy_log_aggregate_fields
+  nodes: [economy_log!]!
+}
+
+"""
+aggregate fields of "economy_log"
+"""
+type economy_log_aggregate_fields {
+  avg: economy_log_avg_fields
+  count(columns: [economy_log_select_column!], distinct: Boolean): Int!
+  max: economy_log_max_fields
+  min: economy_log_min_fields
+  stddev: economy_log_stddev_fields
+  stddev_pop: economy_log_stddev_pop_fields
+  stddev_samp: economy_log_stddev_samp_fields
+  sum: economy_log_sum_fields
+  var_pop: economy_log_var_pop_fields
+  var_samp: economy_log_var_samp_fields
+  variance: economy_log_variance_fields
+}
+
+"""aggregate avg on columns"""
+type economy_log_avg_fields {
+  amount: Float
+  balance_after: Float
+}
+
+"""
+Boolean expression to filter rows from the table "economy_log". All fields are combined with a logical 'AND'.
+"""
+input economy_log_bool_exp {
+  _and: [economy_log_bool_exp!]
+  _not: economy_log_bool_exp
+  _or: [economy_log_bool_exp!]
+  action: String_comparison_exp
+  amount: Int_comparison_exp
+  balance_after: Int_comparison_exp
+  created_at: timestamp_comparison_exp
+  fish_id: uuid_comparison_exp
+  id: uuid_comparison_exp
+  user_id: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "economy_log"
+"""
+enum economy_log_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  economy_log_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "economy_log"
+"""
+input economy_log_inc_input {
+  amount: Int
+  balance_after: Int
+}
+
+"""
+input type for inserting data into table "economy_log"
+"""
+input economy_log_insert_input {
+  action: String
+  amount: Int
+  balance_after: Int
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  user_id: String
+}
+
+"""aggregate max on columns"""
+type economy_log_max_fields {
+  action: String
+  amount: Int
+  balance_after: Int
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  user_id: String
+}
+
+"""aggregate min on columns"""
+type economy_log_min_fields {
+  action: String
+  amount: Int
+  balance_after: Int
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  user_id: String
+}
+
+"""
+response of any mutation on the table "economy_log"
+"""
+type economy_log_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [economy_log!]!
+}
+
+"""
+on_conflict condition type for table "economy_log"
+"""
+input economy_log_on_conflict {
+  constraint: economy_log_constraint!
+  update_columns: [economy_log_update_column!]! = []
+  where: economy_log_bool_exp
+}
+
+"""Ordering options when selecting data from "economy_log"."""
+input economy_log_order_by {
+  action: order_by
+  amount: order_by
+  balance_after: order_by
+  created_at: order_by
+  fish_id: order_by
+  id: order_by
+  user_id: order_by
+}
+
+"""primary key columns input for table: economy_log"""
+input economy_log_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "economy_log"
+"""
+enum economy_log_select_column {
+  """column name"""
+  action
+
+  """column name"""
+  amount
+
+  """column name"""
+  balance_after
+
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  user_id
+}
+
+"""
+input type for updating data in table "economy_log"
+"""
+input economy_log_set_input {
+  action: String
+  amount: Int
+  balance_after: Int
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  user_id: String
+}
+
+"""aggregate stddev on columns"""
+type economy_log_stddev_fields {
+  amount: Float
+  balance_after: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type economy_log_stddev_pop_fields {
+  amount: Float
+  balance_after: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type economy_log_stddev_samp_fields {
+  amount: Float
+  balance_after: Float
+}
+
+"""
+Streaming cursor of the table "economy_log"
+"""
+input economy_log_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: economy_log_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input economy_log_stream_cursor_value_input {
+  action: String
+  amount: Int
+  balance_after: Int
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  user_id: String
+}
+
+"""aggregate sum on columns"""
+type economy_log_sum_fields {
+  amount: Int
+  balance_after: Int
+}
+
+"""
+update columns of table "economy_log"
+"""
+enum economy_log_update_column {
+  """column name"""
+  action
+
+  """column name"""
+  amount
+
+  """column name"""
+  balance_after
+
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  user_id
+}
+
+input economy_log_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: economy_log_inc_input
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: economy_log_set_input
+
+  """filter the rows which have to be updated"""
+  where: economy_log_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type economy_log_var_pop_fields {
+  amount: Float
+  balance_after: Float
+}
+
+"""aggregate var_samp on columns"""
+type economy_log_var_samp_fields {
+  amount: Float
+  balance_after: Float
+}
+
+"""aggregate variance on columns"""
+type economy_log_variance_fields {
+  amount: Float
+  balance_after: Float
+}
+
+"""
+columns and relationships of "fish"
+"""
+type fish {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int!
+  experience: Int!
+  health: Int!
+  id: uuid!
+  image_url: String!
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int!
+  max_health: Int!
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  talent: Int!
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int!
+  user_id: String!
+}
+
+"""
+aggregated selection of "fish"
+"""
+type fish_aggregate {
+  aggregate: fish_aggregate_fields
+  nodes: [fish!]!
+}
+
+"""
+aggregate fields of "fish"
+"""
+type fish_aggregate_fields {
+  avg: fish_avg_fields
+  count(columns: [fish_select_column!], distinct: Boolean): Int!
+  max: fish_max_fields
+  min: fish_min_fields
+  stddev: fish_stddev_fields
+  stddev_pop: fish_stddev_pop_fields
+  stddev_samp: fish_stddev_samp_fields
+  sum: fish_sum_fields
+  var_pop: fish_var_pop_fields
+  var_samp: fish_var_samp_fields
+  variance: fish_variance_fields
+}
+
+"""aggregate avg on columns"""
+type fish_avg_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""
+Boolean expression to filter rows from the table "fish". All fields are combined with a logical 'AND'.
+"""
+input fish_bool_exp {
+  _and: [fish_bool_exp!]
+  _not: fish_bool_exp
+  _or: [fish_bool_exp!]
+  artist: String_comparison_exp
+  battle_power: numeric_comparison_exp
+  created_at: timestamp_comparison_exp
+  downvotes: Int_comparison_exp
+  experience: Int_comparison_exp
+  health: Int_comparison_exp
+  id: uuid_comparison_exp
+  image_url: String_comparison_exp
+  is_alive: Boolean_comparison_exp
+  is_approved: Boolean_comparison_exp
+  is_in_battle_mode: Boolean_comparison_exp
+  last_exp_update: timestamp_comparison_exp
+  level: Int_comparison_exp
+  max_health: Int_comparison_exp
+  moderator_notes: String_comparison_exp
+  position_row: Int_comparison_exp
+  report_count: Int_comparison_exp
+  reported: Boolean_comparison_exp
+  talent: Int_comparison_exp
+  total_losses: Int_comparison_exp
+  total_wins: Int_comparison_exp
+  upvotes: Int_comparison_exp
+  user_id: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "fish"
+"""
+enum fish_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  fish_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "fish"
+"""
+input fish_inc_input {
+  battle_power: numeric
+  downvotes: Int
+  experience: Int
+  health: Int
+  level: Int
+  max_health: Int
+  position_row: Int
+  report_count: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+}
+
+"""
+input type for inserting data into table "fish"
+"""
+input fish_insert_input {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate max on columns"""
+type fish_max_fields {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate min on columns"""
+type fish_min_fields {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""
+response of any mutation on the table "fish"
+"""
+type fish_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [fish!]!
+}
+
+"""
+on_conflict condition type for table "fish"
+"""
+input fish_on_conflict {
+  constraint: fish_constraint!
+  update_columns: [fish_update_column!]! = []
+  where: fish_bool_exp
+}
+
+"""Ordering options when selecting data from "fish"."""
+input fish_order_by {
+  artist: order_by
+  battle_power: order_by
+  created_at: order_by
+  downvotes: order_by
+  experience: order_by
+  health: order_by
+  id: order_by
+  image_url: order_by
+  is_alive: order_by
+  is_approved: order_by
+  is_in_battle_mode: order_by
+  last_exp_update: order_by
+  level: order_by
+  max_health: order_by
+  moderator_notes: order_by
+  position_row: order_by
+  report_count: order_by
+  reported: order_by
+  talent: order_by
+  total_losses: order_by
+  total_wins: order_by
+  upvotes: order_by
+  user_id: order_by
+}
+
+"""primary key columns input for table: fish"""
+input fish_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "fish"
+"""
+enum fish_select_column {
+  """column name"""
+  artist
+
+  """column name"""
+  battle_power
+
+  """column name"""
+  created_at
+
+  """column name"""
+  downvotes
+
+  """column name"""
+  experience
+
+  """column name"""
+  health
+
+  """column name"""
+  id
+
+  """column name"""
+  image_url
+
+  """column name"""
+  is_alive
+
+  """column name"""
+  is_approved
+
+  """column name"""
+  is_in_battle_mode
+
+  """column name"""
+  last_exp_update
+
+  """column name"""
+  level
+
+  """column name"""
+  max_health
+
+  """column name"""
+  moderator_notes
+
+  """column name"""
+  position_row
+
+  """column name"""
+  report_count
+
+  """column name"""
+  reported
+
+  """column name"""
+  talent
+
+  """column name"""
+  total_losses
+
+  """column name"""
+  total_wins
+
+  """column name"""
+  upvotes
+
+  """column name"""
+  user_id
+}
+
+"""
+input type for updating data in table "fish"
+"""
+input fish_set_input {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate stddev on columns"""
+type fish_stddev_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type fish_stddev_pop_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type fish_stddev_samp_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""
+Streaming cursor of the table "fish"
+"""
+input fish_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: fish_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input fish_stream_cursor_value_input {
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate sum on columns"""
+type fish_sum_fields {
+  battle_power: numeric
+  downvotes: Int
+  experience: Int
+  health: Int
+  level: Int
+  max_health: Int
+  position_row: Int
+  report_count: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+}
+
+"""
+update columns of table "fish"
+"""
+enum fish_update_column {
+  """column name"""
+  artist
+
+  """column name"""
+  battle_power
+
+  """column name"""
+  created_at
+
+  """column name"""
+  downvotes
+
+  """column name"""
+  experience
+
+  """column name"""
+  health
+
+  """column name"""
+  id
+
+  """column name"""
+  image_url
+
+  """column name"""
+  is_alive
+
+  """column name"""
+  is_approved
+
+  """column name"""
+  is_in_battle_mode
+
+  """column name"""
+  last_exp_update
+
+  """column name"""
+  level
+
+  """column name"""
+  max_health
+
+  """column name"""
+  moderator_notes
+
+  """column name"""
+  position_row
+
+  """column name"""
+  report_count
+
+  """column name"""
+  reported
+
+  """column name"""
+  talent
+
+  """column name"""
+  total_losses
+
+  """column name"""
+  total_wins
+
+  """column name"""
+  upvotes
+
+  """column name"""
+  user_id
+}
+
+input fish_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: fish_inc_input
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: fish_set_input
+
+  """filter the rows which have to be updated"""
+  where: fish_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type fish_var_pop_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate var_samp on columns"""
+type fish_var_samp_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate variance on columns"""
+type fish_variance_fields {
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""
+columns and relationships of "fish_with_scores"
+"""
+type fish_with_scores {
+  approval_rate: float8
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""
+aggregated selection of "fish_with_scores"
+"""
+type fish_with_scores_aggregate {
+  aggregate: fish_with_scores_aggregate_fields
+  nodes: [fish_with_scores!]!
+}
+
+"""
+aggregate fields of "fish_with_scores"
+"""
+type fish_with_scores_aggregate_fields {
+  avg: fish_with_scores_avg_fields
+  count(columns: [fish_with_scores_select_column!], distinct: Boolean): Int!
+  max: fish_with_scores_max_fields
+  min: fish_with_scores_min_fields
+  stddev: fish_with_scores_stddev_fields
+  stddev_pop: fish_with_scores_stddev_pop_fields
+  stddev_samp: fish_with_scores_stddev_samp_fields
+  sum: fish_with_scores_sum_fields
+  var_pop: fish_with_scores_var_pop_fields
+  var_samp: fish_with_scores_var_samp_fields
+  variance: fish_with_scores_variance_fields
+}
+
+"""aggregate avg on columns"""
+type fish_with_scores_avg_fields {
+  approval_rate: Float
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""
+Boolean expression to filter rows from the table "fish_with_scores". All fields are combined with a logical 'AND'.
+"""
+input fish_with_scores_bool_exp {
+  _and: [fish_with_scores_bool_exp!]
+  _not: fish_with_scores_bool_exp
+  _or: [fish_with_scores_bool_exp!]
+  approval_rate: float8_comparison_exp
+  artist: String_comparison_exp
+  battle_power: numeric_comparison_exp
+  created_at: timestamp_comparison_exp
+  downvotes: Int_comparison_exp
+  experience: Int_comparison_exp
+  health: Int_comparison_exp
+  id: uuid_comparison_exp
+  image_url: String_comparison_exp
+  is_alive: Boolean_comparison_exp
+  is_approved: Boolean_comparison_exp
+  is_in_battle_mode: Boolean_comparison_exp
+  last_exp_update: timestamp_comparison_exp
+  level: Int_comparison_exp
+  max_health: Int_comparison_exp
+  moderator_notes: String_comparison_exp
+  position_row: Int_comparison_exp
+  report_count: Int_comparison_exp
+  reported: Boolean_comparison_exp
+  score: Int_comparison_exp
+  talent: Int_comparison_exp
+  total_losses: Int_comparison_exp
+  total_wins: Int_comparison_exp
+  upvotes: Int_comparison_exp
+  user_id: String_comparison_exp
+}
+
+"""
+input type for incrementing numeric columns in table "fish_with_scores"
+"""
+input fish_with_scores_inc_input {
+  approval_rate: float8
+  battle_power: numeric
+  downvotes: Int
+  experience: Int
+  health: Int
+  level: Int
+  max_health: Int
+  position_row: Int
+  report_count: Int
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+}
+
+"""
+input type for inserting data into table "fish_with_scores"
+"""
+input fish_with_scores_insert_input {
+  approval_rate: float8
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate max on columns"""
+type fish_with_scores_max_fields {
+  approval_rate: float8
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate min on columns"""
+type fish_with_scores_min_fields {
+  approval_rate: float8
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""
+response of any mutation on the table "fish_with_scores"
+"""
+type fish_with_scores_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [fish_with_scores!]!
+}
+
+"""Ordering options when selecting data from "fish_with_scores"."""
+input fish_with_scores_order_by {
+  approval_rate: order_by
+  artist: order_by
+  battle_power: order_by
+  created_at: order_by
+  downvotes: order_by
+  experience: order_by
+  health: order_by
+  id: order_by
+  image_url: order_by
+  is_alive: order_by
+  is_approved: order_by
+  is_in_battle_mode: order_by
+  last_exp_update: order_by
+  level: order_by
+  max_health: order_by
+  moderator_notes: order_by
+  position_row: order_by
+  report_count: order_by
+  reported: order_by
+  score: order_by
+  talent: order_by
+  total_losses: order_by
+  total_wins: order_by
+  upvotes: order_by
+  user_id: order_by
+}
+
+"""
+select columns of table "fish_with_scores"
+"""
+enum fish_with_scores_select_column {
+  """column name"""
+  approval_rate
+
+  """column name"""
+  artist
+
+  """column name"""
+  battle_power
+
+  """column name"""
+  created_at
+
+  """column name"""
+  downvotes
+
+  """column name"""
+  experience
+
+  """column name"""
+  health
+
+  """column name"""
+  id
+
+  """column name"""
+  image_url
+
+  """column name"""
+  is_alive
+
+  """column name"""
+  is_approved
+
+  """column name"""
+  is_in_battle_mode
+
+  """column name"""
+  last_exp_update
+
+  """column name"""
+  level
+
+  """column name"""
+  max_health
+
+  """column name"""
+  moderator_notes
+
+  """column name"""
+  position_row
+
+  """column name"""
+  report_count
+
+  """column name"""
+  reported
+
+  """column name"""
+  score
+
+  """column name"""
+  talent
+
+  """column name"""
+  total_losses
+
+  """column name"""
+  total_wins
+
+  """column name"""
+  upvotes
+
+  """column name"""
+  user_id
+}
+
+"""
+input type for updating data in table "fish_with_scores"
+"""
+input fish_with_scores_set_input {
+  approval_rate: float8
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate stddev on columns"""
+type fish_with_scores_stddev_fields {
+  approval_rate: Float
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type fish_with_scores_stddev_pop_fields {
+  approval_rate: Float
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type fish_with_scores_stddev_samp_fields {
+  approval_rate: Float
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""
+Streaming cursor of the table "fish_with_scores"
+"""
+input fish_with_scores_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: fish_with_scores_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input fish_with_scores_stream_cursor_value_input {
+  approval_rate: float8
+  artist: String
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+  id: uuid
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate sum on columns"""
+type fish_with_scores_sum_fields {
+  approval_rate: float8
+  battle_power: numeric
+  downvotes: Int
+  experience: Int
+  health: Int
+  level: Int
+  max_health: Int
+  position_row: Int
+  report_count: Int
+  score: Int
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+}
+
+input fish_with_scores_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: fish_with_scores_inc_input
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: fish_with_scores_set_input
+
+  """filter the rows which have to be updated"""
+  where: fish_with_scores_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type fish_with_scores_var_pop_fields {
+  approval_rate: Float
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate var_samp on columns"""
+type fish_with_scores_var_samp_fields {
+  approval_rate: Float
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate variance on columns"""
+type fish_with_scores_variance_fields {
+  approval_rate: Float
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+  score: Float
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+scalar float8
+
+"""
+Boolean expression to compare columns of type "float8". All fields are combined with logical 'AND'.
+"""
+input float8_comparison_exp {
+  _eq: float8
+  _gt: float8
+  _gte: float8
+  _in: [float8!]
+  _is_null: Boolean
+  _lt: float8
+  _lte: float8
+  _neq: float8
+  _nin: [float8!]
+}
+
+"""mutation root"""
+type mutation_root {
+  """
+  delete data from the table: "battle_config"
+  """
+  delete_battle_config(
+    """filter the rows which have to be deleted"""
+    where: battle_config_bool_exp!
+  ): battle_config_mutation_response
+
+  """
+  delete single row from the table: "battle_config"
+  """
+  delete_battle_config_by_pk(id: Int!): battle_config
+
+  """
+  delete data from the table: "battle_fish"
+  """
+  delete_battle_fish(
+    """filter the rows which have to be deleted"""
+    where: battle_fish_bool_exp!
+  ): battle_fish_mutation_response
+
+  """
+  delete data from the table: "battle_log"
+  """
+  delete_battle_log(
+    """filter the rows which have to be deleted"""
+    where: battle_log_bool_exp!
+  ): battle_log_mutation_response
+
+  """
+  delete single row from the table: "battle_log"
+  """
+  delete_battle_log_by_pk(id: uuid!): battle_log
+
+  """
+  delete data from the table: "economy_log"
+  """
+  delete_economy_log(
+    """filter the rows which have to be deleted"""
+    where: economy_log_bool_exp!
+  ): economy_log_mutation_response
+
+  """
+  delete single row from the table: "economy_log"
+  """
+  delete_economy_log_by_pk(id: uuid!): economy_log
+
+  """
+  delete data from the table: "fish"
+  """
+  delete_fish(
+    """filter the rows which have to be deleted"""
+    where: fish_bool_exp!
+  ): fish_mutation_response
+
+  """
+  delete single row from the table: "fish"
+  """
+  delete_fish_by_pk(id: uuid!): fish
+
+  """
+  delete data from the table: "fish_with_scores"
+  """
+  delete_fish_with_scores(
+    """filter the rows which have to be deleted"""
+    where: fish_with_scores_bool_exp!
+  ): fish_with_scores_mutation_response
+
+  """
+  delete data from the table: "reports"
+  """
+  delete_reports(
+    """filter the rows which have to be deleted"""
+    where: reports_bool_exp!
+  ): reports_mutation_response
+
+  """
+  delete single row from the table: "reports"
+  """
+  delete_reports_by_pk(id: uuid!): reports
+
+  """
+  delete data from the table: "user_economy"
+  """
+  delete_user_economy(
+    """filter the rows which have to be deleted"""
+    where: user_economy_bool_exp!
+  ): user_economy_mutation_response
+
+  """
+  delete single row from the table: "user_economy"
+  """
+  delete_user_economy_by_pk(user_id: String!): user_economy
+
+  """
+  delete data from the table: "votes"
+  """
+  delete_votes(
+    """filter the rows which have to be deleted"""
+    where: votes_bool_exp!
+  ): votes_mutation_response
+
+  """
+  delete single row from the table: "votes"
+  """
+  delete_votes_by_pk(id: uuid!): votes
+
+  """
+  insert data into the table: "battle_config"
+  """
+  insert_battle_config(
+    """the rows to be inserted"""
+    objects: [battle_config_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: battle_config_on_conflict
+  ): battle_config_mutation_response
+
+  """
+  insert a single row into the table: "battle_config"
+  """
+  insert_battle_config_one(
+    """the row to be inserted"""
+    object: battle_config_insert_input!
+
+    """upsert condition"""
+    on_conflict: battle_config_on_conflict
+  ): battle_config
+
+  """
+  insert data into the table: "battle_fish"
+  """
+  insert_battle_fish(
+    """the rows to be inserted"""
+    objects: [battle_fish_insert_input!]!
+  ): battle_fish_mutation_response
+
+  """
+  insert a single row into the table: "battle_fish"
+  """
+  insert_battle_fish_one(
+    """the row to be inserted"""
+    object: battle_fish_insert_input!
+  ): battle_fish
+
+  """
+  insert data into the table: "battle_log"
+  """
+  insert_battle_log(
+    """the rows to be inserted"""
+    objects: [battle_log_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: battle_log_on_conflict
+  ): battle_log_mutation_response
+
+  """
+  insert a single row into the table: "battle_log"
+  """
+  insert_battle_log_one(
+    """the row to be inserted"""
+    object: battle_log_insert_input!
+
+    """upsert condition"""
+    on_conflict: battle_log_on_conflict
+  ): battle_log
+
+  """
+  insert data into the table: "economy_log"
+  """
+  insert_economy_log(
+    """the rows to be inserted"""
+    objects: [economy_log_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: economy_log_on_conflict
+  ): economy_log_mutation_response
+
+  """
+  insert a single row into the table: "economy_log"
+  """
+  insert_economy_log_one(
+    """the row to be inserted"""
+    object: economy_log_insert_input!
+
+    """upsert condition"""
+    on_conflict: economy_log_on_conflict
+  ): economy_log
+
+  """
+  insert data into the table: "fish"
+  """
+  insert_fish(
+    """the rows to be inserted"""
+    objects: [fish_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: fish_on_conflict
+  ): fish_mutation_response
+
+  """
+  insert a single row into the table: "fish"
+  """
+  insert_fish_one(
+    """the row to be inserted"""
+    object: fish_insert_input!
+
+    """upsert condition"""
+    on_conflict: fish_on_conflict
+  ): fish
+
+  """
+  insert data into the table: "fish_with_scores"
+  """
+  insert_fish_with_scores(
+    """the rows to be inserted"""
+    objects: [fish_with_scores_insert_input!]!
+  ): fish_with_scores_mutation_response
+
+  """
+  insert a single row into the table: "fish_with_scores"
+  """
+  insert_fish_with_scores_one(
+    """the row to be inserted"""
+    object: fish_with_scores_insert_input!
+  ): fish_with_scores
+
+  """
+  insert data into the table: "reports"
+  """
+  insert_reports(
+    """the rows to be inserted"""
+    objects: [reports_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: reports_on_conflict
+  ): reports_mutation_response
+
+  """
+  insert a single row into the table: "reports"
+  """
+  insert_reports_one(
+    """the row to be inserted"""
+    object: reports_insert_input!
+
+    """upsert condition"""
+    on_conflict: reports_on_conflict
+  ): reports
+
+  """
+  insert data into the table: "user_economy"
+  """
+  insert_user_economy(
+    """the rows to be inserted"""
+    objects: [user_economy_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: user_economy_on_conflict
+  ): user_economy_mutation_response
+
+  """
+  insert a single row into the table: "user_economy"
+  """
+  insert_user_economy_one(
+    """the row to be inserted"""
+    object: user_economy_insert_input!
+
+    """upsert condition"""
+    on_conflict: user_economy_on_conflict
+  ): user_economy
+
+  """
+  insert data into the table: "votes"
+  """
+  insert_votes(
+    """the rows to be inserted"""
+    objects: [votes_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: votes_on_conflict
+  ): votes_mutation_response
+
+  """
+  insert a single row into the table: "votes"
+  """
+  insert_votes_one(
+    """the row to be inserted"""
+    object: votes_insert_input!
+
+    """upsert condition"""
+    on_conflict: votes_on_conflict
+  ): votes
+
+  """
+  update data of the table: "battle_config"
+  """
+  update_battle_config(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: battle_config_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: battle_config_set_input
+
+    """filter the rows which have to be updated"""
+    where: battle_config_bool_exp!
+  ): battle_config_mutation_response
+
+  """
+  update single row of the table: "battle_config"
+  """
+  update_battle_config_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: battle_config_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: battle_config_set_input
+    pk_columns: battle_config_pk_columns_input!
+  ): battle_config
+
+  """
+  update multiples rows of table: "battle_config"
+  """
+  update_battle_config_many(
+    """updates to execute, in order"""
+    updates: [battle_config_updates!]!
+  ): [battle_config_mutation_response]
+
+  """
+  update data of the table: "battle_fish"
+  """
+  update_battle_fish(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: battle_fish_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: battle_fish_set_input
+
+    """filter the rows which have to be updated"""
+    where: battle_fish_bool_exp!
+  ): battle_fish_mutation_response
+
+  """
+  update multiples rows of table: "battle_fish"
+  """
+  update_battle_fish_many(
+    """updates to execute, in order"""
+    updates: [battle_fish_updates!]!
+  ): [battle_fish_mutation_response]
+
+  """
+  update data of the table: "battle_log"
+  """
+  update_battle_log(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: battle_log_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: battle_log_set_input
+
+    """filter the rows which have to be updated"""
+    where: battle_log_bool_exp!
+  ): battle_log_mutation_response
+
+  """
+  update single row of the table: "battle_log"
+  """
+  update_battle_log_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: battle_log_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: battle_log_set_input
+    pk_columns: battle_log_pk_columns_input!
+  ): battle_log
+
+  """
+  update multiples rows of table: "battle_log"
+  """
+  update_battle_log_many(
+    """updates to execute, in order"""
+    updates: [battle_log_updates!]!
+  ): [battle_log_mutation_response]
+
+  """
+  update data of the table: "economy_log"
+  """
+  update_economy_log(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: economy_log_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: economy_log_set_input
+
+    """filter the rows which have to be updated"""
+    where: economy_log_bool_exp!
+  ): economy_log_mutation_response
+
+  """
+  update single row of the table: "economy_log"
+  """
+  update_economy_log_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: economy_log_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: economy_log_set_input
+    pk_columns: economy_log_pk_columns_input!
+  ): economy_log
+
+  """
+  update multiples rows of table: "economy_log"
+  """
+  update_economy_log_many(
+    """updates to execute, in order"""
+    updates: [economy_log_updates!]!
+  ): [economy_log_mutation_response]
+
+  """
+  update data of the table: "fish"
+  """
+  update_fish(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: fish_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: fish_set_input
+
+    """filter the rows which have to be updated"""
+    where: fish_bool_exp!
+  ): fish_mutation_response
+
+  """
+  update single row of the table: "fish"
+  """
+  update_fish_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: fish_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: fish_set_input
+    pk_columns: fish_pk_columns_input!
+  ): fish
+
+  """
+  update multiples rows of table: "fish"
+  """
+  update_fish_many(
+    """updates to execute, in order"""
+    updates: [fish_updates!]!
+  ): [fish_mutation_response]
+
+  """
+  update data of the table: "fish_with_scores"
+  """
+  update_fish_with_scores(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: fish_with_scores_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: fish_with_scores_set_input
+
+    """filter the rows which have to be updated"""
+    where: fish_with_scores_bool_exp!
+  ): fish_with_scores_mutation_response
+
+  """
+  update multiples rows of table: "fish_with_scores"
+  """
+  update_fish_with_scores_many(
+    """updates to execute, in order"""
+    updates: [fish_with_scores_updates!]!
+  ): [fish_with_scores_mutation_response]
+
+  """
+  update data of the table: "reports"
+  """
+  update_reports(
+    """sets the columns of the filtered rows to the given values"""
+    _set: reports_set_input
+
+    """filter the rows which have to be updated"""
+    where: reports_bool_exp!
+  ): reports_mutation_response
+
+  """
+  update single row of the table: "reports"
+  """
+  update_reports_by_pk(
+    """sets the columns of the filtered rows to the given values"""
+    _set: reports_set_input
+    pk_columns: reports_pk_columns_input!
+  ): reports
+
+  """
+  update multiples rows of table: "reports"
+  """
+  update_reports_many(
+    """updates to execute, in order"""
+    updates: [reports_updates!]!
+  ): [reports_mutation_response]
+
+  """
+  update data of the table: "user_economy"
+  """
+  update_user_economy(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: user_economy_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: user_economy_set_input
+
+    """filter the rows which have to be updated"""
+    where: user_economy_bool_exp!
+  ): user_economy_mutation_response
+
+  """
+  update single row of the table: "user_economy"
+  """
+  update_user_economy_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: user_economy_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: user_economy_set_input
+    pk_columns: user_economy_pk_columns_input!
+  ): user_economy
+
+  """
+  update multiples rows of table: "user_economy"
+  """
+  update_user_economy_many(
+    """updates to execute, in order"""
+    updates: [user_economy_updates!]!
+  ): [user_economy_mutation_response]
+
+  """
+  update data of the table: "votes"
+  """
+  update_votes(
+    """sets the columns of the filtered rows to the given values"""
+    _set: votes_set_input
+
+    """filter the rows which have to be updated"""
+    where: votes_bool_exp!
+  ): votes_mutation_response
+
+  """
+  update single row of the table: "votes"
+  """
+  update_votes_by_pk(
+    """sets the columns of the filtered rows to the given values"""
+    _set: votes_set_input
+    pk_columns: votes_pk_columns_input!
+  ): votes
+
+  """
+  update multiples rows of table: "votes"
+  """
+  update_votes_many(
+    """updates to execute, in order"""
+    updates: [votes_updates!]!
+  ): [votes_mutation_response]
+}
+
+scalar numeric
+
+"""
+Boolean expression to compare columns of type "numeric". All fields are combined with logical 'AND'.
+"""
+input numeric_comparison_exp {
+  _eq: numeric
+  _gt: numeric
+  _gte: numeric
+  _in: [numeric!]
+  _is_null: Boolean
+  _lt: numeric
+  _lte: numeric
+  _neq: numeric
+  _nin: [numeric!]
+}
+
+"""column ordering options"""
+enum order_by {
+  """in ascending order, nulls last"""
+  asc
+
+  """in ascending order, nulls first"""
+  asc_nulls_first
+
+  """in ascending order, nulls last"""
+  asc_nulls_last
+
+  """in descending order, nulls first"""
+  desc
+
+  """in descending order, nulls first"""
+  desc_nulls_first
+
+  """in descending order, nulls last"""
+  desc_nulls_last
+}
+
+type query_root {
+  """
+  fetch data from the table: "battle_config"
+  """
+  battle_config(
+    """distinct select on columns"""
+    distinct_on: [battle_config_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_config_order_by!]
+
+    """filter the rows returned"""
+    where: battle_config_bool_exp
+  ): [battle_config!]!
+
+  """
+  fetch aggregated fields from the table: "battle_config"
+  """
+  battle_config_aggregate(
+    """distinct select on columns"""
+    distinct_on: [battle_config_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_config_order_by!]
+
+    """filter the rows returned"""
+    where: battle_config_bool_exp
+  ): battle_config_aggregate!
+
+  """fetch data from the table: "battle_config" using primary key columns"""
+  battle_config_by_pk(id: Int!): battle_config
+
+  """
+  fetch data from the table: "battle_fish"
+  """
+  battle_fish(
+    """distinct select on columns"""
+    distinct_on: [battle_fish_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_fish_order_by!]
+
+    """filter the rows returned"""
+    where: battle_fish_bool_exp
+  ): [battle_fish!]!
+
+  """
+  fetch aggregated fields from the table: "battle_fish"
+  """
+  battle_fish_aggregate(
+    """distinct select on columns"""
+    distinct_on: [battle_fish_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_fish_order_by!]
+
+    """filter the rows returned"""
+    where: battle_fish_bool_exp
+  ): battle_fish_aggregate!
+
+  """
+  fetch data from the table: "battle_log"
+  """
+  battle_log(
+    """distinct select on columns"""
+    distinct_on: [battle_log_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_log_order_by!]
+
+    """filter the rows returned"""
+    where: battle_log_bool_exp
+  ): [battle_log!]!
+
+  """
+  fetch aggregated fields from the table: "battle_log"
+  """
+  battle_log_aggregate(
+    """distinct select on columns"""
+    distinct_on: [battle_log_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_log_order_by!]
+
+    """filter the rows returned"""
+    where: battle_log_bool_exp
+  ): battle_log_aggregate!
+
+  """fetch data from the table: "battle_log" using primary key columns"""
+  battle_log_by_pk(id: uuid!): battle_log
+
+  """
+  fetch data from the table: "economy_log"
+  """
+  economy_log(
+    """distinct select on columns"""
+    distinct_on: [economy_log_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [economy_log_order_by!]
+
+    """filter the rows returned"""
+    where: economy_log_bool_exp
+  ): [economy_log!]!
+
+  """
+  fetch aggregated fields from the table: "economy_log"
+  """
+  economy_log_aggregate(
+    """distinct select on columns"""
+    distinct_on: [economy_log_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [economy_log_order_by!]
+
+    """filter the rows returned"""
+    where: economy_log_bool_exp
+  ): economy_log_aggregate!
+
+  """fetch data from the table: "economy_log" using primary key columns"""
+  economy_log_by_pk(id: uuid!): economy_log
+
+  """
+  fetch data from the table: "fish"
+  """
+  fish(
+    """distinct select on columns"""
+    distinct_on: [fish_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_order_by!]
+
+    """filter the rows returned"""
+    where: fish_bool_exp
+  ): [fish!]!
+
+  """
+  fetch aggregated fields from the table: "fish"
+  """
+  fish_aggregate(
+    """distinct select on columns"""
+    distinct_on: [fish_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_order_by!]
+
+    """filter the rows returned"""
+    where: fish_bool_exp
+  ): fish_aggregate!
+
+  """fetch data from the table: "fish" using primary key columns"""
+  fish_by_pk(id: uuid!): fish
+
+  """
+  fetch data from the table: "fish_with_scores"
+  """
+  fish_with_scores(
+    """distinct select on columns"""
+    distinct_on: [fish_with_scores_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_with_scores_order_by!]
+
+    """filter the rows returned"""
+    where: fish_with_scores_bool_exp
+  ): [fish_with_scores!]!
+
+  """
+  fetch aggregated fields from the table: "fish_with_scores"
+  """
+  fish_with_scores_aggregate(
+    """distinct select on columns"""
+    distinct_on: [fish_with_scores_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_with_scores_order_by!]
+
+    """filter the rows returned"""
+    where: fish_with_scores_bool_exp
+  ): fish_with_scores_aggregate!
+
+  """
+  fetch data from the table: "reports"
+  """
+  reports(
+    """distinct select on columns"""
+    distinct_on: [reports_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [reports_order_by!]
+
+    """filter the rows returned"""
+    where: reports_bool_exp
+  ): [reports!]!
+
+  """
+  fetch aggregated fields from the table: "reports"
+  """
+  reports_aggregate(
+    """distinct select on columns"""
+    distinct_on: [reports_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [reports_order_by!]
+
+    """filter the rows returned"""
+    where: reports_bool_exp
+  ): reports_aggregate!
+
+  """fetch data from the table: "reports" using primary key columns"""
+  reports_by_pk(id: uuid!): reports
+
+  """
+  fetch data from the table: "user_economy"
+  """
+  user_economy(
+    """distinct select on columns"""
+    distinct_on: [user_economy_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_economy_order_by!]
+
+    """filter the rows returned"""
+    where: user_economy_bool_exp
+  ): [user_economy!]!
+
+  """
+  fetch aggregated fields from the table: "user_economy"
+  """
+  user_economy_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_economy_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_economy_order_by!]
+
+    """filter the rows returned"""
+    where: user_economy_bool_exp
+  ): user_economy_aggregate!
+
+  """fetch data from the table: "user_economy" using primary key columns"""
+  user_economy_by_pk(user_id: String!): user_economy
+
+  """
+  fetch data from the table: "user_fish_summary"
+  """
+  user_fish_summary(
+    """distinct select on columns"""
+    distinct_on: [user_fish_summary_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_fish_summary_order_by!]
+
+    """filter the rows returned"""
+    where: user_fish_summary_bool_exp
+  ): [user_fish_summary!]!
+
+  """
+  fetch aggregated fields from the table: "user_fish_summary"
+  """
+  user_fish_summary_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_fish_summary_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_fish_summary_order_by!]
+
+    """filter the rows returned"""
+    where: user_fish_summary_bool_exp
+  ): user_fish_summary_aggregate!
+
+  """
+  fetch data from the table: "votes"
+  """
+  votes(
+    """distinct select on columns"""
+    distinct_on: [votes_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [votes_order_by!]
+
+    """filter the rows returned"""
+    where: votes_bool_exp
+  ): [votes!]!
+
+  """
+  fetch aggregated fields from the table: "votes"
+  """
+  votes_aggregate(
+    """distinct select on columns"""
+    distinct_on: [votes_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [votes_order_by!]
+
+    """filter the rows returned"""
+    where: votes_bool_exp
+  ): votes_aggregate!
+
+  """fetch data from the table: "votes" using primary key columns"""
+  votes_by_pk(id: uuid!): votes
+}
+
+"""
+columns and relationships of "reports"
+"""
+type reports {
+  created_at: timestamp
+  fish_id: uuid!
+  id: uuid!
+  moderator_action: String
+  moderator_id: String
+  reason: String!
+  reporter_ip: String
+  resolved_at: timestamp
+  status: String
+  url: String
+  user_agent: String
+}
+
+"""
+aggregated selection of "reports"
+"""
+type reports_aggregate {
+  aggregate: reports_aggregate_fields
+  nodes: [reports!]!
+}
+
+"""
+aggregate fields of "reports"
+"""
+type reports_aggregate_fields {
+  count(columns: [reports_select_column!], distinct: Boolean): Int!
+  max: reports_max_fields
+  min: reports_min_fields
+}
+
+"""
+Boolean expression to filter rows from the table "reports". All fields are combined with a logical 'AND'.
+"""
+input reports_bool_exp {
+  _and: [reports_bool_exp!]
+  _not: reports_bool_exp
+  _or: [reports_bool_exp!]
+  created_at: timestamp_comparison_exp
+  fish_id: uuid_comparison_exp
+  id: uuid_comparison_exp
+  moderator_action: String_comparison_exp
+  moderator_id: String_comparison_exp
+  reason: String_comparison_exp
+  reporter_ip: String_comparison_exp
+  resolved_at: timestamp_comparison_exp
+  status: String_comparison_exp
+  url: String_comparison_exp
+  user_agent: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "reports"
+"""
+enum reports_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  reports_pkey
+}
+
+"""
+input type for inserting data into table "reports"
+"""
+input reports_insert_input {
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  moderator_action: String
+  moderator_id: String
+  reason: String
+  reporter_ip: String
+  resolved_at: timestamp
+  status: String
+  url: String
+  user_agent: String
+}
+
+"""aggregate max on columns"""
+type reports_max_fields {
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  moderator_action: String
+  moderator_id: String
+  reason: String
+  reporter_ip: String
+  resolved_at: timestamp
+  status: String
+  url: String
+  user_agent: String
+}
+
+"""aggregate min on columns"""
+type reports_min_fields {
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  moderator_action: String
+  moderator_id: String
+  reason: String
+  reporter_ip: String
+  resolved_at: timestamp
+  status: String
+  url: String
+  user_agent: String
+}
+
+"""
+response of any mutation on the table "reports"
+"""
+type reports_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [reports!]!
+}
+
+"""
+on_conflict condition type for table "reports"
+"""
+input reports_on_conflict {
+  constraint: reports_constraint!
+  update_columns: [reports_update_column!]! = []
+  where: reports_bool_exp
+}
+
+"""Ordering options when selecting data from "reports"."""
+input reports_order_by {
+  created_at: order_by
+  fish_id: order_by
+  id: order_by
+  moderator_action: order_by
+  moderator_id: order_by
+  reason: order_by
+  reporter_ip: order_by
+  resolved_at: order_by
+  status: order_by
+  url: order_by
+  user_agent: order_by
+}
+
+"""primary key columns input for table: reports"""
+input reports_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "reports"
+"""
+enum reports_select_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  moderator_action
+
+  """column name"""
+  moderator_id
+
+  """column name"""
+  reason
+
+  """column name"""
+  reporter_ip
+
+  """column name"""
+  resolved_at
+
+  """column name"""
+  status
+
+  """column name"""
+  url
+
+  """column name"""
+  user_agent
+}
+
+"""
+input type for updating data in table "reports"
+"""
+input reports_set_input {
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  moderator_action: String
+  moderator_id: String
+  reason: String
+  reporter_ip: String
+  resolved_at: timestamp
+  status: String
+  url: String
+  user_agent: String
+}
+
+"""
+Streaming cursor of the table "reports"
+"""
+input reports_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: reports_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input reports_stream_cursor_value_input {
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  moderator_action: String
+  moderator_id: String
+  reason: String
+  reporter_ip: String
+  resolved_at: timestamp
+  status: String
+  url: String
+  user_agent: String
+}
+
+"""
+update columns of table "reports"
+"""
+enum reports_update_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  moderator_action
+
+  """column name"""
+  moderator_id
+
+  """column name"""
+  reason
+
+  """column name"""
+  reporter_ip
+
+  """column name"""
+  resolved_at
+
+  """column name"""
+  status
+
+  """column name"""
+  url
+
+  """column name"""
+  user_agent
+}
+
+input reports_updates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: reports_set_input
+
+  """filter the rows which have to be updated"""
+  where: reports_bool_exp!
+}
+
+type subscription_root {
+  """
+  fetch data from the table: "battle_config"
+  """
+  battle_config(
+    """distinct select on columns"""
+    distinct_on: [battle_config_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_config_order_by!]
+
+    """filter the rows returned"""
+    where: battle_config_bool_exp
+  ): [battle_config!]!
+
+  """
+  fetch aggregated fields from the table: "battle_config"
+  """
+  battle_config_aggregate(
+    """distinct select on columns"""
+    distinct_on: [battle_config_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_config_order_by!]
+
+    """filter the rows returned"""
+    where: battle_config_bool_exp
+  ): battle_config_aggregate!
+
+  """fetch data from the table: "battle_config" using primary key columns"""
+  battle_config_by_pk(id: Int!): battle_config
+
+  """
+  fetch data from the table in a streaming manner: "battle_config"
+  """
+  battle_config_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [battle_config_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: battle_config_bool_exp
+  ): [battle_config!]!
+
+  """
+  fetch data from the table: "battle_fish"
+  """
+  battle_fish(
+    """distinct select on columns"""
+    distinct_on: [battle_fish_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_fish_order_by!]
+
+    """filter the rows returned"""
+    where: battle_fish_bool_exp
+  ): [battle_fish!]!
+
+  """
+  fetch aggregated fields from the table: "battle_fish"
+  """
+  battle_fish_aggregate(
+    """distinct select on columns"""
+    distinct_on: [battle_fish_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_fish_order_by!]
+
+    """filter the rows returned"""
+    where: battle_fish_bool_exp
+  ): battle_fish_aggregate!
+
+  """
+  fetch data from the table in a streaming manner: "battle_fish"
+  """
+  battle_fish_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [battle_fish_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: battle_fish_bool_exp
+  ): [battle_fish!]!
+
+  """
+  fetch data from the table: "battle_log"
+  """
+  battle_log(
+    """distinct select on columns"""
+    distinct_on: [battle_log_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_log_order_by!]
+
+    """filter the rows returned"""
+    where: battle_log_bool_exp
+  ): [battle_log!]!
+
+  """
+  fetch aggregated fields from the table: "battle_log"
+  """
+  battle_log_aggregate(
+    """distinct select on columns"""
+    distinct_on: [battle_log_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [battle_log_order_by!]
+
+    """filter the rows returned"""
+    where: battle_log_bool_exp
+  ): battle_log_aggregate!
+
+  """fetch data from the table: "battle_log" using primary key columns"""
+  battle_log_by_pk(id: uuid!): battle_log
+
+  """
+  fetch data from the table in a streaming manner: "battle_log"
+  """
+  battle_log_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [battle_log_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: battle_log_bool_exp
+  ): [battle_log!]!
+
+  """
+  fetch data from the table: "economy_log"
+  """
+  economy_log(
+    """distinct select on columns"""
+    distinct_on: [economy_log_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [economy_log_order_by!]
+
+    """filter the rows returned"""
+    where: economy_log_bool_exp
+  ): [economy_log!]!
+
+  """
+  fetch aggregated fields from the table: "economy_log"
+  """
+  economy_log_aggregate(
+    """distinct select on columns"""
+    distinct_on: [economy_log_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [economy_log_order_by!]
+
+    """filter the rows returned"""
+    where: economy_log_bool_exp
+  ): economy_log_aggregate!
+
+  """fetch data from the table: "economy_log" using primary key columns"""
+  economy_log_by_pk(id: uuid!): economy_log
+
+  """
+  fetch data from the table in a streaming manner: "economy_log"
+  """
+  economy_log_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [economy_log_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: economy_log_bool_exp
+  ): [economy_log!]!
+
+  """
+  fetch data from the table: "fish"
+  """
+  fish(
+    """distinct select on columns"""
+    distinct_on: [fish_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_order_by!]
+
+    """filter the rows returned"""
+    where: fish_bool_exp
+  ): [fish!]!
+
+  """
+  fetch aggregated fields from the table: "fish"
+  """
+  fish_aggregate(
+    """distinct select on columns"""
+    distinct_on: [fish_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_order_by!]
+
+    """filter the rows returned"""
+    where: fish_bool_exp
+  ): fish_aggregate!
+
+  """fetch data from the table: "fish" using primary key columns"""
+  fish_by_pk(id: uuid!): fish
+
+  """
+  fetch data from the table in a streaming manner: "fish"
+  """
+  fish_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [fish_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: fish_bool_exp
+  ): [fish!]!
+
+  """
+  fetch data from the table: "fish_with_scores"
+  """
+  fish_with_scores(
+    """distinct select on columns"""
+    distinct_on: [fish_with_scores_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_with_scores_order_by!]
+
+    """filter the rows returned"""
+    where: fish_with_scores_bool_exp
+  ): [fish_with_scores!]!
+
+  """
+  fetch aggregated fields from the table: "fish_with_scores"
+  """
+  fish_with_scores_aggregate(
+    """distinct select on columns"""
+    distinct_on: [fish_with_scores_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_with_scores_order_by!]
+
+    """filter the rows returned"""
+    where: fish_with_scores_bool_exp
+  ): fish_with_scores_aggregate!
+
+  """
+  fetch data from the table in a streaming manner: "fish_with_scores"
+  """
+  fish_with_scores_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [fish_with_scores_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: fish_with_scores_bool_exp
+  ): [fish_with_scores!]!
+
+  """
+  fetch data from the table: "reports"
+  """
+  reports(
+    """distinct select on columns"""
+    distinct_on: [reports_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [reports_order_by!]
+
+    """filter the rows returned"""
+    where: reports_bool_exp
+  ): [reports!]!
+
+  """
+  fetch aggregated fields from the table: "reports"
+  """
+  reports_aggregate(
+    """distinct select on columns"""
+    distinct_on: [reports_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [reports_order_by!]
+
+    """filter the rows returned"""
+    where: reports_bool_exp
+  ): reports_aggregate!
+
+  """fetch data from the table: "reports" using primary key columns"""
+  reports_by_pk(id: uuid!): reports
+
+  """
+  fetch data from the table in a streaming manner: "reports"
+  """
+  reports_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [reports_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: reports_bool_exp
+  ): [reports!]!
+
+  """
+  fetch data from the table: "user_economy"
+  """
+  user_economy(
+    """distinct select on columns"""
+    distinct_on: [user_economy_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_economy_order_by!]
+
+    """filter the rows returned"""
+    where: user_economy_bool_exp
+  ): [user_economy!]!
+
+  """
+  fetch aggregated fields from the table: "user_economy"
+  """
+  user_economy_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_economy_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_economy_order_by!]
+
+    """filter the rows returned"""
+    where: user_economy_bool_exp
+  ): user_economy_aggregate!
+
+  """fetch data from the table: "user_economy" using primary key columns"""
+  user_economy_by_pk(user_id: String!): user_economy
+
+  """
+  fetch data from the table in a streaming manner: "user_economy"
+  """
+  user_economy_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [user_economy_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: user_economy_bool_exp
+  ): [user_economy!]!
+
+  """
+  fetch data from the table: "user_fish_summary"
+  """
+  user_fish_summary(
+    """distinct select on columns"""
+    distinct_on: [user_fish_summary_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_fish_summary_order_by!]
+
+    """filter the rows returned"""
+    where: user_fish_summary_bool_exp
+  ): [user_fish_summary!]!
+
+  """
+  fetch aggregated fields from the table: "user_fish_summary"
+  """
+  user_fish_summary_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_fish_summary_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_fish_summary_order_by!]
+
+    """filter the rows returned"""
+    where: user_fish_summary_bool_exp
+  ): user_fish_summary_aggregate!
+
+  """
+  fetch data from the table in a streaming manner: "user_fish_summary"
+  """
+  user_fish_summary_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [user_fish_summary_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: user_fish_summary_bool_exp
+  ): [user_fish_summary!]!
+
+  """
+  fetch data from the table: "votes"
+  """
+  votes(
+    """distinct select on columns"""
+    distinct_on: [votes_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [votes_order_by!]
+
+    """filter the rows returned"""
+    where: votes_bool_exp
+  ): [votes!]!
+
+  """
+  fetch aggregated fields from the table: "votes"
+  """
+  votes_aggregate(
+    """distinct select on columns"""
+    distinct_on: [votes_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [votes_order_by!]
+
+    """filter the rows returned"""
+    where: votes_bool_exp
+  ): votes_aggregate!
+
+  """fetch data from the table: "votes" using primary key columns"""
+  votes_by_pk(id: uuid!): votes
+
+  """
+  fetch data from the table in a streaming manner: "votes"
+  """
+  votes_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [votes_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: votes_bool_exp
+  ): [votes!]!
+}
+
+scalar timestamp
+
+"""
+Boolean expression to compare columns of type "timestamp". All fields are combined with logical 'AND'.
+"""
+input timestamp_comparison_exp {
+  _eq: timestamp
+  _gt: timestamp
+  _gte: timestamp
+  _in: [timestamp!]
+  _is_null: Boolean
+  _lt: timestamp
+  _lte: timestamp
+  _neq: timestamp
+  _nin: [timestamp!]
+}
+
+"""
+columns and relationships of "user_economy"
+"""
+type user_economy {
+  created_at: timestamp
+  fish_food: Int!
+  last_daily_bonus: timestamp
+  total_earned: Int
+  total_spent: Int
+  user_id: String!
+}
+
+"""
+aggregated selection of "user_economy"
+"""
+type user_economy_aggregate {
+  aggregate: user_economy_aggregate_fields
+  nodes: [user_economy!]!
+}
+
+"""
+aggregate fields of "user_economy"
+"""
+type user_economy_aggregate_fields {
+  avg: user_economy_avg_fields
+  count(columns: [user_economy_select_column!], distinct: Boolean): Int!
+  max: user_economy_max_fields
+  min: user_economy_min_fields
+  stddev: user_economy_stddev_fields
+  stddev_pop: user_economy_stddev_pop_fields
+  stddev_samp: user_economy_stddev_samp_fields
+  sum: user_economy_sum_fields
+  var_pop: user_economy_var_pop_fields
+  var_samp: user_economy_var_samp_fields
+  variance: user_economy_variance_fields
+}
+
+"""aggregate avg on columns"""
+type user_economy_avg_fields {
+  fish_food: Float
+  total_earned: Float
+  total_spent: Float
+}
+
+"""
+Boolean expression to filter rows from the table "user_economy". All fields are combined with a logical 'AND'.
+"""
+input user_economy_bool_exp {
+  _and: [user_economy_bool_exp!]
+  _not: user_economy_bool_exp
+  _or: [user_economy_bool_exp!]
+  created_at: timestamp_comparison_exp
+  fish_food: Int_comparison_exp
+  last_daily_bonus: timestamp_comparison_exp
+  total_earned: Int_comparison_exp
+  total_spent: Int_comparison_exp
+  user_id: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "user_economy"
+"""
+enum user_economy_constraint {
+  """
+  unique or primary key constraint on columns "user_id"
+  """
+  user_economy_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "user_economy"
+"""
+input user_economy_inc_input {
+  fish_food: Int
+  total_earned: Int
+  total_spent: Int
+}
+
+"""
+input type for inserting data into table "user_economy"
+"""
+input user_economy_insert_input {
+  created_at: timestamp
+  fish_food: Int
+  last_daily_bonus: timestamp
+  total_earned: Int
+  total_spent: Int
+  user_id: String
+}
+
+"""aggregate max on columns"""
+type user_economy_max_fields {
+  created_at: timestamp
+  fish_food: Int
+  last_daily_bonus: timestamp
+  total_earned: Int
+  total_spent: Int
+  user_id: String
+}
+
+"""aggregate min on columns"""
+type user_economy_min_fields {
+  created_at: timestamp
+  fish_food: Int
+  last_daily_bonus: timestamp
+  total_earned: Int
+  total_spent: Int
+  user_id: String
+}
+
+"""
+response of any mutation on the table "user_economy"
+"""
+type user_economy_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [user_economy!]!
+}
+
+"""
+on_conflict condition type for table "user_economy"
+"""
+input user_economy_on_conflict {
+  constraint: user_economy_constraint!
+  update_columns: [user_economy_update_column!]! = []
+  where: user_economy_bool_exp
+}
+
+"""Ordering options when selecting data from "user_economy"."""
+input user_economy_order_by {
+  created_at: order_by
+  fish_food: order_by
+  last_daily_bonus: order_by
+  total_earned: order_by
+  total_spent: order_by
+  user_id: order_by
+}
+
+"""primary key columns input for table: user_economy"""
+input user_economy_pk_columns_input {
+  user_id: String!
+}
+
+"""
+select columns of table "user_economy"
+"""
+enum user_economy_select_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_food
+
+  """column name"""
+  last_daily_bonus
+
+  """column name"""
+  total_earned
+
+  """column name"""
+  total_spent
+
+  """column name"""
+  user_id
+}
+
+"""
+input type for updating data in table "user_economy"
+"""
+input user_economy_set_input {
+  created_at: timestamp
+  fish_food: Int
+  last_daily_bonus: timestamp
+  total_earned: Int
+  total_spent: Int
+  user_id: String
+}
+
+"""aggregate stddev on columns"""
+type user_economy_stddev_fields {
+  fish_food: Float
+  total_earned: Float
+  total_spent: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type user_economy_stddev_pop_fields {
+  fish_food: Float
+  total_earned: Float
+  total_spent: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type user_economy_stddev_samp_fields {
+  fish_food: Float
+  total_earned: Float
+  total_spent: Float
+}
+
+"""
+Streaming cursor of the table "user_economy"
+"""
+input user_economy_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: user_economy_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input user_economy_stream_cursor_value_input {
+  created_at: timestamp
+  fish_food: Int
+  last_daily_bonus: timestamp
+  total_earned: Int
+  total_spent: Int
+  user_id: String
+}
+
+"""aggregate sum on columns"""
+type user_economy_sum_fields {
+  fish_food: Int
+  total_earned: Int
+  total_spent: Int
+}
+
+"""
+update columns of table "user_economy"
+"""
+enum user_economy_update_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_food
+
+  """column name"""
+  last_daily_bonus
+
+  """column name"""
+  total_earned
+
+  """column name"""
+  total_spent
+
+  """column name"""
+  user_id
+}
+
+input user_economy_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: user_economy_inc_input
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: user_economy_set_input
+
+  """filter the rows which have to be updated"""
+  where: user_economy_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type user_economy_var_pop_fields {
+  fish_food: Float
+  total_earned: Float
+  total_spent: Float
+}
+
+"""aggregate var_samp on columns"""
+type user_economy_var_samp_fields {
+  fish_food: Float
+  total_earned: Float
+  total_spent: Float
+}
+
+"""aggregate variance on columns"""
+type user_economy_variance_fields {
+  fish_food: Float
+  total_earned: Float
+  total_spent: Float
+}
+
+"""
+columns and relationships of "user_fish_summary"
+"""
+type user_fish_summary {
+  alive_fish: bigint
+  avg_level: numeric
+  max_level: Int
+  total_fish: bigint
+  total_losses: bigint
+  total_upvotes: bigint
+  total_wins: bigint
+  user_id: String
+}
+
+"""
+aggregated selection of "user_fish_summary"
+"""
+type user_fish_summary_aggregate {
+  aggregate: user_fish_summary_aggregate_fields
+  nodes: [user_fish_summary!]!
+}
+
+"""
+aggregate fields of "user_fish_summary"
+"""
+type user_fish_summary_aggregate_fields {
+  avg: user_fish_summary_avg_fields
+  count(columns: [user_fish_summary_select_column!], distinct: Boolean): Int!
+  max: user_fish_summary_max_fields
+  min: user_fish_summary_min_fields
+  stddev: user_fish_summary_stddev_fields
+  stddev_pop: user_fish_summary_stddev_pop_fields
+  stddev_samp: user_fish_summary_stddev_samp_fields
+  sum: user_fish_summary_sum_fields
+  var_pop: user_fish_summary_var_pop_fields
+  var_samp: user_fish_summary_var_samp_fields
+  variance: user_fish_summary_variance_fields
+}
+
+"""aggregate avg on columns"""
+type user_fish_summary_avg_fields {
+  alive_fish: Float
+  avg_level: Float
+  max_level: Float
+  total_fish: Float
+  total_losses: Float
+  total_upvotes: Float
+  total_wins: Float
+}
+
+"""
+Boolean expression to filter rows from the table "user_fish_summary". All fields are combined with a logical 'AND'.
+"""
+input user_fish_summary_bool_exp {
+  _and: [user_fish_summary_bool_exp!]
+  _not: user_fish_summary_bool_exp
+  _or: [user_fish_summary_bool_exp!]
+  alive_fish: bigint_comparison_exp
+  avg_level: numeric_comparison_exp
+  max_level: Int_comparison_exp
+  total_fish: bigint_comparison_exp
+  total_losses: bigint_comparison_exp
+  total_upvotes: bigint_comparison_exp
+  total_wins: bigint_comparison_exp
+  user_id: String_comparison_exp
+}
+
+"""aggregate max on columns"""
+type user_fish_summary_max_fields {
+  alive_fish: bigint
+  avg_level: numeric
+  max_level: Int
+  total_fish: bigint
+  total_losses: bigint
+  total_upvotes: bigint
+  total_wins: bigint
+  user_id: String
+}
+
+"""aggregate min on columns"""
+type user_fish_summary_min_fields {
+  alive_fish: bigint
+  avg_level: numeric
+  max_level: Int
+  total_fish: bigint
+  total_losses: bigint
+  total_upvotes: bigint
+  total_wins: bigint
+  user_id: String
+}
+
+"""Ordering options when selecting data from "user_fish_summary"."""
+input user_fish_summary_order_by {
+  alive_fish: order_by
+  avg_level: order_by
+  max_level: order_by
+  total_fish: order_by
+  total_losses: order_by
+  total_upvotes: order_by
+  total_wins: order_by
+  user_id: order_by
+}
+
+"""
+select columns of table "user_fish_summary"
+"""
+enum user_fish_summary_select_column {
+  """column name"""
+  alive_fish
+
+  """column name"""
+  avg_level
+
+  """column name"""
+  max_level
+
+  """column name"""
+  total_fish
+
+  """column name"""
+  total_losses
+
+  """column name"""
+  total_upvotes
+
+  """column name"""
+  total_wins
+
+  """column name"""
+  user_id
+}
+
+"""aggregate stddev on columns"""
+type user_fish_summary_stddev_fields {
+  alive_fish: Float
+  avg_level: Float
+  max_level: Float
+  total_fish: Float
+  total_losses: Float
+  total_upvotes: Float
+  total_wins: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type user_fish_summary_stddev_pop_fields {
+  alive_fish: Float
+  avg_level: Float
+  max_level: Float
+  total_fish: Float
+  total_losses: Float
+  total_upvotes: Float
+  total_wins: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type user_fish_summary_stddev_samp_fields {
+  alive_fish: Float
+  avg_level: Float
+  max_level: Float
+  total_fish: Float
+  total_losses: Float
+  total_upvotes: Float
+  total_wins: Float
+}
+
+"""
+Streaming cursor of the table "user_fish_summary"
+"""
+input user_fish_summary_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: user_fish_summary_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input user_fish_summary_stream_cursor_value_input {
+  alive_fish: bigint
+  avg_level: numeric
+  max_level: Int
+  total_fish: bigint
+  total_losses: bigint
+  total_upvotes: bigint
+  total_wins: bigint
+  user_id: String
+}
+
+"""aggregate sum on columns"""
+type user_fish_summary_sum_fields {
+  alive_fish: bigint
+  avg_level: numeric
+  max_level: Int
+  total_fish: bigint
+  total_losses: bigint
+  total_upvotes: bigint
+  total_wins: bigint
+}
+
+"""aggregate var_pop on columns"""
+type user_fish_summary_var_pop_fields {
+  alive_fish: Float
+  avg_level: Float
+  max_level: Float
+  total_fish: Float
+  total_losses: Float
+  total_upvotes: Float
+  total_wins: Float
+}
+
+"""aggregate var_samp on columns"""
+type user_fish_summary_var_samp_fields {
+  alive_fish: Float
+  avg_level: Float
+  max_level: Float
+  total_fish: Float
+  total_losses: Float
+  total_upvotes: Float
+  total_wins: Float
+}
+
+"""aggregate variance on columns"""
+type user_fish_summary_variance_fields {
+  alive_fish: Float
+  avg_level: Float
+  max_level: Float
+  total_fish: Float
+  total_losses: Float
+  total_upvotes: Float
+  total_wins: Float
+}
+
+scalar uuid
+
+"""
+Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'.
+"""
+input uuid_comparison_exp {
+  _eq: uuid
+  _gt: uuid
+  _gte: uuid
+  _in: [uuid!]
+  _is_null: Boolean
+  _lt: uuid
+  _lte: uuid
+  _neq: uuid
+  _nin: [uuid!]
+}
+
+"""
+columns and relationships of "votes"
+"""
+type votes {
+  created_at: timestamp
+  fish_id: uuid!
+  id: uuid!
+  user_id: String!
+  vote_type: String!
+}
+
+"""
+aggregated selection of "votes"
+"""
+type votes_aggregate {
+  aggregate: votes_aggregate_fields
+  nodes: [votes!]!
+}
+
+"""
+aggregate fields of "votes"
+"""
+type votes_aggregate_fields {
+  count(columns: [votes_select_column!], distinct: Boolean): Int!
+  max: votes_max_fields
+  min: votes_min_fields
+}
+
+"""
+Boolean expression to filter rows from the table "votes". All fields are combined with a logical 'AND'.
+"""
+input votes_bool_exp {
+  _and: [votes_bool_exp!]
+  _not: votes_bool_exp
+  _or: [votes_bool_exp!]
+  created_at: timestamp_comparison_exp
+  fish_id: uuid_comparison_exp
+  id: uuid_comparison_exp
+  user_id: String_comparison_exp
+  vote_type: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "votes"
+"""
+enum votes_constraint {
+  """
+  unique or primary key constraint on columns "user_id", "fish_id"
+  """
+  votes_fish_id_user_id_key
+
+  """
+  unique or primary key constraint on columns "id"
+  """
+  votes_pkey
+}
+
+"""
+input type for inserting data into table "votes"
+"""
+input votes_insert_input {
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  user_id: String
+  vote_type: String
+}
+
+"""aggregate max on columns"""
+type votes_max_fields {
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  user_id: String
+  vote_type: String
+}
+
+"""aggregate min on columns"""
+type votes_min_fields {
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  user_id: String
+  vote_type: String
+}
+
+"""
+response of any mutation on the table "votes"
+"""
+type votes_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [votes!]!
+}
+
+"""
+on_conflict condition type for table "votes"
+"""
+input votes_on_conflict {
+  constraint: votes_constraint!
+  update_columns: [votes_update_column!]! = []
+  where: votes_bool_exp
+}
+
+"""Ordering options when selecting data from "votes"."""
+input votes_order_by {
+  created_at: order_by
+  fish_id: order_by
+  id: order_by
+  user_id: order_by
+  vote_type: order_by
+}
+
+"""primary key columns input for table: votes"""
+input votes_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "votes"
+"""
+enum votes_select_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  user_id
+
+  """column name"""
+  vote_type
+}
+
+"""
+input type for updating data in table "votes"
+"""
+input votes_set_input {
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  user_id: String
+  vote_type: String
+}
+
+"""
+Streaming cursor of the table "votes"
+"""
+input votes_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: votes_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input votes_stream_cursor_value_input {
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  user_id: String
+  vote_type: String
+}
+
+"""
+update columns of table "votes"
+"""
+enum votes_update_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  user_id
+
+  """column name"""
+  vote_type
+}
+
+input votes_updates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: votes_set_input
+
+  """filter the rows which have to be updated"""
+  where: votes_bool_exp!
+}
