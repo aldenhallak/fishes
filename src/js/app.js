@@ -303,37 +303,74 @@ async function submitFish(artist, needsModeration = false) {
         document.head.appendChild(style);
     }
     try {
-        // Prepare headers with auth data if user is logged in
-        const headers = {};
-        const userToken = localStorage.getItem('userToken');
-        if (userToken) {
-            headers['Authorization'] = `Bearer ${userToken}`;
+        // 获取Supabase认证token
+        let authToken = null;
+        if (window.supabaseAuth) {
+            authToken = await window.supabaseAuth.getAccessToken();
         }
         
-        // Await server response
-        const resp = await fetch(`${window.BACKEND_URL}/uploadfish`, {
+        // 获取当前用户
+        const currentUser = await getCurrentUser();
+        if (!currentUser) {
+            alert('Please log in to submit your fish.');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+            }
+            return;
+        }
+        
+        // 第一步：上传图片
+        const uploadResp = await fetch(`${window.BACKEND_URL}/api/fish/upload`, {
             method: 'POST',
-            headers: headers,
+            headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
             body: formData
         });
-        const result = await resp.json();
+        
+        if (!uploadResp.ok) {
+            throw new Error('图片上传失败');
+        }
+        
+        const uploadResult = await uploadResp.json();
+        
+        if (!uploadResult.success || !uploadResult.imageUrl) {
+            throw new Error('获取图片URL失败');
+        }
+        
+        // 第二步：提交鱼数据
+        const submitResp = await fetch(`${window.BACKEND_URL}/api/fish/submit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+            },
+            body: JSON.stringify({
+                userId: currentUser.id,
+                imageUrl: uploadResult.imageUrl,
+                artist: artist || 'Anonymous'
+            })
+        });
+        
+        const submitResult = await submitResp.json();
+        
         // Remove spinner and re-enable button
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Submit';
         }
-        if (result && result.data && result.data.Image) {
+        
+        if (submitResult.success && submitResult.fish) {
             // Save today's date to track fish submission
             const today = new Date().toDateString();
             localStorage.setItem('lastFishDate', today);
-            localStorage.setItem('userId', result.data.userId);
             
             // Show enhanced success modal with social sharing
-            showSuccessModal(result.data.Image, needsModeration);
+            showSuccessModal(uploadResult.imageUrl, needsModeration);
         } else {
-            alert('Sorry, there was a problem uploading your fish. Please try again.');
+            throw new Error(submitResult.error || '提交失败');
         }
     } catch (err) {
+        console.error('Submit error:', err);
         alert('Failed to submit fish: ' + err.message);
         if (submitBtn) {
             submitBtn.disabled = false;

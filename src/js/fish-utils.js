@@ -45,14 +45,26 @@ function calculateScore(fish) {
 // Send vote to endpoint
 async function sendVote(fishId, voteType) {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/vote`, {
+        // 获取Supabase认证token
+        let authToken = null;
+        if (window.supabaseAuth) {
+            authToken = await window.supabaseAuth.getAccessToken();
+        }
+        
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        
+        if (authToken) {
+            headers['Authorization'] = `Bearer ${authToken}`;
+        }
+        
+        const response = await fetch(`${BACKEND_URL}/api/vote/vote`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: headers,
             body: JSON.stringify({
                 fishId: fishId,
-                vote: voteType // 'up' or 'down'
+                voteType: voteType // 'up' or 'down'
             })
         });
 
@@ -72,17 +84,26 @@ async function sendVote(fishId, voteType) {
 // Send report to endpoint
 async function sendReport(fishId, reason) {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/report`, {
+        // 获取Supabase认证token
+        let authToken = null;
+        if (window.supabaseAuth) {
+            authToken = await window.supabaseAuth.getAccessToken();
+        }
+        
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        
+        if (authToken) {
+            headers['Authorization'] = `Bearer ${authToken}`;
+        }
+        
+        const response = await fetch(`${BACKEND_URL}/api/report/submit`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: headers,
             body: JSON.stringify({
                 fishId: fishId,
-                reason: reason.trim(),
-                userAgent: navigator.userAgent,
-                url: window.location.href,
-                timestamp: new Date().toISOString()
+                reason: reason.trim()
             })
         });
 

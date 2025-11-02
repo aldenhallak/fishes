@@ -7,14 +7,17 @@
     "build": "vercel build",
     "test:hasura": "node scripts/test-hasura-connection.js",
     "test:redis": "node scripts/test-redis-connection.js",
+    "test:api": "node scripts/test-api-endpoints.js",
+    "test:all": "npm run test:hasura && npm run test:redis && npm run test:api",
     "download:fish": "node scripts/download-fish-data.js",
     "download:schema": "graphql-codegen --config codegen.json",
-    "migrate": "echo '请在Hasura Console中执行 scripts/migrate-database.sql'",
-    "test:all": "npm run test:hasura && npm run test:redis"
+    "migrate": "echo '请在Hasura Console中执行 scripts/migrate-database.sql'"
   },
   "dependencies": {
     "dotenv": "^16.6.1",
-    "ioredis": "^5.8.2"
+    "formidable": "^3.5.0",
+    "ioredis": "^5.8.2",
+    "qiniu": "^7.12.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.7",

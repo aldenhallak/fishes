@@ -46,6 +46,34 @@ The app uses machine learning for real-time fish recognition:
 - **Instant feedback** - Classification happens with every brush stroke
 - **Quality control** - Only validated fish can join the community tank
 
+## 🏗️ Technology Stack
+
+### Frontend
+- **Canvas API** - Interactive fish drawing
+- **ONNX Runtime Web** - Client-side AI inference
+- **Vanilla JavaScript** - No framework dependencies
+- **Supabase Auth** - User authentication
+
+### Backend (2024 Rebuild)
+- **Vercel Serverless Functions** - API endpoints
+- **PostgreSQL** - Main database (Supabase)
+- **Hasura GraphQL** - Data access layer
+- **Redis** - Real-time battle system cache
+- **Qiniu CDN** - Image storage & delivery (98% cost savings!)
+
+### Architecture
+```
+Frontend (Canvas) 
+    ↓ Supabase Auth
+Vercel Functions
+    ↓ GraphQL
+Hasura → PostgreSQL
+    ↑ Cache
+Redis (Battle System)
+
+Images → Qiniu Cloud CDN (3000+ nodes)
+```
+
 ## 🚀 Getting Started
 
 1. **Visit [FishArt.Online](https://fishart.online)**
