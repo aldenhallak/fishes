@@ -64,11 +64,23 @@ module.exports = async function handler(req, res) {
     const fileBuffer = fs.readFileSync(imageFile.filepath);
     const originalName = imageFile.originalFilename || 'fish.png';
     
+    // 获取分类参数（从表单字段或URL判断）
+    const { detectCategory } = require('../../lib/qiniu/categories');
+    const category = detectCategory({
+      url: req.url,
+      type: fields.type?.[0] || fields.category?.[0],
+      referer: req.headers.referer || req.headers.referrer
+    });
+    
+    console.log('检测到的图片分类:', category);
+    
     // 创建七牛云上传器
     const uploader = new QiniuUploader();
     
-    // 上传到七牛云
-    const result = await uploader.uploadFile(fileBuffer, originalName);
+    // 上传到七牛云，传入分类
+    const result = await uploader.uploadFile(fileBuffer, originalName, {
+      category
+    });
     
     // 清理临时文件
     fs.unlinkSync(imageFile.filepath);
@@ -80,7 +92,8 @@ module.exports = async function handler(req, res) {
         path: result.path,
         key: result.key,
         hash: result.hash,
-        url: result.url
+        url: result.url,
+        category: result.category
       }
     });
 
