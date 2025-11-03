@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>七牛云上传测试 - Fish Art</title>
+  <!-- <link rel="stylesheet" href="src/css/common.css"> -->
+  <style>
+    body {
+      background: #f7fafc;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .test-container {
+      max-w: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 2rem;
+    }
+
+    .test-header {
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 1rem;
+    }
+
+    .test-header h1 {
+      font-size: 2rem;
+      color: #1a202c;
+      margin-bottom: 0.5rem;
+    }
+
+    .test-header p {
+      color: #718096;
+    }
+
+    .upload-section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+
+    .drop-zone {
+      border: 2px dashed #cbd5e0;
+      border-radius: 8px;
+      padding: 3rem;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+      background: #f7fafc;
+    }
+
+    .drop-zone:hover {
+      border-color: #667eea;
+      background: #edf2f7;
+    }
+
+    .drop-zone.drag-active {
+      border-color: #667eea;
+      background: #e6f2ff;
+    }
+
+    .drop-zone-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .drop-zone-text {
+      font-size: 1.1rem;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .drop-zone-hint {
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-primary:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #4a5568;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #2d3748;
+    }
+
+    .btn-secondary:disabled {
+      background: #e2e8f0;
+      cursor: not-allowed;
+    }
+
+    .btn-preview {
+      background: #667eea;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+
+    .btn-copy {
+      background: #48bb78;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .results-section {
+      margin-top: 2rem;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .results-container {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .result-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .result-item.success {
+      background: #f0fff4;
+      border-color: #9ae6b4;
+    }
+
+    .result-item.error {
+      background: #fff5f5;
+      border-color: #fc8181;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .result-item.success .status-badge {
+      background: #9ae6b4;
+      color: #22543d;
+    }
+
+    .result-item.error .status-badge {
+      background: #fc8181;
+      color: #742a2a;
+    }
+
+    .result-content {
+      margin-top: 0.75rem;
+    }
+
+    .result-field {
+      margin-bottom: 0.75rem;
+    }
+
+    .result-field strong {
+      color: #2d3748;
+      display: inline-block;
+      min-width: 80px;
+    }
+
+    .result-link {
+      color: #667eea;
+      word-break: break-all;
+    }
+
+    .result-link:hover {
+      text-decoration: underline;
+    }
+
+    .result-field code {
+      background: #edf2f7;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      color: #2d3748;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .error-message {
+      color: #c53030;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      color: #667eea;
+    }
+
+    .spinner {
+      border: 3px solid #e2e8f0;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-right: 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .info-box {
+      background: #edf2f7;
+      border-left: 4px solid #667eea;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-top: 2rem;
+    }
+
+    .info-box h3 {
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-box ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-box li {
+      color: #4a5568;
+      padding: 0.25rem 0;
+      font-size: 0.9rem;
+    }
+
+    .info-box li::before {
+      content: "• ";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 2rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .json-result {
+      background: #1a202c;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.toast-success {
+      background: #48bb78;
+      color: white;
+    }
+
+    .toast.toast-error {
+      background: #f56565;
+      color: white;
+    }
+
+    .toast.toast-info {
+      background: #4299e1;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>📁 七牛云上传测试</h1>
+      <p>测试七牛云图片上传功能，支持拖拽上传、预览和下载</p>
+    </div>
+
+    <!-- 上传区域 -->
+    <div class="upload-section">
+      <h2 class="section-title">上传文件</h2>
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-zone-icon">📤</div>
+        <p class="drop-zone-text">拖拽文件到这里，或点击选择文件</p>
+        <p class="drop-zone-hint">支持图片格式：JPG, PNG, GIF, WebP</p>
+      </div>
+      <input type="file" id="fileInput" class="file-input" accept="image/*" multiple>
+      
+      <div class="button-group">
+        <button class="btn btn-primary" id="selectBtn">选择文件</button>
+        <button class="btn btn-secondary" id="clearBtn" disabled>清除结果</button>
+      </div>
+    </div>
+
+    <!-- 加载状态 -->
+    <div class="loading" id="loadingIndicator" style="display: none;">
+      <div class="spinner"></div>
+      <span>上传中...</span>
+    </div>
+
+    <!-- 结果展示 -->
+    <div class="results-section" id="resultsSection" style="display: none;">
+      <div class="results-header">
+        <h2 class="section-title">上传结果</h2>
+      </div>
+      <div class="results-container" id="resultsContainer"></div>
+    </div>
+
+    <!-- 使用说明 -->
+    <div class="info-box">
+      <h3>💡 使用说明</h3>
+      <ul>
+        <li>支持拖拽上传和点击选择文件</li>
+        <li>支持多文件同时上传</li>
+        <li>上传成功后可以预览和下载文件</li>
+        <li>文件会自动上传到七牛云CDN</li>
+        <li>确保已正确配置七牛云环境变量（QINIU_ACCESS_KEY, QINIU_SECRET_KEY等）</li>
+        <li>✅ 开发阶段无需登录即可测试</li>
+      </ul>
+    </div>
+
+    <a href="test-center.html" class="back-link">← 返回测试中心</a>
+  </div>
+
+  <!-- 加载依赖 -->
+  <!-- Supabase配置（开发测试阶段可选） -->
+  <script>
+    // 开发环境：创建空的认证对象，避免报错
+    window.supabaseAuth = {
+      getAccessToken: async () => null,
+      isLoggedIn: async () => false
+    };
+  </script>
+  <script src="src/js/test-utils.js"></script>
+  
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const selectBtn = document.getElementById('selectBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    // 设置拖拽上传
+    setupDragAndDrop(dropZone, handleFiles);
+
+    // 点击选择文件
+    dropZone.addEventListener('click', () => fileInput.click());
+    selectBtn.addEventListener('click', () => fileInput.click());
+    
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFiles(e.target.files);
+      }
+    });
+
+    // 清除结果
+    clearBtn.addEventListener('click', () => {
+      clearResults(resultsContainer);
+      resultsSection.style.display = 'none';
+      clearBtn.disabled = true;
+      fileInput.value = '';
+    });
+
+    // 处理文件上传
+    async function handleFiles(files) {
+      // 开发阶段：跳过登录检查
+      // const isLoggedIn = await isUserLoggedIn();
+      // if (!isLoggedIn) {
+      //   showToast('请先登录后再上传文件', 'error');
+      //   setTimeout(() => {
+      //     window.location.href = 'login.html';
+      //   }, 2000);
+      //   return;
+      // }
+
+      const fileArray = Array.from(files);
+      
+      // 显示加载状态
+      loadingIndicator.style.display = 'flex';
+      resultsSection.style.display = 'block';
+      clearBtn.disabled = false;
+
+      // 上传每个文件
+      for (const file of fileArray) {
+        try {
+          const result = await uploadFileToQiniu(file);
+          renderUploadResult(result, resultsContainer);
+        } catch (error) {
+          renderUploadResult({
+            success: false,
+            error: error.message
+          }, resultsContainer);
+        }
+      }
+
+      // 隐藏加载状态
+      loadingIndicator.style.display = 'none';
+      fileInput.value = '';
+    }
+  </script>
+</body>
+</html>
+

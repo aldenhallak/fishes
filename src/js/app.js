@@ -309,16 +309,16 @@ async function submitFish(artist, needsModeration = false) {
             authToken = await window.supabaseAuth.getAccessToken();
         }
         
-        // 获取当前用户
+        // 开发阶段：获取当前用户（可选）
         const currentUser = await getCurrentUser();
-        if (!currentUser) {
-            alert('Please log in to submit your fish.');
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit';
-            }
-            return;
-        }
+        // if (!currentUser) {
+        //     alert('Please log in to submit your fish.');
+        //     if (submitBtn) {
+        //         submitBtn.disabled = false;
+        //         submitBtn.textContent = 'Submit';
+        //     }
+        //     return;
+        // }
         
         // 第一步：上传图片
         const uploadResp = await fetch(`${window.BACKEND_URL}/api/fish/upload`, {
@@ -345,7 +345,7 @@ async function submitFish(artist, needsModeration = false) {
                 ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
             },
             body: JSON.stringify({
-                userId: currentUser.id,
+                userId: currentUser?.id || 'anonymous-dev',
                 imageUrl: uploadResult.imageUrl,
                 artist: artist || 'Anonymous'
             })

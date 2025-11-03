@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>经济系统测试 - Fish Art</title>
+  <link rel="stylesheet" href="src/css/common.css">
+  <style>
+    body {
+      background: #f7fafc;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .test-container {
+      max-w: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 2rem;
+    }
+
+    .test-header {
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 1rem;
+    }
+
+    .test-header h1 {
+      font-size: 2rem;
+      color: #1a202c;
+      margin-bottom: 0.5rem;
+    }
+
+    .balance-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .balance-label {
+      font-size: 0.875rem;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+    }
+
+    .balance-amount {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .balance-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .balance-actions button {
+      flex: 1;
+      padding: 0.75rem;
+      border: 2px solid white;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .balance-actions button:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .test-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e2e8f0;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #718096;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: #667eea;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-primary:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+    }
+
+    .btn-success {
+      background: #48bb78;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #38a169;
+    }
+
+    .btn-danger {
+      background: #f56565;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #e53e3e;
+    }
+
+    .results-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+
+    .results-container {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .result-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .result-item.success {
+      background: #f0fff4;
+      border-color: #9ae6b4;
+    }
+
+    .result-item.error {
+      background: #fff5f5;
+      border-color: #fc8181;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .result-item.success .status-badge {
+      background: #9ae6b4;
+      color: #22543d;
+    }
+
+    .result-item.error .status-badge {
+      background: #fc8181;
+      color: #742a2a;
+    }
+
+    .json-result {
+      background: #1a202c;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 2rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .info-box {
+      background: #edf2f7;
+      border-left: 4px solid #667eea;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 2rem;
+    }
+
+    .info-box h3 {
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-box ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-box li {
+      color: #4a5568;
+      padding: 0.25rem 0;
+      font-size: 0.9rem;
+    }
+
+    .info-box li::before {
+      content: "• ";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.toast-success {
+      background: #48bb78;
+      color: white;
+    }
+
+    .toast.toast-error {
+      background: #f56565;
+      color: white;
+    }
+
+    .toast.toast-info {
+      background: #4299e1;
+      color: white;
+    }
+
+    .transaction-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #f7fafc;
+    }
+
+    .transaction-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .transaction-type {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .transaction-type.income {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    .transaction-type.expense {
+      background: #fed7d7;
+      color: #742a2a;
+    }
+
+    .transaction-amount {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .transaction-amount.positive {
+      color: #38a169;
+    }
+
+    .transaction-amount.negative {
+      color: #e53e3e;
+    }
+
+    .transaction-details {
+      font-size: 0.875rem;
+      color: #4a5568;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>💰 经济系统测试</h1>
+      <p>测试用户金币、奖励和交易功能</p>
+    </div>
+
+    <!-- 提示信息 -->
+    <div class="info-box">
+      <h3>💡 测试说明</h3>
+      <ul>
+        <li>✅ 开发阶段无需登录即可测试</li>
+        <li>金币系统用于应用内的各种交易</li>
+        <li>支持查询余额、发放奖励、扣除金币</li>
+        <li>所有交易都会记录在历史中</li>
+        <li>管理员可以为用户发放奖励</li>
+      </ul>
+    </div>
+
+    <!-- 余额卡片 -->
+    <div class="balance-card">
+      <div class="balance-label">当前余额</div>
+      <div class="balance-amount" id="balanceAmount">-- 金币</div>
+      <div class="balance-actions">
+        <button id="refreshBalanceBtn">🔄 刷新余额</button>
+      </div>
+    </div>
+
+    <!-- 标签页 -->
+    <div class="test-tabs">
+      <button class="tab active" data-tab="balance">查询余额</button>
+      <button class="tab" data-tab="reward">发放奖励</button>
+      <button class="tab" data-tab="deduct">扣除金币</button>
+      <button class="tab" data-tab="history">交易历史</button>
+    </div>
+
+    <!-- 查询余额 -->
+    <div class="tab-content active" id="balance">
+      <p style="color: #718096; margin-bottom: 1.5rem;">
+        查询指定用户的金币余额
+      </p>
+      <form id="balanceForm">
+        <div class="form-group">
+          <label for="balanceUserId">用户ID（留空查询当前用户）</label>
+          <input type="text" id="balanceUserId" placeholder="输入用户ID">
+        </div>
+        <button type="submit" class="btn btn-primary">查询余额</button>
+      </form>
+    </div>
+
+    <!-- 发放奖励 -->
+    <div class="tab-content" id="reward">
+      <p style="color: #718096; margin-bottom: 1.5rem;">
+        为用户发放金币奖励（需要管理员权限）
+      </p>
+      <form id="rewardForm">
+        <div class="form-group">
+          <label for="rewardUserId">用户ID *</label>
+          <input type="text" id="rewardUserId" required placeholder="输入用户ID">
+        </div>
+        <div class="form-group">
+          <label for="rewardAmount">奖励金额 *</label>
+          <input type="number" id="rewardAmount" required min="1" placeholder="输入奖励金额">
+        </div>
+        <div class="form-group">
+          <label for="rewardReason">奖励原因 *</label>
+          <select id="rewardReason" required>
+            <option value="">请选择原因</option>
+            <option value="battle_win">战斗胜利</option>
+            <option value="daily_bonus">每日奖励</option>
+            <option value="achievement">成就奖励</option>
+            <option value="event">活动奖励</option>
+            <option value="admin_gift">管理员赠送</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="rewardNote">备注（可选）</label>
+          <textarea id="rewardNote" placeholder="输入备注信息..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">发放奖励</button>
+      </form>
+    </div>
+
+    <!-- 扣除金币 -->
+    <div class="tab-content" id="deduct">
+      <p style="color: #718096; margin-bottom: 1.5rem;">
+        扣除用户的金币（需要管理员权限或用户本人）
+      </p>
+      <form id="deductForm">
+        <div class="form-group">
+          <label for="deductUserId">用户ID *</label>
+          <input type="text" id="deductUserId" required placeholder="输入用户ID">
+        </div>
+        <div class="form-group">
+          <label for="deductAmount">扣除金额 *</label>
+          <input type="number" id="deductAmount" required min="1" placeholder="输入扣除金额">
+        </div>
+        <div class="form-group">
+          <label for="deductReason">扣除原因 *</label>
+          <select id="deductReason" required>
+            <option value="">请选择原因</option>
+            <option value="battle_lose">战斗失败</option>
+            <option value="purchase">购买物品</option>
+            <option value="penalty">违规惩罚</option>
+            <option value="transfer">转账</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="deductNote">备注（可选）</label>
+          <textarea id="deductNote" placeholder="输入备注信息..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger">扣除金币</button>
+      </form>
+    </div>
+
+    <!-- 交易历史 -->
+    <div class="tab-content" id="history">
+      <p style="color: #718096; margin-bottom: 1.5rem;">
+        查看指定用户的交易历史记录
+      </p>
+      <form id="historyForm">
+        <div class="form-group">
+          <label for="historyUserId">用户ID（留空查询当前用户）</label>
+          <input type="text" id="historyUserId" placeholder="输入用户ID">
+        </div>
+        <button type="submit" class="btn btn-primary">查询历史</button>
+      </form>
+      
+      <div id="historyList" style="margin-top: 2rem;"></div>
+    </div>
+
+    <!-- 结果展示 -->
+    <div class="results-section">
+      <h2 class="section-title">操作结果</h2>
+      <div class="results-container" id="resultsContainer"></div>
+    </div>
+
+    <a href="test-center.html" class="back-link">← 返回测试中心</a>
+  </div>
+
+  <!-- 加载依赖 -->
+  <script src="public/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js"></script>
+  <script src="src/js/test-utils.js"></script>
+  
+  <script>
+    // 标签页切换
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.dataset.tab;
+        
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    // 查询并更新余额
+    async function updateBalance(userId = null) {
+      let url = `${window.BACKEND_URL}/api/economy/balance`;
+      if (userId) {
+        url += `?userId=${encodeURIComponent(userId)}`;
+      }
+      
+      const result = await apiCall(url, { method: 'GET' });
+      
+      if (result.success && result.data.data) {
+        const balance = result.data.data.balance || 0;
+        document.getElementById('balanceAmount').textContent = `${balance} 金币`;
+      }
+      
+      return result;
+    }
+
+    // 刷新余额按钮
+    document.getElementById('refreshBalanceBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('refreshBalanceBtn');
+      setButtonLoading(btn, true);
+      
+      const result = await updateBalance();
+      
+      setButtonLoading(btn, false);
+      
+      if (result.success) {
+        showToast('余额已刷新', 'info');
+      } else {
+        showToast('刷新失败', 'error');
+      }
+    });
+
+    // 查询余额表单
+    document.getElementById('balanceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const userId = document.getElementById('balanceUserId').value;
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      
+      const result = await updateBalance(userId || null);
+      
+      setButtonLoading(submitBtn, false);
+      renderApiResult(result, resultsContainer);
+      
+      if (result.success) {
+        showToast('查询成功！');
+      } else {
+        showToast('查询失败', 'error');
+      }
+    });
+
+    // 发放奖励表单
+    document.getElementById('rewardForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const userId = document.getElementById('rewardUserId').value;
+      const amount = parseInt(document.getElementById('rewardAmount').value);
+      const reason = document.getElementById('rewardReason').value;
+      const note = document.getElementById('rewardNote').value;
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      
+      const result = await apiCall(`${window.BACKEND_URL}/api/economy/reward`, {
+        method: 'POST',
+        body: {
+          userId,
+          amount,
+          reason,
+          note: note || undefined
+        }
+      });
+      
+      setButtonLoading(submitBtn, false);
+      renderApiResult(result, resultsContainer);
+      
+      if (result.success) {
+        showToast('奖励发放成功！');
+        e.target.reset();
+        await updateBalance();
+      } else {
+        showToast('发放失败', 'error');
+      }
+    });
+
+    // 扣除金币表单
+    document.getElementById('deductForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const userId = document.getElementById('deductUserId').value;
+      const amount = parseInt(document.getElementById('deductAmount').value);
+      const reason = document.getElementById('deductReason').value;
+      const note = document.getElementById('deductNote').value;
+      
+      if (!confirm(`确定要扣除用户 ${userId} 的 ${amount} 金币吗？`)) {
+        return;
+      }
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      
+      const result = await apiCall(`${window.BACKEND_URL}/api/economy/deduct`, {
+        method: 'POST',
+        body: {
+          userId,
+          amount,
+          reason,
+          note: note || undefined
+        }
+      });
+      
+      setButtonLoading(submitBtn, false);
+      renderApiResult(result, resultsContainer);
+      
+      if (result.success) {
+        showToast('扣除成功！');
+        e.target.reset();
+        await updateBalance();
+      } else {
+        showToast('扣除失败', 'error');
+      }
+    });
+
+    // 查询历史表单
+    document.getElementById('historyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const userId = document.getElementById('historyUserId').value;
+      const historyList = document.getElementById('historyList');
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      
+      let url = `${window.BACKEND_URL}/api/economy/history`;
+      if (userId) {
+        url += `?userId=${encodeURIComponent(userId)}`;
+      }
+      
+      const result = await apiCall(url, { method: 'GET' });
+      
+      setButtonLoading(submitBtn, false);
+      
+      if (result.success && result.data.data) {
+        const transactions = result.data.data;
+        
+        if (transactions.length === 0) {
+          historyList.innerHTML = '<p style="color: #718096;">暂无交易记录</p>';
+        } else {
+          historyList.innerHTML = transactions.map(tx => {
+            const isIncome = tx.type === 'income' || tx.amount > 0;
+            const typeClass = isIncome ? 'income' : 'expense';
+            const typeText = isIncome ? '收入' : '支出';
+            const amountClass = isIncome ? 'positive' : 'negative';
+            const amountSign = isIncome ? '+' : '-';
+            
+            return `
+              <div class="transaction-card">
+                <div class="transaction-header">
+                  <span class="transaction-type ${typeClass}">${typeText}</span>
+                  <span class="transaction-amount ${amountClass}">${amountSign}${Math.abs(tx.amount)} 金币</span>
+                </div>
+                <div class="transaction-details">
+                  <div><strong>原因:</strong> ${tx.reason || '未知'}</div>
+                  ${tx.note ? `<div><strong>备注:</strong> ${tx.note}</div>` : ''}
+                  <div><strong>时间:</strong> ${formatDateTime(tx.created_at)}</div>
+                  ${tx.balance_after ? `<div><strong>余额:</strong> ${tx.balance_after} 金币</div>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+          
+          showToast('查询成功');
+        }
+      } else {
+        historyList.innerHTML = '<p style="color: #f56565;">查询失败</p>';
+        showToast('查询失败', 'error');
+      }
+      
+      renderApiResult(result, resultsContainer);
+    });
+
+    // 开发阶段：跳过登录检查，直接初始化余额
+    (async () => {
+      // const isLoggedIn = await isUserLoggedIn();
+      // if (!isLoggedIn) {
+      //   if (confirm('需要登录才能测试这些功能。是否前往登录页面？')) {
+      //     window.location.href = 'login.html';
+      //   }
+      // } else {
+      //   // 自动查询当前用户余额
+      //   await updateBalance();
+      // }
+      
+      // 开发阶段：尝试自动查询余额，失败也继续
+      try {
+        await updateBalance();
+      } catch (error) {
+        console.log('余额查询失败（开发阶段可忽略）:', error);
+      }
+    })();
+  </script>
+</body>
+</html>
+

@@ -16,3 +16,5 @@ window.SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 // 提示：请在部署前替换上面的值，或通过Vercel环境变量注入
 console.log('📝 Supabase配置已加载，请确保已设置正确的URL和KEY');
 
+
+

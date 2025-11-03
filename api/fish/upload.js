@@ -27,8 +27,12 @@ module.exports = async function handler(req, res) {
 
   try {
     // 使用 formidable 解析multipart数据
-    const formidable = require('formidable');
+    const { formidable } = require('formidable');
     const fs = require('fs');
+
+    console.log('开始解析上传请求...');
+    console.log('Content-Type:', req.headers['content-type']);
+    console.log('Content-Length:', req.headers['content-length']);
 
     const form = formidable({
       maxFileSize: 5 * 1024 * 1024, // 5MB
@@ -37,8 +41,13 @@ module.exports = async function handler(req, res) {
 
     const [fields, files] = await new Promise((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
-        if (err) reject(err);
-        else resolve([fields, files]);
+        if (err) {
+          console.error('Formidable解析错误:', err);
+          reject(err);
+        } else {
+          console.log('解析成功，files:', Object.keys(files));
+          resolve([fields, files]);
+        }
       });
     });
 

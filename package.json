@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Fish Art Battle System - 鱼画战斗系统",
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "node dev-server.js",
+    "dev:vercel": "vercel dev",
     "build": "vercel build",
     "test:hasura": "node scripts/test-hasura-connection.js",
     "test:redis": "node scripts/test-redis-connection.js",
@@ -15,6 +16,7 @@
   },
   "dependencies": {
     "dotenv": "^16.6.1",
+    "form-data": "^4.0.4",
     "formidable": "^3.5.0",
     "ioredis": "^5.8.2",
     "qiniu": "^7.12.0"
