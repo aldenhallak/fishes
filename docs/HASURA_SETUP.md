@@ -35,8 +35,8 @@
 - ✅ economy_log
 
 也Track所有视图：
-- ✅ fish_with_scores
-- ✅ battle_fish
+- ✅ fish_rank
+- ✅ fish_battle
 - ✅ user_fish_summary
 
 ---

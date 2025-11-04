@@ -365,7 +365,7 @@ idx_battle_created ON (created_at DESC)
 
 ## 👁️ 数据库视图
 
-### 1. fish_with_scores (带分数的鱼视图)
+### 1. fish_rank (带分数的鱼视图)
 
 **用途：** 自动计算评分和通过率，用于排行榜查询
 
@@ -382,7 +382,7 @@ FROM fish f
 WHERE f.is_approved = true AND f.reported = false;
 ```
 
-### 2. battle_fish (战斗模式鱼视图)
+### 2. fish_battle (战斗模式鱼视图)
 
 **用途：** 只显示活跃战斗中的鱼
 
@@ -519,7 +519,7 @@ LIMIT 100;
 ```sql
 -- ✅ 使用物化视图缓存热门鱼
 CREATE MATERIALIZED VIEW hot_fish_cache AS
-SELECT * FROM fish_with_scores
+SELECT * FROM fish_rank
 ORDER BY score DESC, upvotes DESC
 LIMIT 1000;
 

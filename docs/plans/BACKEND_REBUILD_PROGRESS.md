@@ -5,7 +5,7 @@
 ### 阶段1: 数据库结构 ✅
 - ✅ **完整的SQL迁移脚本** (`scripts/migrate-database.sql`)
   - 7个核心表：fish, votes, reports, battle_config, user_economy, battle_log, economy_log
-  - 3个视图：fish_with_scores, battle_fish, user_fish_summary
+  - 3个视图：fish_rank, fish_battle, user_fish_summary
   - 2个触发器：自动更新时间戳、自动增加举报计数
   - 完整的索引优化
 

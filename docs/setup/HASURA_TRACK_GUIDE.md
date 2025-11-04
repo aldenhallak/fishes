@@ -5,11 +5,11 @@
 如果你看到"Untracked tables or views"列表显示了以下表，说明SQL**已经成功执行**：
 
 - battle_config
-- battle_fish (视图)
+- fish_battle (视图)
 - battle_log
 - economy_log
 - fish
-- fish_with_scores (视图)
+- fish_rank (视图)
 - reports
 - user_economy
 - user_fish_summary (视图)
@@ -46,11 +46,11 @@ Hasura需要**"跟踪"（Track）**表才能：
 ```
 📂 public
   ├── 📄 battle_config
-  ├── 📄 battle_fish (视图)
+  ├── 📄 fish_battle (视图)
   ├── 📄 battle_log
   ├── 📄 economy_log
   ├── 📄 fish
-  ├── 📄 fish_with_scores (视图)
+  ├── 📄 fish_rank (视图)
   ├── 📄 reports
   ├── 📄 user_economy
   ├── 📄 user_fish_summary (视图)

@@ -506,497 +506,6 @@ export type Battle_Config_Variance_Fields = {
   upvote_weight?: Maybe<Scalars['Float']['output']>;
 };
 
-/** columns and relationships of "battle_fish" */
-export type Battle_Fish = {
-  __typename?: 'battle_fish';
-  artist?: Maybe<Scalars['String']['output']>;
-  battle_power?: Maybe<Scalars['numeric']['output']>;
-  created_at?: Maybe<Scalars['timestamp']['output']>;
-  downvotes?: Maybe<Scalars['Int']['output']>;
-  experience?: Maybe<Scalars['Int']['output']>;
-  health?: Maybe<Scalars['Int']['output']>;
-  id?: Maybe<Scalars['uuid']['output']>;
-  image_url?: Maybe<Scalars['String']['output']>;
-  is_alive?: Maybe<Scalars['Boolean']['output']>;
-  is_approved?: Maybe<Scalars['Boolean']['output']>;
-  is_in_battle_mode?: Maybe<Scalars['Boolean']['output']>;
-  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
-  level?: Maybe<Scalars['Int']['output']>;
-  max_health?: Maybe<Scalars['Int']['output']>;
-  moderator_notes?: Maybe<Scalars['String']['output']>;
-  position_row?: Maybe<Scalars['Int']['output']>;
-  report_count?: Maybe<Scalars['Int']['output']>;
-  reported?: Maybe<Scalars['Boolean']['output']>;
-  score?: Maybe<Scalars['Int']['output']>;
-  talent?: Maybe<Scalars['Int']['output']>;
-  total_losses?: Maybe<Scalars['Int']['output']>;
-  total_wins?: Maybe<Scalars['Int']['output']>;
-  upvotes?: Maybe<Scalars['Int']['output']>;
-  user_id?: Maybe<Scalars['String']['output']>;
-};
-
-/** aggregated selection of "battle_fish" */
-export type Battle_Fish_Aggregate = {
-  __typename?: 'battle_fish_aggregate';
-  aggregate?: Maybe<Battle_Fish_Aggregate_Fields>;
-  nodes: Array<Battle_Fish>;
-};
-
-/** aggregate fields of "battle_fish" */
-export type Battle_Fish_Aggregate_Fields = {
-  __typename?: 'battle_fish_aggregate_fields';
-  avg?: Maybe<Battle_Fish_Avg_Fields>;
-  count: Scalars['Int']['output'];
-  max?: Maybe<Battle_Fish_Max_Fields>;
-  min?: Maybe<Battle_Fish_Min_Fields>;
-  stddev?: Maybe<Battle_Fish_Stddev_Fields>;
-  stddev_pop?: Maybe<Battle_Fish_Stddev_Pop_Fields>;
-  stddev_samp?: Maybe<Battle_Fish_Stddev_Samp_Fields>;
-  sum?: Maybe<Battle_Fish_Sum_Fields>;
-  var_pop?: Maybe<Battle_Fish_Var_Pop_Fields>;
-  var_samp?: Maybe<Battle_Fish_Var_Samp_Fields>;
-  variance?: Maybe<Battle_Fish_Variance_Fields>;
-};
-
-
-/** aggregate fields of "battle_fish" */
-export type Battle_Fish_Aggregate_FieldsCountArgs = {
-  columns?: InputMaybe<Array<Battle_Fish_Select_Column>>;
-  distinct?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-/** aggregate avg on columns */
-export type Battle_Fish_Avg_Fields = {
-  __typename?: 'battle_fish_avg_fields';
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  score?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** Boolean expression to filter rows from the table "battle_fish". All fields are combined with a logical 'AND'. */
-export type Battle_Fish_Bool_Exp = {
-  _and?: InputMaybe<Array<Battle_Fish_Bool_Exp>>;
-  _not?: InputMaybe<Battle_Fish_Bool_Exp>;
-  _or?: InputMaybe<Array<Battle_Fish_Bool_Exp>>;
-  artist?: InputMaybe<String_Comparison_Exp>;
-  battle_power?: InputMaybe<Numeric_Comparison_Exp>;
-  created_at?: InputMaybe<Timestamp_Comparison_Exp>;
-  downvotes?: InputMaybe<Int_Comparison_Exp>;
-  experience?: InputMaybe<Int_Comparison_Exp>;
-  health?: InputMaybe<Int_Comparison_Exp>;
-  id?: InputMaybe<Uuid_Comparison_Exp>;
-  image_url?: InputMaybe<String_Comparison_Exp>;
-  is_alive?: InputMaybe<Boolean_Comparison_Exp>;
-  is_approved?: InputMaybe<Boolean_Comparison_Exp>;
-  is_in_battle_mode?: InputMaybe<Boolean_Comparison_Exp>;
-  last_exp_update?: InputMaybe<Timestamp_Comparison_Exp>;
-  level?: InputMaybe<Int_Comparison_Exp>;
-  max_health?: InputMaybe<Int_Comparison_Exp>;
-  moderator_notes?: InputMaybe<String_Comparison_Exp>;
-  position_row?: InputMaybe<Int_Comparison_Exp>;
-  report_count?: InputMaybe<Int_Comparison_Exp>;
-  reported?: InputMaybe<Boolean_Comparison_Exp>;
-  score?: InputMaybe<Int_Comparison_Exp>;
-  talent?: InputMaybe<Int_Comparison_Exp>;
-  total_losses?: InputMaybe<Int_Comparison_Exp>;
-  total_wins?: InputMaybe<Int_Comparison_Exp>;
-  upvotes?: InputMaybe<Int_Comparison_Exp>;
-  user_id?: InputMaybe<String_Comparison_Exp>;
-};
-
-/** input type for incrementing numeric columns in table "battle_fish" */
-export type Battle_Fish_Inc_Input = {
-  battle_power?: InputMaybe<Scalars['numeric']['input']>;
-  downvotes?: InputMaybe<Scalars['Int']['input']>;
-  experience?: InputMaybe<Scalars['Int']['input']>;
-  health?: InputMaybe<Scalars['Int']['input']>;
-  level?: InputMaybe<Scalars['Int']['input']>;
-  max_health?: InputMaybe<Scalars['Int']['input']>;
-  position_row?: InputMaybe<Scalars['Int']['input']>;
-  report_count?: InputMaybe<Scalars['Int']['input']>;
-  score?: InputMaybe<Scalars['Int']['input']>;
-  talent?: InputMaybe<Scalars['Int']['input']>;
-  total_losses?: InputMaybe<Scalars['Int']['input']>;
-  total_wins?: InputMaybe<Scalars['Int']['input']>;
-  upvotes?: InputMaybe<Scalars['Int']['input']>;
-};
-
-/** input type for inserting data into table "battle_fish" */
-export type Battle_Fish_Insert_Input = {
-  artist?: InputMaybe<Scalars['String']['input']>;
-  battle_power?: InputMaybe<Scalars['numeric']['input']>;
-  created_at?: InputMaybe<Scalars['timestamp']['input']>;
-  downvotes?: InputMaybe<Scalars['Int']['input']>;
-  experience?: InputMaybe<Scalars['Int']['input']>;
-  health?: InputMaybe<Scalars['Int']['input']>;
-  id?: InputMaybe<Scalars['uuid']['input']>;
-  image_url?: InputMaybe<Scalars['String']['input']>;
-  is_alive?: InputMaybe<Scalars['Boolean']['input']>;
-  is_approved?: InputMaybe<Scalars['Boolean']['input']>;
-  is_in_battle_mode?: InputMaybe<Scalars['Boolean']['input']>;
-  last_exp_update?: InputMaybe<Scalars['timestamp']['input']>;
-  level?: InputMaybe<Scalars['Int']['input']>;
-  max_health?: InputMaybe<Scalars['Int']['input']>;
-  moderator_notes?: InputMaybe<Scalars['String']['input']>;
-  position_row?: InputMaybe<Scalars['Int']['input']>;
-  report_count?: InputMaybe<Scalars['Int']['input']>;
-  reported?: InputMaybe<Scalars['Boolean']['input']>;
-  score?: InputMaybe<Scalars['Int']['input']>;
-  talent?: InputMaybe<Scalars['Int']['input']>;
-  total_losses?: InputMaybe<Scalars['Int']['input']>;
-  total_wins?: InputMaybe<Scalars['Int']['input']>;
-  upvotes?: InputMaybe<Scalars['Int']['input']>;
-  user_id?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** aggregate max on columns */
-export type Battle_Fish_Max_Fields = {
-  __typename?: 'battle_fish_max_fields';
-  artist?: Maybe<Scalars['String']['output']>;
-  battle_power?: Maybe<Scalars['numeric']['output']>;
-  created_at?: Maybe<Scalars['timestamp']['output']>;
-  downvotes?: Maybe<Scalars['Int']['output']>;
-  experience?: Maybe<Scalars['Int']['output']>;
-  health?: Maybe<Scalars['Int']['output']>;
-  id?: Maybe<Scalars['uuid']['output']>;
-  image_url?: Maybe<Scalars['String']['output']>;
-  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
-  level?: Maybe<Scalars['Int']['output']>;
-  max_health?: Maybe<Scalars['Int']['output']>;
-  moderator_notes?: Maybe<Scalars['String']['output']>;
-  position_row?: Maybe<Scalars['Int']['output']>;
-  report_count?: Maybe<Scalars['Int']['output']>;
-  score?: Maybe<Scalars['Int']['output']>;
-  talent?: Maybe<Scalars['Int']['output']>;
-  total_losses?: Maybe<Scalars['Int']['output']>;
-  total_wins?: Maybe<Scalars['Int']['output']>;
-  upvotes?: Maybe<Scalars['Int']['output']>;
-  user_id?: Maybe<Scalars['String']['output']>;
-};
-
-/** aggregate min on columns */
-export type Battle_Fish_Min_Fields = {
-  __typename?: 'battle_fish_min_fields';
-  artist?: Maybe<Scalars['String']['output']>;
-  battle_power?: Maybe<Scalars['numeric']['output']>;
-  created_at?: Maybe<Scalars['timestamp']['output']>;
-  downvotes?: Maybe<Scalars['Int']['output']>;
-  experience?: Maybe<Scalars['Int']['output']>;
-  health?: Maybe<Scalars['Int']['output']>;
-  id?: Maybe<Scalars['uuid']['output']>;
-  image_url?: Maybe<Scalars['String']['output']>;
-  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
-  level?: Maybe<Scalars['Int']['output']>;
-  max_health?: Maybe<Scalars['Int']['output']>;
-  moderator_notes?: Maybe<Scalars['String']['output']>;
-  position_row?: Maybe<Scalars['Int']['output']>;
-  report_count?: Maybe<Scalars['Int']['output']>;
-  score?: Maybe<Scalars['Int']['output']>;
-  talent?: Maybe<Scalars['Int']['output']>;
-  total_losses?: Maybe<Scalars['Int']['output']>;
-  total_wins?: Maybe<Scalars['Int']['output']>;
-  upvotes?: Maybe<Scalars['Int']['output']>;
-  user_id?: Maybe<Scalars['String']['output']>;
-};
-
-/** response of any mutation on the table "battle_fish" */
-export type Battle_Fish_Mutation_Response = {
-  __typename?: 'battle_fish_mutation_response';
-  /** number of rows affected by the mutation */
-  affected_rows: Scalars['Int']['output'];
-  /** data from the rows affected by the mutation */
-  returning: Array<Battle_Fish>;
-};
-
-/** Ordering options when selecting data from "battle_fish". */
-export type Battle_Fish_Order_By = {
-  artist?: InputMaybe<Order_By>;
-  battle_power?: InputMaybe<Order_By>;
-  created_at?: InputMaybe<Order_By>;
-  downvotes?: InputMaybe<Order_By>;
-  experience?: InputMaybe<Order_By>;
-  health?: InputMaybe<Order_By>;
-  id?: InputMaybe<Order_By>;
-  image_url?: InputMaybe<Order_By>;
-  is_alive?: InputMaybe<Order_By>;
-  is_approved?: InputMaybe<Order_By>;
-  is_in_battle_mode?: InputMaybe<Order_By>;
-  last_exp_update?: InputMaybe<Order_By>;
-  level?: InputMaybe<Order_By>;
-  max_health?: InputMaybe<Order_By>;
-  moderator_notes?: InputMaybe<Order_By>;
-  position_row?: InputMaybe<Order_By>;
-  report_count?: InputMaybe<Order_By>;
-  reported?: InputMaybe<Order_By>;
-  score?: InputMaybe<Order_By>;
-  talent?: InputMaybe<Order_By>;
-  total_losses?: InputMaybe<Order_By>;
-  total_wins?: InputMaybe<Order_By>;
-  upvotes?: InputMaybe<Order_By>;
-  user_id?: InputMaybe<Order_By>;
-};
-
-/** select columns of table "battle_fish" */
-export enum Battle_Fish_Select_Column {
-  /** column name */
-  Artist = 'artist',
-  /** column name */
-  BattlePower = 'battle_power',
-  /** column name */
-  CreatedAt = 'created_at',
-  /** column name */
-  Downvotes = 'downvotes',
-  /** column name */
-  Experience = 'experience',
-  /** column name */
-  Health = 'health',
-  /** column name */
-  Id = 'id',
-  /** column name */
-  ImageUrl = 'image_url',
-  /** column name */
-  IsAlive = 'is_alive',
-  /** column name */
-  IsApproved = 'is_approved',
-  /** column name */
-  IsInBattleMode = 'is_in_battle_mode',
-  /** column name */
-  LastExpUpdate = 'last_exp_update',
-  /** column name */
-  Level = 'level',
-  /** column name */
-  MaxHealth = 'max_health',
-  /** column name */
-  ModeratorNotes = 'moderator_notes',
-  /** column name */
-  PositionRow = 'position_row',
-  /** column name */
-  ReportCount = 'report_count',
-  /** column name */
-  Reported = 'reported',
-  /** column name */
-  Score = 'score',
-  /** column name */
-  Talent = 'talent',
-  /** column name */
-  TotalLosses = 'total_losses',
-  /** column name */
-  TotalWins = 'total_wins',
-  /** column name */
-  Upvotes = 'upvotes',
-  /** column name */
-  UserId = 'user_id'
-}
-
-/** input type for updating data in table "battle_fish" */
-export type Battle_Fish_Set_Input = {
-  artist?: InputMaybe<Scalars['String']['input']>;
-  battle_power?: InputMaybe<Scalars['numeric']['input']>;
-  created_at?: InputMaybe<Scalars['timestamp']['input']>;
-  downvotes?: InputMaybe<Scalars['Int']['input']>;
-  experience?: InputMaybe<Scalars['Int']['input']>;
-  health?: InputMaybe<Scalars['Int']['input']>;
-  id?: InputMaybe<Scalars['uuid']['input']>;
-  image_url?: InputMaybe<Scalars['String']['input']>;
-  is_alive?: InputMaybe<Scalars['Boolean']['input']>;
-  is_approved?: InputMaybe<Scalars['Boolean']['input']>;
-  is_in_battle_mode?: InputMaybe<Scalars['Boolean']['input']>;
-  last_exp_update?: InputMaybe<Scalars['timestamp']['input']>;
-  level?: InputMaybe<Scalars['Int']['input']>;
-  max_health?: InputMaybe<Scalars['Int']['input']>;
-  moderator_notes?: InputMaybe<Scalars['String']['input']>;
-  position_row?: InputMaybe<Scalars['Int']['input']>;
-  report_count?: InputMaybe<Scalars['Int']['input']>;
-  reported?: InputMaybe<Scalars['Boolean']['input']>;
-  score?: InputMaybe<Scalars['Int']['input']>;
-  talent?: InputMaybe<Scalars['Int']['input']>;
-  total_losses?: InputMaybe<Scalars['Int']['input']>;
-  total_wins?: InputMaybe<Scalars['Int']['input']>;
-  upvotes?: InputMaybe<Scalars['Int']['input']>;
-  user_id?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** aggregate stddev on columns */
-export type Battle_Fish_Stddev_Fields = {
-  __typename?: 'battle_fish_stddev_fields';
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  score?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** aggregate stddev_pop on columns */
-export type Battle_Fish_Stddev_Pop_Fields = {
-  __typename?: 'battle_fish_stddev_pop_fields';
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  score?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** aggregate stddev_samp on columns */
-export type Battle_Fish_Stddev_Samp_Fields = {
-  __typename?: 'battle_fish_stddev_samp_fields';
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  score?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** Streaming cursor of the table "battle_fish" */
-export type Battle_Fish_Stream_Cursor_Input = {
-  /** Stream column input with initial value */
-  initial_value: Battle_Fish_Stream_Cursor_Value_Input;
-  /** cursor ordering */
-  ordering?: InputMaybe<Cursor_Ordering>;
-};
-
-/** Initial value of the column from where the streaming should start */
-export type Battle_Fish_Stream_Cursor_Value_Input = {
-  artist?: InputMaybe<Scalars['String']['input']>;
-  battle_power?: InputMaybe<Scalars['numeric']['input']>;
-  created_at?: InputMaybe<Scalars['timestamp']['input']>;
-  downvotes?: InputMaybe<Scalars['Int']['input']>;
-  experience?: InputMaybe<Scalars['Int']['input']>;
-  health?: InputMaybe<Scalars['Int']['input']>;
-  id?: InputMaybe<Scalars['uuid']['input']>;
-  image_url?: InputMaybe<Scalars['String']['input']>;
-  is_alive?: InputMaybe<Scalars['Boolean']['input']>;
-  is_approved?: InputMaybe<Scalars['Boolean']['input']>;
-  is_in_battle_mode?: InputMaybe<Scalars['Boolean']['input']>;
-  last_exp_update?: InputMaybe<Scalars['timestamp']['input']>;
-  level?: InputMaybe<Scalars['Int']['input']>;
-  max_health?: InputMaybe<Scalars['Int']['input']>;
-  moderator_notes?: InputMaybe<Scalars['String']['input']>;
-  position_row?: InputMaybe<Scalars['Int']['input']>;
-  report_count?: InputMaybe<Scalars['Int']['input']>;
-  reported?: InputMaybe<Scalars['Boolean']['input']>;
-  score?: InputMaybe<Scalars['Int']['input']>;
-  talent?: InputMaybe<Scalars['Int']['input']>;
-  total_losses?: InputMaybe<Scalars['Int']['input']>;
-  total_wins?: InputMaybe<Scalars['Int']['input']>;
-  upvotes?: InputMaybe<Scalars['Int']['input']>;
-  user_id?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** aggregate sum on columns */
-export type Battle_Fish_Sum_Fields = {
-  __typename?: 'battle_fish_sum_fields';
-  battle_power?: Maybe<Scalars['numeric']['output']>;
-  downvotes?: Maybe<Scalars['Int']['output']>;
-  experience?: Maybe<Scalars['Int']['output']>;
-  health?: Maybe<Scalars['Int']['output']>;
-  level?: Maybe<Scalars['Int']['output']>;
-  max_health?: Maybe<Scalars['Int']['output']>;
-  position_row?: Maybe<Scalars['Int']['output']>;
-  report_count?: Maybe<Scalars['Int']['output']>;
-  score?: Maybe<Scalars['Int']['output']>;
-  talent?: Maybe<Scalars['Int']['output']>;
-  total_losses?: Maybe<Scalars['Int']['output']>;
-  total_wins?: Maybe<Scalars['Int']['output']>;
-  upvotes?: Maybe<Scalars['Int']['output']>;
-};
-
-export type Battle_Fish_Updates = {
-  /** increments the numeric columns with given value of the filtered values */
-  _inc?: InputMaybe<Battle_Fish_Inc_Input>;
-  /** sets the columns of the filtered rows to the given values */
-  _set?: InputMaybe<Battle_Fish_Set_Input>;
-  /** filter the rows which have to be updated */
-  where: Battle_Fish_Bool_Exp;
-};
-
-/** aggregate var_pop on columns */
-export type Battle_Fish_Var_Pop_Fields = {
-  __typename?: 'battle_fish_var_pop_fields';
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  score?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** aggregate var_samp on columns */
-export type Battle_Fish_Var_Samp_Fields = {
-  __typename?: 'battle_fish_var_samp_fields';
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  score?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** aggregate variance on columns */
-export type Battle_Fish_Variance_Fields = {
-  __typename?: 'battle_fish_variance_fields';
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  score?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
 /** columns and relationships of "battle_log" */
 export type Battle_Log = {
   __typename?: 'battle_log';
@@ -1006,6 +515,10 @@ export type Battle_Log = {
   defender_id?: Maybe<Scalars['uuid']['output']>;
   defender_power?: Maybe<Scalars['numeric']['output']>;
   exp_gained?: Maybe<Scalars['Int']['output']>;
+  /** An object relationship */
+  fish?: Maybe<Fish>;
+  /** An object relationship */
+  fishByDefenderId?: Maybe<Fish>;
   health_lost?: Maybe<Scalars['Int']['output']>;
   id: Scalars['uuid']['output'];
   random_factor?: Maybe<Scalars['numeric']['output']>;
@@ -1017,6 +530,17 @@ export type Battle_Log_Aggregate = {
   __typename?: 'battle_log_aggregate';
   aggregate?: Maybe<Battle_Log_Aggregate_Fields>;
   nodes: Array<Battle_Log>;
+};
+
+export type Battle_Log_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Battle_Log_Aggregate_Bool_Exp_Count>;
+};
+
+export type Battle_Log_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Battle_Log_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Battle_Log_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
 };
 
 /** aggregate fields of "battle_log" */
@@ -1042,6 +566,28 @@ export type Battle_Log_Aggregate_FieldsCountArgs = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** order by aggregate values of table "battle_log" */
+export type Battle_Log_Aggregate_Order_By = {
+  avg?: InputMaybe<Battle_Log_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Battle_Log_Max_Order_By>;
+  min?: InputMaybe<Battle_Log_Min_Order_By>;
+  stddev?: InputMaybe<Battle_Log_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Battle_Log_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Battle_Log_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Battle_Log_Sum_Order_By>;
+  var_pop?: InputMaybe<Battle_Log_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Battle_Log_Var_Samp_Order_By>;
+  variance?: InputMaybe<Battle_Log_Variance_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "battle_log" */
+export type Battle_Log_Arr_Rel_Insert_Input = {
+  data: Array<Battle_Log_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Battle_Log_On_Conflict>;
+};
+
 /** aggregate avg on columns */
 export type Battle_Log_Avg_Fields = {
   __typename?: 'battle_log_avg_fields';
@@ -1050,6 +596,15 @@ export type Battle_Log_Avg_Fields = {
   exp_gained?: Maybe<Scalars['Float']['output']>;
   health_lost?: Maybe<Scalars['Float']['output']>;
   random_factor?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "battle_log" */
+export type Battle_Log_Avg_Order_By = {
+  attacker_power?: InputMaybe<Order_By>;
+  defender_power?: InputMaybe<Order_By>;
+  exp_gained?: InputMaybe<Order_By>;
+  health_lost?: InputMaybe<Order_By>;
+  random_factor?: InputMaybe<Order_By>;
 };
 
 /** Boolean expression to filter rows from the table "battle_log". All fields are combined with a logical 'AND'. */
@@ -1063,6 +618,8 @@ export type Battle_Log_Bool_Exp = {
   defender_id?: InputMaybe<Uuid_Comparison_Exp>;
   defender_power?: InputMaybe<Numeric_Comparison_Exp>;
   exp_gained?: InputMaybe<Int_Comparison_Exp>;
+  fish?: InputMaybe<Fish_Bool_Exp>;
+  fishByDefenderId?: InputMaybe<Fish_Bool_Exp>;
   health_lost?: InputMaybe<Int_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   random_factor?: InputMaybe<Numeric_Comparison_Exp>;
@@ -1092,6 +649,8 @@ export type Battle_Log_Insert_Input = {
   defender_id?: InputMaybe<Scalars['uuid']['input']>;
   defender_power?: InputMaybe<Scalars['numeric']['input']>;
   exp_gained?: InputMaybe<Scalars['Int']['input']>;
+  fish?: InputMaybe<Fish_Obj_Rel_Insert_Input>;
+  fishByDefenderId?: InputMaybe<Fish_Obj_Rel_Insert_Input>;
   health_lost?: InputMaybe<Scalars['Int']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   random_factor?: InputMaybe<Scalars['numeric']['input']>;
@@ -1113,6 +672,20 @@ export type Battle_Log_Max_Fields = {
   winner_id?: Maybe<Scalars['uuid']['output']>;
 };
 
+/** order by max() on columns of table "battle_log" */
+export type Battle_Log_Max_Order_By = {
+  attacker_id?: InputMaybe<Order_By>;
+  attacker_power?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  defender_id?: InputMaybe<Order_By>;
+  defender_power?: InputMaybe<Order_By>;
+  exp_gained?: InputMaybe<Order_By>;
+  health_lost?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  random_factor?: InputMaybe<Order_By>;
+  winner_id?: InputMaybe<Order_By>;
+};
+
 /** aggregate min on columns */
 export type Battle_Log_Min_Fields = {
   __typename?: 'battle_log_min_fields';
@@ -1126,6 +699,20 @@ export type Battle_Log_Min_Fields = {
   id?: Maybe<Scalars['uuid']['output']>;
   random_factor?: Maybe<Scalars['numeric']['output']>;
   winner_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "battle_log" */
+export type Battle_Log_Min_Order_By = {
+  attacker_id?: InputMaybe<Order_By>;
+  attacker_power?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  defender_id?: InputMaybe<Order_By>;
+  defender_power?: InputMaybe<Order_By>;
+  exp_gained?: InputMaybe<Order_By>;
+  health_lost?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  random_factor?: InputMaybe<Order_By>;
+  winner_id?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "battle_log" */
@@ -1152,6 +739,8 @@ export type Battle_Log_Order_By = {
   defender_id?: InputMaybe<Order_By>;
   defender_power?: InputMaybe<Order_By>;
   exp_gained?: InputMaybe<Order_By>;
+  fish?: InputMaybe<Fish_Order_By>;
+  fishByDefenderId?: InputMaybe<Fish_Order_By>;
   health_lost?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   random_factor?: InputMaybe<Order_By>;
@@ -1211,6 +800,15 @@ export type Battle_Log_Stddev_Fields = {
   random_factor?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev() on columns of table "battle_log" */
+export type Battle_Log_Stddev_Order_By = {
+  attacker_power?: InputMaybe<Order_By>;
+  defender_power?: InputMaybe<Order_By>;
+  exp_gained?: InputMaybe<Order_By>;
+  health_lost?: InputMaybe<Order_By>;
+  random_factor?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_pop on columns */
 export type Battle_Log_Stddev_Pop_Fields = {
   __typename?: 'battle_log_stddev_pop_fields';
@@ -1221,6 +819,15 @@ export type Battle_Log_Stddev_Pop_Fields = {
   random_factor?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev_pop() on columns of table "battle_log" */
+export type Battle_Log_Stddev_Pop_Order_By = {
+  attacker_power?: InputMaybe<Order_By>;
+  defender_power?: InputMaybe<Order_By>;
+  exp_gained?: InputMaybe<Order_By>;
+  health_lost?: InputMaybe<Order_By>;
+  random_factor?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_samp on columns */
 export type Battle_Log_Stddev_Samp_Fields = {
   __typename?: 'battle_log_stddev_samp_fields';
@@ -1229,6 +836,15 @@ export type Battle_Log_Stddev_Samp_Fields = {
   exp_gained?: Maybe<Scalars['Float']['output']>;
   health_lost?: Maybe<Scalars['Float']['output']>;
   random_factor?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "battle_log" */
+export type Battle_Log_Stddev_Samp_Order_By = {
+  attacker_power?: InputMaybe<Order_By>;
+  defender_power?: InputMaybe<Order_By>;
+  exp_gained?: InputMaybe<Order_By>;
+  health_lost?: InputMaybe<Order_By>;
+  random_factor?: InputMaybe<Order_By>;
 };
 
 /** Streaming cursor of the table "battle_log" */
@@ -1261,6 +877,15 @@ export type Battle_Log_Sum_Fields = {
   exp_gained?: Maybe<Scalars['Int']['output']>;
   health_lost?: Maybe<Scalars['Int']['output']>;
   random_factor?: Maybe<Scalars['numeric']['output']>;
+};
+
+/** order by sum() on columns of table "battle_log" */
+export type Battle_Log_Sum_Order_By = {
+  attacker_power?: InputMaybe<Order_By>;
+  defender_power?: InputMaybe<Order_By>;
+  exp_gained?: InputMaybe<Order_By>;
+  health_lost?: InputMaybe<Order_By>;
+  random_factor?: InputMaybe<Order_By>;
 };
 
 /** update columns of table "battle_log" */
@@ -1306,6 +931,15 @@ export type Battle_Log_Var_Pop_Fields = {
   random_factor?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_pop() on columns of table "battle_log" */
+export type Battle_Log_Var_Pop_Order_By = {
+  attacker_power?: InputMaybe<Order_By>;
+  defender_power?: InputMaybe<Order_By>;
+  exp_gained?: InputMaybe<Order_By>;
+  health_lost?: InputMaybe<Order_By>;
+  random_factor?: InputMaybe<Order_By>;
+};
+
 /** aggregate var_samp on columns */
 export type Battle_Log_Var_Samp_Fields = {
   __typename?: 'battle_log_var_samp_fields';
@@ -1316,6 +950,15 @@ export type Battle_Log_Var_Samp_Fields = {
   random_factor?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_samp() on columns of table "battle_log" */
+export type Battle_Log_Var_Samp_Order_By = {
+  attacker_power?: InputMaybe<Order_By>;
+  defender_power?: InputMaybe<Order_By>;
+  exp_gained?: InputMaybe<Order_By>;
+  health_lost?: InputMaybe<Order_By>;
+  random_factor?: InputMaybe<Order_By>;
+};
+
 /** aggregate variance on columns */
 export type Battle_Log_Variance_Fields = {
   __typename?: 'battle_log_variance_fields';
@@ -1324,6 +967,15 @@ export type Battle_Log_Variance_Fields = {
   exp_gained?: Maybe<Scalars['Float']['output']>;
   health_lost?: Maybe<Scalars['Float']['output']>;
   random_factor?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "battle_log" */
+export type Battle_Log_Variance_Order_By = {
+  attacker_power?: InputMaybe<Order_By>;
+  defender_power?: InputMaybe<Order_By>;
+  exp_gained?: InputMaybe<Order_By>;
+  health_lost?: InputMaybe<Order_By>;
+  random_factor?: InputMaybe<Order_By>;
 };
 
 /** Boolean expression to compare columns of type "bigint". All fields are combined with logical 'AND'. */
@@ -1354,8 +1006,12 @@ export type Economy_Log = {
   amount: Scalars['Int']['output'];
   balance_after: Scalars['Int']['output'];
   created_at?: Maybe<Scalars['timestamp']['output']>;
+  /** An object relationship */
+  fish?: Maybe<Fish>;
   fish_id?: Maybe<Scalars['uuid']['output']>;
   id: Scalars['uuid']['output'];
+  /** An object relationship */
+  user: Users;
   user_id: Scalars['String']['output'];
 };
 
@@ -1364,6 +1020,17 @@ export type Economy_Log_Aggregate = {
   __typename?: 'economy_log_aggregate';
   aggregate?: Maybe<Economy_Log_Aggregate_Fields>;
   nodes: Array<Economy_Log>;
+};
+
+export type Economy_Log_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Economy_Log_Aggregate_Bool_Exp_Count>;
+};
+
+export type Economy_Log_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Economy_Log_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Economy_Log_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
 };
 
 /** aggregate fields of "economy_log" */
@@ -1389,11 +1056,39 @@ export type Economy_Log_Aggregate_FieldsCountArgs = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** order by aggregate values of table "economy_log" */
+export type Economy_Log_Aggregate_Order_By = {
+  avg?: InputMaybe<Economy_Log_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Economy_Log_Max_Order_By>;
+  min?: InputMaybe<Economy_Log_Min_Order_By>;
+  stddev?: InputMaybe<Economy_Log_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Economy_Log_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Economy_Log_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Economy_Log_Sum_Order_By>;
+  var_pop?: InputMaybe<Economy_Log_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Economy_Log_Var_Samp_Order_By>;
+  variance?: InputMaybe<Economy_Log_Variance_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "economy_log" */
+export type Economy_Log_Arr_Rel_Insert_Input = {
+  data: Array<Economy_Log_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Economy_Log_On_Conflict>;
+};
+
 /** aggregate avg on columns */
 export type Economy_Log_Avg_Fields = {
   __typename?: 'economy_log_avg_fields';
   amount?: Maybe<Scalars['Float']['output']>;
   balance_after?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "economy_log" */
+export type Economy_Log_Avg_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  balance_after?: InputMaybe<Order_By>;
 };
 
 /** Boolean expression to filter rows from the table "economy_log". All fields are combined with a logical 'AND'. */
@@ -1405,8 +1100,10 @@ export type Economy_Log_Bool_Exp = {
   amount?: InputMaybe<Int_Comparison_Exp>;
   balance_after?: InputMaybe<Int_Comparison_Exp>;
   created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  fish?: InputMaybe<Fish_Bool_Exp>;
   fish_id?: InputMaybe<Uuid_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
   user_id?: InputMaybe<String_Comparison_Exp>;
 };
 
@@ -1428,8 +1125,10 @@ export type Economy_Log_Insert_Input = {
   amount?: InputMaybe<Scalars['Int']['input']>;
   balance_after?: InputMaybe<Scalars['Int']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  fish?: InputMaybe<Fish_Obj_Rel_Insert_Input>;
   fish_id?: InputMaybe<Scalars['uuid']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
   user_id?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1445,6 +1144,17 @@ export type Economy_Log_Max_Fields = {
   user_id?: Maybe<Scalars['String']['output']>;
 };
 
+/** order by max() on columns of table "economy_log" */
+export type Economy_Log_Max_Order_By = {
+  action?: InputMaybe<Order_By>;
+  amount?: InputMaybe<Order_By>;
+  balance_after?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  fish_id?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
 /** aggregate min on columns */
 export type Economy_Log_Min_Fields = {
   __typename?: 'economy_log_min_fields';
@@ -1455,6 +1165,17 @@ export type Economy_Log_Min_Fields = {
   fish_id?: Maybe<Scalars['uuid']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   user_id?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by min() on columns of table "economy_log" */
+export type Economy_Log_Min_Order_By = {
+  action?: InputMaybe<Order_By>;
+  amount?: InputMaybe<Order_By>;
+  balance_after?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  fish_id?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "economy_log" */
@@ -1479,8 +1200,10 @@ export type Economy_Log_Order_By = {
   amount?: InputMaybe<Order_By>;
   balance_after?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
+  fish?: InputMaybe<Fish_Order_By>;
   fish_id?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
   user_id?: InputMaybe<Order_By>;
 };
 
@@ -1525,6 +1248,12 @@ export type Economy_Log_Stddev_Fields = {
   balance_after?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev() on columns of table "economy_log" */
+export type Economy_Log_Stddev_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  balance_after?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_pop on columns */
 export type Economy_Log_Stddev_Pop_Fields = {
   __typename?: 'economy_log_stddev_pop_fields';
@@ -1532,11 +1261,23 @@ export type Economy_Log_Stddev_Pop_Fields = {
   balance_after?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev_pop() on columns of table "economy_log" */
+export type Economy_Log_Stddev_Pop_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  balance_after?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_samp on columns */
 export type Economy_Log_Stddev_Samp_Fields = {
   __typename?: 'economy_log_stddev_samp_fields';
   amount?: Maybe<Scalars['Float']['output']>;
   balance_after?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "economy_log" */
+export type Economy_Log_Stddev_Samp_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  balance_after?: InputMaybe<Order_By>;
 };
 
 /** Streaming cursor of the table "economy_log" */
@@ -1563,6 +1304,12 @@ export type Economy_Log_Sum_Fields = {
   __typename?: 'economy_log_sum_fields';
   amount?: Maybe<Scalars['Int']['output']>;
   balance_after?: Maybe<Scalars['Int']['output']>;
+};
+
+/** order by sum() on columns of table "economy_log" */
+export type Economy_Log_Sum_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  balance_after?: InputMaybe<Order_By>;
 };
 
 /** update columns of table "economy_log" */
@@ -1599,11 +1346,23 @@ export type Economy_Log_Var_Pop_Fields = {
   balance_after?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_pop() on columns of table "economy_log" */
+export type Economy_Log_Var_Pop_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  balance_after?: InputMaybe<Order_By>;
+};
+
 /** aggregate var_samp on columns */
 export type Economy_Log_Var_Samp_Fields = {
   __typename?: 'economy_log_var_samp_fields';
   amount?: Maybe<Scalars['Float']['output']>;
   balance_after?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_samp() on columns of table "economy_log" */
+export type Economy_Log_Var_Samp_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  balance_after?: InputMaybe<Order_By>;
 };
 
 /** aggregate variance on columns */
@@ -1613,13 +1372,32 @@ export type Economy_Log_Variance_Fields = {
   balance_after?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by variance() on columns of table "economy_log" */
+export type Economy_Log_Variance_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  balance_after?: InputMaybe<Order_By>;
+};
+
 /** columns and relationships of "fish" */
 export type Fish = {
   __typename?: 'fish';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
   artist?: Maybe<Scalars['String']['output']>;
+  /** An array relationship */
+  battleLogsByDefenderId: Array<Battle_Log>;
+  /** An aggregate relationship */
+  battleLogsByDefenderId_aggregate: Battle_Log_Aggregate;
+  /** An array relationship */
+  battle_logs: Array<Battle_Log>;
+  /** An aggregate relationship */
+  battle_logs_aggregate: Battle_Log_Aggregate;
   battle_power?: Maybe<Scalars['numeric']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
   downvotes: Scalars['Int']['output'];
+  /** An array relationship */
+  economy_logs: Array<Economy_Log>;
+  /** An aggregate relationship */
+  economy_logs_aggregate: Economy_Log_Aggregate;
   experience: Scalars['Int']['output'];
   health: Scalars['Int']['output'];
   id: Scalars['uuid']['output'];
@@ -1634,11 +1412,122 @@ export type Fish = {
   position_row?: Maybe<Scalars['Int']['output']>;
   report_count?: Maybe<Scalars['Int']['output']>;
   reported?: Maybe<Scalars['Boolean']['output']>;
+  /** An array relationship */
+  reports: Array<Reports>;
+  /** An aggregate relationship */
+  reports_aggregate: Reports_Aggregate;
+  score?: Maybe<Scalars['Int']['output']>;
   talent: Scalars['Int']['output'];
   total_losses?: Maybe<Scalars['Int']['output']>;
   total_wins?: Maybe<Scalars['Int']['output']>;
   upvotes: Scalars['Int']['output'];
+  /** An object relationship */
+  user: Users;
   user_id: Scalars['String']['output'];
+  /** An array relationship */
+  votes: Array<Votes>;
+  /** An aggregate relationship */
+  votes_aggregate: Votes_Aggregate;
+};
+
+
+/** columns and relationships of "fish" */
+export type FishBattleLogsByDefenderIdArgs = {
+  distinct_on?: InputMaybe<Array<Battle_Log_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Battle_Log_Order_By>>;
+  where?: InputMaybe<Battle_Log_Bool_Exp>;
+};
+
+
+/** columns and relationships of "fish" */
+export type FishBattleLogsByDefenderId_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Battle_Log_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Battle_Log_Order_By>>;
+  where?: InputMaybe<Battle_Log_Bool_Exp>;
+};
+
+
+/** columns and relationships of "fish" */
+export type FishBattle_LogsArgs = {
+  distinct_on?: InputMaybe<Array<Battle_Log_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Battle_Log_Order_By>>;
+  where?: InputMaybe<Battle_Log_Bool_Exp>;
+};
+
+
+/** columns and relationships of "fish" */
+export type FishBattle_Logs_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Battle_Log_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Battle_Log_Order_By>>;
+  where?: InputMaybe<Battle_Log_Bool_Exp>;
+};
+
+
+/** columns and relationships of "fish" */
+export type FishEconomy_LogsArgs = {
+  distinct_on?: InputMaybe<Array<Economy_Log_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Economy_Log_Order_By>>;
+  where?: InputMaybe<Economy_Log_Bool_Exp>;
+};
+
+
+/** columns and relationships of "fish" */
+export type FishEconomy_Logs_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Economy_Log_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Economy_Log_Order_By>>;
+  where?: InputMaybe<Economy_Log_Bool_Exp>;
+};
+
+
+/** columns and relationships of "fish" */
+export type FishReportsArgs = {
+  distinct_on?: InputMaybe<Array<Reports_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Reports_Order_By>>;
+  where?: InputMaybe<Reports_Bool_Exp>;
+};
+
+
+/** columns and relationships of "fish" */
+export type FishReports_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Reports_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Reports_Order_By>>;
+  where?: InputMaybe<Reports_Bool_Exp>;
+};
+
+
+/** columns and relationships of "fish" */
+export type FishVotesArgs = {
+  distinct_on?: InputMaybe<Array<Votes_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Votes_Order_By>>;
+  where?: InputMaybe<Votes_Bool_Exp>;
+};
+
+
+/** columns and relationships of "fish" */
+export type FishVotes_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Votes_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Votes_Order_By>>;
+  where?: InputMaybe<Votes_Bool_Exp>;
 };
 
 /** aggregated selection of "fish" */
@@ -1646,6 +1535,107 @@ export type Fish_Aggregate = {
   __typename?: 'fish_aggregate';
   aggregate?: Maybe<Fish_Aggregate_Fields>;
   nodes: Array<Fish>;
+};
+
+export type Fish_Aggregate_Bool_Exp = {
+  avg?: InputMaybe<Fish_Aggregate_Bool_Exp_Avg>;
+  bool_and?: InputMaybe<Fish_Aggregate_Bool_Exp_Bool_And>;
+  bool_or?: InputMaybe<Fish_Aggregate_Bool_Exp_Bool_Or>;
+  corr?: InputMaybe<Fish_Aggregate_Bool_Exp_Corr>;
+  count?: InputMaybe<Fish_Aggregate_Bool_Exp_Count>;
+  covar_samp?: InputMaybe<Fish_Aggregate_Bool_Exp_Covar_Samp>;
+  max?: InputMaybe<Fish_Aggregate_Bool_Exp_Max>;
+  min?: InputMaybe<Fish_Aggregate_Bool_Exp_Min>;
+  stddev_samp?: InputMaybe<Fish_Aggregate_Bool_Exp_Stddev_Samp>;
+  sum?: InputMaybe<Fish_Aggregate_Bool_Exp_Sum>;
+  var_samp?: InputMaybe<Fish_Aggregate_Bool_Exp_Var_Samp>;
+};
+
+export type Fish_Aggregate_Bool_Exp_Avg = {
+  arguments: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Avg_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Fish_Bool_Exp>;
+  predicate: Float8_Comparison_Exp;
+};
+
+export type Fish_Aggregate_Bool_Exp_Bool_And = {
+  arguments: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Bool_And_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Fish_Bool_Exp>;
+  predicate: Boolean_Comparison_Exp;
+};
+
+export type Fish_Aggregate_Bool_Exp_Bool_Or = {
+  arguments: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Fish_Bool_Exp>;
+  predicate: Boolean_Comparison_Exp;
+};
+
+export type Fish_Aggregate_Bool_Exp_Corr = {
+  arguments: Fish_Aggregate_Bool_Exp_Corr_Arguments;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Fish_Bool_Exp>;
+  predicate: Float8_Comparison_Exp;
+};
+
+export type Fish_Aggregate_Bool_Exp_Corr_Arguments = {
+  X: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Corr_Arguments_Columns;
+  Y: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Corr_Arguments_Columns;
+};
+
+export type Fish_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Fish_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Fish_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+export type Fish_Aggregate_Bool_Exp_Covar_Samp = {
+  arguments: Fish_Aggregate_Bool_Exp_Covar_Samp_Arguments;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Fish_Bool_Exp>;
+  predicate: Float8_Comparison_Exp;
+};
+
+export type Fish_Aggregate_Bool_Exp_Covar_Samp_Arguments = {
+  X: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Covar_Samp_Arguments_Columns;
+  Y: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Covar_Samp_Arguments_Columns;
+};
+
+export type Fish_Aggregate_Bool_Exp_Max = {
+  arguments: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Max_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Fish_Bool_Exp>;
+  predicate: Float8_Comparison_Exp;
+};
+
+export type Fish_Aggregate_Bool_Exp_Min = {
+  arguments: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Min_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Fish_Bool_Exp>;
+  predicate: Float8_Comparison_Exp;
+};
+
+export type Fish_Aggregate_Bool_Exp_Stddev_Samp = {
+  arguments: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Stddev_Samp_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Fish_Bool_Exp>;
+  predicate: Float8_Comparison_Exp;
+};
+
+export type Fish_Aggregate_Bool_Exp_Sum = {
+  arguments: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Sum_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Fish_Bool_Exp>;
+  predicate: Float8_Comparison_Exp;
+};
+
+export type Fish_Aggregate_Bool_Exp_Var_Samp = {
+  arguments: Fish_Select_Column_Fish_Aggregate_Bool_Exp_Var_Samp_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Fish_Bool_Exp>;
+  predicate: Float8_Comparison_Exp;
 };
 
 /** aggregate fields of "fish" */
@@ -1671,9 +1661,32 @@ export type Fish_Aggregate_FieldsCountArgs = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** order by aggregate values of table "fish" */
+export type Fish_Aggregate_Order_By = {
+  avg?: InputMaybe<Fish_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Fish_Max_Order_By>;
+  min?: InputMaybe<Fish_Min_Order_By>;
+  stddev?: InputMaybe<Fish_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Fish_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Fish_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Fish_Sum_Order_By>;
+  var_pop?: InputMaybe<Fish_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Fish_Var_Samp_Order_By>;
+  variance?: InputMaybe<Fish_Variance_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "fish" */
+export type Fish_Arr_Rel_Insert_Input = {
+  data: Array<Fish_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Fish_On_Conflict>;
+};
+
 /** aggregate avg on columns */
 export type Fish_Avg_Fields = {
   __typename?: 'fish_avg_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
   battle_power?: Maybe<Scalars['Float']['output']>;
   downvotes?: Maybe<Scalars['Float']['output']>;
   experience?: Maybe<Scalars['Float']['output']>;
@@ -1682,17 +1695,116 @@ export type Fish_Avg_Fields = {
   max_health?: Maybe<Scalars['Float']['output']>;
   position_row?: Maybe<Scalars['Float']['output']>;
   report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
   talent?: Maybe<Scalars['Float']['output']>;
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_wins?: Maybe<Scalars['Float']['output']>;
   upvotes?: Maybe<Scalars['Float']['output']>;
 };
 
-/** Boolean expression to filter rows from the table "fish". All fields are combined with a logical 'AND'. */
-export type Fish_Bool_Exp = {
-  _and?: InputMaybe<Array<Fish_Bool_Exp>>;
-  _not?: InputMaybe<Fish_Bool_Exp>;
-  _or?: InputMaybe<Array<Fish_Bool_Exp>>;
+/** order by avg() on columns of table "fish" */
+export type Fish_Avg_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
+  battle_power?: InputMaybe<Order_By>;
+  downvotes?: InputMaybe<Order_By>;
+  experience?: InputMaybe<Order_By>;
+  health?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  max_health?: InputMaybe<Order_By>;
+  position_row?: InputMaybe<Order_By>;
+  report_count?: InputMaybe<Order_By>;
+  score?: InputMaybe<Order_By>;
+  talent?: InputMaybe<Order_By>;
+  total_losses?: InputMaybe<Order_By>;
+  total_wins?: InputMaybe<Order_By>;
+  upvotes?: InputMaybe<Order_By>;
+};
+
+/** columns and relationships of "fish_battle" */
+export type Fish_Battle = {
+  __typename?: 'fish_battle';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
+  artist?: Maybe<Scalars['String']['output']>;
+  battle_power?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  downvotes?: Maybe<Scalars['Int']['output']>;
+  experience?: Maybe<Scalars['Int']['output']>;
+  health?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  image_url?: Maybe<Scalars['String']['output']>;
+  is_alive?: Maybe<Scalars['Boolean']['output']>;
+  is_approved?: Maybe<Scalars['Boolean']['output']>;
+  is_in_battle_mode?: Maybe<Scalars['Boolean']['output']>;
+  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
+  level?: Maybe<Scalars['Int']['output']>;
+  max_health?: Maybe<Scalars['Int']['output']>;
+  moderator_notes?: Maybe<Scalars['String']['output']>;
+  position_row?: Maybe<Scalars['Int']['output']>;
+  report_count?: Maybe<Scalars['Int']['output']>;
+  reported?: Maybe<Scalars['Boolean']['output']>;
+  score?: Maybe<Scalars['Int']['output']>;
+  talent?: Maybe<Scalars['Int']['output']>;
+  total_losses?: Maybe<Scalars['Int']['output']>;
+  total_wins?: Maybe<Scalars['Int']['output']>;
+  upvotes?: Maybe<Scalars['Int']['output']>;
+  user_id?: Maybe<Scalars['String']['output']>;
+};
+
+/** aggregated selection of "fish_battle" */
+export type Fish_Battle_Aggregate = {
+  __typename?: 'fish_battle_aggregate';
+  aggregate?: Maybe<Fish_Battle_Aggregate_Fields>;
+  nodes: Array<Fish_Battle>;
+};
+
+/** aggregate fields of "fish_battle" */
+export type Fish_Battle_Aggregate_Fields = {
+  __typename?: 'fish_battle_aggregate_fields';
+  avg?: Maybe<Fish_Battle_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Fish_Battle_Max_Fields>;
+  min?: Maybe<Fish_Battle_Min_Fields>;
+  stddev?: Maybe<Fish_Battle_Stddev_Fields>;
+  stddev_pop?: Maybe<Fish_Battle_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Fish_Battle_Stddev_Samp_Fields>;
+  sum?: Maybe<Fish_Battle_Sum_Fields>;
+  var_pop?: Maybe<Fish_Battle_Var_Pop_Fields>;
+  var_samp?: Maybe<Fish_Battle_Var_Samp_Fields>;
+  variance?: Maybe<Fish_Battle_Variance_Fields>;
+};
+
+
+/** aggregate fields of "fish_battle" */
+export type Fish_Battle_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Fish_Battle_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Fish_Battle_Avg_Fields = {
+  __typename?: 'fish_battle_avg_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "fish_battle". All fields are combined with a logical 'AND'. */
+export type Fish_Battle_Bool_Exp = {
+  _and?: InputMaybe<Array<Fish_Battle_Bool_Exp>>;
+  _not?: InputMaybe<Fish_Battle_Bool_Exp>;
+  _or?: InputMaybe<Array<Fish_Battle_Bool_Exp>>;
+  approval_rate?: InputMaybe<Float8_Comparison_Exp>;
   artist?: InputMaybe<String_Comparison_Exp>;
   battle_power?: InputMaybe<Numeric_Comparison_Exp>;
   created_at?: InputMaybe<Timestamp_Comparison_Exp>;
@@ -1711,6 +1823,7 @@ export type Fish_Bool_Exp = {
   position_row?: InputMaybe<Int_Comparison_Exp>;
   report_count?: InputMaybe<Int_Comparison_Exp>;
   reported?: InputMaybe<Boolean_Comparison_Exp>;
+  score?: InputMaybe<Int_Comparison_Exp>;
   talent?: InputMaybe<Int_Comparison_Exp>;
   total_losses?: InputMaybe<Int_Comparison_Exp>;
   total_wins?: InputMaybe<Int_Comparison_Exp>;
@@ -1718,14 +1831,9 @@ export type Fish_Bool_Exp = {
   user_id?: InputMaybe<String_Comparison_Exp>;
 };
 
-/** unique or primary key constraints on table "fish" */
-export enum Fish_Constraint {
-  /** unique or primary key constraint on columns "id" */
-  FishPkey = 'fish_pkey'
-}
-
-/** input type for incrementing numeric columns in table "fish" */
-export type Fish_Inc_Input = {
+/** input type for incrementing numeric columns in table "fish_battle" */
+export type Fish_Battle_Inc_Input = {
+  approval_rate?: InputMaybe<Scalars['float8']['input']>;
   battle_power?: InputMaybe<Scalars['numeric']['input']>;
   downvotes?: InputMaybe<Scalars['Int']['input']>;
   experience?: InputMaybe<Scalars['Int']['input']>;
@@ -1734,14 +1842,16 @@ export type Fish_Inc_Input = {
   max_health?: InputMaybe<Scalars['Int']['input']>;
   position_row?: InputMaybe<Scalars['Int']['input']>;
   report_count?: InputMaybe<Scalars['Int']['input']>;
+  score?: InputMaybe<Scalars['Int']['input']>;
   talent?: InputMaybe<Scalars['Int']['input']>;
   total_losses?: InputMaybe<Scalars['Int']['input']>;
   total_wins?: InputMaybe<Scalars['Int']['input']>;
   upvotes?: InputMaybe<Scalars['Int']['input']>;
 };
 
-/** input type for inserting data into table "fish" */
-export type Fish_Insert_Input = {
+/** input type for inserting data into table "fish_battle" */
+export type Fish_Battle_Insert_Input = {
+  approval_rate?: InputMaybe<Scalars['float8']['input']>;
   artist?: InputMaybe<Scalars['String']['input']>;
   battle_power?: InputMaybe<Scalars['numeric']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
@@ -1760,6 +1870,7 @@ export type Fish_Insert_Input = {
   position_row?: InputMaybe<Scalars['Int']['input']>;
   report_count?: InputMaybe<Scalars['Int']['input']>;
   reported?: InputMaybe<Scalars['Boolean']['input']>;
+  score?: InputMaybe<Scalars['Int']['input']>;
   talent?: InputMaybe<Scalars['Int']['input']>;
   total_losses?: InputMaybe<Scalars['Int']['input']>;
   total_wins?: InputMaybe<Scalars['Int']['input']>;
@@ -1768,8 +1879,9 @@ export type Fish_Insert_Input = {
 };
 
 /** aggregate max on columns */
-export type Fish_Max_Fields = {
-  __typename?: 'fish_max_fields';
+export type Fish_Battle_Max_Fields = {
+  __typename?: 'fish_battle_max_fields';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
   artist?: Maybe<Scalars['String']['output']>;
   battle_power?: Maybe<Scalars['numeric']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
@@ -1784,6 +1896,7 @@ export type Fish_Max_Fields = {
   moderator_notes?: Maybe<Scalars['String']['output']>;
   position_row?: Maybe<Scalars['Int']['output']>;
   report_count?: Maybe<Scalars['Int']['output']>;
+  score?: Maybe<Scalars['Int']['output']>;
   talent?: Maybe<Scalars['Int']['output']>;
   total_losses?: Maybe<Scalars['Int']['output']>;
   total_wins?: Maybe<Scalars['Int']['output']>;
@@ -1792,8 +1905,9 @@ export type Fish_Max_Fields = {
 };
 
 /** aggregate min on columns */
-export type Fish_Min_Fields = {
-  __typename?: 'fish_min_fields';
+export type Fish_Battle_Min_Fields = {
+  __typename?: 'fish_battle_min_fields';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
   artist?: Maybe<Scalars['String']['output']>;
   battle_power?: Maybe<Scalars['numeric']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
@@ -1808,6 +1922,7 @@ export type Fish_Min_Fields = {
   moderator_notes?: Maybe<Scalars['String']['output']>;
   position_row?: Maybe<Scalars['Int']['output']>;
   report_count?: Maybe<Scalars['Int']['output']>;
+  score?: Maybe<Scalars['Int']['output']>;
   talent?: Maybe<Scalars['Int']['output']>;
   total_losses?: Maybe<Scalars['Int']['output']>;
   total_wins?: Maybe<Scalars['Int']['output']>;
@@ -1815,24 +1930,18 @@ export type Fish_Min_Fields = {
   user_id?: Maybe<Scalars['String']['output']>;
 };
 
-/** response of any mutation on the table "fish" */
-export type Fish_Mutation_Response = {
-  __typename?: 'fish_mutation_response';
+/** response of any mutation on the table "fish_battle" */
+export type Fish_Battle_Mutation_Response = {
+  __typename?: 'fish_battle_mutation_response';
   /** number of rows affected by the mutation */
   affected_rows: Scalars['Int']['output'];
   /** data from the rows affected by the mutation */
-  returning: Array<Fish>;
+  returning: Array<Fish_Battle>;
 };
 
-/** on_conflict condition type for table "fish" */
-export type Fish_On_Conflict = {
-  constraint: Fish_Constraint;
-  update_columns?: Array<Fish_Update_Column>;
-  where?: InputMaybe<Fish_Bool_Exp>;
-};
-
-/** Ordering options when selecting data from "fish". */
-export type Fish_Order_By = {
+/** Ordering options when selecting data from "fish_battle". */
+export type Fish_Battle_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
   artist?: InputMaybe<Order_By>;
   battle_power?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
@@ -1851,6 +1960,7 @@ export type Fish_Order_By = {
   position_row?: InputMaybe<Order_By>;
   report_count?: InputMaybe<Order_By>;
   reported?: InputMaybe<Order_By>;
+  score?: InputMaybe<Order_By>;
   talent?: InputMaybe<Order_By>;
   total_losses?: InputMaybe<Order_By>;
   total_wins?: InputMaybe<Order_By>;
@@ -1858,13 +1968,10 @@ export type Fish_Order_By = {
   user_id?: InputMaybe<Order_By>;
 };
 
-/** primary key columns input for table: fish */
-export type Fish_Pk_Columns_Input = {
-  id: Scalars['uuid']['input'];
-};
-
-/** select columns of table "fish" */
-export enum Fish_Select_Column {
+/** select columns of table "fish_battle" */
+export enum Fish_Battle_Select_Column {
+  /** column name */
+  ApprovalRate = 'approval_rate',
   /** column name */
   Artist = 'artist',
   /** column name */
@@ -1902,6 +2009,8 @@ export enum Fish_Select_Column {
   /** column name */
   Reported = 'reported',
   /** column name */
+  Score = 'score',
+  /** column name */
   Talent = 'talent',
   /** column name */
   TotalLosses = 'total_losses',
@@ -1911,6 +2020,1051 @@ export enum Fish_Select_Column {
   Upvotes = 'upvotes',
   /** column name */
   UserId = 'user_id'
+}
+
+/** input type for updating data in table "fish_battle" */
+export type Fish_Battle_Set_Input = {
+  approval_rate?: InputMaybe<Scalars['float8']['input']>;
+  artist?: InputMaybe<Scalars['String']['input']>;
+  battle_power?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  downvotes?: InputMaybe<Scalars['Int']['input']>;
+  experience?: InputMaybe<Scalars['Int']['input']>;
+  health?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  image_url?: InputMaybe<Scalars['String']['input']>;
+  is_alive?: InputMaybe<Scalars['Boolean']['input']>;
+  is_approved?: InputMaybe<Scalars['Boolean']['input']>;
+  is_in_battle_mode?: InputMaybe<Scalars['Boolean']['input']>;
+  last_exp_update?: InputMaybe<Scalars['timestamp']['input']>;
+  level?: InputMaybe<Scalars['Int']['input']>;
+  max_health?: InputMaybe<Scalars['Int']['input']>;
+  moderator_notes?: InputMaybe<Scalars['String']['input']>;
+  position_row?: InputMaybe<Scalars['Int']['input']>;
+  report_count?: InputMaybe<Scalars['Int']['input']>;
+  reported?: InputMaybe<Scalars['Boolean']['input']>;
+  score?: InputMaybe<Scalars['Int']['input']>;
+  talent?: InputMaybe<Scalars['Int']['input']>;
+  total_losses?: InputMaybe<Scalars['Int']['input']>;
+  total_wins?: InputMaybe<Scalars['Int']['input']>;
+  upvotes?: InputMaybe<Scalars['Int']['input']>;
+  user_id?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Fish_Battle_Stddev_Fields = {
+  __typename?: 'fish_battle_stddev_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Fish_Battle_Stddev_Pop_Fields = {
+  __typename?: 'fish_battle_stddev_pop_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Fish_Battle_Stddev_Samp_Fields = {
+  __typename?: 'fish_battle_stddev_samp_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "fish_battle" */
+export type Fish_Battle_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Fish_Battle_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Fish_Battle_Stream_Cursor_Value_Input = {
+  approval_rate?: InputMaybe<Scalars['float8']['input']>;
+  artist?: InputMaybe<Scalars['String']['input']>;
+  battle_power?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  downvotes?: InputMaybe<Scalars['Int']['input']>;
+  experience?: InputMaybe<Scalars['Int']['input']>;
+  health?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  image_url?: InputMaybe<Scalars['String']['input']>;
+  is_alive?: InputMaybe<Scalars['Boolean']['input']>;
+  is_approved?: InputMaybe<Scalars['Boolean']['input']>;
+  is_in_battle_mode?: InputMaybe<Scalars['Boolean']['input']>;
+  last_exp_update?: InputMaybe<Scalars['timestamp']['input']>;
+  level?: InputMaybe<Scalars['Int']['input']>;
+  max_health?: InputMaybe<Scalars['Int']['input']>;
+  moderator_notes?: InputMaybe<Scalars['String']['input']>;
+  position_row?: InputMaybe<Scalars['Int']['input']>;
+  report_count?: InputMaybe<Scalars['Int']['input']>;
+  reported?: InputMaybe<Scalars['Boolean']['input']>;
+  score?: InputMaybe<Scalars['Int']['input']>;
+  talent?: InputMaybe<Scalars['Int']['input']>;
+  total_losses?: InputMaybe<Scalars['Int']['input']>;
+  total_wins?: InputMaybe<Scalars['Int']['input']>;
+  upvotes?: InputMaybe<Scalars['Int']['input']>;
+  user_id?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Fish_Battle_Sum_Fields = {
+  __typename?: 'fish_battle_sum_fields';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
+  battle_power?: Maybe<Scalars['numeric']['output']>;
+  downvotes?: Maybe<Scalars['Int']['output']>;
+  experience?: Maybe<Scalars['Int']['output']>;
+  health?: Maybe<Scalars['Int']['output']>;
+  level?: Maybe<Scalars['Int']['output']>;
+  max_health?: Maybe<Scalars['Int']['output']>;
+  position_row?: Maybe<Scalars['Int']['output']>;
+  report_count?: Maybe<Scalars['Int']['output']>;
+  score?: Maybe<Scalars['Int']['output']>;
+  talent?: Maybe<Scalars['Int']['output']>;
+  total_losses?: Maybe<Scalars['Int']['output']>;
+  total_wins?: Maybe<Scalars['Int']['output']>;
+  upvotes?: Maybe<Scalars['Int']['output']>;
+};
+
+export type Fish_Battle_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Fish_Battle_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Fish_Battle_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Fish_Battle_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Fish_Battle_Var_Pop_Fields = {
+  __typename?: 'fish_battle_var_pop_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Fish_Battle_Var_Samp_Fields = {
+  __typename?: 'fish_battle_var_samp_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Fish_Battle_Variance_Fields = {
+  __typename?: 'fish_battle_variance_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "fish". All fields are combined with a logical 'AND'. */
+export type Fish_Bool_Exp = {
+  _and?: InputMaybe<Array<Fish_Bool_Exp>>;
+  _not?: InputMaybe<Fish_Bool_Exp>;
+  _or?: InputMaybe<Array<Fish_Bool_Exp>>;
+  approval_rate?: InputMaybe<Float8_Comparison_Exp>;
+  artist?: InputMaybe<String_Comparison_Exp>;
+  battleLogsByDefenderId?: InputMaybe<Battle_Log_Bool_Exp>;
+  battleLogsByDefenderId_aggregate?: InputMaybe<Battle_Log_Aggregate_Bool_Exp>;
+  battle_logs?: InputMaybe<Battle_Log_Bool_Exp>;
+  battle_logs_aggregate?: InputMaybe<Battle_Log_Aggregate_Bool_Exp>;
+  battle_power?: InputMaybe<Numeric_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  downvotes?: InputMaybe<Int_Comparison_Exp>;
+  economy_logs?: InputMaybe<Economy_Log_Bool_Exp>;
+  economy_logs_aggregate?: InputMaybe<Economy_Log_Aggregate_Bool_Exp>;
+  experience?: InputMaybe<Int_Comparison_Exp>;
+  health?: InputMaybe<Int_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  image_url?: InputMaybe<String_Comparison_Exp>;
+  is_alive?: InputMaybe<Boolean_Comparison_Exp>;
+  is_approved?: InputMaybe<Boolean_Comparison_Exp>;
+  is_in_battle_mode?: InputMaybe<Boolean_Comparison_Exp>;
+  last_exp_update?: InputMaybe<Timestamp_Comparison_Exp>;
+  level?: InputMaybe<Int_Comparison_Exp>;
+  max_health?: InputMaybe<Int_Comparison_Exp>;
+  moderator_notes?: InputMaybe<String_Comparison_Exp>;
+  position_row?: InputMaybe<Int_Comparison_Exp>;
+  report_count?: InputMaybe<Int_Comparison_Exp>;
+  reported?: InputMaybe<Boolean_Comparison_Exp>;
+  reports?: InputMaybe<Reports_Bool_Exp>;
+  reports_aggregate?: InputMaybe<Reports_Aggregate_Bool_Exp>;
+  score?: InputMaybe<Int_Comparison_Exp>;
+  talent?: InputMaybe<Int_Comparison_Exp>;
+  total_losses?: InputMaybe<Int_Comparison_Exp>;
+  total_wins?: InputMaybe<Int_Comparison_Exp>;
+  upvotes?: InputMaybe<Int_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<String_Comparison_Exp>;
+  votes?: InputMaybe<Votes_Bool_Exp>;
+  votes_aggregate?: InputMaybe<Votes_Aggregate_Bool_Exp>;
+};
+
+/** unique or primary key constraints on table "fish" */
+export enum Fish_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  FishPkey = 'fish_pkey'
+}
+
+/** input type for incrementing numeric columns in table "fish" */
+export type Fish_Inc_Input = {
+  battle_power?: InputMaybe<Scalars['numeric']['input']>;
+  downvotes?: InputMaybe<Scalars['Int']['input']>;
+  experience?: InputMaybe<Scalars['Int']['input']>;
+  health?: InputMaybe<Scalars['Int']['input']>;
+  level?: InputMaybe<Scalars['Int']['input']>;
+  max_health?: InputMaybe<Scalars['Int']['input']>;
+  position_row?: InputMaybe<Scalars['Int']['input']>;
+  report_count?: InputMaybe<Scalars['Int']['input']>;
+  talent?: InputMaybe<Scalars['Int']['input']>;
+  total_losses?: InputMaybe<Scalars['Int']['input']>;
+  total_wins?: InputMaybe<Scalars['Int']['input']>;
+  upvotes?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** input type for inserting data into table "fish" */
+export type Fish_Insert_Input = {
+  artist?: InputMaybe<Scalars['String']['input']>;
+  battleLogsByDefenderId?: InputMaybe<Battle_Log_Arr_Rel_Insert_Input>;
+  battle_logs?: InputMaybe<Battle_Log_Arr_Rel_Insert_Input>;
+  battle_power?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  downvotes?: InputMaybe<Scalars['Int']['input']>;
+  economy_logs?: InputMaybe<Economy_Log_Arr_Rel_Insert_Input>;
+  experience?: InputMaybe<Scalars['Int']['input']>;
+  health?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  image_url?: InputMaybe<Scalars['String']['input']>;
+  is_alive?: InputMaybe<Scalars['Boolean']['input']>;
+  is_approved?: InputMaybe<Scalars['Boolean']['input']>;
+  is_in_battle_mode?: InputMaybe<Scalars['Boolean']['input']>;
+  last_exp_update?: InputMaybe<Scalars['timestamp']['input']>;
+  level?: InputMaybe<Scalars['Int']['input']>;
+  max_health?: InputMaybe<Scalars['Int']['input']>;
+  moderator_notes?: InputMaybe<Scalars['String']['input']>;
+  position_row?: InputMaybe<Scalars['Int']['input']>;
+  report_count?: InputMaybe<Scalars['Int']['input']>;
+  reported?: InputMaybe<Scalars['Boolean']['input']>;
+  reports?: InputMaybe<Reports_Arr_Rel_Insert_Input>;
+  talent?: InputMaybe<Scalars['Int']['input']>;
+  total_losses?: InputMaybe<Scalars['Int']['input']>;
+  total_wins?: InputMaybe<Scalars['Int']['input']>;
+  upvotes?: InputMaybe<Scalars['Int']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['String']['input']>;
+  votes?: InputMaybe<Votes_Arr_Rel_Insert_Input>;
+};
+
+/** aggregate max on columns */
+export type Fish_Max_Fields = {
+  __typename?: 'fish_max_fields';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
+  artist?: Maybe<Scalars['String']['output']>;
+  battle_power?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  downvotes?: Maybe<Scalars['Int']['output']>;
+  experience?: Maybe<Scalars['Int']['output']>;
+  health?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  image_url?: Maybe<Scalars['String']['output']>;
+  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
+  level?: Maybe<Scalars['Int']['output']>;
+  max_health?: Maybe<Scalars['Int']['output']>;
+  moderator_notes?: Maybe<Scalars['String']['output']>;
+  position_row?: Maybe<Scalars['Int']['output']>;
+  report_count?: Maybe<Scalars['Int']['output']>;
+  score?: Maybe<Scalars['Int']['output']>;
+  talent?: Maybe<Scalars['Int']['output']>;
+  total_losses?: Maybe<Scalars['Int']['output']>;
+  total_wins?: Maybe<Scalars['Int']['output']>;
+  upvotes?: Maybe<Scalars['Int']['output']>;
+  user_id?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by max() on columns of table "fish" */
+export type Fish_Max_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
+  artist?: InputMaybe<Order_By>;
+  battle_power?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  downvotes?: InputMaybe<Order_By>;
+  experience?: InputMaybe<Order_By>;
+  health?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  image_url?: InputMaybe<Order_By>;
+  last_exp_update?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  max_health?: InputMaybe<Order_By>;
+  moderator_notes?: InputMaybe<Order_By>;
+  position_row?: InputMaybe<Order_By>;
+  report_count?: InputMaybe<Order_By>;
+  score?: InputMaybe<Order_By>;
+  talent?: InputMaybe<Order_By>;
+  total_losses?: InputMaybe<Order_By>;
+  total_wins?: InputMaybe<Order_By>;
+  upvotes?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Fish_Min_Fields = {
+  __typename?: 'fish_min_fields';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
+  artist?: Maybe<Scalars['String']['output']>;
+  battle_power?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  downvotes?: Maybe<Scalars['Int']['output']>;
+  experience?: Maybe<Scalars['Int']['output']>;
+  health?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  image_url?: Maybe<Scalars['String']['output']>;
+  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
+  level?: Maybe<Scalars['Int']['output']>;
+  max_health?: Maybe<Scalars['Int']['output']>;
+  moderator_notes?: Maybe<Scalars['String']['output']>;
+  position_row?: Maybe<Scalars['Int']['output']>;
+  report_count?: Maybe<Scalars['Int']['output']>;
+  score?: Maybe<Scalars['Int']['output']>;
+  talent?: Maybe<Scalars['Int']['output']>;
+  total_losses?: Maybe<Scalars['Int']['output']>;
+  total_wins?: Maybe<Scalars['Int']['output']>;
+  upvotes?: Maybe<Scalars['Int']['output']>;
+  user_id?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by min() on columns of table "fish" */
+export type Fish_Min_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
+  artist?: InputMaybe<Order_By>;
+  battle_power?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  downvotes?: InputMaybe<Order_By>;
+  experience?: InputMaybe<Order_By>;
+  health?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  image_url?: InputMaybe<Order_By>;
+  last_exp_update?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  max_health?: InputMaybe<Order_By>;
+  moderator_notes?: InputMaybe<Order_By>;
+  position_row?: InputMaybe<Order_By>;
+  report_count?: InputMaybe<Order_By>;
+  score?: InputMaybe<Order_By>;
+  talent?: InputMaybe<Order_By>;
+  total_losses?: InputMaybe<Order_By>;
+  total_wins?: InputMaybe<Order_By>;
+  upvotes?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "fish" */
+export type Fish_Mutation_Response = {
+  __typename?: 'fish_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Fish>;
+};
+
+/** input type for inserting object relation for remote table "fish" */
+export type Fish_Obj_Rel_Insert_Input = {
+  data: Fish_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Fish_On_Conflict>;
+};
+
+/** on_conflict condition type for table "fish" */
+export type Fish_On_Conflict = {
+  constraint: Fish_Constraint;
+  update_columns?: Array<Fish_Update_Column>;
+  where?: InputMaybe<Fish_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "fish". */
+export type Fish_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
+  artist?: InputMaybe<Order_By>;
+  battleLogsByDefenderId_aggregate?: InputMaybe<Battle_Log_Aggregate_Order_By>;
+  battle_logs_aggregate?: InputMaybe<Battle_Log_Aggregate_Order_By>;
+  battle_power?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  downvotes?: InputMaybe<Order_By>;
+  economy_logs_aggregate?: InputMaybe<Economy_Log_Aggregate_Order_By>;
+  experience?: InputMaybe<Order_By>;
+  health?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  image_url?: InputMaybe<Order_By>;
+  is_alive?: InputMaybe<Order_By>;
+  is_approved?: InputMaybe<Order_By>;
+  is_in_battle_mode?: InputMaybe<Order_By>;
+  last_exp_update?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  max_health?: InputMaybe<Order_By>;
+  moderator_notes?: InputMaybe<Order_By>;
+  position_row?: InputMaybe<Order_By>;
+  report_count?: InputMaybe<Order_By>;
+  reported?: InputMaybe<Order_By>;
+  reports_aggregate?: InputMaybe<Reports_Aggregate_Order_By>;
+  score?: InputMaybe<Order_By>;
+  talent?: InputMaybe<Order_By>;
+  total_losses?: InputMaybe<Order_By>;
+  total_wins?: InputMaybe<Order_By>;
+  upvotes?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+  votes_aggregate?: InputMaybe<Votes_Aggregate_Order_By>;
+};
+
+/** primary key columns input for table: fish */
+export type Fish_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** columns and relationships of "fish_rank" */
+export type Fish_Rank = {
+  __typename?: 'fish_rank';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
+  artist?: Maybe<Scalars['String']['output']>;
+  battle_power?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  downvotes?: Maybe<Scalars['Int']['output']>;
+  experience?: Maybe<Scalars['Int']['output']>;
+  health?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  image_url?: Maybe<Scalars['String']['output']>;
+  is_alive?: Maybe<Scalars['Boolean']['output']>;
+  is_approved?: Maybe<Scalars['Boolean']['output']>;
+  is_in_battle_mode?: Maybe<Scalars['Boolean']['output']>;
+  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
+  level?: Maybe<Scalars['Int']['output']>;
+  max_health?: Maybe<Scalars['Int']['output']>;
+  moderator_notes?: Maybe<Scalars['String']['output']>;
+  position_row?: Maybe<Scalars['Int']['output']>;
+  report_count?: Maybe<Scalars['Int']['output']>;
+  reported?: Maybe<Scalars['Boolean']['output']>;
+  score?: Maybe<Scalars['Int']['output']>;
+  talent?: Maybe<Scalars['Int']['output']>;
+  total_losses?: Maybe<Scalars['Int']['output']>;
+  total_wins?: Maybe<Scalars['Int']['output']>;
+  upvotes?: Maybe<Scalars['Int']['output']>;
+  user_avatar_url?: Maybe<Scalars['String']['output']>;
+  user_display_name?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['String']['output']>;
+  user_reputation?: Maybe<Scalars['Int']['output']>;
+};
+
+/** aggregated selection of "fish_rank" */
+export type Fish_Rank_Aggregate = {
+  __typename?: 'fish_rank_aggregate';
+  aggregate?: Maybe<Fish_Rank_Aggregate_Fields>;
+  nodes: Array<Fish_Rank>;
+};
+
+/** aggregate fields of "fish_rank" */
+export type Fish_Rank_Aggregate_Fields = {
+  __typename?: 'fish_rank_aggregate_fields';
+  avg?: Maybe<Fish_Rank_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Fish_Rank_Max_Fields>;
+  min?: Maybe<Fish_Rank_Min_Fields>;
+  stddev?: Maybe<Fish_Rank_Stddev_Fields>;
+  stddev_pop?: Maybe<Fish_Rank_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Fish_Rank_Stddev_Samp_Fields>;
+  sum?: Maybe<Fish_Rank_Sum_Fields>;
+  var_pop?: Maybe<Fish_Rank_Var_Pop_Fields>;
+  var_samp?: Maybe<Fish_Rank_Var_Samp_Fields>;
+  variance?: Maybe<Fish_Rank_Variance_Fields>;
+};
+
+
+/** aggregate fields of "fish_rank" */
+export type Fish_Rank_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Fish_Rank_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Fish_Rank_Avg_Fields = {
+  __typename?: 'fish_rank_avg_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+  user_reputation?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "fish_rank". All fields are combined with a logical 'AND'. */
+export type Fish_Rank_Bool_Exp = {
+  _and?: InputMaybe<Array<Fish_Rank_Bool_Exp>>;
+  _not?: InputMaybe<Fish_Rank_Bool_Exp>;
+  _or?: InputMaybe<Array<Fish_Rank_Bool_Exp>>;
+  approval_rate?: InputMaybe<Float8_Comparison_Exp>;
+  artist?: InputMaybe<String_Comparison_Exp>;
+  battle_power?: InputMaybe<Numeric_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  downvotes?: InputMaybe<Int_Comparison_Exp>;
+  experience?: InputMaybe<Int_Comparison_Exp>;
+  health?: InputMaybe<Int_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  image_url?: InputMaybe<String_Comparison_Exp>;
+  is_alive?: InputMaybe<Boolean_Comparison_Exp>;
+  is_approved?: InputMaybe<Boolean_Comparison_Exp>;
+  is_in_battle_mode?: InputMaybe<Boolean_Comparison_Exp>;
+  last_exp_update?: InputMaybe<Timestamp_Comparison_Exp>;
+  level?: InputMaybe<Int_Comparison_Exp>;
+  max_health?: InputMaybe<Int_Comparison_Exp>;
+  moderator_notes?: InputMaybe<String_Comparison_Exp>;
+  position_row?: InputMaybe<Int_Comparison_Exp>;
+  report_count?: InputMaybe<Int_Comparison_Exp>;
+  reported?: InputMaybe<Boolean_Comparison_Exp>;
+  score?: InputMaybe<Int_Comparison_Exp>;
+  talent?: InputMaybe<Int_Comparison_Exp>;
+  total_losses?: InputMaybe<Int_Comparison_Exp>;
+  total_wins?: InputMaybe<Int_Comparison_Exp>;
+  upvotes?: InputMaybe<Int_Comparison_Exp>;
+  user_avatar_url?: InputMaybe<String_Comparison_Exp>;
+  user_display_name?: InputMaybe<String_Comparison_Exp>;
+  user_id?: InputMaybe<String_Comparison_Exp>;
+  user_reputation?: InputMaybe<Int_Comparison_Exp>;
+};
+
+/** aggregate max on columns */
+export type Fish_Rank_Max_Fields = {
+  __typename?: 'fish_rank_max_fields';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
+  artist?: Maybe<Scalars['String']['output']>;
+  battle_power?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  downvotes?: Maybe<Scalars['Int']['output']>;
+  experience?: Maybe<Scalars['Int']['output']>;
+  health?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  image_url?: Maybe<Scalars['String']['output']>;
+  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
+  level?: Maybe<Scalars['Int']['output']>;
+  max_health?: Maybe<Scalars['Int']['output']>;
+  moderator_notes?: Maybe<Scalars['String']['output']>;
+  position_row?: Maybe<Scalars['Int']['output']>;
+  report_count?: Maybe<Scalars['Int']['output']>;
+  score?: Maybe<Scalars['Int']['output']>;
+  talent?: Maybe<Scalars['Int']['output']>;
+  total_losses?: Maybe<Scalars['Int']['output']>;
+  total_wins?: Maybe<Scalars['Int']['output']>;
+  upvotes?: Maybe<Scalars['Int']['output']>;
+  user_avatar_url?: Maybe<Scalars['String']['output']>;
+  user_display_name?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['String']['output']>;
+  user_reputation?: Maybe<Scalars['Int']['output']>;
+};
+
+/** aggregate min on columns */
+export type Fish_Rank_Min_Fields = {
+  __typename?: 'fish_rank_min_fields';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
+  artist?: Maybe<Scalars['String']['output']>;
+  battle_power?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  downvotes?: Maybe<Scalars['Int']['output']>;
+  experience?: Maybe<Scalars['Int']['output']>;
+  health?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  image_url?: Maybe<Scalars['String']['output']>;
+  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
+  level?: Maybe<Scalars['Int']['output']>;
+  max_health?: Maybe<Scalars['Int']['output']>;
+  moderator_notes?: Maybe<Scalars['String']['output']>;
+  position_row?: Maybe<Scalars['Int']['output']>;
+  report_count?: Maybe<Scalars['Int']['output']>;
+  score?: Maybe<Scalars['Int']['output']>;
+  talent?: Maybe<Scalars['Int']['output']>;
+  total_losses?: Maybe<Scalars['Int']['output']>;
+  total_wins?: Maybe<Scalars['Int']['output']>;
+  upvotes?: Maybe<Scalars['Int']['output']>;
+  user_avatar_url?: Maybe<Scalars['String']['output']>;
+  user_display_name?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['String']['output']>;
+  user_reputation?: Maybe<Scalars['Int']['output']>;
+};
+
+/** Ordering options when selecting data from "fish_rank". */
+export type Fish_Rank_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
+  artist?: InputMaybe<Order_By>;
+  battle_power?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  downvotes?: InputMaybe<Order_By>;
+  experience?: InputMaybe<Order_By>;
+  health?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  image_url?: InputMaybe<Order_By>;
+  is_alive?: InputMaybe<Order_By>;
+  is_approved?: InputMaybe<Order_By>;
+  is_in_battle_mode?: InputMaybe<Order_By>;
+  last_exp_update?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  max_health?: InputMaybe<Order_By>;
+  moderator_notes?: InputMaybe<Order_By>;
+  position_row?: InputMaybe<Order_By>;
+  report_count?: InputMaybe<Order_By>;
+  reported?: InputMaybe<Order_By>;
+  score?: InputMaybe<Order_By>;
+  talent?: InputMaybe<Order_By>;
+  total_losses?: InputMaybe<Order_By>;
+  total_wins?: InputMaybe<Order_By>;
+  upvotes?: InputMaybe<Order_By>;
+  user_avatar_url?: InputMaybe<Order_By>;
+  user_display_name?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+  user_reputation?: InputMaybe<Order_By>;
+};
+
+/** select columns of table "fish_rank" */
+export enum Fish_Rank_Select_Column {
+  /** column name */
+  ApprovalRate = 'approval_rate',
+  /** column name */
+  Artist = 'artist',
+  /** column name */
+  BattlePower = 'battle_power',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Downvotes = 'downvotes',
+  /** column name */
+  Experience = 'experience',
+  /** column name */
+  Health = 'health',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  ImageUrl = 'image_url',
+  /** column name */
+  IsAlive = 'is_alive',
+  /** column name */
+  IsApproved = 'is_approved',
+  /** column name */
+  IsInBattleMode = 'is_in_battle_mode',
+  /** column name */
+  LastExpUpdate = 'last_exp_update',
+  /** column name */
+  Level = 'level',
+  /** column name */
+  MaxHealth = 'max_health',
+  /** column name */
+  ModeratorNotes = 'moderator_notes',
+  /** column name */
+  PositionRow = 'position_row',
+  /** column name */
+  ReportCount = 'report_count',
+  /** column name */
+  Reported = 'reported',
+  /** column name */
+  Score = 'score',
+  /** column name */
+  Talent = 'talent',
+  /** column name */
+  TotalLosses = 'total_losses',
+  /** column name */
+  TotalWins = 'total_wins',
+  /** column name */
+  Upvotes = 'upvotes',
+  /** column name */
+  UserAvatarUrl = 'user_avatar_url',
+  /** column name */
+  UserDisplayName = 'user_display_name',
+  /** column name */
+  UserId = 'user_id',
+  /** column name */
+  UserReputation = 'user_reputation'
+}
+
+/** aggregate stddev on columns */
+export type Fish_Rank_Stddev_Fields = {
+  __typename?: 'fish_rank_stddev_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+  user_reputation?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Fish_Rank_Stddev_Pop_Fields = {
+  __typename?: 'fish_rank_stddev_pop_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+  user_reputation?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Fish_Rank_Stddev_Samp_Fields = {
+  __typename?: 'fish_rank_stddev_samp_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+  user_reputation?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "fish_rank" */
+export type Fish_Rank_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Fish_Rank_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Fish_Rank_Stream_Cursor_Value_Input = {
+  approval_rate?: InputMaybe<Scalars['float8']['input']>;
+  artist?: InputMaybe<Scalars['String']['input']>;
+  battle_power?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  downvotes?: InputMaybe<Scalars['Int']['input']>;
+  experience?: InputMaybe<Scalars['Int']['input']>;
+  health?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  image_url?: InputMaybe<Scalars['String']['input']>;
+  is_alive?: InputMaybe<Scalars['Boolean']['input']>;
+  is_approved?: InputMaybe<Scalars['Boolean']['input']>;
+  is_in_battle_mode?: InputMaybe<Scalars['Boolean']['input']>;
+  last_exp_update?: InputMaybe<Scalars['timestamp']['input']>;
+  level?: InputMaybe<Scalars['Int']['input']>;
+  max_health?: InputMaybe<Scalars['Int']['input']>;
+  moderator_notes?: InputMaybe<Scalars['String']['input']>;
+  position_row?: InputMaybe<Scalars['Int']['input']>;
+  report_count?: InputMaybe<Scalars['Int']['input']>;
+  reported?: InputMaybe<Scalars['Boolean']['input']>;
+  score?: InputMaybe<Scalars['Int']['input']>;
+  talent?: InputMaybe<Scalars['Int']['input']>;
+  total_losses?: InputMaybe<Scalars['Int']['input']>;
+  total_wins?: InputMaybe<Scalars['Int']['input']>;
+  upvotes?: InputMaybe<Scalars['Int']['input']>;
+  user_avatar_url?: InputMaybe<Scalars['String']['input']>;
+  user_display_name?: InputMaybe<Scalars['String']['input']>;
+  user_id?: InputMaybe<Scalars['String']['input']>;
+  user_reputation?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Fish_Rank_Sum_Fields = {
+  __typename?: 'fish_rank_sum_fields';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
+  battle_power?: Maybe<Scalars['numeric']['output']>;
+  downvotes?: Maybe<Scalars['Int']['output']>;
+  experience?: Maybe<Scalars['Int']['output']>;
+  health?: Maybe<Scalars['Int']['output']>;
+  level?: Maybe<Scalars['Int']['output']>;
+  max_health?: Maybe<Scalars['Int']['output']>;
+  position_row?: Maybe<Scalars['Int']['output']>;
+  report_count?: Maybe<Scalars['Int']['output']>;
+  score?: Maybe<Scalars['Int']['output']>;
+  talent?: Maybe<Scalars['Int']['output']>;
+  total_losses?: Maybe<Scalars['Int']['output']>;
+  total_wins?: Maybe<Scalars['Int']['output']>;
+  upvotes?: Maybe<Scalars['Int']['output']>;
+  user_reputation?: Maybe<Scalars['Int']['output']>;
+};
+
+/** aggregate var_pop on columns */
+export type Fish_Rank_Var_Pop_Fields = {
+  __typename?: 'fish_rank_var_pop_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+  user_reputation?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Fish_Rank_Var_Samp_Fields = {
+  __typename?: 'fish_rank_var_samp_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+  user_reputation?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Fish_Rank_Variance_Fields = {
+  __typename?: 'fish_rank_variance_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
+  battle_power?: Maybe<Scalars['Float']['output']>;
+  downvotes?: Maybe<Scalars['Float']['output']>;
+  experience?: Maybe<Scalars['Float']['output']>;
+  health?: Maybe<Scalars['Float']['output']>;
+  level?: Maybe<Scalars['Float']['output']>;
+  max_health?: Maybe<Scalars['Float']['output']>;
+  position_row?: Maybe<Scalars['Float']['output']>;
+  report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
+  talent?: Maybe<Scalars['Float']['output']>;
+  total_losses?: Maybe<Scalars['Float']['output']>;
+  total_wins?: Maybe<Scalars['Float']['output']>;
+  upvotes?: Maybe<Scalars['Float']['output']>;
+  user_reputation?: Maybe<Scalars['Float']['output']>;
+};
+
+/** select columns of table "fish" */
+export enum Fish_Select_Column {
+  /** column name */
+  ApprovalRate = 'approval_rate',
+  /** column name */
+  Artist = 'artist',
+  /** column name */
+  BattlePower = 'battle_power',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Downvotes = 'downvotes',
+  /** column name */
+  Experience = 'experience',
+  /** column name */
+  Health = 'health',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  ImageUrl = 'image_url',
+  /** column name */
+  IsAlive = 'is_alive',
+  /** column name */
+  IsApproved = 'is_approved',
+  /** column name */
+  IsInBattleMode = 'is_in_battle_mode',
+  /** column name */
+  LastExpUpdate = 'last_exp_update',
+  /** column name */
+  Level = 'level',
+  /** column name */
+  MaxHealth = 'max_health',
+  /** column name */
+  ModeratorNotes = 'moderator_notes',
+  /** column name */
+  PositionRow = 'position_row',
+  /** column name */
+  ReportCount = 'report_count',
+  /** column name */
+  Reported = 'reported',
+  /** column name */
+  Score = 'score',
+  /** column name */
+  Talent = 'talent',
+  /** column name */
+  TotalLosses = 'total_losses',
+  /** column name */
+  TotalWins = 'total_wins',
+  /** column name */
+  Upvotes = 'upvotes',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** select "fish_aggregate_bool_exp_avg_arguments_columns" columns of table "fish" */
+export enum Fish_Select_Column_Fish_Aggregate_Bool_Exp_Avg_Arguments_Columns {
+  /** column name */
+  ApprovalRate = 'approval_rate'
+}
+
+/** select "fish_aggregate_bool_exp_bool_and_arguments_columns" columns of table "fish" */
+export enum Fish_Select_Column_Fish_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
+  /** column name */
+  IsAlive = 'is_alive',
+  /** column name */
+  IsApproved = 'is_approved',
+  /** column name */
+  IsInBattleMode = 'is_in_battle_mode',
+  /** column name */
+  Reported = 'reported'
+}
+
+/** select "fish_aggregate_bool_exp_bool_or_arguments_columns" columns of table "fish" */
+export enum Fish_Select_Column_Fish_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
+  /** column name */
+  IsAlive = 'is_alive',
+  /** column name */
+  IsApproved = 'is_approved',
+  /** column name */
+  IsInBattleMode = 'is_in_battle_mode',
+  /** column name */
+  Reported = 'reported'
+}
+
+/** select "fish_aggregate_bool_exp_corr_arguments_columns" columns of table "fish" */
+export enum Fish_Select_Column_Fish_Aggregate_Bool_Exp_Corr_Arguments_Columns {
+  /** column name */
+  ApprovalRate = 'approval_rate'
+}
+
+/** select "fish_aggregate_bool_exp_covar_samp_arguments_columns" columns of table "fish" */
+export enum Fish_Select_Column_Fish_Aggregate_Bool_Exp_Covar_Samp_Arguments_Columns {
+  /** column name */
+  ApprovalRate = 'approval_rate'
+}
+
+/** select "fish_aggregate_bool_exp_max_arguments_columns" columns of table "fish" */
+export enum Fish_Select_Column_Fish_Aggregate_Bool_Exp_Max_Arguments_Columns {
+  /** column name */
+  ApprovalRate = 'approval_rate'
+}
+
+/** select "fish_aggregate_bool_exp_min_arguments_columns" columns of table "fish" */
+export enum Fish_Select_Column_Fish_Aggregate_Bool_Exp_Min_Arguments_Columns {
+  /** column name */
+  ApprovalRate = 'approval_rate'
+}
+
+/** select "fish_aggregate_bool_exp_stddev_samp_arguments_columns" columns of table "fish" */
+export enum Fish_Select_Column_Fish_Aggregate_Bool_Exp_Stddev_Samp_Arguments_Columns {
+  /** column name */
+  ApprovalRate = 'approval_rate'
+}
+
+/** select "fish_aggregate_bool_exp_sum_arguments_columns" columns of table "fish" */
+export enum Fish_Select_Column_Fish_Aggregate_Bool_Exp_Sum_Arguments_Columns {
+  /** column name */
+  ApprovalRate = 'approval_rate'
+}
+
+/** select "fish_aggregate_bool_exp_var_samp_arguments_columns" columns of table "fish" */
+export enum Fish_Select_Column_Fish_Aggregate_Bool_Exp_Var_Samp_Arguments_Columns {
+  /** column name */
+  ApprovalRate = 'approval_rate'
 }
 
 /** input type for updating data in table "fish" */
@@ -1943,6 +3097,7 @@ export type Fish_Set_Input = {
 /** aggregate stddev on columns */
 export type Fish_Stddev_Fields = {
   __typename?: 'fish_stddev_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
   battle_power?: Maybe<Scalars['Float']['output']>;
   downvotes?: Maybe<Scalars['Float']['output']>;
   experience?: Maybe<Scalars['Float']['output']>;
@@ -1951,15 +3106,35 @@ export type Fish_Stddev_Fields = {
   max_health?: Maybe<Scalars['Float']['output']>;
   position_row?: Maybe<Scalars['Float']['output']>;
   report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
   talent?: Maybe<Scalars['Float']['output']>;
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_wins?: Maybe<Scalars['Float']['output']>;
   upvotes?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev() on columns of table "fish" */
+export type Fish_Stddev_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
+  battle_power?: InputMaybe<Order_By>;
+  downvotes?: InputMaybe<Order_By>;
+  experience?: InputMaybe<Order_By>;
+  health?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  max_health?: InputMaybe<Order_By>;
+  position_row?: InputMaybe<Order_By>;
+  report_count?: InputMaybe<Order_By>;
+  score?: InputMaybe<Order_By>;
+  talent?: InputMaybe<Order_By>;
+  total_losses?: InputMaybe<Order_By>;
+  total_wins?: InputMaybe<Order_By>;
+  upvotes?: InputMaybe<Order_By>;
 };
 
 /** aggregate stddev_pop on columns */
 export type Fish_Stddev_Pop_Fields = {
   __typename?: 'fish_stddev_pop_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
   battle_power?: Maybe<Scalars['Float']['output']>;
   downvotes?: Maybe<Scalars['Float']['output']>;
   experience?: Maybe<Scalars['Float']['output']>;
@@ -1968,15 +3143,35 @@ export type Fish_Stddev_Pop_Fields = {
   max_health?: Maybe<Scalars['Float']['output']>;
   position_row?: Maybe<Scalars['Float']['output']>;
   report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
   talent?: Maybe<Scalars['Float']['output']>;
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_wins?: Maybe<Scalars['Float']['output']>;
   upvotes?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev_pop() on columns of table "fish" */
+export type Fish_Stddev_Pop_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
+  battle_power?: InputMaybe<Order_By>;
+  downvotes?: InputMaybe<Order_By>;
+  experience?: InputMaybe<Order_By>;
+  health?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  max_health?: InputMaybe<Order_By>;
+  position_row?: InputMaybe<Order_By>;
+  report_count?: InputMaybe<Order_By>;
+  score?: InputMaybe<Order_By>;
+  talent?: InputMaybe<Order_By>;
+  total_losses?: InputMaybe<Order_By>;
+  total_wins?: InputMaybe<Order_By>;
+  upvotes?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_samp on columns */
 export type Fish_Stddev_Samp_Fields = {
   __typename?: 'fish_stddev_samp_fields';
+  approval_rate?: Maybe<Scalars['Float']['output']>;
   battle_power?: Maybe<Scalars['Float']['output']>;
   downvotes?: Maybe<Scalars['Float']['output']>;
   experience?: Maybe<Scalars['Float']['output']>;
@@ -1985,10 +3180,29 @@ export type Fish_Stddev_Samp_Fields = {
   max_health?: Maybe<Scalars['Float']['output']>;
   position_row?: Maybe<Scalars['Float']['output']>;
   report_count?: Maybe<Scalars['Float']['output']>;
+  score?: Maybe<Scalars['Float']['output']>;
   talent?: Maybe<Scalars['Float']['output']>;
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_wins?: Maybe<Scalars['Float']['output']>;
   upvotes?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "fish" */
+export type Fish_Stddev_Samp_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
+  battle_power?: InputMaybe<Order_By>;
+  downvotes?: InputMaybe<Order_By>;
+  experience?: InputMaybe<Order_By>;
+  health?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  max_health?: InputMaybe<Order_By>;
+  position_row?: InputMaybe<Order_By>;
+  report_count?: InputMaybe<Order_By>;
+  score?: InputMaybe<Order_By>;
+  talent?: InputMaybe<Order_By>;
+  total_losses?: InputMaybe<Order_By>;
+  total_wins?: InputMaybe<Order_By>;
+  upvotes?: InputMaybe<Order_By>;
 };
 
 /** Streaming cursor of the table "fish" */
@@ -2001,6 +3215,7 @@ export type Fish_Stream_Cursor_Input = {
 
 /** Initial value of the column from where the streaming should start */
 export type Fish_Stream_Cursor_Value_Input = {
+  approval_rate?: InputMaybe<Scalars['float8']['input']>;
   artist?: InputMaybe<Scalars['String']['input']>;
   battle_power?: InputMaybe<Scalars['numeric']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
@@ -2019,6 +3234,7 @@ export type Fish_Stream_Cursor_Value_Input = {
   position_row?: InputMaybe<Scalars['Int']['input']>;
   report_count?: InputMaybe<Scalars['Int']['input']>;
   reported?: InputMaybe<Scalars['Boolean']['input']>;
+  score?: InputMaybe<Scalars['Int']['input']>;
   talent?: InputMaybe<Scalars['Int']['input']>;
   total_losses?: InputMaybe<Scalars['Int']['input']>;
   total_wins?: InputMaybe<Scalars['Int']['input']>;
@@ -2029,6 +3245,7 @@ export type Fish_Stream_Cursor_Value_Input = {
 /** aggregate sum on columns */
 export type Fish_Sum_Fields = {
   __typename?: 'fish_sum_fields';
+  approval_rate?: Maybe<Scalars['float8']['output']>;
   battle_power?: Maybe<Scalars['numeric']['output']>;
   downvotes?: Maybe<Scalars['Int']['output']>;
   experience?: Maybe<Scalars['Int']['output']>;
@@ -2037,10 +3254,29 @@ export type Fish_Sum_Fields = {
   max_health?: Maybe<Scalars['Int']['output']>;
   position_row?: Maybe<Scalars['Int']['output']>;
   report_count?: Maybe<Scalars['Int']['output']>;
+  score?: Maybe<Scalars['Int']['output']>;
   talent?: Maybe<Scalars['Int']['output']>;
   total_losses?: Maybe<Scalars['Int']['output']>;
   total_wins?: Maybe<Scalars['Int']['output']>;
   upvotes?: Maybe<Scalars['Int']['output']>;
+};
+
+/** order by sum() on columns of table "fish" */
+export type Fish_Sum_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
+  battle_power?: InputMaybe<Order_By>;
+  downvotes?: InputMaybe<Order_By>;
+  experience?: InputMaybe<Order_By>;
+  health?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  max_health?: InputMaybe<Order_By>;
+  position_row?: InputMaybe<Order_By>;
+  report_count?: InputMaybe<Order_By>;
+  score?: InputMaybe<Order_By>;
+  talent?: InputMaybe<Order_By>;
+  total_losses?: InputMaybe<Order_By>;
+  total_wins?: InputMaybe<Order_By>;
+  upvotes?: InputMaybe<Order_By>;
 };
 
 /** update columns of table "fish" */
@@ -2105,117 +3341,6 @@ export type Fish_Updates = {
 /** aggregate var_pop on columns */
 export type Fish_Var_Pop_Fields = {
   __typename?: 'fish_var_pop_fields';
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** aggregate var_samp on columns */
-export type Fish_Var_Samp_Fields = {
-  __typename?: 'fish_var_samp_fields';
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** aggregate variance on columns */
-export type Fish_Variance_Fields = {
-  __typename?: 'fish_variance_fields';
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** columns and relationships of "fish_with_scores" */
-export type Fish_With_Scores = {
-  __typename?: 'fish_with_scores';
-  approval_rate?: Maybe<Scalars['float8']['output']>;
-  artist?: Maybe<Scalars['String']['output']>;
-  battle_power?: Maybe<Scalars['numeric']['output']>;
-  created_at?: Maybe<Scalars['timestamp']['output']>;
-  downvotes?: Maybe<Scalars['Int']['output']>;
-  experience?: Maybe<Scalars['Int']['output']>;
-  health?: Maybe<Scalars['Int']['output']>;
-  id?: Maybe<Scalars['uuid']['output']>;
-  image_url?: Maybe<Scalars['String']['output']>;
-  is_alive?: Maybe<Scalars['Boolean']['output']>;
-  is_approved?: Maybe<Scalars['Boolean']['output']>;
-  is_in_battle_mode?: Maybe<Scalars['Boolean']['output']>;
-  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
-  level?: Maybe<Scalars['Int']['output']>;
-  max_health?: Maybe<Scalars['Int']['output']>;
-  moderator_notes?: Maybe<Scalars['String']['output']>;
-  position_row?: Maybe<Scalars['Int']['output']>;
-  report_count?: Maybe<Scalars['Int']['output']>;
-  reported?: Maybe<Scalars['Boolean']['output']>;
-  score?: Maybe<Scalars['Int']['output']>;
-  talent?: Maybe<Scalars['Int']['output']>;
-  total_losses?: Maybe<Scalars['Int']['output']>;
-  total_wins?: Maybe<Scalars['Int']['output']>;
-  upvotes?: Maybe<Scalars['Int']['output']>;
-  user_id?: Maybe<Scalars['String']['output']>;
-};
-
-/** aggregated selection of "fish_with_scores" */
-export type Fish_With_Scores_Aggregate = {
-  __typename?: 'fish_with_scores_aggregate';
-  aggregate?: Maybe<Fish_With_Scores_Aggregate_Fields>;
-  nodes: Array<Fish_With_Scores>;
-};
-
-/** aggregate fields of "fish_with_scores" */
-export type Fish_With_Scores_Aggregate_Fields = {
-  __typename?: 'fish_with_scores_aggregate_fields';
-  avg?: Maybe<Fish_With_Scores_Avg_Fields>;
-  count: Scalars['Int']['output'];
-  max?: Maybe<Fish_With_Scores_Max_Fields>;
-  min?: Maybe<Fish_With_Scores_Min_Fields>;
-  stddev?: Maybe<Fish_With_Scores_Stddev_Fields>;
-  stddev_pop?: Maybe<Fish_With_Scores_Stddev_Pop_Fields>;
-  stddev_samp?: Maybe<Fish_With_Scores_Stddev_Samp_Fields>;
-  sum?: Maybe<Fish_With_Scores_Sum_Fields>;
-  var_pop?: Maybe<Fish_With_Scores_Var_Pop_Fields>;
-  var_samp?: Maybe<Fish_With_Scores_Var_Samp_Fields>;
-  variance?: Maybe<Fish_With_Scores_Variance_Fields>;
-};
-
-
-/** aggregate fields of "fish_with_scores" */
-export type Fish_With_Scores_Aggregate_FieldsCountArgs = {
-  columns?: InputMaybe<Array<Fish_With_Scores_Select_Column>>;
-  distinct?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-/** aggregate avg on columns */
-export type Fish_With_Scores_Avg_Fields = {
-  __typename?: 'fish_with_scores_avg_fields';
   approval_rate?: Maybe<Scalars['Float']['output']>;
   battle_power?: Maybe<Scalars['Float']['output']>;
   downvotes?: Maybe<Scalars['Float']['output']>;
@@ -2232,402 +3357,27 @@ export type Fish_With_Scores_Avg_Fields = {
   upvotes?: Maybe<Scalars['Float']['output']>;
 };
 
-/** Boolean expression to filter rows from the table "fish_with_scores". All fields are combined with a logical 'AND'. */
-export type Fish_With_Scores_Bool_Exp = {
-  _and?: InputMaybe<Array<Fish_With_Scores_Bool_Exp>>;
-  _not?: InputMaybe<Fish_With_Scores_Bool_Exp>;
-  _or?: InputMaybe<Array<Fish_With_Scores_Bool_Exp>>;
-  approval_rate?: InputMaybe<Float8_Comparison_Exp>;
-  artist?: InputMaybe<String_Comparison_Exp>;
-  battle_power?: InputMaybe<Numeric_Comparison_Exp>;
-  created_at?: InputMaybe<Timestamp_Comparison_Exp>;
-  downvotes?: InputMaybe<Int_Comparison_Exp>;
-  experience?: InputMaybe<Int_Comparison_Exp>;
-  health?: InputMaybe<Int_Comparison_Exp>;
-  id?: InputMaybe<Uuid_Comparison_Exp>;
-  image_url?: InputMaybe<String_Comparison_Exp>;
-  is_alive?: InputMaybe<Boolean_Comparison_Exp>;
-  is_approved?: InputMaybe<Boolean_Comparison_Exp>;
-  is_in_battle_mode?: InputMaybe<Boolean_Comparison_Exp>;
-  last_exp_update?: InputMaybe<Timestamp_Comparison_Exp>;
-  level?: InputMaybe<Int_Comparison_Exp>;
-  max_health?: InputMaybe<Int_Comparison_Exp>;
-  moderator_notes?: InputMaybe<String_Comparison_Exp>;
-  position_row?: InputMaybe<Int_Comparison_Exp>;
-  report_count?: InputMaybe<Int_Comparison_Exp>;
-  reported?: InputMaybe<Boolean_Comparison_Exp>;
-  score?: InputMaybe<Int_Comparison_Exp>;
-  talent?: InputMaybe<Int_Comparison_Exp>;
-  total_losses?: InputMaybe<Int_Comparison_Exp>;
-  total_wins?: InputMaybe<Int_Comparison_Exp>;
-  upvotes?: InputMaybe<Int_Comparison_Exp>;
-  user_id?: InputMaybe<String_Comparison_Exp>;
-};
-
-/** input type for incrementing numeric columns in table "fish_with_scores" */
-export type Fish_With_Scores_Inc_Input = {
-  approval_rate?: InputMaybe<Scalars['float8']['input']>;
-  battle_power?: InputMaybe<Scalars['numeric']['input']>;
-  downvotes?: InputMaybe<Scalars['Int']['input']>;
-  experience?: InputMaybe<Scalars['Int']['input']>;
-  health?: InputMaybe<Scalars['Int']['input']>;
-  level?: InputMaybe<Scalars['Int']['input']>;
-  max_health?: InputMaybe<Scalars['Int']['input']>;
-  position_row?: InputMaybe<Scalars['Int']['input']>;
-  report_count?: InputMaybe<Scalars['Int']['input']>;
-  score?: InputMaybe<Scalars['Int']['input']>;
-  talent?: InputMaybe<Scalars['Int']['input']>;
-  total_losses?: InputMaybe<Scalars['Int']['input']>;
-  total_wins?: InputMaybe<Scalars['Int']['input']>;
-  upvotes?: InputMaybe<Scalars['Int']['input']>;
-};
-
-/** input type for inserting data into table "fish_with_scores" */
-export type Fish_With_Scores_Insert_Input = {
-  approval_rate?: InputMaybe<Scalars['float8']['input']>;
-  artist?: InputMaybe<Scalars['String']['input']>;
-  battle_power?: InputMaybe<Scalars['numeric']['input']>;
-  created_at?: InputMaybe<Scalars['timestamp']['input']>;
-  downvotes?: InputMaybe<Scalars['Int']['input']>;
-  experience?: InputMaybe<Scalars['Int']['input']>;
-  health?: InputMaybe<Scalars['Int']['input']>;
-  id?: InputMaybe<Scalars['uuid']['input']>;
-  image_url?: InputMaybe<Scalars['String']['input']>;
-  is_alive?: InputMaybe<Scalars['Boolean']['input']>;
-  is_approved?: InputMaybe<Scalars['Boolean']['input']>;
-  is_in_battle_mode?: InputMaybe<Scalars['Boolean']['input']>;
-  last_exp_update?: InputMaybe<Scalars['timestamp']['input']>;
-  level?: InputMaybe<Scalars['Int']['input']>;
-  max_health?: InputMaybe<Scalars['Int']['input']>;
-  moderator_notes?: InputMaybe<Scalars['String']['input']>;
-  position_row?: InputMaybe<Scalars['Int']['input']>;
-  report_count?: InputMaybe<Scalars['Int']['input']>;
-  reported?: InputMaybe<Scalars['Boolean']['input']>;
-  score?: InputMaybe<Scalars['Int']['input']>;
-  talent?: InputMaybe<Scalars['Int']['input']>;
-  total_losses?: InputMaybe<Scalars['Int']['input']>;
-  total_wins?: InputMaybe<Scalars['Int']['input']>;
-  upvotes?: InputMaybe<Scalars['Int']['input']>;
-  user_id?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** aggregate max on columns */
-export type Fish_With_Scores_Max_Fields = {
-  __typename?: 'fish_with_scores_max_fields';
-  approval_rate?: Maybe<Scalars['float8']['output']>;
-  artist?: Maybe<Scalars['String']['output']>;
-  battle_power?: Maybe<Scalars['numeric']['output']>;
-  created_at?: Maybe<Scalars['timestamp']['output']>;
-  downvotes?: Maybe<Scalars['Int']['output']>;
-  experience?: Maybe<Scalars['Int']['output']>;
-  health?: Maybe<Scalars['Int']['output']>;
-  id?: Maybe<Scalars['uuid']['output']>;
-  image_url?: Maybe<Scalars['String']['output']>;
-  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
-  level?: Maybe<Scalars['Int']['output']>;
-  max_health?: Maybe<Scalars['Int']['output']>;
-  moderator_notes?: Maybe<Scalars['String']['output']>;
-  position_row?: Maybe<Scalars['Int']['output']>;
-  report_count?: Maybe<Scalars['Int']['output']>;
-  score?: Maybe<Scalars['Int']['output']>;
-  talent?: Maybe<Scalars['Int']['output']>;
-  total_losses?: Maybe<Scalars['Int']['output']>;
-  total_wins?: Maybe<Scalars['Int']['output']>;
-  upvotes?: Maybe<Scalars['Int']['output']>;
-  user_id?: Maybe<Scalars['String']['output']>;
-};
-
-/** aggregate min on columns */
-export type Fish_With_Scores_Min_Fields = {
-  __typename?: 'fish_with_scores_min_fields';
-  approval_rate?: Maybe<Scalars['float8']['output']>;
-  artist?: Maybe<Scalars['String']['output']>;
-  battle_power?: Maybe<Scalars['numeric']['output']>;
-  created_at?: Maybe<Scalars['timestamp']['output']>;
-  downvotes?: Maybe<Scalars['Int']['output']>;
-  experience?: Maybe<Scalars['Int']['output']>;
-  health?: Maybe<Scalars['Int']['output']>;
-  id?: Maybe<Scalars['uuid']['output']>;
-  image_url?: Maybe<Scalars['String']['output']>;
-  last_exp_update?: Maybe<Scalars['timestamp']['output']>;
-  level?: Maybe<Scalars['Int']['output']>;
-  max_health?: Maybe<Scalars['Int']['output']>;
-  moderator_notes?: Maybe<Scalars['String']['output']>;
-  position_row?: Maybe<Scalars['Int']['output']>;
-  report_count?: Maybe<Scalars['Int']['output']>;
-  score?: Maybe<Scalars['Int']['output']>;
-  talent?: Maybe<Scalars['Int']['output']>;
-  total_losses?: Maybe<Scalars['Int']['output']>;
-  total_wins?: Maybe<Scalars['Int']['output']>;
-  upvotes?: Maybe<Scalars['Int']['output']>;
-  user_id?: Maybe<Scalars['String']['output']>;
-};
-
-/** response of any mutation on the table "fish_with_scores" */
-export type Fish_With_Scores_Mutation_Response = {
-  __typename?: 'fish_with_scores_mutation_response';
-  /** number of rows affected by the mutation */
-  affected_rows: Scalars['Int']['output'];
-  /** data from the rows affected by the mutation */
-  returning: Array<Fish_With_Scores>;
-};
-
-/** Ordering options when selecting data from "fish_with_scores". */
-export type Fish_With_Scores_Order_By = {
+/** order by var_pop() on columns of table "fish" */
+export type Fish_Var_Pop_Order_By = {
   approval_rate?: InputMaybe<Order_By>;
-  artist?: InputMaybe<Order_By>;
   battle_power?: InputMaybe<Order_By>;
-  created_at?: InputMaybe<Order_By>;
   downvotes?: InputMaybe<Order_By>;
   experience?: InputMaybe<Order_By>;
   health?: InputMaybe<Order_By>;
-  id?: InputMaybe<Order_By>;
-  image_url?: InputMaybe<Order_By>;
-  is_alive?: InputMaybe<Order_By>;
-  is_approved?: InputMaybe<Order_By>;
-  is_in_battle_mode?: InputMaybe<Order_By>;
-  last_exp_update?: InputMaybe<Order_By>;
   level?: InputMaybe<Order_By>;
   max_health?: InputMaybe<Order_By>;
-  moderator_notes?: InputMaybe<Order_By>;
   position_row?: InputMaybe<Order_By>;
   report_count?: InputMaybe<Order_By>;
-  reported?: InputMaybe<Order_By>;
   score?: InputMaybe<Order_By>;
   talent?: InputMaybe<Order_By>;
   total_losses?: InputMaybe<Order_By>;
   total_wins?: InputMaybe<Order_By>;
   upvotes?: InputMaybe<Order_By>;
-  user_id?: InputMaybe<Order_By>;
-};
-
-/** select columns of table "fish_with_scores" */
-export enum Fish_With_Scores_Select_Column {
-  /** column name */
-  ApprovalRate = 'approval_rate',
-  /** column name */
-  Artist = 'artist',
-  /** column name */
-  BattlePower = 'battle_power',
-  /** column name */
-  CreatedAt = 'created_at',
-  /** column name */
-  Downvotes = 'downvotes',
-  /** column name */
-  Experience = 'experience',
-  /** column name */
-  Health = 'health',
-  /** column name */
-  Id = 'id',
-  /** column name */
-  ImageUrl = 'image_url',
-  /** column name */
-  IsAlive = 'is_alive',
-  /** column name */
-  IsApproved = 'is_approved',
-  /** column name */
-  IsInBattleMode = 'is_in_battle_mode',
-  /** column name */
-  LastExpUpdate = 'last_exp_update',
-  /** column name */
-  Level = 'level',
-  /** column name */
-  MaxHealth = 'max_health',
-  /** column name */
-  ModeratorNotes = 'moderator_notes',
-  /** column name */
-  PositionRow = 'position_row',
-  /** column name */
-  ReportCount = 'report_count',
-  /** column name */
-  Reported = 'reported',
-  /** column name */
-  Score = 'score',
-  /** column name */
-  Talent = 'talent',
-  /** column name */
-  TotalLosses = 'total_losses',
-  /** column name */
-  TotalWins = 'total_wins',
-  /** column name */
-  Upvotes = 'upvotes',
-  /** column name */
-  UserId = 'user_id'
-}
-
-/** input type for updating data in table "fish_with_scores" */
-export type Fish_With_Scores_Set_Input = {
-  approval_rate?: InputMaybe<Scalars['float8']['input']>;
-  artist?: InputMaybe<Scalars['String']['input']>;
-  battle_power?: InputMaybe<Scalars['numeric']['input']>;
-  created_at?: InputMaybe<Scalars['timestamp']['input']>;
-  downvotes?: InputMaybe<Scalars['Int']['input']>;
-  experience?: InputMaybe<Scalars['Int']['input']>;
-  health?: InputMaybe<Scalars['Int']['input']>;
-  id?: InputMaybe<Scalars['uuid']['input']>;
-  image_url?: InputMaybe<Scalars['String']['input']>;
-  is_alive?: InputMaybe<Scalars['Boolean']['input']>;
-  is_approved?: InputMaybe<Scalars['Boolean']['input']>;
-  is_in_battle_mode?: InputMaybe<Scalars['Boolean']['input']>;
-  last_exp_update?: InputMaybe<Scalars['timestamp']['input']>;
-  level?: InputMaybe<Scalars['Int']['input']>;
-  max_health?: InputMaybe<Scalars['Int']['input']>;
-  moderator_notes?: InputMaybe<Scalars['String']['input']>;
-  position_row?: InputMaybe<Scalars['Int']['input']>;
-  report_count?: InputMaybe<Scalars['Int']['input']>;
-  reported?: InputMaybe<Scalars['Boolean']['input']>;
-  score?: InputMaybe<Scalars['Int']['input']>;
-  talent?: InputMaybe<Scalars['Int']['input']>;
-  total_losses?: InputMaybe<Scalars['Int']['input']>;
-  total_wins?: InputMaybe<Scalars['Int']['input']>;
-  upvotes?: InputMaybe<Scalars['Int']['input']>;
-  user_id?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** aggregate stddev on columns */
-export type Fish_With_Scores_Stddev_Fields = {
-  __typename?: 'fish_with_scores_stddev_fields';
-  approval_rate?: Maybe<Scalars['Float']['output']>;
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  score?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** aggregate stddev_pop on columns */
-export type Fish_With_Scores_Stddev_Pop_Fields = {
-  __typename?: 'fish_with_scores_stddev_pop_fields';
-  approval_rate?: Maybe<Scalars['Float']['output']>;
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  score?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** aggregate stddev_samp on columns */
-export type Fish_With_Scores_Stddev_Samp_Fields = {
-  __typename?: 'fish_with_scores_stddev_samp_fields';
-  approval_rate?: Maybe<Scalars['Float']['output']>;
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  score?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
-};
-
-/** Streaming cursor of the table "fish_with_scores" */
-export type Fish_With_Scores_Stream_Cursor_Input = {
-  /** Stream column input with initial value */
-  initial_value: Fish_With_Scores_Stream_Cursor_Value_Input;
-  /** cursor ordering */
-  ordering?: InputMaybe<Cursor_Ordering>;
-};
-
-/** Initial value of the column from where the streaming should start */
-export type Fish_With_Scores_Stream_Cursor_Value_Input = {
-  approval_rate?: InputMaybe<Scalars['float8']['input']>;
-  artist?: InputMaybe<Scalars['String']['input']>;
-  battle_power?: InputMaybe<Scalars['numeric']['input']>;
-  created_at?: InputMaybe<Scalars['timestamp']['input']>;
-  downvotes?: InputMaybe<Scalars['Int']['input']>;
-  experience?: InputMaybe<Scalars['Int']['input']>;
-  health?: InputMaybe<Scalars['Int']['input']>;
-  id?: InputMaybe<Scalars['uuid']['input']>;
-  image_url?: InputMaybe<Scalars['String']['input']>;
-  is_alive?: InputMaybe<Scalars['Boolean']['input']>;
-  is_approved?: InputMaybe<Scalars['Boolean']['input']>;
-  is_in_battle_mode?: InputMaybe<Scalars['Boolean']['input']>;
-  last_exp_update?: InputMaybe<Scalars['timestamp']['input']>;
-  level?: InputMaybe<Scalars['Int']['input']>;
-  max_health?: InputMaybe<Scalars['Int']['input']>;
-  moderator_notes?: InputMaybe<Scalars['String']['input']>;
-  position_row?: InputMaybe<Scalars['Int']['input']>;
-  report_count?: InputMaybe<Scalars['Int']['input']>;
-  reported?: InputMaybe<Scalars['Boolean']['input']>;
-  score?: InputMaybe<Scalars['Int']['input']>;
-  talent?: InputMaybe<Scalars['Int']['input']>;
-  total_losses?: InputMaybe<Scalars['Int']['input']>;
-  total_wins?: InputMaybe<Scalars['Int']['input']>;
-  upvotes?: InputMaybe<Scalars['Int']['input']>;
-  user_id?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** aggregate sum on columns */
-export type Fish_With_Scores_Sum_Fields = {
-  __typename?: 'fish_with_scores_sum_fields';
-  approval_rate?: Maybe<Scalars['float8']['output']>;
-  battle_power?: Maybe<Scalars['numeric']['output']>;
-  downvotes?: Maybe<Scalars['Int']['output']>;
-  experience?: Maybe<Scalars['Int']['output']>;
-  health?: Maybe<Scalars['Int']['output']>;
-  level?: Maybe<Scalars['Int']['output']>;
-  max_health?: Maybe<Scalars['Int']['output']>;
-  position_row?: Maybe<Scalars['Int']['output']>;
-  report_count?: Maybe<Scalars['Int']['output']>;
-  score?: Maybe<Scalars['Int']['output']>;
-  talent?: Maybe<Scalars['Int']['output']>;
-  total_losses?: Maybe<Scalars['Int']['output']>;
-  total_wins?: Maybe<Scalars['Int']['output']>;
-  upvotes?: Maybe<Scalars['Int']['output']>;
-};
-
-export type Fish_With_Scores_Updates = {
-  /** increments the numeric columns with given value of the filtered values */
-  _inc?: InputMaybe<Fish_With_Scores_Inc_Input>;
-  /** sets the columns of the filtered rows to the given values */
-  _set?: InputMaybe<Fish_With_Scores_Set_Input>;
-  /** filter the rows which have to be updated */
-  where: Fish_With_Scores_Bool_Exp;
-};
-
-/** aggregate var_pop on columns */
-export type Fish_With_Scores_Var_Pop_Fields = {
-  __typename?: 'fish_with_scores_var_pop_fields';
-  approval_rate?: Maybe<Scalars['Float']['output']>;
-  battle_power?: Maybe<Scalars['Float']['output']>;
-  downvotes?: Maybe<Scalars['Float']['output']>;
-  experience?: Maybe<Scalars['Float']['output']>;
-  health?: Maybe<Scalars['Float']['output']>;
-  level?: Maybe<Scalars['Float']['output']>;
-  max_health?: Maybe<Scalars['Float']['output']>;
-  position_row?: Maybe<Scalars['Float']['output']>;
-  report_count?: Maybe<Scalars['Float']['output']>;
-  score?: Maybe<Scalars['Float']['output']>;
-  talent?: Maybe<Scalars['Float']['output']>;
-  total_losses?: Maybe<Scalars['Float']['output']>;
-  total_wins?: Maybe<Scalars['Float']['output']>;
-  upvotes?: Maybe<Scalars['Float']['output']>;
 };
 
 /** aggregate var_samp on columns */
-export type Fish_With_Scores_Var_Samp_Fields = {
-  __typename?: 'fish_with_scores_var_samp_fields';
+export type Fish_Var_Samp_Fields = {
+  __typename?: 'fish_var_samp_fields';
   approval_rate?: Maybe<Scalars['Float']['output']>;
   battle_power?: Maybe<Scalars['Float']['output']>;
   downvotes?: Maybe<Scalars['Float']['output']>;
@@ -2644,9 +3394,27 @@ export type Fish_With_Scores_Var_Samp_Fields = {
   upvotes?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_samp() on columns of table "fish" */
+export type Fish_Var_Samp_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
+  battle_power?: InputMaybe<Order_By>;
+  downvotes?: InputMaybe<Order_By>;
+  experience?: InputMaybe<Order_By>;
+  health?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  max_health?: InputMaybe<Order_By>;
+  position_row?: InputMaybe<Order_By>;
+  report_count?: InputMaybe<Order_By>;
+  score?: InputMaybe<Order_By>;
+  talent?: InputMaybe<Order_By>;
+  total_losses?: InputMaybe<Order_By>;
+  total_wins?: InputMaybe<Order_By>;
+  upvotes?: InputMaybe<Order_By>;
+};
+
 /** aggregate variance on columns */
-export type Fish_With_Scores_Variance_Fields = {
-  __typename?: 'fish_with_scores_variance_fields';
+export type Fish_Variance_Fields = {
+  __typename?: 'fish_variance_fields';
   approval_rate?: Maybe<Scalars['Float']['output']>;
   battle_power?: Maybe<Scalars['Float']['output']>;
   downvotes?: Maybe<Scalars['Float']['output']>;
@@ -2661,6 +3429,24 @@ export type Fish_With_Scores_Variance_Fields = {
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_wins?: Maybe<Scalars['Float']['output']>;
   upvotes?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "fish" */
+export type Fish_Variance_Order_By = {
+  approval_rate?: InputMaybe<Order_By>;
+  battle_power?: InputMaybe<Order_By>;
+  downvotes?: InputMaybe<Order_By>;
+  experience?: InputMaybe<Order_By>;
+  health?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  max_health?: InputMaybe<Order_By>;
+  position_row?: InputMaybe<Order_By>;
+  report_count?: InputMaybe<Order_By>;
+  score?: InputMaybe<Order_By>;
+  talent?: InputMaybe<Order_By>;
+  total_losses?: InputMaybe<Order_By>;
+  total_wins?: InputMaybe<Order_By>;
+  upvotes?: InputMaybe<Order_By>;
 };
 
 /** Boolean expression to compare columns of type "float8". All fields are combined with logical 'AND'. */
@@ -2683,8 +3469,6 @@ export type Mutation_Root = {
   delete_battle_config?: Maybe<Battle_Config_Mutation_Response>;
   /** delete single row from the table: "battle_config" */
   delete_battle_config_by_pk?: Maybe<Battle_Config>;
-  /** delete data from the table: "battle_fish" */
-  delete_battle_fish?: Maybe<Battle_Fish_Mutation_Response>;
   /** delete data from the table: "battle_log" */
   delete_battle_log?: Maybe<Battle_Log_Mutation_Response>;
   /** delete single row from the table: "battle_log" */
@@ -2695,10 +3479,10 @@ export type Mutation_Root = {
   delete_economy_log_by_pk?: Maybe<Economy_Log>;
   /** delete data from the table: "fish" */
   delete_fish?: Maybe<Fish_Mutation_Response>;
+  /** delete data from the table: "fish_battle" */
+  delete_fish_battle?: Maybe<Fish_Battle_Mutation_Response>;
   /** delete single row from the table: "fish" */
   delete_fish_by_pk?: Maybe<Fish>;
-  /** delete data from the table: "fish_with_scores" */
-  delete_fish_with_scores?: Maybe<Fish_With_Scores_Mutation_Response>;
   /** delete data from the table: "reports" */
   delete_reports?: Maybe<Reports_Mutation_Response>;
   /** delete single row from the table: "reports" */
@@ -2707,6 +3491,10 @@ export type Mutation_Root = {
   delete_user_economy?: Maybe<User_Economy_Mutation_Response>;
   /** delete single row from the table: "user_economy" */
   delete_user_economy_by_pk?: Maybe<User_Economy>;
+  /** delete data from the table: "users" */
+  delete_users?: Maybe<Users_Mutation_Response>;
+  /** delete single row from the table: "users" */
+  delete_users_by_pk?: Maybe<Users>;
   /** delete data from the table: "votes" */
   delete_votes?: Maybe<Votes_Mutation_Response>;
   /** delete single row from the table: "votes" */
@@ -2715,10 +3503,6 @@ export type Mutation_Root = {
   insert_battle_config?: Maybe<Battle_Config_Mutation_Response>;
   /** insert a single row into the table: "battle_config" */
   insert_battle_config_one?: Maybe<Battle_Config>;
-  /** insert data into the table: "battle_fish" */
-  insert_battle_fish?: Maybe<Battle_Fish_Mutation_Response>;
-  /** insert a single row into the table: "battle_fish" */
-  insert_battle_fish_one?: Maybe<Battle_Fish>;
   /** insert data into the table: "battle_log" */
   insert_battle_log?: Maybe<Battle_Log_Mutation_Response>;
   /** insert a single row into the table: "battle_log" */
@@ -2729,12 +3513,12 @@ export type Mutation_Root = {
   insert_economy_log_one?: Maybe<Economy_Log>;
   /** insert data into the table: "fish" */
   insert_fish?: Maybe<Fish_Mutation_Response>;
+  /** insert data into the table: "fish_battle" */
+  insert_fish_battle?: Maybe<Fish_Battle_Mutation_Response>;
+  /** insert a single row into the table: "fish_battle" */
+  insert_fish_battle_one?: Maybe<Fish_Battle>;
   /** insert a single row into the table: "fish" */
   insert_fish_one?: Maybe<Fish>;
-  /** insert data into the table: "fish_with_scores" */
-  insert_fish_with_scores?: Maybe<Fish_With_Scores_Mutation_Response>;
-  /** insert a single row into the table: "fish_with_scores" */
-  insert_fish_with_scores_one?: Maybe<Fish_With_Scores>;
   /** insert data into the table: "reports" */
   insert_reports?: Maybe<Reports_Mutation_Response>;
   /** insert a single row into the table: "reports" */
@@ -2743,6 +3527,10 @@ export type Mutation_Root = {
   insert_user_economy?: Maybe<User_Economy_Mutation_Response>;
   /** insert a single row into the table: "user_economy" */
   insert_user_economy_one?: Maybe<User_Economy>;
+  /** insert data into the table: "users" */
+  insert_users?: Maybe<Users_Mutation_Response>;
+  /** insert a single row into the table: "users" */
+  insert_users_one?: Maybe<Users>;
   /** insert data into the table: "votes" */
   insert_votes?: Maybe<Votes_Mutation_Response>;
   /** insert a single row into the table: "votes" */
@@ -2753,10 +3541,6 @@ export type Mutation_Root = {
   update_battle_config_by_pk?: Maybe<Battle_Config>;
   /** update multiples rows of table: "battle_config" */
   update_battle_config_many?: Maybe<Array<Maybe<Battle_Config_Mutation_Response>>>;
-  /** update data of the table: "battle_fish" */
-  update_battle_fish?: Maybe<Battle_Fish_Mutation_Response>;
-  /** update multiples rows of table: "battle_fish" */
-  update_battle_fish_many?: Maybe<Array<Maybe<Battle_Fish_Mutation_Response>>>;
   /** update data of the table: "battle_log" */
   update_battle_log?: Maybe<Battle_Log_Mutation_Response>;
   /** update single row of the table: "battle_log" */
@@ -2771,14 +3555,14 @@ export type Mutation_Root = {
   update_economy_log_many?: Maybe<Array<Maybe<Economy_Log_Mutation_Response>>>;
   /** update data of the table: "fish" */
   update_fish?: Maybe<Fish_Mutation_Response>;
+  /** update data of the table: "fish_battle" */
+  update_fish_battle?: Maybe<Fish_Battle_Mutation_Response>;
+  /** update multiples rows of table: "fish_battle" */
+  update_fish_battle_many?: Maybe<Array<Maybe<Fish_Battle_Mutation_Response>>>;
   /** update single row of the table: "fish" */
   update_fish_by_pk?: Maybe<Fish>;
   /** update multiples rows of table: "fish" */
   update_fish_many?: Maybe<Array<Maybe<Fish_Mutation_Response>>>;
-  /** update data of the table: "fish_with_scores" */
-  update_fish_with_scores?: Maybe<Fish_With_Scores_Mutation_Response>;
-  /** update multiples rows of table: "fish_with_scores" */
-  update_fish_with_scores_many?: Maybe<Array<Maybe<Fish_With_Scores_Mutation_Response>>>;
   /** update data of the table: "reports" */
   update_reports?: Maybe<Reports_Mutation_Response>;
   /** update single row of the table: "reports" */
@@ -2791,6 +3575,12 @@ export type Mutation_Root = {
   update_user_economy_by_pk?: Maybe<User_Economy>;
   /** update multiples rows of table: "user_economy" */
   update_user_economy_many?: Maybe<Array<Maybe<User_Economy_Mutation_Response>>>;
+  /** update data of the table: "users" */
+  update_users?: Maybe<Users_Mutation_Response>;
+  /** update single row of the table: "users" */
+  update_users_by_pk?: Maybe<Users>;
+  /** update multiples rows of table: "users" */
+  update_users_many?: Maybe<Array<Maybe<Users_Mutation_Response>>>;
   /** update data of the table: "votes" */
   update_votes?: Maybe<Votes_Mutation_Response>;
   /** update single row of the table: "votes" */
@@ -2809,12 +3599,6 @@ export type Mutation_RootDelete_Battle_ConfigArgs = {
 /** mutation root */
 export type Mutation_RootDelete_Battle_Config_By_PkArgs = {
   id: Scalars['Int']['input'];
-};
-
-
-/** mutation root */
-export type Mutation_RootDelete_Battle_FishArgs = {
-  where: Battle_Fish_Bool_Exp;
 };
 
 
@@ -2849,14 +3633,14 @@ export type Mutation_RootDelete_FishArgs = {
 
 
 /** mutation root */
-export type Mutation_RootDelete_Fish_By_PkArgs = {
-  id: Scalars['uuid']['input'];
+export type Mutation_RootDelete_Fish_BattleArgs = {
+  where: Fish_Battle_Bool_Exp;
 };
 
 
 /** mutation root */
-export type Mutation_RootDelete_Fish_With_ScoresArgs = {
-  where: Fish_With_Scores_Bool_Exp;
+export type Mutation_RootDelete_Fish_By_PkArgs = {
+  id: Scalars['uuid']['input'];
 };
 
 
@@ -2885,6 +3669,18 @@ export type Mutation_RootDelete_User_Economy_By_PkArgs = {
 
 
 /** mutation root */
+export type Mutation_RootDelete_UsersArgs = {
+  where: Users_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Users_By_PkArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+/** mutation root */
 export type Mutation_RootDelete_VotesArgs = {
   where: Votes_Bool_Exp;
 };
@@ -2907,18 +3703,6 @@ export type Mutation_RootInsert_Battle_ConfigArgs = {
 export type Mutation_RootInsert_Battle_Config_OneArgs = {
   object: Battle_Config_Insert_Input;
   on_conflict?: InputMaybe<Battle_Config_On_Conflict>;
-};
-
-
-/** mutation root */
-export type Mutation_RootInsert_Battle_FishArgs = {
-  objects: Array<Battle_Fish_Insert_Input>;
-};
-
-
-/** mutation root */
-export type Mutation_RootInsert_Battle_Fish_OneArgs = {
-  object: Battle_Fish_Insert_Input;
 };
 
 
@@ -2958,21 +3742,21 @@ export type Mutation_RootInsert_FishArgs = {
 
 
 /** mutation root */
+export type Mutation_RootInsert_Fish_BattleArgs = {
+  objects: Array<Fish_Battle_Insert_Input>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Fish_Battle_OneArgs = {
+  object: Fish_Battle_Insert_Input;
+};
+
+
+/** mutation root */
 export type Mutation_RootInsert_Fish_OneArgs = {
   object: Fish_Insert_Input;
   on_conflict?: InputMaybe<Fish_On_Conflict>;
-};
-
-
-/** mutation root */
-export type Mutation_RootInsert_Fish_With_ScoresArgs = {
-  objects: Array<Fish_With_Scores_Insert_Input>;
-};
-
-
-/** mutation root */
-export type Mutation_RootInsert_Fish_With_Scores_OneArgs = {
-  object: Fish_With_Scores_Insert_Input;
 };
 
 
@@ -3001,6 +3785,20 @@ export type Mutation_RootInsert_User_EconomyArgs = {
 export type Mutation_RootInsert_User_Economy_OneArgs = {
   object: User_Economy_Insert_Input;
   on_conflict?: InputMaybe<User_Economy_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_UsersArgs = {
+  objects: Array<Users_Insert_Input>;
+  on_conflict?: InputMaybe<Users_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Users_OneArgs = {
+  object: Users_Insert_Input;
+  on_conflict?: InputMaybe<Users_On_Conflict>;
 };
 
 
@@ -3037,20 +3835,6 @@ export type Mutation_RootUpdate_Battle_Config_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Battle_Config_ManyArgs = {
   updates: Array<Battle_Config_Updates>;
-};
-
-
-/** mutation root */
-export type Mutation_RootUpdate_Battle_FishArgs = {
-  _inc?: InputMaybe<Battle_Fish_Inc_Input>;
-  _set?: InputMaybe<Battle_Fish_Set_Input>;
-  where: Battle_Fish_Bool_Exp;
-};
-
-
-/** mutation root */
-export type Mutation_RootUpdate_Battle_Fish_ManyArgs = {
-  updates: Array<Battle_Fish_Updates>;
 };
 
 
@@ -3107,6 +3891,20 @@ export type Mutation_RootUpdate_FishArgs = {
 
 
 /** mutation root */
+export type Mutation_RootUpdate_Fish_BattleArgs = {
+  _inc?: InputMaybe<Fish_Battle_Inc_Input>;
+  _set?: InputMaybe<Fish_Battle_Set_Input>;
+  where: Fish_Battle_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Fish_Battle_ManyArgs = {
+  updates: Array<Fish_Battle_Updates>;
+};
+
+
+/** mutation root */
 export type Mutation_RootUpdate_Fish_By_PkArgs = {
   _inc?: InputMaybe<Fish_Inc_Input>;
   _set?: InputMaybe<Fish_Set_Input>;
@@ -3117,20 +3915,6 @@ export type Mutation_RootUpdate_Fish_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Fish_ManyArgs = {
   updates: Array<Fish_Updates>;
-};
-
-
-/** mutation root */
-export type Mutation_RootUpdate_Fish_With_ScoresArgs = {
-  _inc?: InputMaybe<Fish_With_Scores_Inc_Input>;
-  _set?: InputMaybe<Fish_With_Scores_Set_Input>;
-  where: Fish_With_Scores_Bool_Exp;
-};
-
-
-/** mutation root */
-export type Mutation_RootUpdate_Fish_With_Scores_ManyArgs = {
-  updates: Array<Fish_With_Scores_Updates>;
 };
 
 
@@ -3173,6 +3957,28 @@ export type Mutation_RootUpdate_User_Economy_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_User_Economy_ManyArgs = {
   updates: Array<User_Economy_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_UsersArgs = {
+  _inc?: InputMaybe<Users_Inc_Input>;
+  _set?: InputMaybe<Users_Set_Input>;
+  where: Users_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Users_By_PkArgs = {
+  _inc?: InputMaybe<Users_Inc_Input>;
+  _set?: InputMaybe<Users_Set_Input>;
+  pk_columns: Users_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Users_ManyArgs = {
+  updates: Array<Users_Updates>;
 };
 
 
@@ -3232,10 +4038,6 @@ export type Query_Root = {
   battle_config_aggregate: Battle_Config_Aggregate;
   /** fetch data from the table: "battle_config" using primary key columns */
   battle_config_by_pk?: Maybe<Battle_Config>;
-  /** fetch data from the table: "battle_fish" */
-  battle_fish: Array<Battle_Fish>;
-  /** fetch aggregated fields from the table: "battle_fish" */
-  battle_fish_aggregate: Battle_Fish_Aggregate;
   /** fetch data from the table: "battle_log" */
   battle_log: Array<Battle_Log>;
   /** fetch aggregated fields from the table: "battle_log" */
@@ -3252,15 +4054,19 @@ export type Query_Root = {
   fish: Array<Fish>;
   /** fetch aggregated fields from the table: "fish" */
   fish_aggregate: Fish_Aggregate;
+  /** fetch data from the table: "fish_battle" */
+  fish_battle: Array<Fish_Battle>;
+  /** fetch aggregated fields from the table: "fish_battle" */
+  fish_battle_aggregate: Fish_Battle_Aggregate;
   /** fetch data from the table: "fish" using primary key columns */
   fish_by_pk?: Maybe<Fish>;
-  /** fetch data from the table: "fish_with_scores" */
-  fish_with_scores: Array<Fish_With_Scores>;
-  /** fetch aggregated fields from the table: "fish_with_scores" */
-  fish_with_scores_aggregate: Fish_With_Scores_Aggregate;
-  /** fetch data from the table: "reports" */
+  /** fetch data from the table: "fish_rank" */
+  fish_rank: Array<Fish_Rank>;
+  /** fetch aggregated fields from the table: "fish_rank" */
+  fish_rank_aggregate: Fish_Rank_Aggregate;
+  /** An array relationship */
   reports: Array<Reports>;
-  /** fetch aggregated fields from the table: "reports" */
+  /** An aggregate relationship */
   reports_aggregate: Reports_Aggregate;
   /** fetch data from the table: "reports" using primary key columns */
   reports_by_pk?: Maybe<Reports>;
@@ -3274,9 +4080,15 @@ export type Query_Root = {
   user_fish_summary: Array<User_Fish_Summary>;
   /** fetch aggregated fields from the table: "user_fish_summary" */
   user_fish_summary_aggregate: User_Fish_Summary_Aggregate;
-  /** fetch data from the table: "votes" */
+  /** fetch data from the table: "users" */
+  users: Array<Users>;
+  /** fetch aggregated fields from the table: "users" */
+  users_aggregate: Users_Aggregate;
+  /** fetch data from the table: "users" using primary key columns */
+  users_by_pk?: Maybe<Users>;
+  /** An array relationship */
   votes: Array<Votes>;
-  /** fetch aggregated fields from the table: "votes" */
+  /** An aggregate relationship */
   votes_aggregate: Votes_Aggregate;
   /** fetch data from the table: "votes" using primary key columns */
   votes_by_pk?: Maybe<Votes>;
@@ -3303,24 +4115,6 @@ export type Query_RootBattle_Config_AggregateArgs = {
 
 export type Query_RootBattle_Config_By_PkArgs = {
   id: Scalars['Int']['input'];
-};
-
-
-export type Query_RootBattle_FishArgs = {
-  distinct_on?: InputMaybe<Array<Battle_Fish_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Battle_Fish_Order_By>>;
-  where?: InputMaybe<Battle_Fish_Bool_Exp>;
-};
-
-
-export type Query_RootBattle_Fish_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<Battle_Fish_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Battle_Fish_Order_By>>;
-  where?: InputMaybe<Battle_Fish_Bool_Exp>;
 };
 
 
@@ -3388,26 +4182,44 @@ export type Query_RootFish_AggregateArgs = {
 };
 
 
+export type Query_RootFish_BattleArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Battle_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Battle_Order_By>>;
+  where?: InputMaybe<Fish_Battle_Bool_Exp>;
+};
+
+
+export type Query_RootFish_Battle_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Battle_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Battle_Order_By>>;
+  where?: InputMaybe<Fish_Battle_Bool_Exp>;
+};
+
+
 export type Query_RootFish_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
 
-export type Query_RootFish_With_ScoresArgs = {
-  distinct_on?: InputMaybe<Array<Fish_With_Scores_Select_Column>>;
+export type Query_RootFish_RankArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Rank_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Fish_With_Scores_Order_By>>;
-  where?: InputMaybe<Fish_With_Scores_Bool_Exp>;
+  order_by?: InputMaybe<Array<Fish_Rank_Order_By>>;
+  where?: InputMaybe<Fish_Rank_Bool_Exp>;
 };
 
 
-export type Query_RootFish_With_Scores_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<Fish_With_Scores_Select_Column>>;
+export type Query_RootFish_Rank_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Rank_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Fish_With_Scores_Order_By>>;
-  where?: InputMaybe<Fish_With_Scores_Bool_Exp>;
+  order_by?: InputMaybe<Array<Fish_Rank_Order_By>>;
+  where?: InputMaybe<Fish_Rank_Bool_Exp>;
 };
 
 
@@ -3475,6 +4287,29 @@ export type Query_RootUser_Fish_Summary_AggregateArgs = {
 };
 
 
+export type Query_RootUsersArgs = {
+  distinct_on?: InputMaybe<Array<Users_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Users_Order_By>>;
+  where?: InputMaybe<Users_Bool_Exp>;
+};
+
+
+export type Query_RootUsers_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Users_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Users_Order_By>>;
+  where?: InputMaybe<Users_Bool_Exp>;
+};
+
+
+export type Query_RootUsers_By_PkArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type Query_RootVotesArgs = {
   distinct_on?: InputMaybe<Array<Votes_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -3501,6 +4336,8 @@ export type Query_RootVotes_By_PkArgs = {
 export type Reports = {
   __typename?: 'reports';
   created_at?: Maybe<Scalars['timestamp']['output']>;
+  /** An object relationship */
+  fish: Fish;
   fish_id: Scalars['uuid']['output'];
   id: Scalars['uuid']['output'];
   moderator_action?: Maybe<Scalars['String']['output']>;
@@ -3510,6 +4347,8 @@ export type Reports = {
   resolved_at?: Maybe<Scalars['timestamp']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   url?: Maybe<Scalars['String']['output']>;
+  /** An object relationship */
+  user?: Maybe<Users>;
   user_agent?: Maybe<Scalars['String']['output']>;
 };
 
@@ -3518,6 +4357,17 @@ export type Reports_Aggregate = {
   __typename?: 'reports_aggregate';
   aggregate?: Maybe<Reports_Aggregate_Fields>;
   nodes: Array<Reports>;
+};
+
+export type Reports_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Reports_Aggregate_Bool_Exp_Count>;
+};
+
+export type Reports_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Reports_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Reports_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
 };
 
 /** aggregate fields of "reports" */
@@ -3535,12 +4385,27 @@ export type Reports_Aggregate_FieldsCountArgs = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** order by aggregate values of table "reports" */
+export type Reports_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Reports_Max_Order_By>;
+  min?: InputMaybe<Reports_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "reports" */
+export type Reports_Arr_Rel_Insert_Input = {
+  data: Array<Reports_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Reports_On_Conflict>;
+};
+
 /** Boolean expression to filter rows from the table "reports". All fields are combined with a logical 'AND'. */
 export type Reports_Bool_Exp = {
   _and?: InputMaybe<Array<Reports_Bool_Exp>>;
   _not?: InputMaybe<Reports_Bool_Exp>;
   _or?: InputMaybe<Array<Reports_Bool_Exp>>;
   created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  fish?: InputMaybe<Fish_Bool_Exp>;
   fish_id?: InputMaybe<Uuid_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   moderator_action?: InputMaybe<String_Comparison_Exp>;
@@ -3550,6 +4415,7 @@ export type Reports_Bool_Exp = {
   resolved_at?: InputMaybe<Timestamp_Comparison_Exp>;
   status?: InputMaybe<String_Comparison_Exp>;
   url?: InputMaybe<String_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
   user_agent?: InputMaybe<String_Comparison_Exp>;
 };
 
@@ -3562,6 +4428,7 @@ export enum Reports_Constraint {
 /** input type for inserting data into table "reports" */
 export type Reports_Insert_Input = {
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  fish?: InputMaybe<Fish_Obj_Rel_Insert_Input>;
   fish_id?: InputMaybe<Scalars['uuid']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   moderator_action?: InputMaybe<Scalars['String']['input']>;
@@ -3571,6 +4438,7 @@ export type Reports_Insert_Input = {
   resolved_at?: InputMaybe<Scalars['timestamp']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
   url?: InputMaybe<Scalars['String']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
   user_agent?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -3590,6 +4458,21 @@ export type Reports_Max_Fields = {
   user_agent?: Maybe<Scalars['String']['output']>;
 };
 
+/** order by max() on columns of table "reports" */
+export type Reports_Max_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  fish_id?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  moderator_action?: InputMaybe<Order_By>;
+  moderator_id?: InputMaybe<Order_By>;
+  reason?: InputMaybe<Order_By>;
+  reporter_ip?: InputMaybe<Order_By>;
+  resolved_at?: InputMaybe<Order_By>;
+  status?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+  user_agent?: InputMaybe<Order_By>;
+};
+
 /** aggregate min on columns */
 export type Reports_Min_Fields = {
   __typename?: 'reports_min_fields';
@@ -3604,6 +4487,21 @@ export type Reports_Min_Fields = {
   status?: Maybe<Scalars['String']['output']>;
   url?: Maybe<Scalars['String']['output']>;
   user_agent?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by min() on columns of table "reports" */
+export type Reports_Min_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  fish_id?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  moderator_action?: InputMaybe<Order_By>;
+  moderator_id?: InputMaybe<Order_By>;
+  reason?: InputMaybe<Order_By>;
+  reporter_ip?: InputMaybe<Order_By>;
+  resolved_at?: InputMaybe<Order_By>;
+  status?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+  user_agent?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "reports" */
@@ -3625,6 +4523,7 @@ export type Reports_On_Conflict = {
 /** Ordering options when selecting data from "reports". */
 export type Reports_Order_By = {
   created_at?: InputMaybe<Order_By>;
+  fish?: InputMaybe<Fish_Order_By>;
   fish_id?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   moderator_action?: InputMaybe<Order_By>;
@@ -3634,6 +4533,7 @@ export type Reports_Order_By = {
   resolved_at?: InputMaybe<Order_By>;
   status?: InputMaybe<Order_By>;
   url?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
   user_agent?: InputMaybe<Order_By>;
 };
 
@@ -3749,12 +4649,6 @@ export type Subscription_Root = {
   battle_config_by_pk?: Maybe<Battle_Config>;
   /** fetch data from the table in a streaming manner: "battle_config" */
   battle_config_stream: Array<Battle_Config>;
-  /** fetch data from the table: "battle_fish" */
-  battle_fish: Array<Battle_Fish>;
-  /** fetch aggregated fields from the table: "battle_fish" */
-  battle_fish_aggregate: Battle_Fish_Aggregate;
-  /** fetch data from the table in a streaming manner: "battle_fish" */
-  battle_fish_stream: Array<Battle_Fish>;
   /** fetch data from the table: "battle_log" */
   battle_log: Array<Battle_Log>;
   /** fetch aggregated fields from the table: "battle_log" */
@@ -3775,19 +4669,25 @@ export type Subscription_Root = {
   fish: Array<Fish>;
   /** fetch aggregated fields from the table: "fish" */
   fish_aggregate: Fish_Aggregate;
+  /** fetch data from the table: "fish_battle" */
+  fish_battle: Array<Fish_Battle>;
+  /** fetch aggregated fields from the table: "fish_battle" */
+  fish_battle_aggregate: Fish_Battle_Aggregate;
+  /** fetch data from the table in a streaming manner: "fish_battle" */
+  fish_battle_stream: Array<Fish_Battle>;
   /** fetch data from the table: "fish" using primary key columns */
   fish_by_pk?: Maybe<Fish>;
+  /** fetch data from the table: "fish_rank" */
+  fish_rank: Array<Fish_Rank>;
+  /** fetch aggregated fields from the table: "fish_rank" */
+  fish_rank_aggregate: Fish_Rank_Aggregate;
+  /** fetch data from the table in a streaming manner: "fish_rank" */
+  fish_rank_stream: Array<Fish_Rank>;
   /** fetch data from the table in a streaming manner: "fish" */
   fish_stream: Array<Fish>;
-  /** fetch data from the table: "fish_with_scores" */
-  fish_with_scores: Array<Fish_With_Scores>;
-  /** fetch aggregated fields from the table: "fish_with_scores" */
-  fish_with_scores_aggregate: Fish_With_Scores_Aggregate;
-  /** fetch data from the table in a streaming manner: "fish_with_scores" */
-  fish_with_scores_stream: Array<Fish_With_Scores>;
-  /** fetch data from the table: "reports" */
+  /** An array relationship */
   reports: Array<Reports>;
-  /** fetch aggregated fields from the table: "reports" */
+  /** An aggregate relationship */
   reports_aggregate: Reports_Aggregate;
   /** fetch data from the table: "reports" using primary key columns */
   reports_by_pk?: Maybe<Reports>;
@@ -3807,9 +4707,17 @@ export type Subscription_Root = {
   user_fish_summary_aggregate: User_Fish_Summary_Aggregate;
   /** fetch data from the table in a streaming manner: "user_fish_summary" */
   user_fish_summary_stream: Array<User_Fish_Summary>;
-  /** fetch data from the table: "votes" */
+  /** fetch data from the table: "users" */
+  users: Array<Users>;
+  /** fetch aggregated fields from the table: "users" */
+  users_aggregate: Users_Aggregate;
+  /** fetch data from the table: "users" using primary key columns */
+  users_by_pk?: Maybe<Users>;
+  /** fetch data from the table in a streaming manner: "users" */
+  users_stream: Array<Users>;
+  /** An array relationship */
   votes: Array<Votes>;
-  /** fetch aggregated fields from the table: "votes" */
+  /** An aggregate relationship */
   votes_aggregate: Votes_Aggregate;
   /** fetch data from the table: "votes" using primary key columns */
   votes_by_pk?: Maybe<Votes>;
@@ -3845,31 +4753,6 @@ export type Subscription_RootBattle_Config_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Battle_Config_Stream_Cursor_Input>>;
   where?: InputMaybe<Battle_Config_Bool_Exp>;
-};
-
-
-export type Subscription_RootBattle_FishArgs = {
-  distinct_on?: InputMaybe<Array<Battle_Fish_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Battle_Fish_Order_By>>;
-  where?: InputMaybe<Battle_Fish_Bool_Exp>;
-};
-
-
-export type Subscription_RootBattle_Fish_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<Battle_Fish_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Battle_Fish_Order_By>>;
-  where?: InputMaybe<Battle_Fish_Bool_Exp>;
-};
-
-
-export type Subscription_RootBattle_Fish_StreamArgs = {
-  batch_size: Scalars['Int']['input'];
-  cursor: Array<InputMaybe<Battle_Fish_Stream_Cursor_Input>>;
-  where?: InputMaybe<Battle_Fish_Bool_Exp>;
 };
 
 
@@ -3951,8 +4834,58 @@ export type Subscription_RootFish_AggregateArgs = {
 };
 
 
+export type Subscription_RootFish_BattleArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Battle_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Battle_Order_By>>;
+  where?: InputMaybe<Fish_Battle_Bool_Exp>;
+};
+
+
+export type Subscription_RootFish_Battle_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Battle_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Battle_Order_By>>;
+  where?: InputMaybe<Fish_Battle_Bool_Exp>;
+};
+
+
+export type Subscription_RootFish_Battle_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Fish_Battle_Stream_Cursor_Input>>;
+  where?: InputMaybe<Fish_Battle_Bool_Exp>;
+};
+
+
 export type Subscription_RootFish_By_PkArgs = {
   id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootFish_RankArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Rank_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Rank_Order_By>>;
+  where?: InputMaybe<Fish_Rank_Bool_Exp>;
+};
+
+
+export type Subscription_RootFish_Rank_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Rank_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Rank_Order_By>>;
+  where?: InputMaybe<Fish_Rank_Bool_Exp>;
+};
+
+
+export type Subscription_RootFish_Rank_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Fish_Rank_Stream_Cursor_Input>>;
+  where?: InputMaybe<Fish_Rank_Bool_Exp>;
 };
 
 
@@ -3960,31 +4893,6 @@ export type Subscription_RootFish_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Fish_Stream_Cursor_Input>>;
   where?: InputMaybe<Fish_Bool_Exp>;
-};
-
-
-export type Subscription_RootFish_With_ScoresArgs = {
-  distinct_on?: InputMaybe<Array<Fish_With_Scores_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Fish_With_Scores_Order_By>>;
-  where?: InputMaybe<Fish_With_Scores_Bool_Exp>;
-};
-
-
-export type Subscription_RootFish_With_Scores_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<Fish_With_Scores_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Fish_With_Scores_Order_By>>;
-  where?: InputMaybe<Fish_With_Scores_Bool_Exp>;
-};
-
-
-export type Subscription_RootFish_With_Scores_StreamArgs = {
-  batch_size: Scalars['Int']['input'];
-  cursor: Array<InputMaybe<Fish_With_Scores_Stream_Cursor_Input>>;
-  where?: InputMaybe<Fish_With_Scores_Bool_Exp>;
 };
 
 
@@ -4073,6 +4981,36 @@ export type Subscription_RootUser_Fish_Summary_StreamArgs = {
 };
 
 
+export type Subscription_RootUsersArgs = {
+  distinct_on?: InputMaybe<Array<Users_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Users_Order_By>>;
+  where?: InputMaybe<Users_Bool_Exp>;
+};
+
+
+export type Subscription_RootUsers_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Users_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Users_Order_By>>;
+  where?: InputMaybe<Users_Bool_Exp>;
+};
+
+
+export type Subscription_RootUsers_By_PkArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type Subscription_RootUsers_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Users_Stream_Cursor_Input>>;
+  where?: InputMaybe<Users_Bool_Exp>;
+};
+
+
 export type Subscription_RootVotesArgs = {
   distinct_on?: InputMaybe<Array<Votes_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -4123,6 +5061,8 @@ export type User_Economy = {
   last_daily_bonus?: Maybe<Scalars['timestamp']['output']>;
   total_earned?: Maybe<Scalars['Int']['output']>;
   total_spent?: Maybe<Scalars['Int']['output']>;
+  /** An object relationship */
+  user: Users;
   user_id: Scalars['String']['output'];
 };
 
@@ -4174,6 +5114,7 @@ export type User_Economy_Bool_Exp = {
   last_daily_bonus?: InputMaybe<Timestamp_Comparison_Exp>;
   total_earned?: InputMaybe<Int_Comparison_Exp>;
   total_spent?: InputMaybe<Int_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
   user_id?: InputMaybe<String_Comparison_Exp>;
 };
 
@@ -4197,6 +5138,7 @@ export type User_Economy_Insert_Input = {
   last_daily_bonus?: InputMaybe<Scalars['timestamp']['input']>;
   total_earned?: InputMaybe<Scalars['Int']['input']>;
   total_spent?: InputMaybe<Scalars['Int']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
   user_id?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -4231,6 +5173,13 @@ export type User_Economy_Mutation_Response = {
   returning: Array<User_Economy>;
 };
 
+/** input type for inserting object relation for remote table "user_economy" */
+export type User_Economy_Obj_Rel_Insert_Input = {
+  data: User_Economy_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<User_Economy_On_Conflict>;
+};
+
 /** on_conflict condition type for table "user_economy" */
 export type User_Economy_On_Conflict = {
   constraint: User_Economy_Constraint;
@@ -4245,6 +5194,7 @@ export type User_Economy_Order_By = {
   last_daily_bonus?: InputMaybe<Order_By>;
   total_earned?: InputMaybe<Order_By>;
   total_spent?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
   user_id?: InputMaybe<Order_By>;
 };
 
@@ -4382,8 +5332,11 @@ export type User_Economy_Variance_Fields = {
 export type User_Fish_Summary = {
   __typename?: 'user_fish_summary';
   alive_fish?: Maybe<Scalars['bigint']['output']>;
+  avatar_url?: Maybe<Scalars['String']['output']>;
   avg_level?: Maybe<Scalars['numeric']['output']>;
+  display_name?: Maybe<Scalars['String']['output']>;
   max_level?: Maybe<Scalars['Int']['output']>;
+  reputation_score?: Maybe<Scalars['Int']['output']>;
   total_fish?: Maybe<Scalars['bigint']['output']>;
   total_losses?: Maybe<Scalars['bigint']['output']>;
   total_upvotes?: Maybe<Scalars['bigint']['output']>;
@@ -4427,6 +5380,7 @@ export type User_Fish_Summary_Avg_Fields = {
   alive_fish?: Maybe<Scalars['Float']['output']>;
   avg_level?: Maybe<Scalars['Float']['output']>;
   max_level?: Maybe<Scalars['Float']['output']>;
+  reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish?: Maybe<Scalars['Float']['output']>;
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_upvotes?: Maybe<Scalars['Float']['output']>;
@@ -4439,8 +5393,11 @@ export type User_Fish_Summary_Bool_Exp = {
   _not?: InputMaybe<User_Fish_Summary_Bool_Exp>;
   _or?: InputMaybe<Array<User_Fish_Summary_Bool_Exp>>;
   alive_fish?: InputMaybe<Bigint_Comparison_Exp>;
+  avatar_url?: InputMaybe<String_Comparison_Exp>;
   avg_level?: InputMaybe<Numeric_Comparison_Exp>;
+  display_name?: InputMaybe<String_Comparison_Exp>;
   max_level?: InputMaybe<Int_Comparison_Exp>;
+  reputation_score?: InputMaybe<Int_Comparison_Exp>;
   total_fish?: InputMaybe<Bigint_Comparison_Exp>;
   total_losses?: InputMaybe<Bigint_Comparison_Exp>;
   total_upvotes?: InputMaybe<Bigint_Comparison_Exp>;
@@ -4452,8 +5409,11 @@ export type User_Fish_Summary_Bool_Exp = {
 export type User_Fish_Summary_Max_Fields = {
   __typename?: 'user_fish_summary_max_fields';
   alive_fish?: Maybe<Scalars['bigint']['output']>;
+  avatar_url?: Maybe<Scalars['String']['output']>;
   avg_level?: Maybe<Scalars['numeric']['output']>;
+  display_name?: Maybe<Scalars['String']['output']>;
   max_level?: Maybe<Scalars['Int']['output']>;
+  reputation_score?: Maybe<Scalars['Int']['output']>;
   total_fish?: Maybe<Scalars['bigint']['output']>;
   total_losses?: Maybe<Scalars['bigint']['output']>;
   total_upvotes?: Maybe<Scalars['bigint']['output']>;
@@ -4465,8 +5425,11 @@ export type User_Fish_Summary_Max_Fields = {
 export type User_Fish_Summary_Min_Fields = {
   __typename?: 'user_fish_summary_min_fields';
   alive_fish?: Maybe<Scalars['bigint']['output']>;
+  avatar_url?: Maybe<Scalars['String']['output']>;
   avg_level?: Maybe<Scalars['numeric']['output']>;
+  display_name?: Maybe<Scalars['String']['output']>;
   max_level?: Maybe<Scalars['Int']['output']>;
+  reputation_score?: Maybe<Scalars['Int']['output']>;
   total_fish?: Maybe<Scalars['bigint']['output']>;
   total_losses?: Maybe<Scalars['bigint']['output']>;
   total_upvotes?: Maybe<Scalars['bigint']['output']>;
@@ -4477,8 +5440,11 @@ export type User_Fish_Summary_Min_Fields = {
 /** Ordering options when selecting data from "user_fish_summary". */
 export type User_Fish_Summary_Order_By = {
   alive_fish?: InputMaybe<Order_By>;
+  avatar_url?: InputMaybe<Order_By>;
   avg_level?: InputMaybe<Order_By>;
+  display_name?: InputMaybe<Order_By>;
   max_level?: InputMaybe<Order_By>;
+  reputation_score?: InputMaybe<Order_By>;
   total_fish?: InputMaybe<Order_By>;
   total_losses?: InputMaybe<Order_By>;
   total_upvotes?: InputMaybe<Order_By>;
@@ -4491,9 +5457,15 @@ export enum User_Fish_Summary_Select_Column {
   /** column name */
   AliveFish = 'alive_fish',
   /** column name */
+  AvatarUrl = 'avatar_url',
+  /** column name */
   AvgLevel = 'avg_level',
   /** column name */
+  DisplayName = 'display_name',
+  /** column name */
   MaxLevel = 'max_level',
+  /** column name */
+  ReputationScore = 'reputation_score',
   /** column name */
   TotalFish = 'total_fish',
   /** column name */
@@ -4512,6 +5484,7 @@ export type User_Fish_Summary_Stddev_Fields = {
   alive_fish?: Maybe<Scalars['Float']['output']>;
   avg_level?: Maybe<Scalars['Float']['output']>;
   max_level?: Maybe<Scalars['Float']['output']>;
+  reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish?: Maybe<Scalars['Float']['output']>;
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_upvotes?: Maybe<Scalars['Float']['output']>;
@@ -4524,6 +5497,7 @@ export type User_Fish_Summary_Stddev_Pop_Fields = {
   alive_fish?: Maybe<Scalars['Float']['output']>;
   avg_level?: Maybe<Scalars['Float']['output']>;
   max_level?: Maybe<Scalars['Float']['output']>;
+  reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish?: Maybe<Scalars['Float']['output']>;
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_upvotes?: Maybe<Scalars['Float']['output']>;
@@ -4536,6 +5510,7 @@ export type User_Fish_Summary_Stddev_Samp_Fields = {
   alive_fish?: Maybe<Scalars['Float']['output']>;
   avg_level?: Maybe<Scalars['Float']['output']>;
   max_level?: Maybe<Scalars['Float']['output']>;
+  reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish?: Maybe<Scalars['Float']['output']>;
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_upvotes?: Maybe<Scalars['Float']['output']>;
@@ -4553,8 +5528,11 @@ export type User_Fish_Summary_Stream_Cursor_Input = {
 /** Initial value of the column from where the streaming should start */
 export type User_Fish_Summary_Stream_Cursor_Value_Input = {
   alive_fish?: InputMaybe<Scalars['bigint']['input']>;
+  avatar_url?: InputMaybe<Scalars['String']['input']>;
   avg_level?: InputMaybe<Scalars['numeric']['input']>;
+  display_name?: InputMaybe<Scalars['String']['input']>;
   max_level?: InputMaybe<Scalars['Int']['input']>;
+  reputation_score?: InputMaybe<Scalars['Int']['input']>;
   total_fish?: InputMaybe<Scalars['bigint']['input']>;
   total_losses?: InputMaybe<Scalars['bigint']['input']>;
   total_upvotes?: InputMaybe<Scalars['bigint']['input']>;
@@ -4568,6 +5546,7 @@ export type User_Fish_Summary_Sum_Fields = {
   alive_fish?: Maybe<Scalars['bigint']['output']>;
   avg_level?: Maybe<Scalars['numeric']['output']>;
   max_level?: Maybe<Scalars['Int']['output']>;
+  reputation_score?: Maybe<Scalars['Int']['output']>;
   total_fish?: Maybe<Scalars['bigint']['output']>;
   total_losses?: Maybe<Scalars['bigint']['output']>;
   total_upvotes?: Maybe<Scalars['bigint']['output']>;
@@ -4580,6 +5559,7 @@ export type User_Fish_Summary_Var_Pop_Fields = {
   alive_fish?: Maybe<Scalars['Float']['output']>;
   avg_level?: Maybe<Scalars['Float']['output']>;
   max_level?: Maybe<Scalars['Float']['output']>;
+  reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish?: Maybe<Scalars['Float']['output']>;
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_upvotes?: Maybe<Scalars['Float']['output']>;
@@ -4592,6 +5572,7 @@ export type User_Fish_Summary_Var_Samp_Fields = {
   alive_fish?: Maybe<Scalars['Float']['output']>;
   avg_level?: Maybe<Scalars['Float']['output']>;
   max_level?: Maybe<Scalars['Float']['output']>;
+  reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish?: Maybe<Scalars['Float']['output']>;
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_upvotes?: Maybe<Scalars['Float']['output']>;
@@ -4604,10 +5585,503 @@ export type User_Fish_Summary_Variance_Fields = {
   alive_fish?: Maybe<Scalars['Float']['output']>;
   avg_level?: Maybe<Scalars['Float']['output']>;
   max_level?: Maybe<Scalars['Float']['output']>;
+  reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish?: Maybe<Scalars['Float']['output']>;
   total_losses?: Maybe<Scalars['Float']['output']>;
   total_upvotes?: Maybe<Scalars['Float']['output']>;
   total_wins?: Maybe<Scalars['Float']['output']>;
+};
+
+/** columns and relationships of "users" */
+export type Users = {
+  __typename?: 'users';
+  avatar_url?: Maybe<Scalars['String']['output']>;
+  ban_reason?: Maybe<Scalars['String']['output']>;
+  banned_until?: Maybe<Scalars['timestamp']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  display_name?: Maybe<Scalars['String']['output']>;
+  /** An array relationship */
+  economy_logs: Array<Economy_Log>;
+  /** An aggregate relationship */
+  economy_logs_aggregate: Economy_Log_Aggregate;
+  email: Scalars['String']['output'];
+  /** An array relationship */
+  fishes: Array<Fish>;
+  /** An aggregate relationship */
+  fishes_aggregate: Fish_Aggregate;
+  id: Scalars['String']['output'];
+  is_banned?: Maybe<Scalars['Boolean']['output']>;
+  last_active?: Maybe<Scalars['timestamp']['output']>;
+  /** An array relationship */
+  reports: Array<Reports>;
+  /** An aggregate relationship */
+  reports_aggregate: Reports_Aggregate;
+  reputation_score?: Maybe<Scalars['Int']['output']>;
+  total_fish_created?: Maybe<Scalars['Int']['output']>;
+  total_votes_received?: Maybe<Scalars['Int']['output']>;
+  updated_at?: Maybe<Scalars['timestamp']['output']>;
+  /** An object relationship */
+  user_economy?: Maybe<User_Economy>;
+  user_level?: Maybe<Scalars['Int']['output']>;
+  /** An array relationship */
+  votes: Array<Votes>;
+  /** An aggregate relationship */
+  votes_aggregate: Votes_Aggregate;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersEconomy_LogsArgs = {
+  distinct_on?: InputMaybe<Array<Economy_Log_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Economy_Log_Order_By>>;
+  where?: InputMaybe<Economy_Log_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersEconomy_Logs_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Economy_Log_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Economy_Log_Order_By>>;
+  where?: InputMaybe<Economy_Log_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersFishesArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Order_By>>;
+  where?: InputMaybe<Fish_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersFishes_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Order_By>>;
+  where?: InputMaybe<Fish_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersReportsArgs = {
+  distinct_on?: InputMaybe<Array<Reports_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Reports_Order_By>>;
+  where?: InputMaybe<Reports_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersReports_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Reports_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Reports_Order_By>>;
+  where?: InputMaybe<Reports_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersVotesArgs = {
+  distinct_on?: InputMaybe<Array<Votes_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Votes_Order_By>>;
+  where?: InputMaybe<Votes_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersVotes_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Votes_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Votes_Order_By>>;
+  where?: InputMaybe<Votes_Bool_Exp>;
+};
+
+/** aggregated selection of "users" */
+export type Users_Aggregate = {
+  __typename?: 'users_aggregate';
+  aggregate?: Maybe<Users_Aggregate_Fields>;
+  nodes: Array<Users>;
+};
+
+/** aggregate fields of "users" */
+export type Users_Aggregate_Fields = {
+  __typename?: 'users_aggregate_fields';
+  avg?: Maybe<Users_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Users_Max_Fields>;
+  min?: Maybe<Users_Min_Fields>;
+  stddev?: Maybe<Users_Stddev_Fields>;
+  stddev_pop?: Maybe<Users_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Users_Stddev_Samp_Fields>;
+  sum?: Maybe<Users_Sum_Fields>;
+  var_pop?: Maybe<Users_Var_Pop_Fields>;
+  var_samp?: Maybe<Users_Var_Samp_Fields>;
+  variance?: Maybe<Users_Variance_Fields>;
+};
+
+
+/** aggregate fields of "users" */
+export type Users_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Users_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Users_Avg_Fields = {
+  __typename?: 'users_avg_fields';
+  reputation_score?: Maybe<Scalars['Float']['output']>;
+  total_fish_created?: Maybe<Scalars['Float']['output']>;
+  total_votes_received?: Maybe<Scalars['Float']['output']>;
+  user_level?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "users". All fields are combined with a logical 'AND'. */
+export type Users_Bool_Exp = {
+  _and?: InputMaybe<Array<Users_Bool_Exp>>;
+  _not?: InputMaybe<Users_Bool_Exp>;
+  _or?: InputMaybe<Array<Users_Bool_Exp>>;
+  avatar_url?: InputMaybe<String_Comparison_Exp>;
+  ban_reason?: InputMaybe<String_Comparison_Exp>;
+  banned_until?: InputMaybe<Timestamp_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  display_name?: InputMaybe<String_Comparison_Exp>;
+  economy_logs?: InputMaybe<Economy_Log_Bool_Exp>;
+  economy_logs_aggregate?: InputMaybe<Economy_Log_Aggregate_Bool_Exp>;
+  email?: InputMaybe<String_Comparison_Exp>;
+  fishes?: InputMaybe<Fish_Bool_Exp>;
+  fishes_aggregate?: InputMaybe<Fish_Aggregate_Bool_Exp>;
+  id?: InputMaybe<String_Comparison_Exp>;
+  is_banned?: InputMaybe<Boolean_Comparison_Exp>;
+  last_active?: InputMaybe<Timestamp_Comparison_Exp>;
+  reports?: InputMaybe<Reports_Bool_Exp>;
+  reports_aggregate?: InputMaybe<Reports_Aggregate_Bool_Exp>;
+  reputation_score?: InputMaybe<Int_Comparison_Exp>;
+  total_fish_created?: InputMaybe<Int_Comparison_Exp>;
+  total_votes_received?: InputMaybe<Int_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  user_economy?: InputMaybe<User_Economy_Bool_Exp>;
+  user_level?: InputMaybe<Int_Comparison_Exp>;
+  votes?: InputMaybe<Votes_Bool_Exp>;
+  votes_aggregate?: InputMaybe<Votes_Aggregate_Bool_Exp>;
+};
+
+/** unique or primary key constraints on table "users" */
+export enum Users_Constraint {
+  /** unique or primary key constraint on columns "email" */
+  UsersEmailKey = 'users_email_key',
+  /** unique or primary key constraint on columns "id" */
+  UsersPkey = 'users_pkey'
+}
+
+/** input type for incrementing numeric columns in table "users" */
+export type Users_Inc_Input = {
+  reputation_score?: InputMaybe<Scalars['Int']['input']>;
+  total_fish_created?: InputMaybe<Scalars['Int']['input']>;
+  total_votes_received?: InputMaybe<Scalars['Int']['input']>;
+  user_level?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** input type for inserting data into table "users" */
+export type Users_Insert_Input = {
+  avatar_url?: InputMaybe<Scalars['String']['input']>;
+  ban_reason?: InputMaybe<Scalars['String']['input']>;
+  banned_until?: InputMaybe<Scalars['timestamp']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  display_name?: InputMaybe<Scalars['String']['input']>;
+  economy_logs?: InputMaybe<Economy_Log_Arr_Rel_Insert_Input>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  fishes?: InputMaybe<Fish_Arr_Rel_Insert_Input>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  is_banned?: InputMaybe<Scalars['Boolean']['input']>;
+  last_active?: InputMaybe<Scalars['timestamp']['input']>;
+  reports?: InputMaybe<Reports_Arr_Rel_Insert_Input>;
+  reputation_score?: InputMaybe<Scalars['Int']['input']>;
+  total_fish_created?: InputMaybe<Scalars['Int']['input']>;
+  total_votes_received?: InputMaybe<Scalars['Int']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamp']['input']>;
+  user_economy?: InputMaybe<User_Economy_Obj_Rel_Insert_Input>;
+  user_level?: InputMaybe<Scalars['Int']['input']>;
+  votes?: InputMaybe<Votes_Arr_Rel_Insert_Input>;
+};
+
+/** aggregate max on columns */
+export type Users_Max_Fields = {
+  __typename?: 'users_max_fields';
+  avatar_url?: Maybe<Scalars['String']['output']>;
+  ban_reason?: Maybe<Scalars['String']['output']>;
+  banned_until?: Maybe<Scalars['timestamp']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  display_name?: Maybe<Scalars['String']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
+  last_active?: Maybe<Scalars['timestamp']['output']>;
+  reputation_score?: Maybe<Scalars['Int']['output']>;
+  total_fish_created?: Maybe<Scalars['Int']['output']>;
+  total_votes_received?: Maybe<Scalars['Int']['output']>;
+  updated_at?: Maybe<Scalars['timestamp']['output']>;
+  user_level?: Maybe<Scalars['Int']['output']>;
+};
+
+/** aggregate min on columns */
+export type Users_Min_Fields = {
+  __typename?: 'users_min_fields';
+  avatar_url?: Maybe<Scalars['String']['output']>;
+  ban_reason?: Maybe<Scalars['String']['output']>;
+  banned_until?: Maybe<Scalars['timestamp']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  display_name?: Maybe<Scalars['String']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
+  last_active?: Maybe<Scalars['timestamp']['output']>;
+  reputation_score?: Maybe<Scalars['Int']['output']>;
+  total_fish_created?: Maybe<Scalars['Int']['output']>;
+  total_votes_received?: Maybe<Scalars['Int']['output']>;
+  updated_at?: Maybe<Scalars['timestamp']['output']>;
+  user_level?: Maybe<Scalars['Int']['output']>;
+};
+
+/** response of any mutation on the table "users" */
+export type Users_Mutation_Response = {
+  __typename?: 'users_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Users>;
+};
+
+/** input type for inserting object relation for remote table "users" */
+export type Users_Obj_Rel_Insert_Input = {
+  data: Users_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Users_On_Conflict>;
+};
+
+/** on_conflict condition type for table "users" */
+export type Users_On_Conflict = {
+  constraint: Users_Constraint;
+  update_columns?: Array<Users_Update_Column>;
+  where?: InputMaybe<Users_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "users". */
+export type Users_Order_By = {
+  avatar_url?: InputMaybe<Order_By>;
+  ban_reason?: InputMaybe<Order_By>;
+  banned_until?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  display_name?: InputMaybe<Order_By>;
+  economy_logs_aggregate?: InputMaybe<Economy_Log_Aggregate_Order_By>;
+  email?: InputMaybe<Order_By>;
+  fishes_aggregate?: InputMaybe<Fish_Aggregate_Order_By>;
+  id?: InputMaybe<Order_By>;
+  is_banned?: InputMaybe<Order_By>;
+  last_active?: InputMaybe<Order_By>;
+  reports_aggregate?: InputMaybe<Reports_Aggregate_Order_By>;
+  reputation_score?: InputMaybe<Order_By>;
+  total_fish_created?: InputMaybe<Order_By>;
+  total_votes_received?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_economy?: InputMaybe<User_Economy_Order_By>;
+  user_level?: InputMaybe<Order_By>;
+  votes_aggregate?: InputMaybe<Votes_Aggregate_Order_By>;
+};
+
+/** primary key columns input for table: users */
+export type Users_Pk_Columns_Input = {
+  id: Scalars['String']['input'];
+};
+
+/** select columns of table "users" */
+export enum Users_Select_Column {
+  /** column name */
+  AvatarUrl = 'avatar_url',
+  /** column name */
+  BanReason = 'ban_reason',
+  /** column name */
+  BannedUntil = 'banned_until',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  DisplayName = 'display_name',
+  /** column name */
+  Email = 'email',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  IsBanned = 'is_banned',
+  /** column name */
+  LastActive = 'last_active',
+  /** column name */
+  ReputationScore = 'reputation_score',
+  /** column name */
+  TotalFishCreated = 'total_fish_created',
+  /** column name */
+  TotalVotesReceived = 'total_votes_received',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserLevel = 'user_level'
+}
+
+/** input type for updating data in table "users" */
+export type Users_Set_Input = {
+  avatar_url?: InputMaybe<Scalars['String']['input']>;
+  ban_reason?: InputMaybe<Scalars['String']['input']>;
+  banned_until?: InputMaybe<Scalars['timestamp']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  display_name?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  is_banned?: InputMaybe<Scalars['Boolean']['input']>;
+  last_active?: InputMaybe<Scalars['timestamp']['input']>;
+  reputation_score?: InputMaybe<Scalars['Int']['input']>;
+  total_fish_created?: InputMaybe<Scalars['Int']['input']>;
+  total_votes_received?: InputMaybe<Scalars['Int']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamp']['input']>;
+  user_level?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Users_Stddev_Fields = {
+  __typename?: 'users_stddev_fields';
+  reputation_score?: Maybe<Scalars['Float']['output']>;
+  total_fish_created?: Maybe<Scalars['Float']['output']>;
+  total_votes_received?: Maybe<Scalars['Float']['output']>;
+  user_level?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Users_Stddev_Pop_Fields = {
+  __typename?: 'users_stddev_pop_fields';
+  reputation_score?: Maybe<Scalars['Float']['output']>;
+  total_fish_created?: Maybe<Scalars['Float']['output']>;
+  total_votes_received?: Maybe<Scalars['Float']['output']>;
+  user_level?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Users_Stddev_Samp_Fields = {
+  __typename?: 'users_stddev_samp_fields';
+  reputation_score?: Maybe<Scalars['Float']['output']>;
+  total_fish_created?: Maybe<Scalars['Float']['output']>;
+  total_votes_received?: Maybe<Scalars['Float']['output']>;
+  user_level?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "users" */
+export type Users_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Users_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Users_Stream_Cursor_Value_Input = {
+  avatar_url?: InputMaybe<Scalars['String']['input']>;
+  ban_reason?: InputMaybe<Scalars['String']['input']>;
+  banned_until?: InputMaybe<Scalars['timestamp']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  display_name?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  is_banned?: InputMaybe<Scalars['Boolean']['input']>;
+  last_active?: InputMaybe<Scalars['timestamp']['input']>;
+  reputation_score?: InputMaybe<Scalars['Int']['input']>;
+  total_fish_created?: InputMaybe<Scalars['Int']['input']>;
+  total_votes_received?: InputMaybe<Scalars['Int']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamp']['input']>;
+  user_level?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Users_Sum_Fields = {
+  __typename?: 'users_sum_fields';
+  reputation_score?: Maybe<Scalars['Int']['output']>;
+  total_fish_created?: Maybe<Scalars['Int']['output']>;
+  total_votes_received?: Maybe<Scalars['Int']['output']>;
+  user_level?: Maybe<Scalars['Int']['output']>;
+};
+
+/** update columns of table "users" */
+export enum Users_Update_Column {
+  /** column name */
+  AvatarUrl = 'avatar_url',
+  /** column name */
+  BanReason = 'ban_reason',
+  /** column name */
+  BannedUntil = 'banned_until',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  DisplayName = 'display_name',
+  /** column name */
+  Email = 'email',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  IsBanned = 'is_banned',
+  /** column name */
+  LastActive = 'last_active',
+  /** column name */
+  ReputationScore = 'reputation_score',
+  /** column name */
+  TotalFishCreated = 'total_fish_created',
+  /** column name */
+  TotalVotesReceived = 'total_votes_received',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserLevel = 'user_level'
+}
+
+export type Users_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Users_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Users_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Users_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Users_Var_Pop_Fields = {
+  __typename?: 'users_var_pop_fields';
+  reputation_score?: Maybe<Scalars['Float']['output']>;
+  total_fish_created?: Maybe<Scalars['Float']['output']>;
+  total_votes_received?: Maybe<Scalars['Float']['output']>;
+  user_level?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Users_Var_Samp_Fields = {
+  __typename?: 'users_var_samp_fields';
+  reputation_score?: Maybe<Scalars['Float']['output']>;
+  total_fish_created?: Maybe<Scalars['Float']['output']>;
+  total_votes_received?: Maybe<Scalars['Float']['output']>;
+  user_level?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Users_Variance_Fields = {
+  __typename?: 'users_variance_fields';
+  reputation_score?: Maybe<Scalars['Float']['output']>;
+  total_fish_created?: Maybe<Scalars['Float']['output']>;
+  total_votes_received?: Maybe<Scalars['Float']['output']>;
+  user_level?: Maybe<Scalars['Float']['output']>;
 };
 
 /** Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'. */
@@ -4627,8 +6101,12 @@ export type Uuid_Comparison_Exp = {
 export type Votes = {
   __typename?: 'votes';
   created_at?: Maybe<Scalars['timestamp']['output']>;
+  /** An object relationship */
+  fish: Fish;
   fish_id: Scalars['uuid']['output'];
   id: Scalars['uuid']['output'];
+  /** An object relationship */
+  user: Users;
   user_id: Scalars['String']['output'];
   vote_type: Scalars['String']['output'];
 };
@@ -4638,6 +6116,17 @@ export type Votes_Aggregate = {
   __typename?: 'votes_aggregate';
   aggregate?: Maybe<Votes_Aggregate_Fields>;
   nodes: Array<Votes>;
+};
+
+export type Votes_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Votes_Aggregate_Bool_Exp_Count>;
+};
+
+export type Votes_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Votes_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Votes_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
 };
 
 /** aggregate fields of "votes" */
@@ -4655,14 +6144,30 @@ export type Votes_Aggregate_FieldsCountArgs = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** order by aggregate values of table "votes" */
+export type Votes_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Votes_Max_Order_By>;
+  min?: InputMaybe<Votes_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "votes" */
+export type Votes_Arr_Rel_Insert_Input = {
+  data: Array<Votes_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Votes_On_Conflict>;
+};
+
 /** Boolean expression to filter rows from the table "votes". All fields are combined with a logical 'AND'. */
 export type Votes_Bool_Exp = {
   _and?: InputMaybe<Array<Votes_Bool_Exp>>;
   _not?: InputMaybe<Votes_Bool_Exp>;
   _or?: InputMaybe<Array<Votes_Bool_Exp>>;
   created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  fish?: InputMaybe<Fish_Bool_Exp>;
   fish_id?: InputMaybe<Uuid_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
   user_id?: InputMaybe<String_Comparison_Exp>;
   vote_type?: InputMaybe<String_Comparison_Exp>;
 };
@@ -4678,8 +6183,10 @@ export enum Votes_Constraint {
 /** input type for inserting data into table "votes" */
 export type Votes_Insert_Input = {
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  fish?: InputMaybe<Fish_Obj_Rel_Insert_Input>;
   fish_id?: InputMaybe<Scalars['uuid']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
   user_id?: InputMaybe<Scalars['String']['input']>;
   vote_type?: InputMaybe<Scalars['String']['input']>;
 };
@@ -4694,6 +6201,15 @@ export type Votes_Max_Fields = {
   vote_type?: Maybe<Scalars['String']['output']>;
 };
 
+/** order by max() on columns of table "votes" */
+export type Votes_Max_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  fish_id?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+  vote_type?: InputMaybe<Order_By>;
+};
+
 /** aggregate min on columns */
 export type Votes_Min_Fields = {
   __typename?: 'votes_min_fields';
@@ -4702,6 +6218,15 @@ export type Votes_Min_Fields = {
   id?: Maybe<Scalars['uuid']['output']>;
   user_id?: Maybe<Scalars['String']['output']>;
   vote_type?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by min() on columns of table "votes" */
+export type Votes_Min_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  fish_id?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+  vote_type?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "votes" */
@@ -4723,8 +6248,10 @@ export type Votes_On_Conflict = {
 /** Ordering options when selecting data from "votes". */
 export type Votes_Order_By = {
   created_at?: InputMaybe<Order_By>;
+  fish?: InputMaybe<Fish_Order_By>;
   fish_id?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
   user_id?: InputMaybe<Order_By>;
   vote_type?: InputMaybe<Order_By>;
 };

@@ -851,22 +851,11 @@ function setupNewFishListener() {
 // Check for new fish using backend API instead of real-time listener
 async function checkForNewFish() {
     try {
-        // Build query parameters for backend API
-        const params = new URLSearchParams({
-            orderBy: 'CreatedAt',
-            order: 'desc',
-            limit: '5',
-            isVisible: 'true',
-            deleted: 'false'
-        });
-
-        const response = await fetch(`${BACKEND_URL}/api/fish?${params}`);
-
-        if (!response.ok) {
-            throw new Error(`Backend API failed: ${response.status}`);
-        }
-
-        const data = await response.json();
+        // 使用getFishBySort获取最新的鱼，确保使用正确的后端
+        const newFishDocs = await getFishBySort('recent', 5, null, 'desc', null);
+        
+        // 转换为后端API格式
+        const data = { data: newFishDocs };
 
         data.data.forEach((fishItem) => {
             // Handle different possible backend API formats

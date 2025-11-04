@@ -296,37 +296,8 @@ function generateRandomDocId() {
 
 // Get random documents using backend API
 async function getRandomFish(limit = 25, userId = null) {
-    try {
-        // Use the backend API with random parameter
-        const params = new URLSearchParams({
-            limit: limit.toString(),
-            orderBy: 'CreatedAt',
-            random: 'true',
-            isVisible: 'true',
-            deleted: 'false'
-        });
-
-        if (userId) {
-            params.append('userId', userId);
-        }
-
-        const response = await fetch(`${BACKEND_URL}/api/fish?${params}`);
-
-        if (!response.ok) {
-            throw new Error(`Backend API failed: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // Convert backend response to Firestore-like documents
-        return data.data.map(fishItem => ({
-            id: fishItem.id,
-            data: () => fishItem.data
-        }));
-    } catch (error) {
-        console.error('Error fetching random fish from backend:', error);
-        throw error;
-    }
+    // 使用getFishBySort的random模式，确保使用正确的后端
+    return await getFishBySort('random', limit, null, 'desc', userId);
 }
 
 
@@ -338,22 +309,54 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
     // 构建GraphQL查询
     let orderBy = { created_at: 'desc' };
     
-    switch (sortType) {
-        case 'hot':
-        case 'popular':
-            orderBy = { upvotes: 'desc' };
-            break;
-        case 'score':
-            orderBy = { upvotes: 'desc' }; // 可以创建一个计算字段
-            break;
-        case 'recent':
-        case 'date':
-            orderBy = { created_at: 'desc' };
-            break;
-        case 'random':
-            // Hasura的random需要使用函数
-            orderBy = { created_at: 'desc' }; // 临时方案
-            break;
+    // 对于random，使用随机offset
+    if (sortType === 'random') {
+        // 先获取总数，然后随机选择offset
+        const countQuery = `
+            query GetFishCount {
+                fish_aggregate(where: {is_approved: {_eq: true}, is_alive: {_eq: true}}) {
+                    aggregate {
+                        count
+                    }
+                }
+            }
+        `;
+        
+        try {
+            const countResponse = await fetch('/api/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: countQuery })
+            });
+            
+            if (countResponse.ok) {
+                const countResult = await countResponse.json();
+                const totalCount = countResult.data?.fish_aggregate?.aggregate?.count || 0;
+                
+                if (totalCount > limit) {
+                    // 随机选择一个offset
+                    offset = Math.floor(Math.random() * (totalCount - limit));
+                }
+            }
+        } catch (error) {
+            console.warn('无法获取鱼总数，使用默认offset:', error);
+        }
+        
+        orderBy = { created_at: 'desc' };
+    } else {
+        switch (sortType) {
+            case 'hot':
+            case 'popular':
+                orderBy = { upvotes: 'desc' };
+                break;
+            case 'score':
+                orderBy = { upvotes: 'desc' }; // 可以创建一个计算字段
+                break;
+            case 'recent':
+            case 'date':
+                orderBy = { created_at: 'desc' };
+                break;
+        }
     }
 
     const query = `

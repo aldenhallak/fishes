@@ -24,8 +24,8 @@ SELECT * FROM battle_config;
 在 Hasura Console → Data → public：
 
 点击 **"Track All"** 按钮，Track以下视图：
-- `fish_with_scores`
-- `battle_fish`  
+- `fish_rank`
+- `fish_battle`  
 - `user_fish_summary`
 
 ---

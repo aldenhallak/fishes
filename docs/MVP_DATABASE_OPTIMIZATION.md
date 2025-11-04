@@ -64,7 +64,7 @@ FROM fish
 LIMIT 5;
 
 -- 检查视图
-SELECT * FROM fish_with_scores LIMIT 5;
+SELECT * FROM fish_rank LIMIT 5;
 ```
 
 **预期输出：**
@@ -189,7 +189,7 @@ query {
 
 # 测试3: 使用增强的视图
 query {
-  fish_with_scores(limit: 10) {
+  fish_rank(limit: 10) {
     id
     image_url
     score
@@ -575,7 +575,7 @@ ALTER TABLE fish DROP COLUMN IF EXISTS score;
 ALTER TABLE fish DROP COLUMN IF EXISTS approval_rate;
 
 -- 3. 恢复原视图
-CREATE OR REPLACE VIEW fish_with_scores AS
+CREATE OR REPLACE VIEW fish_rank AS
 SELECT 
   f.*,
   (f.upvotes - f.downvotes) as score,

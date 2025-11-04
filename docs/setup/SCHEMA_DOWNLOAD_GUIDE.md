@@ -237,8 +237,8 @@ npm run download:schema
 - ✅ `economy_log` - 经济日志
 
 以及所有视图：
-- ✅ `fish_with_scores`
-- ✅ `battle_fish`
+- ✅ `fish_rank`
+- ✅ `fish_battle`
 - ✅ `user_fish_summary`
 
 ### TypeScript 类型

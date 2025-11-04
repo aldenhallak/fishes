@@ -106,8 +106,8 @@ type fish {
 - ✅ `user_economy` - 用户经济
 - ✅ `battle_log` - 战斗日志
 - ✅ `economy_log` - 经济日志
-- ✅ `fish_with_scores` - 视图
-- ✅ `battle_fish` - 视图
+- ✅ `fish_rank` - 视图
+- ✅ `fish_battle` - 视图
 - ✅ `user_fish_summary` - 视图
 
 ---

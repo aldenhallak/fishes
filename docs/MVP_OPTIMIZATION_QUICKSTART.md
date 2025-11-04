@@ -209,3 +209,4 @@ UPDATE users SET email = (SELECT email FROM auth.users WHERE id = users.id);
 4. 添加用户成就徽章
 
 
+

@@ -18,7 +18,7 @@
   
 - [ ] **验证表结构**
   - 7个表：fish, votes, reports, battle_config, user_economy, battle_log, economy_log
-  - 3个视图：fish_with_scores, battle_fish, user_fish_summary
+  - 3个视图：fish_rank, fish_battle, user_fish_summary
   - 2个触发器
 
 ---
