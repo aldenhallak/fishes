@@ -430,6 +430,11 @@
   </div>
 
   <!-- 加载依赖 -->
+  <!-- 开发环境：设置后端API地址 -->
+  <script>
+    // 设置后端API地址（开发环境为空字符串，使用相对路径）
+    window.BACKEND_URL = '';
+  </script>
   <script src="public/supabase-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="src/js/supabase-init.js"></script>

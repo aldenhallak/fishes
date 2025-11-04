@@ -1,0 +1,432 @@
+/**
+ * 认证UI样式
+ * 登录模态框、用户菜单等组件样式
+ */
+
+/* ============================================
+   登录按钮
+   ============================================ */
+.login-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #6366F1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.login-btn:hover {
+  background: #4F46E5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.login-btn svg {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   登录模态框
+   ============================================ */
+.auth-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+}
+
+.auth-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.auth-modal-content {
+  position: relative;
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 450px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.auth-modal-close:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.auth-modal-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.auth-modal-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.auth-modal-header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.auth-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-modal-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.auth-modal-footer p {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ============================================
+   OAuth登录按钮
+   ============================================ */
+.oauth-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.oauth-btn:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.oauth-btn:active {
+  transform: translateY(0);
+}
+
+.oauth-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.oauth-btn-text {
+  flex: 1;
+  text-align: left;
+}
+
+/* 各平台品牌色 */
+.oauth-btn-google:hover {
+  border-color: #4285F4;
+  background: #f8f9ff;
+}
+
+.oauth-btn-twitter:hover {
+  border-color: #000000;
+  background: #f5f5f5;
+}
+
+.oauth-btn-facebook:hover {
+  border-color: #1877F2;
+  background: #f0f7ff;
+}
+
+.oauth-btn-discord:hover {
+  border-color: #5865F2;
+  background: #f3f4ff;
+}
+
+.oauth-btn-apple:hover {
+  border-color: #000000;
+  background: #f5f5f5;
+}
+
+.oauth-btn-reddit:hover {
+  border-color: #FF4500;
+  background: #fff5f0;
+}
+
+/* ============================================
+   用户菜单
+   ============================================ */
+.user-container {
+  position: relative;
+  display: none;
+  align-items: center;
+}
+
+.user-menu-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-menu-trigger:hover {
+  border-color: #6366F1;
+  background: #f9fafb;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu-trigger svg {
+  flex-shrink: 0;
+  color: #9ca3af;
+  transition: transform 0.2s ease;
+}
+
+.user-dropdown.show .user-menu-trigger svg {
+  transform: rotate(180deg);
+}
+
+/* 下拉菜单 */
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 1000;
+}
+
+.user-dropdown.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-dropdown-item:first-child {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.user-dropdown-item:last-child {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.user-dropdown-item:hover {
+  background: #f3f4f6;
+  color: #6366F1;
+}
+
+.user-dropdown-item svg {
+  flex-shrink: 0;
+  color: #9ca3af;
+}
+
+.user-dropdown-item:hover svg {
+  color: #6366F1;
+}
+
+/* ============================================
+   响应式设计
+   ============================================ */
+@media (max-width: 768px) {
+  .auth-modal-content {
+    padding: 24px;
+    max-width: 95%;
+  }
+
+  .auth-modal-header h2 {
+    font-size: 20px;
+  }
+
+  .oauth-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .user-name {
+    max-width: 80px;
+  }
+
+  .user-dropdown {
+    right: -20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-btn .btn-text {
+    display: none;
+  }
+
+  .login-btn {
+    padding: 8px 12px;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .user-menu-trigger {
+    padding: 6px;
+  }
+
+  .oauth-btn-text {
+    font-size: 13px;
+  }
+}
+
+/* ============================================
+   动画效果
+   ============================================ */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.oauth-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   无障碍支持
+   ============================================ */
+.oauth-btn:focus,
+.login-btn:focus,
+.user-menu-trigger:focus,
+.user-dropdown-item:focus {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+.auth-modal-close:focus {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+

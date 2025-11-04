@@ -14,26 +14,66 @@ function escapeHtml(unsafe) {
         .replace(/'/g, "&#039;");
 }
 
-// Configuration for backend URL - automatically detects environment with URL override support
-const isLocalhost = window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1' ||
-    window.location.hostname.includes('localhost');
+// Configuration for backend URL - dynamically loaded from API
+// 后端配置（会从API异步加载）
+let backendConfig = {
+    backend: 'hasura', // 默认使用hasura
+    useHasura: true,
+    useOriginal: false,
+    originalBackendUrl: null,
+    hasuraEndpoint: '/api/graphql',
+    loaded: false
+};
 
 // Check for URL parameter override (useful for testing)
 const urlParams = new URLSearchParams(window.location.search);
 const forceLocal = urlParams.get('local') === 'true';
 const forceProd = urlParams.get('prod') === 'true';
 
-// 声明为全局变量，确保所有文件都能访问
-// 临时使用生产环境后端进行测试
-window.BACKEND_URL = forceLocal 
-    ? 'http://localhost:8080'
-    : forceProd 
-    ? 'https://fishes-be-571679687712.northamerica-northeast1.run.app'
-    : 'https://fishes-be-571679687712.northamerica-northeast1.run.app'; // 暂时强制使用生产环境
+// 临时的BACKEND_URL（用于兼容旧代码，在配置加载后会更新）
+window.BACKEND_URL = 'https://fishes-be-571679687712.northamerica-northeast1.run.app';
 
-// 创建一个别名以保持向后兼容
+// URL参数强制覆盖
+if (forceLocal) {
+    window.BACKEND_URL = 'http://localhost:8080';
+} else if (forceProd) {
+    window.BACKEND_URL = 'https://fishes-be-571679687712.northamerica-northeast1.run.app';
+}
+
 const BACKEND_URL = window.BACKEND_URL;
+
+/**
+ * 加载后端配置
+ */
+async function loadBackendConfig() {
+    if (backendConfig.loaded) return backendConfig;
+    
+    try {
+        const response = await fetch('/api/config/backend');
+        if (response.ok) {
+            const config = await response.json();
+            backendConfig = { ...config, loaded: true };
+            
+            // 更新BACKEND_URL
+            if (config.useOriginal && config.originalBackendUrl) {
+                window.BACKEND_URL = config.originalBackendUrl;
+            }
+            
+            console.log(`🔧 后端配置: ${config.backend === 'hasura' ? 'Hasura数据库' : '原作者后端'}`);
+        } else {
+            console.warn('⚠️ 无法加载后端配置，使用默认值');
+            backendConfig.loaded = true;
+        }
+    } catch (error) {
+        console.warn('⚠️ 加载后端配置失败，使用默认值:', error);
+        backendConfig.loaded = true;
+    }
+    
+    return backendConfig;
+}
+
+// 导出配置加载函数
+window.loadBackendConfig = loadBackendConfig;
 
 // Calculate fish score (upvotes - downvotes)
 function calculateScore(fish) {
@@ -291,9 +331,114 @@ async function getRandomFish(limit = 25, userId = null) {
 
 
 
+/**
+ * 从Hasura获取鱼数据
+ */
+async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null) {
+    // 构建GraphQL查询
+    let orderBy = { created_at: 'desc' };
+    
+    switch (sortType) {
+        case 'hot':
+        case 'popular':
+            orderBy = { upvotes: 'desc' };
+            break;
+        case 'score':
+            orderBy = { upvotes: 'desc' }; // 可以创建一个计算字段
+            break;
+        case 'recent':
+        case 'date':
+            orderBy = { created_at: 'desc' };
+            break;
+        case 'random':
+            // Hasura的random需要使用函数
+            orderBy = { created_at: 'desc' }; // 临时方案
+            break;
+    }
+
+    const query = `
+        query GetFish($limit: Int!, $offset: Int!, $orderBy: [fish_order_by!], $userId: String) {
+            fish(
+                where: {
+                    is_approved: { _eq: true },
+                    is_alive: { _eq: true }
+                    ${userId ? ', user_id: { _eq: $userId }' : ''}
+                }
+                limit: $limit
+                offset: $offset
+                order_by: $orderBy
+            ) {
+                id
+                user_id
+                artist
+                image_url
+                created_at
+                talent
+                upvotes
+                downvotes
+                level
+                experience
+                health
+                max_health
+            }
+        }
+    `;
+
+    const variables = {
+        limit,
+        offset,
+        orderBy: [orderBy]
+    };
+
+    if (userId) {
+        variables.userId = userId;
+    }
+
+    try {
+        const response = await fetch('/api/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, variables })
+        });
+
+        if (!response.ok) {
+            throw new Error(`GraphQL request failed: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.errors) {
+            throw new Error(result.errors[0].message);
+        }
+
+        // 转换为Firestore-like格式
+        return result.data.fish.map(fish => ({
+            id: fish.id,
+            data: () => ({
+                ...fish,
+                Artist: fish.artist,
+                Image: fish.image_url,
+                CreatedAt: { _seconds: new Date(fish.created_at).getTime() / 1000 }
+            })
+        }));
+    } catch (error) {
+        console.error('Error fetching fish from Hasura:', error);
+        throw error;
+    }
+}
+
 // Get fish from backend API with caching
 async function getFishBySort(sortType, limit = 25, startAfter = null, direction = 'desc', userId = null) {
-    // Create the backend API request
+    // 先加载配置
+    await loadBackendConfig();
+
+    // 如果使用Hasura
+    if (backendConfig.useHasura) {
+        const offset = startAfter || 0;
+        return await getFishFromHasura(sortType, limit, offset, userId);
+    }
+
+    // 使用原作者后端API
     const queryPromise = async () => {
         // Build query parameters to match your backend API
         const params = new URLSearchParams({

@@ -53,6 +53,30 @@ const server = http.createServer(async (req, res) => {
         delete require.cache[require.resolve(apiFile)];
         const handler = require(apiFile);
         
+        // 解析JSON请求体
+        if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+          let body = '';
+          req.on('data', chunk => {
+            body += chunk.toString();
+          });
+          
+          await new Promise((resolve) => {
+            req.on('end', () => {
+              try {
+                if (body && req.headers['content-type']?.includes('application/json')) {
+                  req.body = JSON.parse(body);
+                } else {
+                  req.body = {};
+                }
+              } catch (e) {
+                console.error('JSON解析错误:', e);
+                req.body = {};
+              }
+              resolve();
+            });
+          });
+        }
+        
         // 包装 res 对象以支持 Vercel 风格的 API
         res.status = function(code) {
           res.statusCode = code;
@@ -68,7 +92,7 @@ const server = http.createServer(async (req, res) => {
         // 记录请求信息用于调试
         console.log(`API调用: ${req.method} ${pathname}`);
         console.log(`Content-Type: ${req.headers['content-type']}`);
-        console.log(`Content-Length: ${req.headers['content-length']}`);
+        console.log(`Request Body:`, req.body);
         
         await handler(req, res);
         return;

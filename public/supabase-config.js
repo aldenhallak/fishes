@@ -8,13 +8,36 @@
  * <script src="/src/js/supabase-init.js"></script>
  */
 
-// 这些值在生产环境由Vercel自动注入
-// 开发环境需要手动配置
-window.SUPABASE_URL = 'YOUR_SUPABASE_URL';
-window.SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+// 开发环境：从API获取配置
+// 生产环境：由Vercel自动注入环境变量
+window.supabaseConfigReady = false;
 
-// 提示：请在部署前替换上面的值，或通过Vercel环境变量注入
-console.log('📝 Supabase配置已加载，请确保已设置正确的URL和KEY');
+(async function loadSupabaseConfig() {
+  try {
+    // 尝试从API获取配置（开发环境）
+    const response = await fetch('/api/config/supabase');
+    if (response.ok) {
+      const config = await response.json();
+      window.SUPABASE_URL = config.url;
+      window.SUPABASE_ANON_KEY = config.anonKey;
+      console.log('✅ Supabase config loaded from API');
+      window.supabaseConfigReady = true;
+      window.dispatchEvent(new Event('supabaseConfigReady'));
+    } else {
+      throw new Error('Failed to load config from API');
+    }
+  } catch (error) {
+    // 如果API加载失败，使用占位符（需要手动配置）
+    console.warn('⚠️ Unable to load Supabase config:', error.message);
+    console.warn('📝 Please configure environment variables or manually set window.SUPABASE_URL and window.SUPABASE_ANON_KEY');
+    
+    // 占位符
+    window.SUPABASE_URL = window.SUPABASE_URL || 'YOUR_SUPABASE_URL';
+    window.SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+    window.supabaseConfigReady = true;
+    window.dispatchEvent(new Event('supabaseConfigReady'));
+  }
+})();
 
 
 

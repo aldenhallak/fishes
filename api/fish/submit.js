@@ -17,10 +17,36 @@ require('dotenv').config({ path: '.env.local' });
 const HASURA_GRAPHQL_ENDPOINT = process.env.HASURA_GRAPHQL_ENDPOINT;
 const HASURA_ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET;
 
+// 检查环境变量配置
+console.log('\n=== Hasura配置检查 ===');
+console.log('HASURA_GRAPHQL_ENDPOINT:', HASURA_GRAPHQL_ENDPOINT || '未设置');
+console.log('HASURA_ADMIN_SECRET:', HASURA_ADMIN_SECRET ? '已设置' : '未设置');
+console.log('========================\n');
+
+// 验证Hasura配置
+if (!HASURA_GRAPHQL_ENDPOINT) {
+  console.error('❌ 错误：HASURA_GRAPHQL_ENDPOINT 未设置');
+  console.error('请在 .env.local 文件中设置：');
+  console.error('HASURA_GRAPHQL_ENDPOINT=https://your-project.hasura.app/v1/graphql');
+}
+
+if (!HASURA_ADMIN_SECRET) {
+  console.error('❌ 错误：HASURA_ADMIN_SECRET 未设置');
+  console.error('请在 .env.local 文件中设置：');
+  console.error('HASURA_ADMIN_SECRET=your-admin-secret');
+}
+
 // 创建新鱼消耗的鱼食数量
 const CREATE_COST = 2;
 
 async function queryHasura(query, variables = {}) {
+  if (!HASURA_GRAPHQL_ENDPOINT || !HASURA_ADMIN_SECRET) {
+    throw new Error('Hasura配置缺失，请检查 .env.local 文件');
+  }
+
+  console.log('发送GraphQL请求到:', HASURA_GRAPHQL_ENDPOINT);
+  console.log('查询变量:', JSON.stringify(variables, null, 2));
+
   const response = await fetch(HASURA_GRAPHQL_ENDPOINT, {
     method: 'POST',
     headers: {
@@ -30,7 +56,15 @@ async function queryHasura(query, variables = {}) {
     body: JSON.stringify({ query, variables })
   });
   
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('HTTP错误:', response.status, response.statusText);
+    console.error('响应内容:', errorText);
+    throw new Error(`HTTP ${response.status}: ${errorText}`);
+  }
+
   const result = await response.json();
+  console.log('GraphQL响应:', JSON.stringify(result, null, 2));
   
   if (result.errors) {
     console.error('Hasura错误:', result.errors);
@@ -121,31 +155,29 @@ module.exports = async function handler(req, res) {
     // 4. 执行事务：创建鱼 + 扣除鱼食 + 记录日志
     const transactionQuery = `
       mutation SubmitFish(
-        $userId: String!,
-        $imageUrl: String!,
-        $artist: String!,
-        $talent: Int!,
-        $createCost: Int!
+        $userId: String!
+        $imageUrl: String!
+        $artist: String!
+        $talent: Int!
       ) {
-        # 创建鱼
         insert_fish_one(
           object: {
-            user_id: $userId,
-            image_url: $imageUrl,
-            artist: $artist,
-            talent: $talent,
-            level: 1,
-            experience: 0,
-            health: 10,
-            max_health: 10,
-            upvotes: 0,
-            downvotes: 0,
-            battle_power: 0,
-            is_alive: true,
-            is_approved: true,
-            is_in_battle_mode: false,
-            position_row: 0,
-            total_wins: 0,
+            user_id: $userId
+            image_url: $imageUrl
+            artist: $artist
+            talent: $talent
+            level: 1
+            experience: 0
+            health: 10
+            max_health: 10
+            upvotes: 0
+            downvotes: 0
+            battle_power: 0
+            is_alive: true
+            is_approved: true
+            is_in_battle_mode: false
+            position_row: 0
+            total_wins: 0
             total_losses: 0
           }
         ) {
@@ -160,10 +192,9 @@ module.exports = async function handler(req, res) {
           created_at
         }
         
-        # 扣除鱼食
         update_user_economy_by_pk(
-          pk_columns: { user_id: $userId },
-          _inc: { fish_food: -$createCost, total_spent: $createCost }
+          pk_columns: { user_id: $userId }
+          _inc: { fish_food: -2 total_spent: 2 }
         ) {
           fish_food
         }
@@ -174,8 +205,7 @@ module.exports = async function handler(req, res) {
       userId,
       imageUrl,
       artist: artist || 'Anonymous',
-      talent,
-      createCost: CREATE_COST
+      talent
     });
     
     const newFish = result.insert_fish_one;

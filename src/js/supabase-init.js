@@ -6,18 +6,33 @@
 // 注意：在浏览器环境中使用CDN引入的@supabase/supabase-js
 // <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-// 从环境变量或全局配置读取（生产环境从Vercel环境变量注入）
-const SUPABASE_URL = window.SUPABASE_URL || 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+// Supabase客户端（将在配置加载后初始化）
+let supabase = null;
 
-// 创建Supabase客户端
-const supabase = window.supabase?.createClient 
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
-
-if (!supabase) {
-  console.error('⚠️ Supabase SDK未加载，请确保引入了CDN脚本');
+// 初始化Supabase客户端
+async function initializeSupabaseClient() {
+  // 等待配置加载
+  if (!window.supabaseConfigReady) {
+    await new Promise(resolve => {
+      window.addEventListener('supabaseConfigReady', resolve, { once: true });
+    });
+  }
+  
+  const SUPABASE_URL = window.SUPABASE_URL || 'YOUR_SUPABASE_URL';
+  const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+  
+  if (!window.supabase?.createClient) {
+    console.error('⚠️ Supabase SDK not loaded, please ensure CDN script is included');
+    return null;
+  }
+  
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  console.log('✅ Supabase client initialized');
+  return supabase;
 }
+
+// 立即开始初始化
+initializeSupabaseClient();
 
 // ====================================
 // 认证相关函数
@@ -92,6 +107,41 @@ async function signOut() {
   } catch (error) {
     console.error('❌ 登出失败:', error.message);
     return { error };
+  }
+}
+
+/**
+ * 社交账号登录 (OAuth)
+ * @param {string} provider - 提供商: 'google', 'twitter', 'facebook', 'discord', 'apple', 'reddit'
+ * @returns {Promise<{data, error}>}
+ */
+async function signInWithOAuth(provider) {
+  if (!supabase) return { data: null, error: new Error('Supabase未初始化') };
+  
+  const validProviders = ['google', 'twitter', 'facebook', 'discord', 'apple', 'reddit'];
+  if (!validProviders.includes(provider)) {
+    return { 
+      data: null, 
+      error: new Error(`不支持的提供商: ${provider}。支持的提供商: ${validProviders.join(', ')}`) 
+    };
+  }
+  
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: provider,
+      options: {
+        redirectTo: `${window.location.origin}/index.html`,
+        skipBrowserRedirect: false
+      }
+    });
+    
+    if (error) throw error;
+    
+    console.log(`✅ 正在使用 ${provider} 登录...`);
+    return { data, error: null };
+  } catch (error) {
+    console.error(`❌ ${provider} 登录失败:`, error.message);
+    return { data: null, error };
   }
 }
 
@@ -253,13 +303,17 @@ async function getUserDisplayName() {
 // 导出到全局
 // ====================================
 
+// 导出认证函数（立即可用，即使客户端还在初始化）
 window.supabaseAuth = {
-  // 客户端
-  client: supabase,
+  // 客户端（getter，确保获取最新的客户端实例）
+  get client() {
+    return supabase;
+  },
   
   // 认证函数
   signUp,
   signIn,
+  signInWithOAuth,
   signOut,
   getCurrentUser,
   getSession,
@@ -278,7 +332,7 @@ window.supabaseAuth = {
 window.getCurrentUser = getCurrentUser;
 window.isLoggedIn = isLoggedIn;
 
-console.log('✅ Supabase认证模块已加载');
+console.log('✅ Supabase auth module loaded');
 
 
 

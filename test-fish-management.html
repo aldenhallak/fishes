@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>鱼管理测试 - Fish Art</title>
-  <link rel="stylesheet" href="src/css/common.css">
+  <!-- <link rel="stylesheet" href="src/css/common.css"> -->
   <style>
     body {
       background: #f7fafc;
@@ -405,9 +405,15 @@
   </div>
 
   <!-- 加载依赖 -->
-  <script src="public/supabase-config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="src/js/supabase-init.js"></script>
+  <!-- 开发环境：创建空的认证对象，避免Supabase错误 -->
+  <script>
+    window.supabaseAuth = {
+      getAccessToken: async () => null,
+      isLoggedIn: async () => false
+    };
+    // 设置后端API地址（开发环境为空字符串，使用相对路径）
+    window.BACKEND_URL = '';
+  </script>
   <script src="src/js/test-utils.js"></script>
   
   <script>
@@ -439,9 +445,13 @@
       const submitBtn = e.target.querySelector('button[type="submit"]');
       setButtonLoading(submitBtn, true);
       
+      // 开发环境：使用测试用户ID
+      const userId = 'test-user-' + Date.now();
+      
       const result = await apiCall(`${window.BACKEND_URL}/api/fish/submit`, {
         method: 'POST',
         body: {
+          userId,
           imageUrl,
           artist: artist || undefined
         }
