@@ -126,7 +126,7 @@ function createFishImageDataUrl(imgUrl, callback) {
     img.src = imgUrl;
 }
 
-// Date formatting and score calculation are now in fish-utils.js
+// Date formatting is now in fish-utils.js
 
 // Vote sending function is now in fish-utils.js
 
@@ -136,23 +136,16 @@ function handleVote(fishId, voteType, button) {
         // Update the fish data in allFishData array
         const fish = allFishData.find(f => f.docId === fishId);
         if (fish) {
-            // Check for different response formats and update accordingly
-            if (result.upvotes !== undefined && result.downvotes !== undefined) {
+            // Update upvotes based on result
+            if (result.upvotes !== undefined) {
                 fish.upvotes = result.upvotes;
-                fish.downvotes = result.downvotes;
-            } else if (result.updatedFish) {
-                fish.upvotes = result.updatedFish.upvotes || fish.upvotes || 0;
-                fish.downvotes = result.updatedFish.downvotes || fish.downvotes || 0;
-            } else if (result.success) {
-                if (voteType === 'up') {
-                    fish.upvotes = (fish.upvotes || 0) + 1;
-                } else {
-                    fish.downvotes = (fish.downvotes || 0) + 1;
-                }
+            } else if (result.updatedFish && result.updatedFish.upvotes !== undefined) {
+                fish.upvotes = result.updatedFish.upvotes;
+            } else if (result.action === 'upvote') {
+                fish.upvotes = (fish.upvotes || 0) + 1;
+            } else if (result.action === 'cancel_upvote') {
+                fish.upvotes = Math.max(0, (fish.upvotes || 0) - 1);
             }
-
-            // Always recalculate score
-            fish.score = calculateScore(fish);
 
             // Update the display
             updateFishCard(fishId);
@@ -170,15 +163,7 @@ function updateFishCard(fishId) {
         return;
     }
 
-    const scoreElement = document.querySelector(`.fish-card[data-fish-id="${fishId}"] .fish-score`);
     const upvoteElement = document.querySelector(`.fish-card[data-fish-id="${fishId}"] .upvote-count`);
-    const downvoteElement = document.querySelector(`.fish-card[data-fish-id="${fishId}"] .downvote-count`);
-
-    if (scoreElement) {
-        scoreElement.textContent = `Score: ${fish.score || 0}`;
-    } else {
-        console.error(`Score element not found for fish ${fishId}`);
-    }
 
     if (upvoteElement) {
         upvoteElement.textContent = fish.upvotes || 0;
@@ -186,11 +171,6 @@ function updateFishCard(fishId) {
         console.error(`Upvote element not found for fish ${fishId}`);
     }
 
-    if (downvoteElement) {
-        downvoteElement.textContent = fish.downvotes || 0;
-    } else {
-        console.error(`Downvote element not found for fish ${fishId}`);
-    }
 
     // Force a repaint to ensure the UI updates
     const fishCard = document.querySelector(`.fish-card[data-fish-id="${fishId}"]`);
@@ -204,9 +184,7 @@ function updateFishCard(fishId) {
 
 // Create fish card HTML
 function createFishCard(fish) {
-    const score = fish.score || 0;
     const upvotes = fish.upvotes || 0;
-    const downvotes = fish.downvotes || 0;
     const userToken = localStorage.getItem('userToken');
     
     // Check if this is the current user's fish
@@ -217,6 +195,10 @@ function createFishCard(fish) {
 
     const fishImageContainer =
         `<div class="fish-image-container" onclick="showAddToTankModal('${fish.docId}')" title="Click to add to your tank" style="cursor: pointer;">`;
+    
+    // Only show favorite button for other users' fish and if user is logged in
+    const showFavoriteButton = userToken && !isCurrentUserFish;
+    
     return `
         <div class="fish-card${userFishClass}" data-fish-id="${fish.docId}">
             ${fishImageContainer}
@@ -230,15 +212,16 @@ function createFishCard(fish) {
                     </a>
                 </div>
                 <div class="fish-date">${formatDate(fish.CreatedAt)}</div>
-                <div class="fish-score">Score: ${score}</div>
             </div>
             <div class="voting-controls">
                 <button class="vote-btn upvote-btn" onclick="handleVote('${fish.docId}', 'up', this)">
                     👍 <span class="vote-count upvote-count">${upvotes}</span>
                 </button>
-                <button class="vote-btn downvote-btn" onclick="handleVote('${fish.docId}', 'down', this)">
-                    👎 <span class="vote-count downvote-count">${downvotes}</span>
+                ${showFavoriteButton ? `
+                <button class="favorite-btn" id="fav-btn-${fish.docId}" onclick="handleFavoriteClick('${fish.docId}', event)" title="Add to favorites">
+                    🤍
                 </button>
+                ` : ''}
                 <button class="report-btn" onclick="handleReport('${fish.docId}', this)" title="Report inappropriate content">
                     🚩
                 </button>
@@ -252,12 +235,6 @@ function sortFish(fishData, sortType, direction = 'desc') {
     const sorted = [...fishData];
 
     switch (sortType) {
-        case 'score':
-            return sorted.sort((a, b) => {
-                const scoreA = a.score || 0;
-                const scoreB = b.score || 0;
-                return direction === 'desc' ? scoreB - scoreA : scoreA - scoreB;
-            });
         case 'date':
             return sorted.sort((a, b) => {
                 const dateA = a.createdAt ? new Date(a.createdAt.toDate ? a.createdAt.toDate() : a.createdAt) : new Date(0);
@@ -323,9 +300,6 @@ function updateSortButtonText() {
             case 'hot':
                 baseText = 'Sort by Hot';
                 break;
-            case 'score':
-                baseText = 'Sort by Score';
-                break;
             case 'date':
                 baseText = 'Sort by Date';
                 break;
@@ -338,9 +312,7 @@ function updateSortButtonText() {
         // Add arrow for current sort (except random)
         if (sortType === currentSort && sortType !== 'random') {
             arrow = sortDirection === 'desc' ? ' ↓' : ' ↑';
-            tooltip = sortType === 'score'
-                ? (sortDirection === 'desc' ? 'Highest score first' : 'Lowest score first')
-                : (sortDirection === 'desc' ? 'Newest first' : 'Oldest first');
+            tooltip = sortDirection === 'desc' ? 'Newest first' : 'Oldest first';
         } else if (sortType !== 'random') {
             tooltip = `Click to sort by ${sortType}. Click again to reverse order.`;
         }
@@ -465,8 +437,7 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
             const data = doc.data();
             const fish = {
                 ...data,
-                docId: doc.id,
-                score: calculateScore(data)
+                docId: doc.id
             };
             return fish;
         });
@@ -479,14 +450,7 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
             lastDoc = fishDocs[fishDocs.length - 1];
         }
 
-        // Apply client-side sorting for score (random is already handled by DB query)
-        if (sortType === 'score') {
-            validFish.sort((a, b) => {
-                const scoreA = a.score || 0;
-                const scoreB = b.score || 0;
-                return sortDirection === 'desc' ? scoreB - scoreA : scoreA - scoreB;
-            });
-        }
+        // Note: Client-side sorting for score removed (now only using upvotes)
 
         if (isInitialLoad) {
             allFishData = validFish;
@@ -637,6 +601,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // Load initial fish data
     loadFishData();
+    
+    // Initialize favorite buttons if user is logged in
+    initializeFavoriteButtons();
 });
 
 // Handle reporting - rank page specific
@@ -649,8 +616,82 @@ function handleReport(fishId, button) {
 
 // Modal functions are now handled by modal-utils.js
 
+// Handle favorite click
+async function handleFavoriteClick(fishId, event) {
+    if (event) event.stopPropagation();
+    
+    const button = document.getElementById(`fav-btn-${fishId}`);
+    if (!button) return;
+    
+    // Check if user is logged in
+    const userToken = localStorage.getItem('userToken');
+    if (!userToken) {
+        FishTankFavorites.showToast('Please login to favorite fish', 'info');
+        return;
+    }
+    
+    try {
+        button.disabled = true;
+        
+        // Check if already favorited
+        const isFav = await FishTankFavorites.isFavorite(fishId);
+        
+        if (isFav) {
+            // Remove from favorites
+            await FishTankFavorites.removeFromFavorites(fishId);
+            button.innerHTML = '🤍';
+            button.title = 'Add to favorites';
+            FishTankFavorites.showToast('Removed from favorites');
+        } else {
+            // Add to favorites
+            await FishTankFavorites.addToFavorites(fishId);
+            button.innerHTML = '❤️';
+            button.title = 'Remove from favorites';
+            button.classList.add('favorited');
+            FishTankFavorites.showToast('Added to favorites!');
+        }
+        
+    } catch (error) {
+        console.error('Error toggling favorite:', error);
+        FishTankFavorites.showToast(error.message || 'Failed to update favorite', 'error');
+    } finally {
+        button.disabled = false;
+    }
+}
+
+// Initialize favorite buttons state on page load
+async function initializeFavoriteButtons() {
+    const userToken = localStorage.getItem('userToken');
+    if (!userToken) return;
+    
+    try {
+        // Initialize the favorites cache
+        await FishTankFavorites.initializeCache();
+        
+        // Update all favorite buttons
+        allFishData.forEach(async (fish) => {
+            const button = document.getElementById(`fav-btn-${fish.docId}`);
+            if (button) {
+                const isFav = await FishTankFavorites.isFavorite(fish.docId);
+                if (isFav) {
+                    button.innerHTML = '❤️';
+                    button.title = 'Remove from favorites';
+                    button.classList.add('favorited');
+                } else {
+                    button.innerHTML = '🤍';
+                    button.title = 'Add to favorites';
+                    button.classList.remove('favorited');
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error initializing favorite buttons:', error);
+    }
+}
+
 // Make functions globally available
 window.handleVote = handleVote;
 window.handleReport = handleReport;
+window.handleFavoriteClick = handleFavoriteClick;
 // Modal functions are now handled by modal-utils.js
 // showAddToTankModal, closeAddToTankModal, and closeLoginPromptModal are exported there

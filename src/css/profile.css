@@ -114,7 +114,7 @@
 
 .profile-actions {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 15px;
     flex-wrap: wrap;
 }

@@ -132,15 +132,6 @@
             color: #4F46E5;
         }
         
-        .downvote-btn {
-            color: #FF6B9D;
-        }
-        
-        .downvote-btn:hover {
-            background: linear-gradient(135deg, #FFE5EC, #FFCDD2);
-            border-color: #FF6B9D;
-            color: #C62828;
-        }
         
         .report-btn {
             padding: 10px 14px;
@@ -558,6 +549,9 @@
         <button id="tank-share-btn" class="cute-button" style="padding: 6px 16px; font-size: 13px; background: linear-gradient(135deg, #FF6B9D, #FF8F6B); color: white; border: none; font-weight: 600; box-shadow: 0 4px 12px rgba(255, 107, 157, 0.4); transition: all 0.3s ease;">
           📤 Share
         </button>
+        <button id="tank-battle-btn" class="cute-button" style="padding: 6px 16px; font-size: 13px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4); transition: all 0.3s ease;">
+          ⚔️ Battle
+        </button>
         <label class="cute-checkbox" style="margin: 0;">
           <input type="checkbox" id="notifications-toggle" checked>
           <span class="checkmark"></span>
@@ -565,7 +559,7 @@
         </label>
         <a href="rank.html" class="cute-button cute-button-primary" style="padding: 6px 12px; font-size: 13px;">⭐</a>
         <a href="profile.html" class="cute-button cute-button-primary" style="padding: 6px 12px; font-size: 13px;">👤</a>
-        <a href="fishtanks.html" id="my-tanks-link" class="cute-button cute-button-primary" style="padding: 6px 12px; font-size: 13px;">🏆</a>
+        <a href="mytank.html" id="my-tanks-link" class="cute-button cute-button-primary" style="padding: 6px 12px; font-size: 13px;">🏆</a>
       </div>
     </div>
     
@@ -599,10 +593,15 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="src/js/supabase-init.js"></script>
   <script src="src/js/fish-utils.js"></script>
+  <script src="src/js/fishtank-favorites.js"></script>
+  <script src="src/js/auth-ui.js"></script>
   <script src="src/js/modal-utils.js"></script>
   <script src="src/js/social-config.js?v=2.1"></script>
   <script src="src/js/social-share.js?v=2.1"></script>
-  <script src="src/js/tank.js"></script>
+  <!-- Battle System Client -->
+  <script src="src/js/battle-client.js"></script>
+  <script src="src/js/battle-animation.js"></script>
+    <script src="src/js/tank.js?v=3.3"></script>
   <script>
     // Initialize navigation authentication
     initializeAuthNavigation();
@@ -625,6 +624,130 @@
       tankShareBtn.addEventListener('mouseleave', () => {
         tankShareBtn.style.transform = 'translateY(0) scale(1)';
         tankShareBtn.style.boxShadow = '0 4px 12px rgba(255, 107, 157, 0.4)';
+      });
+    }
+    
+    // Battle button handler
+    const tankBattleBtn = document.getElementById('tank-battle-btn');
+    if (tankBattleBtn) {
+      tankBattleBtn.addEventListener('click', async () => {
+        try {
+          // Get current user
+          const user = await window.supabaseAuth.getUser();
+          if (!user) {
+            alert('请先登录才能进入战斗模式！');
+            if (window.authUI && window.authUI.showLoginModal) {
+                window.authUI.showLoginModal();
+            }
+            return;
+          }
+          
+          // Check if there are any fish in the global tank
+          if (!window.fishes || window.fishes.length === 0) {
+            alert('鱼缸中暂时没有鱼！请稍后再试。');
+            return;
+          }
+          
+          // Find user's fish in the global tank - 支持多种用户ID字段名
+          console.log('🔍 [tank.html] 当前用户:', user);
+          console.log('🔍 [tank.html] 鱼缸中的鱼数量:', window.fishes.length);
+          console.log('🔍 [tank.html] 鱼缸中的鱼:', window.fishes.map(f => ({
+            id: f.docId || f.id,
+            artist: f.artist,
+            userId: f.userId,
+            UserId: f.UserId,
+            user_id: f.user_id,
+            owner_id: f.owner_id,
+            ownerId: f.ownerId
+          })));
+          
+          const userFish = window.fishes.filter(fish => {
+            // 尝试所有可能的用户ID字段名
+            const fishUserId = fish.user_id || fish.UserId || fish.userId || fish.owner_id || fish.ownerId;
+            console.log(`🔍 [tank.html] 比较: 鱼 ${fish.docId || fish.id} 的userId=${fishUserId}, 当前用户=${user.id}`);
+            return fishUserId === user.id;
+          });
+          
+          console.log('🔍 [tank.html] 用户的鱼数量:', userFish.length);
+          
+          if (userFish.length === 0) {
+            alert(`你还没有画过鱼！\n\n当前用户ID: ${user.id}\n鱼缸中共有 ${window.fishes.length} 条鱼\n请先画一条鱼。\n\n请检查浏览器控制台查看详细信息。`);
+            if (confirm('是否前往画鱼页面？')) {
+              window.location.href = 'index.html';
+            }
+            return;
+          }
+          
+          // Use the first fish for battle
+          const selectedFish = userFish[0];
+          const fishId = selectedFish.docId || selectedFish.id;
+          
+          // Show loading state
+          const originalText = tankBattleBtn.innerHTML;
+          tankBattleBtn.innerHTML = '⏳ 进入中...';
+          tankBattleBtn.disabled = true;
+          
+          // Check if BattleClient is loaded
+          if (typeof BattleClient === 'undefined') {
+            alert('战斗系统正在加载中...');
+            tankBattleBtn.innerHTML = originalText;
+            tankBattleBtn.disabled = false;
+            return;
+          }
+          
+          // Call enter battle mode API
+          const result = await BattleClient.enterBattleMode(user.id, fishId);
+          
+          if (result.success) {
+            console.log('✅ 成功进入战斗模式API');
+            
+            // 设置战斗模式标志 - 开始碰撞检测
+            window.isBattleMode = true;
+            console.log('🎮 战斗模式已启用，开始碰撞检测');
+            
+            // 重新加载鱼缸为战斗模式
+            if (typeof window.reloadTankForBattleMode === 'function') {
+              await window.reloadTankForBattleMode(20); // 加载20条战斗鱼
+            }
+            
+            alert(`✅ 成功进入战斗模式！\n\n当前在线: ${result.currentUsers}/${result.maxUsers}\n鱼: ${selectedFish.Artist || selectedFish.artist || 'Anonymous'}\n\n⚔️ 战斗将在鱼缸内自动进行！\n当你的鱼与其他鱼碰撞时会触发战斗动画。`);
+            tankBattleBtn.innerHTML = '✓ 战斗中';
+            tankBattleBtn.style.background = 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)';
+            tankBattleBtn.disabled = false;
+            
+            // 战斗在当前鱼缸页面内实时进行，无需跳转
+          } else if (result.inQueue) {
+            alert(`⏳ 战斗模式已满！\n\n已加入排队：第 ${result.position} 位\n预计等待：${result.estimatedWait}秒`);
+            tankBattleBtn.innerHTML = originalText;
+            tankBattleBtn.disabled = false;
+          } else {
+            alert(`❌ 进入失败：${result.error || result.message}`);
+            tankBattleBtn.innerHTML = originalText;
+            tankBattleBtn.disabled = false;
+          }
+          
+        } catch (error) {
+          console.error('进入战斗模式错误:', error);
+          alert(`❌ 错误：${error.message}`);
+          
+          if (tankBattleBtn) {
+            tankBattleBtn.innerHTML = '⚔️ Battle';
+            tankBattleBtn.disabled = false;
+          }
+        }
+      });
+      
+      // Add hover effect
+      tankBattleBtn.addEventListener('mouseenter', () => {
+        if (!tankBattleBtn.disabled) {
+          tankBattleBtn.style.transform = 'translateY(-2px) scale(1.05)';
+          tankBattleBtn.style.boxShadow = '0 6px 20px rgba(240, 147, 251, 0.6)';
+        }
+      });
+      
+      tankBattleBtn.addEventListener('mouseleave', () => {
+        tankBattleBtn.style.transform = 'translateY(0) scale(1)';
+        tankBattleBtn.style.boxShadow = '0 4px 12px rgba(240, 147, 251, 0.4)';
       });
     }
   </script>

@@ -46,35 +46,64 @@ const server = http.createServer(async (req, res) => {
   if (pathname.startsWith('/api/')) {
     try {
       const apiPath = pathname.replace('/api/', '');
-      const apiFile = path.join(__dirname, 'api', apiPath + '.js');
+      let apiFile = path.join(__dirname, 'api', apiPath + '.js');
+      
+      // 检查是否为动态路由（如 /api/admin/tables/fish）
+      let dynamicMatch = null;
+      if (!fs.existsSync(apiFile)) {
+        // 尝试匹配动态路由 /api/admin/tables/[tableName]
+        const parts = apiPath.split('/');
+        if (parts.length >= 3 && parts[0] === 'admin' && parts[1] === 'tables' && parts[2]) {
+          // /api/admin/tables/{tableName} -> api/admin/tables/[tableName].js
+          apiFile = path.join(__dirname, 'api', 'admin', 'tables', '[tableName].js');
+          if (fs.existsSync(apiFile)) {
+            // 将动态参数添加到 req.query
+            req.query = req.query || parsedUrl.query || {};
+            req.query.tableName = parts[2];
+            dynamicMatch = { tableName: parts[2] };
+          }
+        }
+      }
       
       if (fs.existsSync(apiFile)) {
         // 清除缓存，确保每次都加载最新版本
         delete require.cache[require.resolve(apiFile)];
         const handler = require(apiFile);
         
-        // 解析JSON请求体
-        if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
-          let body = '';
-          req.on('data', chunk => {
-            body += chunk.toString();
-          });
+        // 确保 req.query 已初始化
+        req.query = req.query || parsedUrl.query || {};
+        
+        // 解析JSON请求体（但不解析multipart/form-data，让formidable处理）
+        if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH' || req.method === 'DELETE') {
+          const contentType = req.headers['content-type'] || '';
           
-          await new Promise((resolve) => {
-            req.on('end', () => {
-              try {
-                if (body && req.headers['content-type']?.includes('application/json')) {
-                  req.body = JSON.parse(body);
-                } else {
+          // 对于multipart/form-data，不读取请求体，让API处理器（如formidable）来处理
+          if (contentType.includes('multipart/form-data')) {
+            console.log('⚠️  Multipart请求，跳过body解析，交给API处理');
+            req.body = {}; // 设置空对象避免后续代码出错
+          } else {
+            // 对于JSON和其他类型的请求，正常读取和解析
+            let body = '';
+            req.on('data', chunk => {
+              body += chunk.toString();
+            });
+            
+            await new Promise((resolve) => {
+              req.on('end', () => {
+                try {
+                  if (body && contentType.includes('application/json')) {
+                    req.body = JSON.parse(body);
+                  } else {
+                    req.body = {};
+                  }
+                } catch (e) {
+                  console.error('JSON解析错误:', e);
                   req.body = {};
                 }
-              } catch (e) {
-                console.error('JSON解析错误:', e);
-                req.body = {};
-              }
-              resolve();
+                resolve();
+              });
             });
-          });
+          }
         }
         
         // 包装 res 对象以支持 Vercel 风格的 API
@@ -91,21 +120,28 @@ const server = http.createServer(async (req, res) => {
         
         // 记录请求信息用于调试
         console.log(`API调用: ${req.method} ${pathname}`);
+        if (dynamicMatch) {
+          console.log(`动态路由匹配:`, dynamicMatch);
+        }
+        console.log(`Query参数:`, req.query);
         console.log(`Content-Type: ${req.headers['content-type']}`);
-        console.log(`Request Body:`, req.body);
+        if (req.body) {
+          console.log(`Request Body:`, req.body);
+        }
         
         await handler(req, res);
         return;
       } else {
         console.error(`API file not found: ${apiFile}`);
         res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'API endpoint not found' }));
+        res.end(JSON.stringify({ error: 'API endpoint not found', path: apiFile }));
         return;
       }
     } catch (error) {
       console.error('API Error:', error);
+      console.error(error.stack);
       res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: error.message }));
+      res.end(JSON.stringify({ error: error.message, stack: error.stack }));
       return;
     }
   }

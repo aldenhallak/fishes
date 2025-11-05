@@ -282,13 +282,10 @@ async function submitFish(artist, needsModeration = false) {
     }
     const fishImgData = canvas.toDataURL('image/png');
     const imageBlob = dataURLtoBlob(fishImgData);
+    
+    // 创建FormData用于图片上传（只包含image字段）
     const formData = new FormData();
     formData.append('image', imageBlob, 'fish.png');
-    formData.append('artist', artist);
-    formData.append('needsModeration', needsModeration.toString());
-    if(localStorage.getItem('userId')) {
-        formData.append('userId', localStorage.getItem('userId'));
-    }
     // Retro loading indicator
     let submitBtn = document.getElementById('submit-fish');
     if (submitBtn) {
@@ -303,14 +300,21 @@ async function submitFish(artist, needsModeration = false) {
         document.head.appendChild(style);
     }
     try {
+        console.log('📤 submitFish开始执行');
+        console.log('  艺术家:', artist);
+        console.log('  需要审核:', needsModeration);
+        console.log('  BACKEND_URL:', window.BACKEND_URL);
+        
         // 获取Supabase认证token
         let authToken = null;
         if (window.supabaseAuth) {
             authToken = await window.supabaseAuth.getAccessToken();
+            console.log('  认证Token:', authToken ? '已获取' : '未获取');
         }
         
         // 开发阶段：获取当前用户（可选）
         const currentUser = await getCurrentUser();
+        console.log('  当前用户:', currentUser);
         // if (!currentUser) {
         //     alert('Please log in to submit your fish.');
         //     if (submitBtn) {
@@ -321,37 +325,47 @@ async function submitFish(artist, needsModeration = false) {
         // }
         
         // 第一步：上传图片
+        console.log('📷 开始上传图片到:', `${window.BACKEND_URL}/api/fish/upload`);
         const uploadResp = await fetch(`${window.BACKEND_URL}/api/fish/upload`, {
             method: 'POST',
             headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
             body: formData
         });
         
+        console.log('  上传响应状态:', uploadResp.status);
         if (!uploadResp.ok) {
-            throw new Error('图片上传失败');
+            const errorText = await uploadResp.text();
+            console.error('  上传失败:', errorText);
+            throw new Error('图片上传失败: ' + uploadResp.status);
         }
         
         const uploadResult = await uploadResp.json();
+        console.log('  上传结果:', uploadResult);
         
         if (!uploadResult.success || !uploadResult.imageUrl) {
             throw new Error('获取图片URL失败');
         }
         
         // 第二步：提交鱼数据
+        const submitData = {
+            userId: currentUser?.id || 'anonymous-dev',
+            imageUrl: uploadResult.imageUrl,
+            artist: artist || 'Anonymous'
+        };
+        console.log('🐟 开始提交鱼数据:', submitData);
+        
         const submitResp = await fetch(`${window.BACKEND_URL}/api/fish/submit`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
             },
-            body: JSON.stringify({
-                userId: currentUser?.id || 'anonymous-dev',
-                imageUrl: uploadResult.imageUrl,
-                artist: artist || 'Anonymous'
-            })
+            body: JSON.stringify(submitData)
         });
         
+        console.log('  提交响应状态:', submitResp.status);
         const submitResult = await submitResp.json();
+        console.log('  提交结果:', submitResult);
         
         // Remove spinner and re-enable button
         if (submitBtn) {
@@ -360,6 +374,7 @@ async function submitFish(artist, needsModeration = false) {
         }
         
         if (submitResult.success && submitResult.fish) {
+            console.log('✅ 鱼提交成功！');
             // Save today's date to track fish submission
             const today = new Date().toDateString();
             localStorage.setItem('lastFishDate', today);
@@ -367,11 +382,12 @@ async function submitFish(artist, needsModeration = false) {
             // Show enhanced success modal with social sharing
             showSuccessModal(uploadResult.imageUrl, needsModeration);
         } else {
+            console.error('❌ 提交失败:', submitResult);
             throw new Error(submitResult.error || '提交失败');
         }
     } catch (err) {
-        console.error('Submit error:', err);
-        alert('Failed to submit fish: ' + err.message);
+        console.error('❌ Submit error:', err);
+        alert('上传失败: ' + err.message);
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Submit';
@@ -391,19 +407,30 @@ swimBtn.addEventListener('click', async () => {
     
     // Show different modal based on fish validity
     if (!isFish) {
-        // Show moderation warning modal for low-scoring fish
+        // Show encouragement modal for low-scoring fish - no submission
         showModal(`<div style='text-align:center; padding: 20px;'>
-            <div style='color:#ff6b35; font-weight:bold; font-size: 18px; margin-bottom:16px;'>⚠️ Low Fish Score</div>
-            <div style='margin-bottom:20px; line-height:1.6; color: #666;'>I don't think this is a fish, but you can submit it anyway and I'll review it.</div>
-            <div style='margin-bottom:20px;'>
-                <label style='display: block; margin-bottom: 8px; font-weight: 500;'>Sign your art:</label>
-                <input id='artist-name' value='${escapeHtml(defaultName)}' style='margin:0; padding:10px; width:80%; max-width:250px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;' placeholder='Your name'>
+            <div style='color:#ff6b35; font-weight:bold; font-size: 18px; margin-bottom:16px;'>⚠️ 这可能不是一条鱼</div>
+            <div style='margin-bottom:20px; line-height:1.6; color: #666;'>
+                AI未能识别出鱼的特征。请尝试：<br>
+                • 画一条面向右侧的鱼<br>
+                • 包含鱼的基本特征（身体、尾巴、鱼鳍）<br>
+                • 让线条更清晰一些
             </div>
             <div style='display: flex; gap: 12px; justify-content: center;'>
-                <button id='submit-fish' class='cute-button cute-button-primary' style='padding: 10px 24px;'>Submit for Review</button>
-                <button id='cancel-fish' class='cute-button' style='padding: 10px 24px; background: #e0e0e0;'>Cancel</button>
+                <button id='try-again-fish' class='cute-button cute-button-primary' style='padding: 10px 24px; background:#3498db;'>重新画一条</button>
+                <button id='cancel-fish' class='cute-button' style='padding: 10px 24px; background: #e0e0e0;'>取消</button>
             </div>
         </div>`, () => { });
+        
+        // 重新画按钮 - 清空画布
+        document.getElementById('try-again-fish').onclick = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.querySelector('div[style*="z-index: 9999"]')?.remove();
+        };
+        document.getElementById('cancel-fish').onclick = () => {
+            document.querySelector('div[style*="z-index: 9999"]')?.remove();
+        };
+        return; // 不继续执行提交流程
     } else {
         // Show normal submission modal for good fish
         showModal(`<div style='text-align:center; padding: 20px;'>
@@ -423,7 +450,11 @@ swimBtn.addEventListener('click', async () => {
         const artist = document.getElementById('artist-name').value.trim() || 'Anonymous';
         // Save artist name to localStorage for future use
         localStorage.setItem('artistName', artist);
+        console.log('🚀 开始提交鱼，艺术家:', artist);
         await submitFish(artist, !isFish); // Pass moderation flag
+        console.log('✅ submitFish 完成');
+        // 关闭modal
+        document.querySelector('div[style*="z-index: 9999"]')?.remove();
     };
     document.getElementById('cancel-fish').onclick = () => {
         document.querySelector('div[style*="z-index: 9999"]')?.remove();
@@ -989,23 +1020,5 @@ function showWelcomeBackMessage() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Show welcome back message for returning users
-    showWelcomeBackMessage();
-    
-    const today = new Date().toDateString();
-    const lastFishDate = localStorage.getItem('lastFishDate');
-    console.log(`Last fish date: ${lastFishDate}, Today: ${today}`);
-    if (lastFishDate === today) {
-        showModal(`<div style='text-align:center;'>You already drew a fish today!<br><br>
-            <button id='go-to-tank' style='padding:8px 16px; margin: 0 5px;'>Take me to fishtank</button>
-            <button id='draw-another' style='padding:8px 16px; margin: 0 5px;'>I want to draw another fish</button></div>`, () => { });
-        
-        document.getElementById('go-to-tank').onclick = () => {
-            window.location.href = 'tank.html';
-        };
-        
-        document.getElementById('draw-another').onclick = () => {
-            document.querySelector('div[style*="z-index: 9999"]')?.remove();
-        };
-    }
+    // All startup checks disabled for better UX
 });

@@ -316,6 +316,7 @@ window.supabaseAuth = {
   signInWithOAuth,
   signOut,
   getCurrentUser,
+  getUser: getCurrentUser, // 别名，兼容性
   getSession,
   onAuthStateChange,
   resetPasswordForEmail,

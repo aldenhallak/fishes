@@ -73,6 +73,9 @@ class AuthUI {
       });
     }
     
+    // 开发环境自动登录（如果设置了环境变量）
+    await this.checkAutoLogin();
+    
     // 初始化UI状态
     await this.updateAuthUI();
   }
@@ -99,6 +102,66 @@ class AuthUI {
   }
 
   /**
+   * 检查开发环境自动登录
+   */
+  async checkAutoLogin() {
+    // 检查是否已登录
+    const currentUser = await window.supabaseAuth?.getCurrentUser();
+    if (currentUser) {
+      console.log('✅ User already logged in, skipping auto-login');
+      return;
+    }
+
+    // 从localStorage读取开发环境登录凭据
+    const devEmail = localStorage.getItem('DEV_USER');
+    const devPass = localStorage.getItem('DEV_PASS');
+    
+    if (devEmail && devPass) {
+      console.log('🔧 Development auto-login enabled');
+      console.log('📧 Email:', devEmail);
+      
+      try {
+        const { data, error } = await window.supabaseAuth.client.auth.signInWithPassword({
+          email: devEmail,
+          password: devPass
+        });
+        
+        if (error) {
+          console.error('❌ Auto-login failed:', error.message);
+        } else {
+          console.log('✅ Auto-login successful');
+          
+          // 存储用户信息
+          if (data.user) {
+            localStorage.setItem('userToken', data.session.access_token);
+            localStorage.setItem('userData', JSON.stringify(data.user));
+          }
+          
+          // 检查是否有重定向URL（但不要从index跳转）
+          const redirectUrl = localStorage.getItem('loginRedirect');
+          const currentPath = window.location.pathname;
+          const isOnIndex = currentPath.includes('index.html') || currentPath === '/';
+          
+          if (redirectUrl && redirectUrl !== window.location.href && !isOnIndex) {
+            localStorage.removeItem('loginRedirect');
+            window.location.href = redirectUrl;
+          } else {
+            // Clear redirect if on index page
+            localStorage.removeItem('loginRedirect');
+          }
+        }
+      } catch (error) {
+        console.error('❌ Auto-login exception:', error);
+      }
+    } else {
+      console.log('ℹ️ No development credentials found in localStorage');
+      console.log('ℹ️ To enable auto-login, set:');
+      console.log('   localStorage.setItem("DEV_USER", "your-email@example.com")');
+      console.log('   localStorage.setItem("DEV_PASS", "your-password")');
+    }
+  }
+
+  /**
    * 创建登录模态框
    */
   createLoginModal() {
@@ -117,6 +180,23 @@ class AuthUI {
           <p>Choose your preferred sign-in method</p>
         </div>
         <div class="auth-modal-body">
+          <!-- 邮箱登录 -->
+          <button class="oauth-btn email-login-btn" id="email-login-btn">
+            <span class="oauth-btn-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+            </span>
+            <span class="oauth-btn-text">Sign in with Email</span>
+          </button>
+          
+          <!-- 分隔线 -->
+          <div class="auth-divider">
+            <span>or continue with</span>
+          </div>
+          
+          <!-- OAuth 社交登录 -->
           ${OAUTH_PROVIDERS.map(provider => `
             <button class="oauth-btn oauth-btn-${provider.id}" data-provider="${provider.id}">
               <span class="oauth-btn-icon">${provider.icon}</span>
@@ -222,8 +302,14 @@ class AuthUI {
       overlay.onclick = () => this.hideLoginModal();
     }
     
+    // 邮箱登录按钮
+    const emailLoginBtn = this.modal.querySelector('#email-login-btn');
+    if (emailLoginBtn) {
+      emailLoginBtn.onclick = () => this.showEmailLoginForm();
+    }
+    
     // OAuth按钮
-    const oauthBtns = this.modal.querySelectorAll('.oauth-btn');
+    const oauthBtns = this.modal.querySelectorAll('.oauth-btn[data-provider]');
     oauthBtns.forEach(btn => {
       btn.onclick = () => {
         const provider = btn.dataset.provider;
@@ -296,6 +382,20 @@ class AuthUI {
       this.modal.style.display = 'none';
       document.body.style.overflow = '';
     }
+  }
+
+  /**
+   * 显示邮箱登录表单
+   */
+  showEmailLoginForm() {
+    // 隐藏当前模态框
+    this.hideLoginModal();
+    
+    // 保存当前页面用于登录后重定向
+    const redirectUrl = localStorage.getItem('loginRedirect') || window.location.href;
+    
+    // 跳转到邮箱登录页面
+    window.location.href = `/login.html?redirect=${encodeURIComponent(redirectUrl)}`;
   }
 
   /**
@@ -449,12 +549,159 @@ class AuthUI {
     this.currentUser = user;
     
     if (user) {
-      // 已登录：显示用户信息
+      // 已登录：显示用户信息并保存到localStorage
+      await this.saveUserToLocalStorage(user);
+      // 确保用户在数据库中存在
+      await this.ensureUserExistsInDatabase(user);
       this.showUserMenu(user);
     } else {
-      // 未登录：显示登录按钮
+      // 未登录：清除localStorage并显示登录按钮
+      this.clearUserFromLocalStorage();
       this.showLoginButton();
     }
+  }
+  
+  /**
+   * 确保用户在数据库中存在
+   */
+  async ensureUserExistsInDatabase(user) {
+    try {
+      // 检查用户是否存在
+      const checkUserQuery = `
+        query CheckUser($userId: String!) {
+          users_by_pk(id: $userId) {
+            id
+          }
+        }
+      `;
+      
+      const checkResponse = await fetch('/api/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: checkUserQuery,
+          variables: { userId: user.id }
+        })
+      });
+      
+      if (!checkResponse.ok) {
+        console.error('❌ 检查用户失败:', checkResponse.statusText);
+        return;
+      }
+      
+      const checkResult = await checkResponse.json();
+      
+      // 如果用户已存在，直接返回
+      if (checkResult.data?.users_by_pk) {
+        console.log('✅ 用户已存在于数据库中');
+        return;
+      }
+      
+      // 用户不存在，创建新用户
+      console.log('📝 创建新用户记录:', user.id);
+      
+      const displayName = user.user_metadata?.name || 
+                         user.user_metadata?.full_name || 
+                         user.email?.split('@')[0] || 
+                         'User';
+      
+      const avatarUrl = user.user_metadata?.avatar_url || 
+                       user.user_metadata?.picture;
+      
+      const createUserMutation = `
+        mutation CreateUser($userId: String!, $email: String!, $displayName: String!, $avatarUrl: String) {
+          insert_users_one(
+            object: { 
+              id: $userId, 
+              email: $email,
+              display_name: $displayName,
+              avatar_url: $avatarUrl,
+              is_banned: false
+            }
+          ) {
+            id
+            email
+            display_name
+          }
+        }
+      `;
+      
+      const createResponse = await fetch('/api/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: createUserMutation,
+          variables: { 
+            userId: user.id,
+            email: user.email,
+            displayName: displayName,
+            avatarUrl: avatarUrl
+          }
+        })
+      });
+      
+      if (!createResponse.ok) {
+        console.error('❌ 创建用户失败:', createResponse.statusText);
+        return;
+      }
+      
+      const createResult = await createResponse.json();
+      
+      if (createResult.errors) {
+        console.error('❌ GraphQL创建用户错误:', createResult.errors);
+        return;
+      }
+      
+      console.log('✅ 用户记录创建成功:', createResult.data?.insert_users_one);
+    } catch (error) {
+      console.error('❌ 确保用户存在时出错:', error);
+    }
+  }
+
+  /**
+   * 保存用户信息到localStorage
+   */
+  async saveUserToLocalStorage(user) {
+    try {
+      // 获取session以获取access_token
+      const session = await window.supabaseAuth.getSession();
+      const token = session?.access_token;
+      
+      // 保存用户信息
+      const userData = {
+        id: user.id,
+        uid: user.id,
+        userId: user.id,
+        email: user.email,
+        name: user.user_metadata?.name || user.user_metadata?.full_name || user.email?.split('@')[0],
+        avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture,
+        user_metadata: user.user_metadata
+      };
+      
+      localStorage.setItem('userId', user.id);
+      localStorage.setItem('userData', JSON.stringify(userData));
+      if (token) {
+        localStorage.setItem('userToken', token);
+      }
+      
+      console.log('✅ 用户信息已保存到localStorage:', { userId: user.id, email: user.email });
+    } catch (error) {
+      console.error('❌ 保存用户信息到localStorage失败:', error);
+    }
+  }
+
+  /**
+   * 从localStorage清除用户信息
+   */
+  clearUserFromLocalStorage() {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userToken');
+    console.log('✅ 已从localStorage清除用户信息');
   }
 
   /**

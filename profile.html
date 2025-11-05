@@ -38,7 +38,7 @@
         <a href="index.html">draw</a>
         <a href="tank.html">tank</a>
         <a href="rank.html">rankings</a>
-        <a href="fishtanks.html" id="my-tanks-link">my tanks</a>
+        <a href="mytank.html" id="my-tanks-link">my tank</a>
         <a href="login.html" id="auth-link">login</a>
     </div>
     
@@ -57,8 +57,8 @@
             <h2>No user logged in</h2>
             <p>Please log in to view your profile</p>
             <div class="profile-actions">
-                <a href="login.html" class="action-btn primary">Log In</a>
-                <a href="login.html?signup=true" class="action-btn">Sign Up</a>
+                <button onclick="showLoginModal()" class="action-btn primary">Log In</button>
+                <button onclick="showLoginModal()" class="action-btn">Sign Up</button>
             </div>
         </div>
         
@@ -77,16 +77,8 @@
                         <div class="stat-label">Fish Created</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value" id="total-score">0</div>
-                        <div class="stat-label">Total Score</div>
-                    </div>
-                    <div class="stat-item">
                         <div class="stat-value" id="total-upvotes">0</div>
                         <div class="stat-label">Total Upvotes</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="total-downvotes">0</div>
-                        <div class="stat-label">Total Downvotes</div>
                     </div>
                 </div>
             </div>
@@ -106,6 +98,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="src/js/supabase-init.js"></script>
     <script src="src/js/fish-utils.js"></script>
+    <script src="src/js/fishtank-favorites.js"></script>
+    <script src="src/js/auth-ui.js"></script>
     <script src="src/js/profile.js"></script>
     <script>
         // Initialize navigation authentication

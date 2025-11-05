@@ -25,13 +25,18 @@ let backendConfig = {
     loaded: false
 };
 
+// 缓存用户ID，避免每帧动画都检查认证状态
+let cachedUserId = null;
+let userIdChecked = false;
+
 // Check for URL parameter override (useful for testing)
 const urlParams = new URLSearchParams(window.location.search);
 const forceLocal = urlParams.get('local') === 'true';
 const forceProd = urlParams.get('prod') === 'true';
 
 // 临时的BACKEND_URL（用于兼容旧代码，在配置加载后会更新）
-window.BACKEND_URL = 'https://fishes-be-571679687712.northamerica-northeast1.run.app';
+// 默认为空字符串，表示使用本地API
+window.BACKEND_URL = '';
 
 // URL参数强制覆盖
 if (forceLocal) {
@@ -57,9 +62,13 @@ async function loadBackendConfig() {
             // 更新BACKEND_URL
             if (config.useOriginal && config.originalBackendUrl) {
                 window.BACKEND_URL = config.originalBackendUrl;
+            } else {
+                // 使用Hasura时，BACKEND_URL为空字符串，表示使用本地API
+                window.BACKEND_URL = '';
             }
             
             console.log(`🔧 后端配置: ${config.backend === 'hasura' ? 'Hasura数据库' : '原作者后端'}`);
+            console.log(`🌐 BACKEND_URL: ${window.BACKEND_URL || '(本地API)'}`);
         } else {
             console.warn('⚠️ 无法加载后端配置，使用默认值');
             backendConfig.loaded = true;
@@ -75,12 +84,7 @@ async function loadBackendConfig() {
 // 导出配置加载函数
 window.loadBackendConfig = loadBackendConfig;
 
-// Calculate fish score (upvotes - downvotes)
-function calculateScore(fish) {
-    const upvotes = fish.upvotes || 0;
-    const downvotes = fish.downvotes || 0;
-    return upvotes - downvotes;
-}
+// Note: Score calculation removed - now only using upvotes
 
 // Send vote to endpoint
 async function sendVote(fishId, voteType) {
@@ -261,20 +265,12 @@ function formatDate(dateValue) {
     });
 }
 
-// Create voting controls HTML (shared utility)
-function createVotingControlsHTML(fishId, upvotes = 0, downvotes = 0, includeScore = false, cssClass = '') {
-    const score = upvotes - downvotes;
+// Create voting controls HTML (shared utility) - only upvote and report
+function createVotingControlsHTML(fishId, upvotes = 0, cssClass = '') {
     let html = `<div class="voting-controls ${cssClass}">`;
-
-    if (includeScore) {
-        html += `<span class="fish-score">Score: ${score}</span><br>`;
-    }
 
     html += `<button class="vote-btn upvote-btn" onclick="handleVote('${fishId}', 'up', this)">`;
     html += `👍 <span class="vote-count upvote-count">${upvotes}</span>`;
-    html += `</button>`;
-    html += `<button class="vote-btn downvote-btn" onclick="handleVote('${fishId}', 'down', this)">`;
-    html += `👎 <span class="vote-count downvote-count">${downvotes}</span>`;
     html += `</button>`;
     html += `<button class="report-btn" onclick="handleReport('${fishId}', this)" title="Report inappropriate content">`;
     html += `🚩`;
@@ -305,7 +301,7 @@ async function getRandomFish(limit = 25, userId = null) {
 /**
  * 从Hasura获取鱼数据
  */
-async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null) {
+async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null, battleModeOnly = false) {
     // 构建GraphQL查询
     let orderBy = { created_at: 'desc' };
     
@@ -365,6 +361,7 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
                 where: {
                     is_approved: { _eq: true },
                     is_alive: { _eq: true }
+                    ${battleModeOnly ? ', is_in_battle_mode: { _eq: true }' : ''}
                     ${userId ? ', user_id: { _eq: $userId }' : ''}
                 }
                 limit: $limit
@@ -378,7 +375,6 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
                 created_at
                 talent
                 upvotes
-                downvotes
                 level
                 experience
                 health
@@ -431,14 +427,14 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
 }
 
 // Get fish from backend API with caching
-async function getFishBySort(sortType, limit = 25, startAfter = null, direction = 'desc', userId = null) {
+async function getFishBySort(sortType, limit = 25, startAfter = null, direction = 'desc', userId = null, battleModeOnly = false) {
     // 先加载配置
     await loadBackendConfig();
 
     // 如果使用Hasura
     if (backendConfig.useHasura) {
         const offset = startAfter || 0;
-        return await getFishFromHasura(sortType, limit, offset, userId);
+        return await getFishFromHasura(sortType, limit, offset, userId, battleModeOnly);
     }
 
     // 使用原作者后端API
@@ -549,18 +545,25 @@ async function getCurrentUser() {
 }
 
 function redirectToLogin(currentPage = null) {
-    // Store current page for redirect after login
+    // Only store redirect if it's from a page that requires auth (not from index.html)
     const redirectUrl = currentPage || window.location.href;
+    const currentPath = window.location.pathname;
+    
+    // Don't redirect back to index.html after login - stay on index
+    if (!currentPath.includes('index.html') && currentPath !== '/') {
+        localStorage.setItem('loginRedirect', redirectUrl);
+    } else {
+        // Clear any existing redirect if logging in from index
+        localStorage.removeItem('loginRedirect');
+    }
 
-    // Use URL parameter for immediate redirect, and localStorage as backup
-    const loginUrl = new URL('/login.html', window.location.origin);
-    loginUrl.searchParams.set('redirect', encodeURIComponent(redirectUrl));
-
-    // Also store in localStorage as backup
-    localStorage.setItem('loginRedirect', redirectUrl);
-
-    // Redirect to login page
-    window.location.href = loginUrl.toString();
+    // Show auth modal instead of redirecting to login.html
+    if (window.authUI && window.authUI.showLoginModal) {
+        window.authUI.showLoginModal();
+    } else {
+        // Fallback: if auth UI is not available, redirect to home page
+        window.location.href = '/index.html';
+    }
 }
 
 async function logout() {
@@ -587,13 +590,43 @@ async function requireAuthentication(redirectToCurrentPage = true) {
 
 // Update authentication-related UI elements
 async function updateAuthenticationUI() {
-    const isLoggedIn = await isUserLoggedIn();
-    const currentUser = await getCurrentUser();
+    // 如果用户缓存未初始化，先初始化
+    if (!userIdChecked) {
+        await initializeUserCache();
+    }
+    
+    // 使用缓存的用户信息
+    const isLoggedIn = cachedUserId !== null;
+    let currentUser = null;
+    
+    // 只有在需要用户详细信息时才调用getCurrentUser
+    if (isLoggedIn) {
+        try {
+            currentUser = await getCurrentUser();
+        } catch (error) {
+            // 如果获取失败，清除缓存
+            cachedUserId = null;
+            userIdChecked = true;
+        }
+    }
 
-    // Update "my tanks" link visibility
+    // Update "my tanks" link visibility and URL
     const myTanksLink = document.getElementById('my-tanks-link');
     if (myTanksLink) {
         myTanksLink.style.display = isLoggedIn ? 'inline' : 'none';
+        
+        // If logged in, get default tank and update link to go directly to it
+        if (isLoggedIn && window.FishTankFavorites) {
+            try {
+                const defaultTank = await window.FishTankFavorites.getDefaultTank();
+                if (defaultTank && defaultTank.id) {
+                    myTanksLink.href = `fishtank-view.html?id=${defaultTank.id}`;
+                }
+            } catch (error) {
+                console.log('Could not get default tank, using tanks list page:', error);
+                // Keep the original href to fishtanks.html
+            }
+        }
     }
     // Update auth link (login/logout)
     const authLink = document.getElementById('auth-link');
@@ -616,7 +649,7 @@ async function updateAuthenticationUI() {
     // Update auth status if present
     const authStatus = document.getElementById('auth-status');
     if (authStatus) {
-        if (isLoggedIn) {
+        if (isLoggedIn && currentUser) {
             const displayName = currentUser?.user_metadata?.name || 
                                currentUser?.email?.split('@')[0] || 
                                'User';
@@ -672,19 +705,54 @@ function initializeAuthNavigation() {
 }
 
 // Get the current user's ID for highlighting their fish
-async function getCurrentUserId() {
-    const user = await getCurrentUser();
-    if (!user) return null;
+/**
+ * 初始化用户ID缓存（页面加载时调用一次）
+ */
+async function initializeUserCache() {
+    if (userIdChecked) return cachedUserId;
     
-    // Supabase用户ID是 user.id
-    return user.id;
+    userIdChecked = true;
+    try {
+        const user = await getCurrentUser();
+        cachedUserId = user ? user.id : null;
+        if (cachedUserId) {
+            console.log('✅ 用户已登录，ID已缓存');
+        }
+    } catch (error) {
+        console.log('ℹ️ 用户未登录');
+        cachedUserId = null;
+    }
+    return cachedUserId;
+}
+
+async function getCurrentUserId() {
+    // 如果已检查过，直接返回缓存值
+    if (userIdChecked) {
+        return cachedUserId;
+    }
+    
+    // 否则初始化缓存
+    return await initializeUserCache();
 }
 
 // Check if a fish belongs to the current user
-async function isUserFish(fish) {
-    const currentUserId = await getCurrentUserId();
-    if (!currentUserId || !fish.userId) {
+// 使用同步检查，避免每帧动画都调用async函数
+function isUserFish(fish) {
+    // 如果尚未检查用户ID，返回false（页面加载时会初始化）
+    if (!userIdChecked) {
         return false;
     }
-    return currentUserId === fish.userId;
+    
+    if (!cachedUserId || !fish.userId) {
+        return false;
+    }
+    return cachedUserId === fish.userId;
 }
+
+// Export functions to window for use in other scripts
+window.requireAuthentication = requireAuthentication;
+window.redirectToLogin = redirectToLogin;
+window.isUserLoggedIn = isUserLoggedIn;
+window.getCurrentUser = getCurrentUser;
+window.getCurrentUserId = getCurrentUserId;
+window.isUserFish = isUserFish;

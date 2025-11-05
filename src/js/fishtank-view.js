@@ -141,6 +141,16 @@ function setupTankActions() {
         actionsContainer.appendChild(editBtn);
     }
     
+    // Battle button - enter battle mode with fish from this tank
+    const battleBtn = document.createElement('button');
+    battleBtn.id = 'battle-mode-btn';
+    battleBtn.className = 'btn btn-primary';
+    battleBtn.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+    battleBtn.style.fontWeight = 'bold';
+    battleBtn.innerHTML = '⚔️ Battle Mode';
+    battleBtn.onclick = enterBattleMode;
+    actionsContainer.appendChild(battleBtn);
+    
     // Share button for all users
     const shareBtn = document.createElement('button');
     shareBtn.className = 'btn btn-primary';

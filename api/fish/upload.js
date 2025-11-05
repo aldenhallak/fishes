@@ -30,30 +30,33 @@ module.exports = async function handler(req, res) {
     const { formidable } = require('formidable');
     const fs = require('fs');
 
-    console.log('开始解析上传请求...');
-    console.log('Content-Type:', req.headers['content-type']);
-    console.log('Content-Length:', req.headers['content-length']);
+    console.log('[上传API] 开始解析上传请求...');
+    console.log('[上传API] Content-Type:', req.headers['content-type']);
+    console.log('[上传API] Content-Length:', req.headers['content-length']);
 
     const form = formidable({
       maxFileSize: 5 * 1024 * 1024, // 5MB
       keepExtensions: true
     });
 
+    console.log('[上传API] 开始formidable解析...');
     const [fields, files] = await new Promise((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
         if (err) {
-          console.error('Formidable解析错误:', err);
+          console.error('[上传API] Formidable解析错误:', err);
           reject(err);
         } else {
-          console.log('解析成功，files:', Object.keys(files));
+          console.log('[上传API] 解析成功，files:', Object.keys(files));
           resolve([fields, files]);
         }
       });
     });
+    console.log('[上传API] formidable解析完成');
 
     const imageFile = files.image ? files.image[0] : null;
 
     if (!imageFile) {
+      console.log('[上传API] 未找到图片文件');
       return res.status(400).json({
         success: false,
         error: '未找到图片文件'
@@ -61,7 +64,9 @@ module.exports = async function handler(req, res) {
     }
 
     // 读取文件内容
+    console.log('[上传API] 读取文件:', imageFile.filepath);
     const fileBuffer = fs.readFileSync(imageFile.filepath);
+    console.log('[上传API] 文件大小:', fileBuffer.length, '字节');
     const originalName = imageFile.originalFilename || 'fish.png';
     
     // 获取分类参数（从表单字段或URL判断）
@@ -72,19 +77,25 @@ module.exports = async function handler(req, res) {
       referer: req.headers.referer || req.headers.referrer
     });
     
-    console.log('检测到的图片分类:', category);
+    console.log('[上传API] 检测到的图片分类:', category);
     
     // 创建七牛云上传器
+    console.log('[上传API] 创建七牛云上传器...');
     const uploader = new QiniuUploader();
+    console.log('[上传API] 七牛云上传器创建成功');
     
     // 上传到七牛云，传入分类
+    console.log('[上传API] 开始上传到七牛云...');
     const result = await uploader.uploadFile(fileBuffer, originalName, {
       category
     });
+    console.log('[上传API] 七牛云上传成功:', result.url);
     
     // 清理临时文件
     fs.unlinkSync(imageFile.filepath);
+    console.log('[上传API] 临时文件已清理');
 
+    console.log('[上传API] 返回成功响应');
     return res.status(200).json({
       success: true,
       imageUrl: result.url,
@@ -98,7 +109,8 @@ module.exports = async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('上传图片错误:', error);
+    console.error('[上传API] ❌ 上传图片错误:', error);
+    console.error('[上传API] 错误堆栈:', error.stack);
     return res.status(500).json({
       success: false,
       error: error.message || '上传失败'

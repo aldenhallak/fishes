@@ -15,6 +15,7 @@
     "migrate": "echo '请在Hasura Console中执行 scripts/migrate-database.sql'"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.79.0",
     "dotenv": "^16.6.1",
     "form-data": "^4.0.4",
     "formidable": "^3.5.0",

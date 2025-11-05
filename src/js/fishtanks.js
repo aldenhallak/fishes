@@ -29,13 +29,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         loadPublicTanks();
     } else {
         // Check authentication and redirect to login if needed for own tanks
-        if (!requireAuthentication()) {
+        if (!await requireAuthentication()) {
             return; // User will be redirected to login
         }
         
         checkAuthStatus();
         loadMyTanks();
-        loadPublicTanks();
+        // Don't load public tanks on My Tanks page - only show user's own tanks
+        // loadPublicTanks();
     }
     
     // Setup form event listeners
@@ -98,16 +99,24 @@ function updateAuthUI(isLoggedIn) {
         authInfo.classList.add('logged-out');
         authStatus.textContent = 'Please log in to manage your fish tanks';
         authLink.textContent = 'Login';
-        authLink.href = 'login.html';
-        authLink.onclick = null;
+        authLink.href = '#';
+        authLink.onclick = (e) => {
+            e.preventDefault();
+            if (window.authUI && window.authUI.showLoginModal) {
+                window.authUI.showLoginModal();
+            }
+        };
     }
 }
 
 // Logout function
-function logout() {
+async function logout() {
+    if (window.supabaseAuth) {
+        await window.supabaseAuth.signOut();
+    }
     localStorage.removeItem('userToken');
     localStorage.removeItem('userData');
-    window.location.href = 'login.html';
+    window.location.reload();
 }
 
 // Tab switching

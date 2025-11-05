@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>编辑数据表 - Fish Art</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f7fafc;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .back-btn {
+      padding: 0.5rem 1rem;
+      background: #f7fafc;
+      color: #4a5568;
+      text-decoration: none;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #edf2f7;
+      color: #2d3748;
+    }
+
+    .header-title h1 {
+      font-size: 1.5rem;
+      color: #2d3748;
+      margin-bottom: 0.25rem;
+    }
+
+    .header-title p {
+      font-size: 0.875rem;
+      color: #718096;
+      font-family: 'Courier New', monospace;
+    }
+
+    .header-title .warning {
+      font-size: 0.75rem;
+      color: #e53e3e;
+      margin-top: 0.25rem;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #5a67d8;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #4a5568;
+      border-color: #cbd5e0;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #f7fafc;
+    }
+
+    .btn-danger {
+      background: #fc8181;
+      color: white;
+      border-color: #fc8181;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #f56565;
+    }
+
+    .changes-indicator {
+      display: flex;
+      align-items: center;
+      font-size: 0.875rem;
+      color: #d97706;
+    }
+
+    .changes-dot {
+      width: 8px;
+      height: 8px;
+      background: #d97706;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    .batch-actions {
+      background: #ebf8ff;
+      border: 1px solid #90cdf4;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .batch-info {
+      font-size: 0.875rem;
+      color: #2c5282;
+    }
+
+    .stats-section {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-item {
+      font-size: 0.875rem;
+    }
+
+    .stat-label {
+      color: #718096;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: #2d3748;
+      margin-left: 0.5rem;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      max-height: calc(100vh - 400px);
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      background: #f7fafc;
+      z-index: 10;
+    }
+
+    th {
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      color: #4a5568;
+      border-bottom: 2px solid #e2e8f0;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    th:hover {
+      background: #edf2f7;
+    }
+
+    th .sort-indicator {
+      margin-left: 0.5rem;
+      opacity: 0.3;
+    }
+
+    th.sorted .sort-indicator {
+      opacity: 1;
+      color: #667eea;
+    }
+
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+      color: #2d3748;
+    }
+
+    tr:hover {
+      background: #f7fafc;
+    }
+
+    tr.selected {
+      background: #ebf8ff;
+    }
+
+    .cell-editable {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .cell-editable:hover {
+      background: #f7fafc;
+    }
+
+    .cell-editing {
+      background: #ebf8ff;
+      border: 2px solid #667eea;
+    }
+
+    .cell-changed {
+      background: #fef5e7;
+      border-left: 3px solid #f59e0b;
+    }
+
+    .cell-readonly {
+      background: #f7fafc;
+      color: #a0aec0;
+      cursor: not-allowed;
+    }
+
+    .cell-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 2px solid #667eea;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      font-family: inherit;
+    }
+
+    .cell-input:focus {
+      outline: none;
+    }
+
+    .boolean-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .boolean-true {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    .boolean-false {
+      background: #e2e8f0;
+      color: #4a5568;
+    }
+
+    .null-badge {
+      display: inline-flex;
+      padding: 0.25rem 0.5rem;
+      background: #e2e8f0;
+      color: #718096;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-style: italic;
+    }
+
+    .checkbox-cell {
+      text-align: center;
+      width: 40px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: #fff5f5;
+      border: 1px solid #fc8181;
+      color: #c53030;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+    }
+
+    .table-footer {
+      padding: 1rem;
+      background: #f7fafc;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.75rem;
+      color: #718096;
+    }
+
+    .footer-legend {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 页面头部 -->
+    <div class="header">
+      <div class="header-content">
+        <div class="header-left">
+          <a href="admin-table-manager.html" class="back-btn">← 返回</a>
+          <div class="header-title">
+            <h1 id="table-display-name">加载中...</h1>
+            <p id="table-name">...</p>
+            <p class="warning" id="table-warning" style="display: none;">⚠️ 危险表：操作需谨慎</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div id="changes-indicator" style="display: none;" class="changes-indicator">
+            <span class="changes-dot"></span>
+            <span id="changes-count">0</span> 条待保存更改
+          </div>
+          <button class="btn btn-secondary" id="refresh-btn">🔄 刷新</button>
+          <button class="btn btn-danger" id="discard-btn" style="display: none;">丢弃更改</button>
+          <button class="btn btn-primary" id="save-btn" style="display: none;">💾 保存更改</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 批量操作栏 -->
+    <div id="batch-actions" class="batch-actions" style="display: none;">
+      <div class="batch-info">
+        已选中 <strong id="selected-count">0</strong> 条记录
+        <button class="btn btn-secondary" id="clear-selection-btn" style="margin-left: 1rem;">清空选择</button>
+      </div>
+      <button class="btn btn-danger" id="batch-delete-btn">批量删除</button>
+    </div>
+
+    <!-- 统计信息 -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-label">总列数：</span>
+          <span class="stat-value" id="column-count">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">当前行数：</span>
+          <span class="stat-value" id="row-count">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">显示范围：</span>
+          <span class="stat-value" id="display-range">0 - 0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">更新时间：</span>
+          <span class="stat-value" id="update-time">...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <div class="table-container">
+      <div class="table-scroll">
+        <table id="data-table">
+          <thead id="table-head">
+            <!-- 表头将动态生成 -->
+          </thead>
+          <tbody id="table-body">
+            <tr>
+              <td colspan="100" class="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 1rem; color: #718096;">加载表数据中...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <div class="footer-legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background: #fef5e7; border: 1px solid #f59e0b;"></div>
+            <span>待保存更改</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #ebf8ff; border: 1px solid #667eea;"></div>
+            <span>编辑中</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #f7fafc;"></div>
+            <span>只读字段</span>
+          </div>
+        </div>
+        <p style="margin-top: 0.5rem;">💡 点击单元格编辑，Enter保存，Esc取消</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="src/js/admin-table-editor.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

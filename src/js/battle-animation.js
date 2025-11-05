@@ -15,13 +15,29 @@ const BattleAnimation = {
   
   /**
    * 检测两条鱼是否碰撞
+   * 要求：1. 距离足够近  2. 在同一行（position_row相同或Y坐标相近）
    */
   checkCollision(fish1, fish2) {
-    const dx = fish1.x - fish2.x;
-    const dy = fish1.y - fish2.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    // 1. 检查行位置 - 如果有position_row字段，必须相同
+    if (fish1.position_row !== undefined && fish2.position_row !== undefined) {
+      if (fish1.position_row !== fish2.position_row) {
+        return false; // 不在同一行，不能碰撞
+      }
+    } else {
+      // 如果没有position_row字段，使用Y坐标判断是否在同一行
+      // 允许的垂直误差范围（相当于一行的高度）
+      const ROW_HEIGHT = 60;
+      const dy = Math.abs(fish1.y - fish2.y);
+      if (dy > ROW_HEIGHT) {
+        return false; // 垂直距离太大，不在同一行
+      }
+    }
     
-    return distance < this.COLLISION_DISTANCE;
+    // 2. 检查水平距离
+    const dx = Math.abs(fish1.x - fish2.x);
+    
+    // 只有水平距离足够近才算碰撞（确保是正面接触）
+    return dx < this.COLLISION_DISTANCE;
   },
   
   /**
@@ -65,8 +81,21 @@ const BattleAnimation = {
     this.isBattling = true;
     this.currentBattle = { attacker, defender, result };
     
+    // 计算碰撞中心点（两条鱼之间）
+    const collisionCenterX = (attacker.x + defender.x) / 2;
+    const collisionCenterY = (attacker.y + defender.y) / 2;
+    
+    // 存储碰撞中心点以便动画使用
+    this.currentBattle.collisionCenter = {
+      x: collisionCenterX,
+      y: collisionCenterY
+    };
+    
     const startTime = Date.now();
-    const duration = 1000; // 1秒动画
+    const duration = 1200; // 1.2秒动画（稍微加长以显示更清晰）
+    
+    // 立即显示碰撞效果
+    this.drawImpact(ctx, attacker, defender, collisionCenterX, collisionCenterY);
     
     return new Promise((resolve) => {
       const animate = () => {
@@ -74,7 +103,7 @@ const BattleAnimation = {
         const progress = Math.min(elapsed / duration, 1);
         
         if (progress < 1) {
-          this.drawBattleFrame(ctx, attacker, defender, result, progress);
+          this.drawBattleFrame(ctx, attacker, defender, result, progress, collisionCenterX, collisionCenterY);
           requestAnimationFrame(animate);
         } else {
           // 动画结束
@@ -96,23 +125,24 @@ const BattleAnimation = {
   /**
    * 绘制单帧战斗动画
    */
-  drawBattleFrame(ctx, attacker, defender, result, progress) {
+  drawBattleFrame(ctx, attacker, defender, result, progress, collisionCenterX, collisionCenterY) {
     const winner = result.winnerId === attacker.id ? attacker : defender;
     const loser = result.winnerId === attacker.id ? defender : attacker;
     
-    // 阶段1：冲撞（0-0.3）
-    if (progress < 0.3) {
-      const rushProgress = progress / 0.3;
-      this.drawRush(ctx, attacker, defender, rushProgress);
+    // 阶段1：碰撞效果（0-0.4） - 立即显示在两鱼中间
+    if (progress < 0.4) {
+      const impactProgress = progress / 0.4;
+      this.drawImpact(ctx, attacker, defender, collisionCenterX, collisionCenterY, impactProgress);
     }
-    // 阶段2：碰撞效果（0.3-0.5）
+    // 阶段2：震动效果（0.2-0.5）
     else if (progress < 0.5) {
-      this.drawImpact(ctx, attacker, defender);
+      const shakeProgress = (progress - 0.2) / 0.3;
+      this.drawShake(ctx, attacker, defender, shakeProgress);
     }
     // 阶段3：结果显示（0.5-1.0）
-    else {
-      const resultProgress = (progress - 0.5) / 0.5;
-      this.drawResult(ctx, winner, loser, result, resultProgress);
+    if (progress >= 0.4) {
+      const resultProgress = (progress - 0.4) / 0.6;
+      this.drawResult(ctx, winner, loser, result, resultProgress, collisionCenterX, collisionCenterY);
     }
   },
   
@@ -145,82 +175,178 @@ const BattleAnimation = {
   },
   
   /**
-   * 绘制碰撞效果
+   * 绘制碰撞效果 - 显示在两条鱼之间的中心点
    */
-  drawImpact(ctx, fish1, fish2) {
-    const centerX = (fish1.x + fish2.x) / 2;
-    const centerY = (fish1.y + fish2.y) / 2;
+  drawImpact(ctx, fish1, fish2, centerX, centerY, progress = 1) {
+    // 如果没有提供中心点，自动计算
+    if (centerX === undefined) {
+      centerX = (fish1.x + fish2.x) / 2;
+    }
+    if (centerY === undefined) {
+      centerY = (fish1.y + fish2.y) / 2;
+    }
     
     // 绘制爆炸效果
     ctx.save();
     
-    // 闪光
+    // 扩散半径随进度增加
+    const maxRadius = 60;
+    const currentRadius = maxRadius * progress;
+    const alpha = 1 - progress * 0.5; // 渐渐淡出
+    
+    // 闪光效果 - 明确位于两鱼中间
     const gradient = ctx.createRadialGradient(
       centerX, centerY, 0,
-      centerX, centerY, 50
+      centerX, centerY, currentRadius
     );
-    gradient.addColorStop(0, 'rgba(255, 255, 0, 0.8)');
-    gradient.addColorStop(0.5, 'rgba(255, 100, 0, 0.5)');
+    gradient.addColorStop(0, `rgba(255, 255, 100, ${alpha * 0.9})`);
+    gradient.addColorStop(0.4, `rgba(255, 150, 50, ${alpha * 0.6})`);
+    gradient.addColorStop(0.7, `rgba(255, 80, 0, ${alpha * 0.3})`);
     gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
     
     ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 50, 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, currentRadius, 0, Math.PI * 2);
     ctx.fill();
     
-    // 粒子效果
-    for (let i = 0; i < 12; i++) {
-      const angle = (Math.PI * 2 * i) / 12;
-      const x = centerX + Math.cos(angle) * 30;
-      const y = centerY + Math.sin(angle) * 30;
+    // 粒子爆炸效果
+    const particleCount = 16;
+    for (let i = 0; i < particleCount; i++) {
+      const angle = (Math.PI * 2 * i) / particleCount;
+      const distance = 35 * progress; // 粒子向外扩散
+      const x = centerX + Math.cos(angle) * distance;
+      const y = centerY + Math.sin(angle) * distance;
       
-      ctx.fillStyle = 'rgba(255, 200, 0, 0.6)';
+      ctx.fillStyle = `rgba(255, 200, 50, ${alpha * 0.8})`;
       ctx.beginPath();
-      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.arc(x, y, 5 * (1 - progress * 0.5), 0, Math.PI * 2);
       ctx.fill();
     }
     
-    // 屏幕震动效果（可选）
-    ctx.translate(
-      Math.random() * 4 - 2,
-      Math.random() * 4 - 2
-    );
+    // 冲击波环
+    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, currentRadius * 0.8, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // 在碰撞点绘制"轰"字或星星特效
+    if (progress < 0.5) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('💥', centerX, centerY);
+    }
     
     ctx.restore();
   },
   
   /**
+   * 绘制震动效果
+   */
+  drawShake(ctx, fish1, fish2, progress) {
+    // 轻微的屏幕震动效果，不需要额外绘制
+    // 这个效果会在主渲染循环中应用
+  },
+  
+  /**
    * 绘制结果显示
    */
-  drawResult(ctx, winner, loser, result, progress) {
-    // 在胜者头顶显示经验增加
+  drawResult(ctx, winner, loser, result, progress, collisionCenterX, collisionCenterY) {
+    // 计算两条鱼的相对位置，让提示信息分开显示
+    const winnerIsLeft = winner.x < loser.x;
+    
+    // 在胜者一侧显示"WIN!"和经验增加
+    const winnerTextX = winnerIsLeft ? winner.x - 50 : winner.x + 50;
+    const winnerTextY = winner.y - 60;
+    
+    // 显示"WIN!"
+    if (progress < 0.6) {
+      ctx.save();
+      const winAlpha = 1 - (progress / 0.6);
+      ctx.globalAlpha = winAlpha;
+      ctx.fillStyle = '#FFD700';
+      ctx.font = 'bold 28px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 4;
+      
+      ctx.strokeText('WIN!', winnerTextX, winnerTextY);
+      ctx.fillText('WIN!', winnerTextX, winnerTextY);
+      ctx.restore();
+    }
+    
+    // 在胜者位置显示经验增加（位置调整避免重叠）
     this.showFloatingText(
       ctx,
-      winner.x,
-      winner.y - 40,
+      winnerTextX,
+      winnerTextY + 30,
       `+${result.changes.winner.expGained} EXP`,
       '#00ff00',
       progress
     );
     
-    // 在败者头顶显示血量减少
+    // 在败者一侧显示"LOSE!"和血量减少
+    const loserTextX = winnerIsLeft ? loser.x + 50 : loser.x - 50;
+    const loserTextY = loser.y - 60;
+    
+    // 显示"LOSE!"
+    if (progress < 0.6) {
+      ctx.save();
+      const loseAlpha = 1 - (progress / 0.6);
+      ctx.globalAlpha = loseAlpha;
+      ctx.fillStyle = '#FF4444';
+      ctx.font = 'bold 28px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 4;
+      
+      ctx.strokeText('LOSE!', loserTextX, loserTextY);
+      ctx.fillText('LOSE!', loserTextX, loserTextY);
+      ctx.restore();
+    }
+    
+    // 在败者位置显示血量减少（位置调整避免重叠）
     this.showFloatingText(
       ctx,
-      loser.x,
-      loser.y - 40,
+      loserTextX,
+      loserTextY + 30,
       `-${result.changes.loser.healthLost} HP`,
       '#ff0000',
       progress
     );
     
-    // 如果升级，显示升级特效
-    if (result.changes.winner.levelUp) {
-      this.showLevelUpEffect(ctx, winner.x, winner.y, progress);
+    // 如果升级，显示升级特效（位置调整）
+    if (result.changes && result.changes.winner && result.changes.winner.levelUp) {
+      this.showLevelUpEffect(ctx, winnerTextX, winnerTextY + 60, progress);
+      
+      // 显示升级文字
+      this.showFloatingText(
+        ctx,
+        winnerTextX,
+        winnerTextY + 60,
+        `LEVEL UP!`,
+        '#FFD700',
+        progress
+      );
     }
     
-    // 如果死亡，显示死亡效果
-    if (result.changes.loser.isDead) {
-      this.showDeathEffect(ctx, loser.x, loser.y, progress);
+    // 如果死亡，显示死亡效果（位置调整）
+    if (result.changes && result.changes.loser && result.changes.loser.isDead) {
+      this.showDeathEffect(ctx, loserTextX, loserTextY + 60, progress);
+      
+      // 显示死亡文字
+      this.showFloatingText(
+        ctx,
+        loserTextX,
+        loserTextY + 60,
+        `DEAD!`,
+        '#666666',
+        progress
+      );
     }
   },
   
@@ -354,7 +480,12 @@ const BattleAnimation = {
   }
 };
 
-// 导出
+// 导出到浏览器环境
+if (typeof window !== 'undefined') {
+  window.BattleAnimation = BattleAnimation;
+}
+
+// 导出到 Node.js 环境
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = BattleAnimation;
 }

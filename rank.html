@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="src/css/style.css?v=2.0">
     <link rel="stylesheet" href="src/css/animations.css?v=2.0">
     <link rel="stylesheet" href="src/css/cute-theme.css?v=2.0">
+    <link rel="stylesheet" href="src/css/fishtank-favorites.css">
     <link rel="icon" type="image/png" href="/fish_logo.png">
     
     <!-- Google tag (gtag.js) -->
@@ -254,15 +255,6 @@
             color: #4F46E5;
         }
         
-        .downvote-btn {
-            color: #B0BEC5;
-        }
-        
-        .downvote-btn:hover {
-            background: linear-gradient(135deg, #F5F5F5, #E0E0E0);
-            border-color: #90A4AE;
-            color: #546E7A;
-        }
         
         .report-btn {
             padding: 10px 14px;
@@ -394,7 +386,7 @@
         <a href="tank.html">🐠 Tank</a>
         <a href="rank.html">⭐ Rankings</a>
         <a href="profile.html">👤 Profile</a>
-        <a href="fishtanks.html" id="my-tanks-link">🏆 My Tanks</a>
+        <a href="mytank.html" id="my-tanks-link">🏆 My Tank</a>
         <a href="login.html" id="auth-link">🔐 Login</a>
     </div>
     
@@ -428,7 +420,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="src/js/supabase-init.js"></script>
     <script src="src/js/fish-utils.js"></script>
+    <script src="src/js/auth-ui.js"></script>
     <script src="src/js/modal-utils.js"></script>
+    <!-- Fish Tank Favorites Module -->
+    <script src="src/js/fishtank-favorites.js"></script>
     <script src="src/js/rank.js"></script>
     <script>
         // Modal functionality is now handled by modal-utils.js

@@ -37,7 +37,7 @@ function createSpecialFooter() {
         <a href="index.html" style="color: #0066cc; text-decoration: underline;">draw</a>
         | <a href="tank.html" style="color: #0066cc; text-decoration: underline;">public tank</a>
         | <a href="rank.html" style="color: #0066cc; text-decoration: underline;">rankings</a>
-        | <a href="fishtanks.html" id="my-tanks-link" style="color: #0066cc; text-decoration: underline;">my tanks</a>
+        | <a href="fishtanks.html" id="my-tanks-link" style="color: #0066cc; text-decoration: underline;">my tank</a>
         | <a href="login.html" id="auth-link" style="color: #0066cc; text-decoration: underline;">login</a>
         <br><br>
         🎨 Based on <a href="https://github.com/aldenhallak/fishes" style="color: #0066cc; text-decoration: underline;" target="_blank" rel="noopener">DrawAFish</a> by <a href="https://github.com/aldenhallak" style="color: #0066cc; text-decoration: underline;" target="_blank" rel="noopener">aldenhallak</a> | 
@@ -84,6 +84,18 @@ function insertFooter(special = false) {
 
 // Auto-initialize footer when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    // 只在主页（index.html）显示footer
+    const currentPath = window.location.pathname;
+    const isHomePage = currentPath === '/' || 
+                       currentPath === '/index.html' || 
+                       currentPath.endsWith('/index.html') ||
+                       currentPath === '';
+    
+    // 只在主页显示footer
+    if (!isHomePage) {
+        return;
+    }
+    
     // Check if this is fishtank-view.html based on the page structure or URL
     const isSpecialFooter = document.querySelector('#tank-content') !== null || 
                            window.location.pathname.includes('fishtank-view.html');

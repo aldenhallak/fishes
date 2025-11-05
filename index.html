@@ -167,7 +167,7 @@
       </section>
       
       <section id="drawing-section">
-        <h1 class="animate-fadeInUp">🐠 Draw a Fish Online! 🐠</h1>
+        <h1 class="animate-fadeInUp"><span style="display: inline-block; transform: scaleX(-1);">🐠</span> Draw a Fish Online! <span style="display: inline-block; transform: scaleX(-1);">🐠</span></h1>
         <h2 class="animate-fadeInUp delay-1">(facing right please)</h2>
         
         <!-- 画布容器 -->
@@ -197,8 +197,8 @@
           <a href="rank.html" class="cute-button cute-button-primary" title="Vote on fish drawings">
             <span>⭐</span> Rank
           </a>
-          <a href="fishtanks.html" id="my-tanks-link" class="cute-button cute-button-primary" title="Create custom fish tanks">
-            <span>🏆</span> My Tanks
+          <a href="mytank.html" id="my-tanks-link" class="cute-button cute-button-primary" title="Create custom fish tanks">
+            <span>🏆</span> My Tank
           </a>
           <button id="main-share-btn" class="cute-button cute-button-primary" title="Share this tool">
             <span>📤</span> Share
@@ -274,11 +274,12 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="src/js/supabase-init.js?v=2.3"></script>
   
-  <script src="src/js/fish-utils.js?v=2.2"></script>
+  <script src="src/js/fish-utils.js?v=2.5"></script>
+  <script src="src/js/fishtank-favorites.js"></script>
   <script src="src/js/social-config.js?v=2.1"></script>
   <script src="src/js/social-share.js?v=2.1"></script>
-  <script src="src/js/auth-ui.js?v=2.3"></script>
-  <script src="src/js/app.js?v=2.2"></script>
+  <script src="src/js/auth-ui.js?v=2.5"></script>
+  <script src="src/js/app.js?v=2.3"></script>
   <script>
     // Initialize social links for footer and mobile
     (function() {

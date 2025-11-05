@@ -1,13 +1,13 @@
 /**
- * 投票API（点赞/点踩）
+ * 投票API（点赞）
  * POST /api/vote/vote
- * Body: { fishId, userId, voteType: 'up'|'down' }
+ * Body: { fishId, userId, voteType: 'up' }
  * 
  * 功能：
  * 1. 验证参数
  * 2. 检查是否已经投过票
- * 3. 如果已投票，则更新投票类型或取消
- * 4. 更新fish表的upvotes/downvotes
+ * 3. 如果已投票，则取消投票
+ * 4. 更新fish表的upvotes
  * 5. 返回新的投票数
  */
 
@@ -52,10 +52,10 @@ module.exports = async function handler(req, res) {
       });
     }
     
-    if (!['up', 'down'].includes(voteType)) {
+    if (voteType !== 'up') {
       return res.status(400).json({
         success: false,
-        error: '无效的投票类型，必须是 up 或 down'
+        error: '无效的投票类型，必须是 up'
       });
     }
     
@@ -65,7 +65,6 @@ module.exports = async function handler(req, res) {
         fish_by_pk(id: $fishId) {
           id
           upvotes
-          downvotes
           is_approved
           reported
         }
@@ -104,61 +103,23 @@ module.exports = async function handler(req, res) {
     const existingVote = voteData.votes[0];
     
     let newUpvotes = fish.upvotes;
-    let newDownvotes = fish.downvotes;
     let action = '';
     
     if (existingVote) {
-      // 已经投过票
-      if (existingVote.vote_type === voteType) {
-        // 相同类型的投票 -> 取消投票
-        const deleteVoteQuery = `
-          mutation DeleteVote($id: uuid!) {
-            delete_votes_by_pk(id: $id) {
-              id
-            }
+      // 已经投过票 -> 取消投票
+      const deleteVoteQuery = `
+        mutation DeleteVote($id: uuid!) {
+          delete_votes_by_pk(id: $id) {
+            id
           }
-        `;
-        
-        await queryHasura(deleteVoteQuery, { id: existingVote.id });
-        
-        // 减少对应的计数
-        if (voteType === 'up') {
-          newUpvotes--;
-          action = 'cancel_upvote';
-        } else {
-          newDownvotes--;
-          action = 'cancel_downvote';
         }
-      } else {
-        // 不同类型的投票 -> 更改投票
-        const updateVoteQuery = `
-          mutation UpdateVote($id: uuid!, $voteType: String!) {
-            update_votes_by_pk(
-              pk_columns: { id: $id },
-              _set: { vote_type: $voteType }
-            ) {
-              id
-              vote_type
-            }
-          }
-        `;
-        
-        await queryHasura(updateVoteQuery, { 
-          id: existingVote.id, 
-          voteType 
-        });
-        
-        // 减少旧的，增加新的
-        if (existingVote.vote_type === 'up') {
-          newUpvotes--;
-          newDownvotes++;
-          action = 'change_to_downvote';
-        } else {
-          newDownvotes--;
-          newUpvotes++;
-          action = 'change_to_upvote';
-        }
-      }
+      `;
+      
+      await queryHasura(deleteVoteQuery, { id: existingVote.id });
+      
+      // 减少点赞计数
+      newUpvotes--;
+      action = 'cancel_upvote';
     } else {
       // 首次投票
       const insertVoteQuery = `
@@ -178,43 +139,34 @@ module.exports = async function handler(req, res) {
       
       await queryHasura(insertVoteQuery, { fishId, userId, voteType });
       
-      // 增加对应的计数
-      if (voteType === 'up') {
-        newUpvotes++;
-        action = 'upvote';
-      } else {
-        newDownvotes++;
-        action = 'downvote';
-      }
+      // 增加点赞计数
+      newUpvotes++;
+      action = 'upvote';
     }
     
     // 3. 更新fish表的计数
     const updateFishQuery = `
-      mutation UpdateFish($fishId: uuid!, $upvotes: Int!, $downvotes: Int!) {
+      mutation UpdateFish($fishId: uuid!, $upvotes: Int!) {
         update_fish_by_pk(
           pk_columns: { id: $fishId },
-          _set: { upvotes: $upvotes, downvotes: $downvotes }
+          _set: { upvotes: $upvotes }
         ) {
           id
           upvotes
-          downvotes
         }
       }
     `;
     
     const updatedFish = await queryHasura(updateFishQuery, {
       fishId,
-      upvotes: newUpvotes,
-      downvotes: newDownvotes
+      upvotes: newUpvotes
     });
     
     // 4. 返回结果
     return res.json({
       success: true,
       action,
-      upvotes: updatedFish.update_fish_by_pk.upvotes,
-      downvotes: updatedFish.update_fish_by_pk.downvotes,
-      score: newUpvotes - newDownvotes
+      upvotes: updatedFish.update_fish_by_pk.upvotes
     });
     
   } catch (error) {

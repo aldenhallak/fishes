@@ -16,6 +16,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
   
+  console.log('[Battle Enter-Mode] 收到请求');
+  console.log('[Battle Enter-Mode] req.body:', req.body);
+  
   try {
     const { userId, fishId } = req.body;
     
@@ -28,13 +31,18 @@ module.exports = async function handler(req, res) {
     }
     
     // 1. 检查Redis是否可用
+    console.log('[Battle Enter-Mode] 检查Redis...');
     const redisClient = redis.getRedisClient();
     if (!redisClient) {
+      console.log('⚠️  Redis未配置，跳过战斗模式检查');
       return res.status(503).json({
         success: false,
-        error: 'Redis服务暂时不可用'
+        error: 'Battle功能暂时不可用',
+        message: 'Redis服务未配置或无法连接。请联系管理员配置REDIS_URL环境变量。',
+        needsSetup: true
       });
     }
+    console.log('[Battle Enter-Mode] Redis客户端可用');
     
     // 2. 检查用户是否已经在战斗模式
     const isAlreadyIn = await redis.isBattleUser(userId);
@@ -119,11 +127,29 @@ module.exports = async function handler(req, res) {
     });
     
   } catch (error) {
-    console.error('进入战斗模式失败:', error);
+    console.error('[Battle Enter-Mode] ❌ 错误:', error);
+    console.error('[Battle Enter-Mode] 错误堆栈:', error.stack);
+    console.error('[Battle Enter-Mode] 错误详情:', {
+      name: error.name,
+      message: error.message,
+      code: error.code
+    });
+    
+    // 如果是Redis连接错误
+    if (error.message && (error.message.includes('Redis') || error.message.includes('connect'))) {
+      return res.status(503).json({
+        success: false,
+        error: 'Battle功能暂时不可用',
+        message: 'Redis连接失败: ' + error.message,
+        needsSetup: true
+      });
+    }
+    
     return res.status(500).json({
       success: false,
       error: '服务器错误',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };

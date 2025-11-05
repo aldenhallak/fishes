@@ -1,35 +1,101 @@
 // Profile page functionality
 
-// Get user profile data from API
-async function getUserProfile(userId) {
+// Get user profile data from Hasura
+async function getUserProfileFromHasura(userId) {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/profile/${encodeURIComponent(userId)}`);
+        const query = `
+            query GetUserProfile($userId: String!) {
+                users_by_pk(id: $userId) {
+                    id
+                    display_name
+                    email
+                    avatar_url
+                    created_at
+                    total_fish_created
+                    reputation_score
+                    fishes_aggregate {
+                        aggregate {
+                            count
+                            sum {
+                                upvotes
+                            }
+                        }
+                    }
+                }
+            }
+        `;
+
+        const response = await fetch('/api/graphql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                query,
+                variables: { userId }
+            })
+        });
 
         if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error('User not found');
-            }
-            throw new Error(`Failed to fetch profile: ${response.status}`);
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        const data = await response.json();
-        return data.profile;
+        const result = await response.json();
+
+        if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+            throw new Error(result.errors[0].message);
+        }
+
+        if (!result.data.users_by_pk) {
+            throw new Error('User not found');
+        }
+
+        const user = result.data.users_by_pk;
+        
+        // Transform to match expected profile format
+        return {
+            userId: user.id,
+            displayName: user.display_name,
+            artistName: user.display_name,
+            email: user.email,
+            avatarUrl: user.avatar_url,
+            createdAt: user.created_at,
+            fishCount: user.fishes_aggregate.aggregate.count || 0,
+            totalScore: user.fishes_aggregate.aggregate.sum?.upvotes || 0,
+            totalUpvotes: user.fishes_aggregate.aggregate.sum?.upvotes || 0,
+            reputationScore: user.reputation_score || 0
+        };
     } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Error fetching profile from Hasura:', error);
         throw error;
     }
+}
+
+// Alias for backward compatibility
+async function getUserProfile(userId) {
+    return await getUserProfileFromHasura(userId);
 }
 
 // Update action button links based on the profile being viewed
 function updateActionButtons(profile, profileUserId, isCurrentUser, isLoggedIn = true) {
     const viewFishBtn = document.getElementById('view-fish-btn');
     const visitTankBtn = document.getElementById('visit-tank-btn');
+    const shareProfileBtn = document.querySelector('.profile-actions button[onclick="shareProfile()"]');
     const displayName = getDisplayName(profile);
 
+    // 隐藏"View My Fish"按钮
+    if (viewFishBtn) {
+        viewFishBtn.style.display = 'none';
+    }
+    
+    // 隐藏"Share Profile"按钮
+    if (shareProfileBtn) {
+        shareProfileBtn.style.display = 'none';
+    }
+
     if (isCurrentUser) {
-        // For current user, show their tanks and fish
-        viewFishBtn.href = `rank.html?userId=${encodeURIComponent(profileUserId)}`;
-        viewFishBtn.textContent = isLoggedIn ? 'View My Fish' : 'View My Local Fish';
+        // For current user, show their tanks
         visitTankBtn.href = 'fishtanks.html';
         visitTankBtn.textContent = isLoggedIn ? 'My Tanks' : 'My Local Tanks';
 
@@ -41,8 +107,6 @@ function updateActionButtons(profile, profileUserId, isCurrentUser, isLoggedIn =
         }
     } else {
         // For other users, show their public content
-        viewFishBtn.href = `rank.html?userId=${encodeURIComponent(profileUserId)}`;
-        viewFishBtn.textContent = `View ${displayName}'s Fish`;
         visitTankBtn.href = `fishtanks.html?userId=${encodeURIComponent(profileUserId)}`;
         visitTankBtn.textContent = `View ${displayName}'s Tanks`;
 
@@ -109,17 +173,8 @@ function displayProfile(profile, searchedUserId = null) {
     document.getElementById('profile-avatar').textContent = initial;
     const profileName = profile.displayName || profile.artistName || 'Anonymous User';
     
-    // Show different labels based on login status
-    let displayText;
-    if (isCurrentUser && isLoggedIn) {
-        displayText = `${profileName} (You)`;
-    } else if (isCurrentUser && !isLoggedIn) {
-        displayText = `${profileName} (Your Local Profile)`;
-    } else {
-        displayText = profileName;
-    }
-    
-    document.getElementById('profile-name').textContent = displayText;
+    // 直接显示用户名，不添加"(You)"等后缀
+    document.getElementById('profile-name').textContent = profileName;
     
     // Hide email field since profile endpoint doesn't return it
     const emailElement = document.getElementById('profile-email');
@@ -131,23 +186,21 @@ function displayProfile(profile, searchedUserId = null) {
 
     // Update statistics
     document.getElementById('fish-count').textContent = profile.fishCount || 0;
-    document.getElementById('total-score').textContent = profile.totalScore || 0;
     document.getElementById('total-upvotes').textContent = profile.totalUpvotes || 0;
-    document.getElementById('total-downvotes').textContent = profile.totalDownvotes || 0;
 
-    // Set score color based on value
-    const scoreElement = document.getElementById('total-score');
-    const score = profile.totalScore || 0;
-    if (score > 0) {
-        scoreElement.style.color = '#28a745';
-    } else if (score < 0) {
-        scoreElement.style.color = '#dc3545';
-    } else {
-        scoreElement.style.color = '#007bff';
-    }
+    // Note: Score color removed as we now only use upvotes
 
     // Update action button links
     updateActionButtons(profile, profileUserId, isCurrentUser, isLoggedIn);
+    
+    // 给Fish Created统计卡片添加点击跳转功能
+    const fishCountContainer = document.querySelector('.stat-item');
+    if (fishCountContainer && profileUserId) {
+        fishCountContainer.style.cursor = 'pointer';
+        fishCountContainer.onclick = () => {
+            window.location.href = `rank.html?userId=${encodeURIComponent(profileUserId)}`;
+        };
+    }
 
     // Show profile content
     document.getElementById('profile-content').style.display = 'block';
@@ -214,7 +267,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     displayProfile(profile, userId);
                 }).catch(error => {
                     console.error('Error loading current user profile:', error);
-                    document.getElementById('profile-empty').style.display = 'block';
+                    // 回退到显示localStorage中的基本信息
+                    console.log('📦 Falling back to localStorage data');
+                    const fallbackProfile = {
+                        userId: userId,
+                        displayName: parsedUserData.name || parsedUserData.email?.split('@')[0] || 'User',
+                        email: parsedUserData.email,
+                        avatarUrl: parsedUserData.avatar_url,
+                        createdAt: new Date().toISOString(),
+                        fishCount: 0,
+                        totalUpvotes: 0,
+                        reputationScore: 0
+                    };
+                    displayProfile(fallbackProfile, userId);
                 });
             } else {
                 document.getElementById('profile-empty').style.display = 'block';

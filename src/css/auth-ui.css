@@ -170,6 +170,7 @@
   color: #374151;
   transition: all 0.2s ease;
   width: 100%;
+  text-decoration: none;
 }
 
 .oauth-btn:hover {
@@ -226,6 +227,46 @@
 .oauth-btn-reddit:hover {
   border-color: #FF4500;
   background: #fff5f0;
+}
+
+/* 邮箱登录按钮特殊样式 */
+.email-login-btn {
+  background: linear-gradient(135deg, #6366F1, #4F46E5);
+  color: white;
+  border: 2px solid #6366F1;
+  font-weight: 600;
+}
+
+.email-login-btn:hover {
+  background: linear-gradient(135deg, #4F46E5, #4338CA);
+  border-color: #4F46E5;
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+}
+
+.email-login-btn .oauth-btn-icon svg {
+  stroke: white;
+}
+
+/* 分隔线 */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 8px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.auth-divider span {
+  padding: 0 12px;
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 /* ============================================
@@ -313,9 +354,9 @@
   padding: 12px 16px;
   border: none;
   background: none;
-  color: #374151;
+  color: #000000 !important;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
@@ -332,14 +373,14 @@
   border-bottom-right-radius: 12px;
 }
 
-.user-dropdown-item:hover {
-  background: #f3f4f6;
-  color: #6366F1;
-}
-
 .user-dropdown-item svg {
   flex-shrink: 0;
-  color: #9ca3af;
+  color: #000000;
+}
+
+.user-dropdown-item:hover {
+  background: #f3f4f6;
+  color: #6366F1 !important;
 }
 
 .user-dropdown-item:hover svg {
@@ -428,6 +469,7 @@
   outline: 2px solid #6366F1;
   outline-offset: 2px;
 }
+
 
 
 

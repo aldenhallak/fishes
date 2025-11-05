@@ -4,12 +4,13 @@
  * Body: { userId, imageUrl, artist }
  * 
  * 功能：
- * 1. 验证用户身份
- * 2. 检查鱼食余额（需要2个鱼食）
- * 3. 生成随机天赋值（25-75）
- * 4. 创建鱼记录
- * 5. 扣除鱼食
- * 6. 记录经济日志
+ * 1. 确保用户记录存在（如果不存在则自动创建）
+ * 2. 获取或创建用户经济数据
+ * 3. 检查鱼食余额（需要2个鱼食）
+ * 4. 生成随机天赋值（25-75）
+ * 5. 创建鱼记录
+ * 6. 扣除鱼食
+ * 7. 记录经济日志
  */
 
 require('dotenv').config({ path: '.env.local' });
@@ -109,7 +110,41 @@ module.exports = async function handler(req, res) {
       });
     }
     
-    // 1. 获取或创建用户经济数据
+    // 1. 确保用户记录存在（如果不存在则创建）
+    const checkUserQuery = `
+      query CheckUser($userId: String!) {
+        users_by_pk(id: $userId) {
+          id
+          email
+        }
+      }
+    `;
+    
+    let userData = await queryHasura(checkUserQuery, { userId });
+    
+    // 如果用户不存在，创建用户记录
+    if (!userData.users_by_pk) {
+      console.log('用户不存在，创建新用户记录:', userId);
+      const createUserQuery = `
+        mutation CreateUser($userId: String!) {
+          insert_users_one(
+            object: { 
+              id: $userId, 
+              email: "${userId}@test.local",
+              display_name: "测试用户",
+              is_banned: false
+            }
+          ) {
+            id
+            email
+          }
+        }
+      `;
+      
+      userData = await queryHasura(createUserQuery, { userId });
+    }
+    
+    // 2. 获取或创建用户经济数据
     const getOrCreateEconomyQuery = `
       query GetOrCreateEconomy($userId: String!) {
         user_economy_by_pk(user_id: $userId) {
@@ -123,6 +158,7 @@ module.exports = async function handler(req, res) {
     
     // 如果用户经济数据不存在，创建一个
     if (!economyData.user_economy_by_pk) {
+      console.log('经济数据不存在，创建新经济记录:', userId);
       const createEconomyQuery = `
         mutation CreateEconomy($userId: String!) {
           insert_user_economy_one(object: { user_id: $userId, fish_food: 10 }) {
@@ -138,7 +174,7 @@ module.exports = async function handler(req, res) {
     
     const economy = economyData.user_economy_by_pk;
     
-    // 2. 检查鱼食余额
+    // 3. 检查鱼食余额
     if (economy.fish_food < CREATE_COST) {
       return res.json({
         success: false,
@@ -149,10 +185,10 @@ module.exports = async function handler(req, res) {
       });
     }
     
-    // 3. 生成随机天赋值（25-75）
+    // 4. 生成随机天赋值（25-75）
     const talent = Math.floor(Math.random() * 51) + 25;
     
-    // 4. 执行事务：创建鱼 + 扣除鱼食 + 记录日志
+    // 5. 执行事务：创建鱼 + 扣除鱼食
     const transactionQuery = `
       mutation SubmitFish(
         $userId: String!
@@ -171,7 +207,6 @@ module.exports = async function handler(req, res) {
             health: 10
             max_health: 10
             upvotes: 0
-            downvotes: 0
             battle_power: 0
             is_alive: true
             is_approved: true
@@ -211,7 +246,7 @@ module.exports = async function handler(req, res) {
     const newFish = result.insert_fish_one;
     const newBalance = result.update_user_economy_by_pk.fish_food;
     
-    // 5. 记录经济日志（单独查询，因为需要鱼ID）
+    // 6. 记录经济日志（单独查询，因为需要鱼ID）
     const logQuery = `
       mutation LogEconomy($userId: String!, $fishId: uuid!, $amount: Int!, $balance: Int!) {
         insert_economy_log_one(
@@ -235,7 +270,7 @@ module.exports = async function handler(req, res) {
       balance: newBalance
     });
     
-    // 6. 返回成功结果
+    // 7. 返回成功结果
     return res.json({
       success: true,
       message: '创建成功！',

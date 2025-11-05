@@ -96,12 +96,22 @@
             box-sizing: border-box;
             font-size: 14px;
             transition: all 0.3s ease;
+            background: #FFFFFF;
+            color: #000000;
         }
 
         .auth-form input:focus {
             border-color: #6366F1;
             outline: none;
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .auth-form strong {
+            color: #000000;
+            font-size: 14px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
         }
 
         .loading {
@@ -270,7 +280,7 @@
         <div id="already-logged-in" class="auth-form" style="display: none; text-align: center;">
             <h3>You are already logged in!</h3>
             <p id="logged-in-user-info"></p>
-            <button type="button" class="btn" onclick="goToTanks()">Go to My Tanks</button>
+            <button type="button" class="btn" onclick="goToTanks()">Go to My Tank</button>
             <br><br>
             <button type="button" class="btn" onclick="logoutAndStay()" style="background: #dc3545; border-color: #dc3545;">Logout</button>
         </div>
@@ -290,6 +300,7 @@
     <script src="src/js/supabase-init.js"></script>
     
     <script src="src/js/fish-utils.js"></script>
+    <script src="src/js/fishtank-favorites.js"></script>
     <script src="src/js/login.js"></script>
 </body>
 

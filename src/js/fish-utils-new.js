@@ -411,11 +411,25 @@ async function getCurrentUser() {
  * 重定向到登录页
  */
 function redirectToLogin(currentPage = null) {
+    // Only store redirect if it's from a page that requires auth (not from index.html)
     const redirectUrl = currentPage || window.location.href;
-    const loginUrl = new URL('/login.html', window.location.origin);
-    loginUrl.searchParams.set('redirect', encodeURIComponent(redirectUrl));
-    localStorage.setItem('loginRedirect', redirectUrl);
-    window.location.href = loginUrl.toString();
+    const currentPath = window.location.pathname;
+    
+    // Don't redirect back to index.html after login - stay on index
+    if (!currentPath.includes('index.html') && currentPath !== '/') {
+        localStorage.setItem('loginRedirect', redirectUrl);
+    } else {
+        // Clear any existing redirect if logging in from index
+        localStorage.removeItem('loginRedirect');
+    }
+    
+    // Show auth modal instead of redirecting to login.html
+    if (window.authUI && window.authUI.showLoginModal) {
+        window.authUI.showLoginModal();
+    } else {
+        // Fallback: if auth UI is not available, redirect to home page
+        window.location.href = '/index.html';
+    }
 }
 
 /**
@@ -452,10 +466,23 @@ async function updateAuthenticationUI() {
     const loggedIn = await isUserLoggedIn();
     const currentUser = loggedIn ? await getCurrentUser() : null;
 
-    // Update "my tanks" link visibility
+    // Update "my tanks" link visibility and URL
     const myTanksLink = document.getElementById('my-tanks-link');
     if (myTanksLink) {
         myTanksLink.style.display = loggedIn ? 'inline' : 'none';
+        
+        // If logged in, get default tank and update link to go directly to it
+        if (loggedIn && window.FishTankFavorites) {
+            try {
+                const defaultTank = await window.FishTankFavorites.getDefaultTank();
+                if (defaultTank && defaultTank.id) {
+                    myTanksLink.href = `fishtank-view.html?id=${defaultTank.id}`;
+                }
+            } catch (error) {
+                console.log('Could not get default tank, using tanks list page:', error);
+                // Keep the original href to fishtanks.html
+            }
+        }
     }
     
     // Update auth link (login/logout)

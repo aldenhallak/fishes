@@ -17,7 +17,55 @@ window.onload = () => {
   
   // Check for email confirmation
   checkEmailConfirmation();
+  
+  // Load test credentials in development
+  loadTestCredentials();
 };
+
+// Load test credentials from environment (development only)
+async function loadTestCredentials() {
+  // Only in development mode (localhost)
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return;
+  }
+  
+  // Check for URL parameter to enable test mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const testMode = urlParams.get('test') === 'true';
+  
+  if (!testMode) {
+    return; // Only load when explicitly requested
+  }
+  
+  try {
+    const response = await fetch('/api/config/test-credentials');
+    if (response.ok) {
+      const { email, password } = await response.json();
+      if (email && password) {
+        // Pre-fill test credentials
+        const emailInput = document.getElementById('signin-email');
+        const passwordInput = document.getElementById('signin-password');
+        
+        if (emailInput) emailInput.value = email;
+        if (passwordInput) passwordInput.value = password;
+        
+        console.log('🧪 Test credentials loaded:', email);
+        
+        // Add visual indicator
+        const form = document.getElementById('signin-form');
+        if (form) {
+          const testBadge = document.createElement('div');
+          testBadge.style.cssText = 'background: #FEF3C7; color: #92400E; padding: 8px 12px; border-radius: 8px; text-align: center; margin-bottom: 10px; font-size: 12px; font-weight: 600;';
+          testBadge.textContent = '🧪 TEST MODE - Credentials pre-filled';
+          form.insertBefore(testBadge, form.firstChild);
+        }
+      }
+    }
+  } catch (error) {
+    // Silently fail - test credentials are optional
+    console.log('ℹ️ No test credentials available');
+  }
+}
 
 // Check if user is already logged in
 async function checkIfAlreadyLoggedIn() {
@@ -72,9 +120,22 @@ function showAlreadyLoggedInUI(user) {
 }
 
 // Navigate to tanks page
-function goToTanks() {
-  const redirectUrl = getRedirectUrl();
-  window.location.href = redirectUrl;
+async function goToTanks() {
+  try {
+    // Try to get user's default tank and redirect directly to it
+    if (window.FishTankFavorites) {
+      const defaultTank = await window.FishTankFavorites.getDefaultTank();
+      if (defaultTank && defaultTank.id) {
+        window.location.href = `fishtank-view.html?id=${defaultTank.id}`;
+        return;
+      }
+    }
+  } catch (error) {
+    console.log('Could not get default tank, redirecting to tanks list:', error);
+  }
+  
+  // Fallback: redirect to tanks list page
+  window.location.href = 'fishtanks.html';
 }
 
 // Logout and stay on login page
