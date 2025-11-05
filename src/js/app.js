@@ -476,9 +476,15 @@ function cropCanvasToContent(srcCanvas) {
             }
         }
     }
-    if (!found) return srcCanvas; // No content found
+    if (!found) return null; // No content found
     const cropW = maxX - minX + 1;
     const cropH = maxY - minY + 1;
+
+    // Ensure minimum dimensions of 32x32 pixels to avoid ML model errors
+    if (cropW < 32 || cropH < 32) {
+        return null; // Content too small for analysis
+    }
+
     const cropped = document.createElement('canvas');
     cropped.width = cropW;
     cropped.height = cropH;
@@ -498,6 +504,12 @@ function makeDisplayFishCanvas(img, width = 80, height = 48) {
     temp.height = img.height;
     temp.getContext('2d').drawImage(img, 0, 0);
     const cropped = cropCanvasToContent(temp);
+
+    // Handle case where content is too small or empty
+    if (!cropped) {
+        return displayCanvas; // Return empty canvas
+    }
+
     displayCtx.clearRect(0, 0, width, height);
     const scale = Math.min(width / cropped.width, height / cropped.height);
     const drawW = cropped.width * scale;
@@ -676,7 +688,7 @@ function showFishWarning(show) {
 // After each stroke, check if it's a fish
 async function checkFishAfterStroke() {
     if (!window.ort) return; // ONNX runtime not loaded
-    
+
     // Wait for model to be loaded if it's not ready yet
     if (!ortSession) {
         try {
@@ -686,7 +698,27 @@ async function checkFishAfterStroke() {
             return;
         }
     }
-    
+
+    // Check if canvas has sufficient content before analyzing
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    tempCanvas.getContext('2d').drawImage(canvas, 0, 0);
+    const croppedContent = cropCanvasToContent(tempCanvas);
+
+    // If content is too small or empty, skip analysis and show neutral state
+    if (!croppedContent) {
+        lastFishCheck = false;
+        showFishWarning(false); // Show neutral background
+        // Update or hide probability display
+        let probDiv = document.getElementById('fish-probability');
+        if (probDiv) {
+            probDiv.textContent = 'Draw more to analyze...';
+            probDiv.style.color = '#666';
+        }
+        return;
+    }
+
     const isFish = await verifyFishDoodle(canvas);
     lastFishCheck = isFish;
     showFishWarning(!isFish);

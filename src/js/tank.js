@@ -298,9 +298,15 @@ function cropCanvasToContent(srcCanvas) {
             }
         }
     }
-    if (!found) return srcCanvas;
+    if (!found) return null; // No content found
     const cropW = maxX - minX + 1;
     const cropH = maxY - minY + 1;
+
+    // Ensure minimum dimensions of 32x32 pixels to avoid ML model errors
+    if (cropW < 32 || cropH < 32) {
+        return null; // Content too small for analysis
+    }
+
     const cropped = document.createElement('canvas');
     cropped.width = cropW;
     cropped.height = cropH;
@@ -318,6 +324,12 @@ function makeDisplayFishCanvas(img, width = 80, height = 48) {
     temp.height = img.height;
     temp.getContext('2d').drawImage(img, 0, 0);
     const cropped = cropCanvasToContent(temp);
+
+    // Handle case where content is too small or empty
+    if (!cropped) {
+        return displayCanvas; // Return empty canvas
+    }
+
     displayCtx.clearRect(0, 0, width, height);
     const scale = Math.min(width / cropped.width, height / cropped.height);
     const drawW = cropped.width * scale;
