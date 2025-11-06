@@ -70,3 +70,10 @@ WHERE vote_type = 'down';
 
 
 
+
+
+
+
+
+
+

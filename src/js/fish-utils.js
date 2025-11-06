@@ -310,7 +310,7 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
         // 先获取总数，然后随机选择offset
         const countQuery = `
             query GetFishCount {
-                fish_aggregate(where: {is_approved: {_eq: true}, is_alive: {_eq: true}}) {
+                fish_aggregate(where: {is_approved: {_eq: true}}) {
                     aggregate {
                         count
                     }
@@ -359,9 +359,7 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
         query GetFish($limit: Int!, $offset: Int!, $orderBy: [fish_order_by!], $userId: String) {
             fish(
                 where: {
-                    is_approved: { _eq: true },
-                    is_alive: { _eq: true }
-                    ${battleModeOnly ? ', is_in_battle_mode: { _eq: true }' : ''}
+                    is_approved: { _eq: true }
                     ${userId ? ', user_id: { _eq: $userId }' : ''}
                 }
                 limit: $limit
@@ -373,12 +371,9 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
                 artist
                 image_url
                 created_at
-                talent
                 upvotes
-                level
-                experience
-                health
-                max_health
+                fish_name
+                personality_type
             }
         }
     `;

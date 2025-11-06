@@ -96,1014 +96,6 @@ input String_comparison_exp {
   _similar: String
 }
 
-"""
-columns and relationships of "battle_config"
-"""
-type battle_config {
-  exp_for_level_up_base: Int
-  exp_for_level_up_multiplier: numeric
-  exp_per_second: Int
-  exp_per_win: Int
-  health_loss_per_defeat: Int
-  health_per_feed: Int
-  id: Int!
-  level_weight: numeric
-  max_health_per_level: Int
-  random_factor: numeric
-  talent_weight: numeric
-  updated_at: timestamp
-  upvote_weight: numeric
-}
-
-"""
-aggregated selection of "battle_config"
-"""
-type battle_config_aggregate {
-  aggregate: battle_config_aggregate_fields
-  nodes: [battle_config!]!
-}
-
-"""
-aggregate fields of "battle_config"
-"""
-type battle_config_aggregate_fields {
-  avg: battle_config_avg_fields
-  count(columns: [battle_config_select_column!], distinct: Boolean): Int!
-  max: battle_config_max_fields
-  min: battle_config_min_fields
-  stddev: battle_config_stddev_fields
-  stddev_pop: battle_config_stddev_pop_fields
-  stddev_samp: battle_config_stddev_samp_fields
-  sum: battle_config_sum_fields
-  var_pop: battle_config_var_pop_fields
-  var_samp: battle_config_var_samp_fields
-  variance: battle_config_variance_fields
-}
-
-"""aggregate avg on columns"""
-type battle_config_avg_fields {
-  exp_for_level_up_base: Float
-  exp_for_level_up_multiplier: Float
-  exp_per_second: Float
-  exp_per_win: Float
-  health_loss_per_defeat: Float
-  health_per_feed: Float
-  id: Float
-  level_weight: Float
-  max_health_per_level: Float
-  random_factor: Float
-  talent_weight: Float
-  upvote_weight: Float
-}
-
-"""
-Boolean expression to filter rows from the table "battle_config". All fields are combined with a logical 'AND'.
-"""
-input battle_config_bool_exp {
-  _and: [battle_config_bool_exp!]
-  _not: battle_config_bool_exp
-  _or: [battle_config_bool_exp!]
-  exp_for_level_up_base: Int_comparison_exp
-  exp_for_level_up_multiplier: numeric_comparison_exp
-  exp_per_second: Int_comparison_exp
-  exp_per_win: Int_comparison_exp
-  health_loss_per_defeat: Int_comparison_exp
-  health_per_feed: Int_comparison_exp
-  id: Int_comparison_exp
-  level_weight: numeric_comparison_exp
-  max_health_per_level: Int_comparison_exp
-  random_factor: numeric_comparison_exp
-  talent_weight: numeric_comparison_exp
-  updated_at: timestamp_comparison_exp
-  upvote_weight: numeric_comparison_exp
-}
-
-"""
-unique or primary key constraints on table "battle_config"
-"""
-enum battle_config_constraint {
-  """
-  unique or primary key constraint on columns "id"
-  """
-  battle_config_pkey
-}
-
-"""
-input type for incrementing numeric columns in table "battle_config"
-"""
-input battle_config_inc_input {
-  exp_for_level_up_base: Int
-  exp_for_level_up_multiplier: numeric
-  exp_per_second: Int
-  exp_per_win: Int
-  health_loss_per_defeat: Int
-  health_per_feed: Int
-  id: Int
-  level_weight: numeric
-  max_health_per_level: Int
-  random_factor: numeric
-  talent_weight: numeric
-  upvote_weight: numeric
-}
-
-"""
-input type for inserting data into table "battle_config"
-"""
-input battle_config_insert_input {
-  exp_for_level_up_base: Int
-  exp_for_level_up_multiplier: numeric
-  exp_per_second: Int
-  exp_per_win: Int
-  health_loss_per_defeat: Int
-  health_per_feed: Int
-  id: Int
-  level_weight: numeric
-  max_health_per_level: Int
-  random_factor: numeric
-  talent_weight: numeric
-  updated_at: timestamp
-  upvote_weight: numeric
-}
-
-"""aggregate max on columns"""
-type battle_config_max_fields {
-  exp_for_level_up_base: Int
-  exp_for_level_up_multiplier: numeric
-  exp_per_second: Int
-  exp_per_win: Int
-  health_loss_per_defeat: Int
-  health_per_feed: Int
-  id: Int
-  level_weight: numeric
-  max_health_per_level: Int
-  random_factor: numeric
-  talent_weight: numeric
-  updated_at: timestamp
-  upvote_weight: numeric
-}
-
-"""aggregate min on columns"""
-type battle_config_min_fields {
-  exp_for_level_up_base: Int
-  exp_for_level_up_multiplier: numeric
-  exp_per_second: Int
-  exp_per_win: Int
-  health_loss_per_defeat: Int
-  health_per_feed: Int
-  id: Int
-  level_weight: numeric
-  max_health_per_level: Int
-  random_factor: numeric
-  talent_weight: numeric
-  updated_at: timestamp
-  upvote_weight: numeric
-}
-
-"""
-response of any mutation on the table "battle_config"
-"""
-type battle_config_mutation_response {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [battle_config!]!
-}
-
-"""
-on_conflict condition type for table "battle_config"
-"""
-input battle_config_on_conflict {
-  constraint: battle_config_constraint!
-  update_columns: [battle_config_update_column!]! = []
-  where: battle_config_bool_exp
-}
-
-"""Ordering options when selecting data from "battle_config"."""
-input battle_config_order_by {
-  exp_for_level_up_base: order_by
-  exp_for_level_up_multiplier: order_by
-  exp_per_second: order_by
-  exp_per_win: order_by
-  health_loss_per_defeat: order_by
-  health_per_feed: order_by
-  id: order_by
-  level_weight: order_by
-  max_health_per_level: order_by
-  random_factor: order_by
-  talent_weight: order_by
-  updated_at: order_by
-  upvote_weight: order_by
-}
-
-"""primary key columns input for table: battle_config"""
-input battle_config_pk_columns_input {
-  id: Int!
-}
-
-"""
-select columns of table "battle_config"
-"""
-enum battle_config_select_column {
-  """column name"""
-  exp_for_level_up_base
-
-  """column name"""
-  exp_for_level_up_multiplier
-
-  """column name"""
-  exp_per_second
-
-  """column name"""
-  exp_per_win
-
-  """column name"""
-  health_loss_per_defeat
-
-  """column name"""
-  health_per_feed
-
-  """column name"""
-  id
-
-  """column name"""
-  level_weight
-
-  """column name"""
-  max_health_per_level
-
-  """column name"""
-  random_factor
-
-  """column name"""
-  talent_weight
-
-  """column name"""
-  updated_at
-
-  """column name"""
-  upvote_weight
-}
-
-"""
-input type for updating data in table "battle_config"
-"""
-input battle_config_set_input {
-  exp_for_level_up_base: Int
-  exp_for_level_up_multiplier: numeric
-  exp_per_second: Int
-  exp_per_win: Int
-  health_loss_per_defeat: Int
-  health_per_feed: Int
-  id: Int
-  level_weight: numeric
-  max_health_per_level: Int
-  random_factor: numeric
-  talent_weight: numeric
-  updated_at: timestamp
-  upvote_weight: numeric
-}
-
-"""aggregate stddev on columns"""
-type battle_config_stddev_fields {
-  exp_for_level_up_base: Float
-  exp_for_level_up_multiplier: Float
-  exp_per_second: Float
-  exp_per_win: Float
-  health_loss_per_defeat: Float
-  health_per_feed: Float
-  id: Float
-  level_weight: Float
-  max_health_per_level: Float
-  random_factor: Float
-  talent_weight: Float
-  upvote_weight: Float
-}
-
-"""aggregate stddev_pop on columns"""
-type battle_config_stddev_pop_fields {
-  exp_for_level_up_base: Float
-  exp_for_level_up_multiplier: Float
-  exp_per_second: Float
-  exp_per_win: Float
-  health_loss_per_defeat: Float
-  health_per_feed: Float
-  id: Float
-  level_weight: Float
-  max_health_per_level: Float
-  random_factor: Float
-  talent_weight: Float
-  upvote_weight: Float
-}
-
-"""aggregate stddev_samp on columns"""
-type battle_config_stddev_samp_fields {
-  exp_for_level_up_base: Float
-  exp_for_level_up_multiplier: Float
-  exp_per_second: Float
-  exp_per_win: Float
-  health_loss_per_defeat: Float
-  health_per_feed: Float
-  id: Float
-  level_weight: Float
-  max_health_per_level: Float
-  random_factor: Float
-  talent_weight: Float
-  upvote_weight: Float
-}
-
-"""
-Streaming cursor of the table "battle_config"
-"""
-input battle_config_stream_cursor_input {
-  """Stream column input with initial value"""
-  initial_value: battle_config_stream_cursor_value_input!
-
-  """cursor ordering"""
-  ordering: cursor_ordering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input battle_config_stream_cursor_value_input {
-  exp_for_level_up_base: Int
-  exp_for_level_up_multiplier: numeric
-  exp_per_second: Int
-  exp_per_win: Int
-  health_loss_per_defeat: Int
-  health_per_feed: Int
-  id: Int
-  level_weight: numeric
-  max_health_per_level: Int
-  random_factor: numeric
-  talent_weight: numeric
-  updated_at: timestamp
-  upvote_weight: numeric
-}
-
-"""aggregate sum on columns"""
-type battle_config_sum_fields {
-  exp_for_level_up_base: Int
-  exp_for_level_up_multiplier: numeric
-  exp_per_second: Int
-  exp_per_win: Int
-  health_loss_per_defeat: Int
-  health_per_feed: Int
-  id: Int
-  level_weight: numeric
-  max_health_per_level: Int
-  random_factor: numeric
-  talent_weight: numeric
-  upvote_weight: numeric
-}
-
-"""
-update columns of table "battle_config"
-"""
-enum battle_config_update_column {
-  """column name"""
-  exp_for_level_up_base
-
-  """column name"""
-  exp_for_level_up_multiplier
-
-  """column name"""
-  exp_per_second
-
-  """column name"""
-  exp_per_win
-
-  """column name"""
-  health_loss_per_defeat
-
-  """column name"""
-  health_per_feed
-
-  """column name"""
-  id
-
-  """column name"""
-  level_weight
-
-  """column name"""
-  max_health_per_level
-
-  """column name"""
-  random_factor
-
-  """column name"""
-  talent_weight
-
-  """column name"""
-  updated_at
-
-  """column name"""
-  upvote_weight
-}
-
-input battle_config_updates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: battle_config_inc_input
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: battle_config_set_input
-
-  """filter the rows which have to be updated"""
-  where: battle_config_bool_exp!
-}
-
-"""aggregate var_pop on columns"""
-type battle_config_var_pop_fields {
-  exp_for_level_up_base: Float
-  exp_for_level_up_multiplier: Float
-  exp_per_second: Float
-  exp_per_win: Float
-  health_loss_per_defeat: Float
-  health_per_feed: Float
-  id: Float
-  level_weight: Float
-  max_health_per_level: Float
-  random_factor: Float
-  talent_weight: Float
-  upvote_weight: Float
-}
-
-"""aggregate var_samp on columns"""
-type battle_config_var_samp_fields {
-  exp_for_level_up_base: Float
-  exp_for_level_up_multiplier: Float
-  exp_per_second: Float
-  exp_per_win: Float
-  health_loss_per_defeat: Float
-  health_per_feed: Float
-  id: Float
-  level_weight: Float
-  max_health_per_level: Float
-  random_factor: Float
-  talent_weight: Float
-  upvote_weight: Float
-}
-
-"""aggregate variance on columns"""
-type battle_config_variance_fields {
-  exp_for_level_up_base: Float
-  exp_for_level_up_multiplier: Float
-  exp_per_second: Float
-  exp_per_win: Float
-  health_loss_per_defeat: Float
-  health_per_feed: Float
-  id: Float
-  level_weight: Float
-  max_health_per_level: Float
-  random_factor: Float
-  talent_weight: Float
-  upvote_weight: Float
-}
-
-"""
-columns and relationships of "battle_log"
-"""
-type battle_log {
-  attacker_id: uuid
-  attacker_power: numeric
-  created_at: timestamp
-  defender_id: uuid
-  defender_power: numeric
-  exp_gained: Int
-
-  """An object relationship"""
-  fish: fish
-
-  """An object relationship"""
-  fishByDefenderId: fish
-  health_lost: Int
-  id: uuid!
-  random_factor: numeric
-  winner_id: uuid
-}
-
-"""
-aggregated selection of "battle_log"
-"""
-type battle_log_aggregate {
-  aggregate: battle_log_aggregate_fields
-  nodes: [battle_log!]!
-}
-
-input battle_log_aggregate_bool_exp {
-  count: battle_log_aggregate_bool_exp_count
-}
-
-input battle_log_aggregate_bool_exp_count {
-  arguments: [battle_log_select_column!]
-  distinct: Boolean
-  filter: battle_log_bool_exp
-  predicate: Int_comparison_exp!
-}
-
-"""
-aggregate fields of "battle_log"
-"""
-type battle_log_aggregate_fields {
-  avg: battle_log_avg_fields
-  count(columns: [battle_log_select_column!], distinct: Boolean): Int!
-  max: battle_log_max_fields
-  min: battle_log_min_fields
-  stddev: battle_log_stddev_fields
-  stddev_pop: battle_log_stddev_pop_fields
-  stddev_samp: battle_log_stddev_samp_fields
-  sum: battle_log_sum_fields
-  var_pop: battle_log_var_pop_fields
-  var_samp: battle_log_var_samp_fields
-  variance: battle_log_variance_fields
-}
-
-"""
-order by aggregate values of table "battle_log"
-"""
-input battle_log_aggregate_order_by {
-  avg: battle_log_avg_order_by
-  count: order_by
-  max: battle_log_max_order_by
-  min: battle_log_min_order_by
-  stddev: battle_log_stddev_order_by
-  stddev_pop: battle_log_stddev_pop_order_by
-  stddev_samp: battle_log_stddev_samp_order_by
-  sum: battle_log_sum_order_by
-  var_pop: battle_log_var_pop_order_by
-  var_samp: battle_log_var_samp_order_by
-  variance: battle_log_variance_order_by
-}
-
-"""
-input type for inserting array relation for remote table "battle_log"
-"""
-input battle_log_arr_rel_insert_input {
-  data: [battle_log_insert_input!]!
-
-  """upsert condition"""
-  on_conflict: battle_log_on_conflict
-}
-
-"""aggregate avg on columns"""
-type battle_log_avg_fields {
-  attacker_power: Float
-  defender_power: Float
-  exp_gained: Float
-  health_lost: Float
-  random_factor: Float
-}
-
-"""
-order by avg() on columns of table "battle_log"
-"""
-input battle_log_avg_order_by {
-  attacker_power: order_by
-  defender_power: order_by
-  exp_gained: order_by
-  health_lost: order_by
-  random_factor: order_by
-}
-
-"""
-Boolean expression to filter rows from the table "battle_log". All fields are combined with a logical 'AND'.
-"""
-input battle_log_bool_exp {
-  _and: [battle_log_bool_exp!]
-  _not: battle_log_bool_exp
-  _or: [battle_log_bool_exp!]
-  attacker_id: uuid_comparison_exp
-  attacker_power: numeric_comparison_exp
-  created_at: timestamp_comparison_exp
-  defender_id: uuid_comparison_exp
-  defender_power: numeric_comparison_exp
-  exp_gained: Int_comparison_exp
-  fish: fish_bool_exp
-  fishByDefenderId: fish_bool_exp
-  health_lost: Int_comparison_exp
-  id: uuid_comparison_exp
-  random_factor: numeric_comparison_exp
-  winner_id: uuid_comparison_exp
-}
-
-"""
-unique or primary key constraints on table "battle_log"
-"""
-enum battle_log_constraint {
-  """
-  unique or primary key constraint on columns "id"
-  """
-  battle_log_pkey
-}
-
-"""
-input type for incrementing numeric columns in table "battle_log"
-"""
-input battle_log_inc_input {
-  attacker_power: numeric
-  defender_power: numeric
-  exp_gained: Int
-  health_lost: Int
-  random_factor: numeric
-}
-
-"""
-input type for inserting data into table "battle_log"
-"""
-input battle_log_insert_input {
-  attacker_id: uuid
-  attacker_power: numeric
-  created_at: timestamp
-  defender_id: uuid
-  defender_power: numeric
-  exp_gained: Int
-  fish: fish_obj_rel_insert_input
-  fishByDefenderId: fish_obj_rel_insert_input
-  health_lost: Int
-  id: uuid
-  random_factor: numeric
-  winner_id: uuid
-}
-
-"""aggregate max on columns"""
-type battle_log_max_fields {
-  attacker_id: uuid
-  attacker_power: numeric
-  created_at: timestamp
-  defender_id: uuid
-  defender_power: numeric
-  exp_gained: Int
-  health_lost: Int
-  id: uuid
-  random_factor: numeric
-  winner_id: uuid
-}
-
-"""
-order by max() on columns of table "battle_log"
-"""
-input battle_log_max_order_by {
-  attacker_id: order_by
-  attacker_power: order_by
-  created_at: order_by
-  defender_id: order_by
-  defender_power: order_by
-  exp_gained: order_by
-  health_lost: order_by
-  id: order_by
-  random_factor: order_by
-  winner_id: order_by
-}
-
-"""aggregate min on columns"""
-type battle_log_min_fields {
-  attacker_id: uuid
-  attacker_power: numeric
-  created_at: timestamp
-  defender_id: uuid
-  defender_power: numeric
-  exp_gained: Int
-  health_lost: Int
-  id: uuid
-  random_factor: numeric
-  winner_id: uuid
-}
-
-"""
-order by min() on columns of table "battle_log"
-"""
-input battle_log_min_order_by {
-  attacker_id: order_by
-  attacker_power: order_by
-  created_at: order_by
-  defender_id: order_by
-  defender_power: order_by
-  exp_gained: order_by
-  health_lost: order_by
-  id: order_by
-  random_factor: order_by
-  winner_id: order_by
-}
-
-"""
-response of any mutation on the table "battle_log"
-"""
-type battle_log_mutation_response {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [battle_log!]!
-}
-
-"""
-on_conflict condition type for table "battle_log"
-"""
-input battle_log_on_conflict {
-  constraint: battle_log_constraint!
-  update_columns: [battle_log_update_column!]! = []
-  where: battle_log_bool_exp
-}
-
-"""Ordering options when selecting data from "battle_log"."""
-input battle_log_order_by {
-  attacker_id: order_by
-  attacker_power: order_by
-  created_at: order_by
-  defender_id: order_by
-  defender_power: order_by
-  exp_gained: order_by
-  fish: fish_order_by
-  fishByDefenderId: fish_order_by
-  health_lost: order_by
-  id: order_by
-  random_factor: order_by
-  winner_id: order_by
-}
-
-"""primary key columns input for table: battle_log"""
-input battle_log_pk_columns_input {
-  id: uuid!
-}
-
-"""
-select columns of table "battle_log"
-"""
-enum battle_log_select_column {
-  """column name"""
-  attacker_id
-
-  """column name"""
-  attacker_power
-
-  """column name"""
-  created_at
-
-  """column name"""
-  defender_id
-
-  """column name"""
-  defender_power
-
-  """column name"""
-  exp_gained
-
-  """column name"""
-  health_lost
-
-  """column name"""
-  id
-
-  """column name"""
-  random_factor
-
-  """column name"""
-  winner_id
-}
-
-"""
-input type for updating data in table "battle_log"
-"""
-input battle_log_set_input {
-  attacker_id: uuid
-  attacker_power: numeric
-  created_at: timestamp
-  defender_id: uuid
-  defender_power: numeric
-  exp_gained: Int
-  health_lost: Int
-  id: uuid
-  random_factor: numeric
-  winner_id: uuid
-}
-
-"""aggregate stddev on columns"""
-type battle_log_stddev_fields {
-  attacker_power: Float
-  defender_power: Float
-  exp_gained: Float
-  health_lost: Float
-  random_factor: Float
-}
-
-"""
-order by stddev() on columns of table "battle_log"
-"""
-input battle_log_stddev_order_by {
-  attacker_power: order_by
-  defender_power: order_by
-  exp_gained: order_by
-  health_lost: order_by
-  random_factor: order_by
-}
-
-"""aggregate stddev_pop on columns"""
-type battle_log_stddev_pop_fields {
-  attacker_power: Float
-  defender_power: Float
-  exp_gained: Float
-  health_lost: Float
-  random_factor: Float
-}
-
-"""
-order by stddev_pop() on columns of table "battle_log"
-"""
-input battle_log_stddev_pop_order_by {
-  attacker_power: order_by
-  defender_power: order_by
-  exp_gained: order_by
-  health_lost: order_by
-  random_factor: order_by
-}
-
-"""aggregate stddev_samp on columns"""
-type battle_log_stddev_samp_fields {
-  attacker_power: Float
-  defender_power: Float
-  exp_gained: Float
-  health_lost: Float
-  random_factor: Float
-}
-
-"""
-order by stddev_samp() on columns of table "battle_log"
-"""
-input battle_log_stddev_samp_order_by {
-  attacker_power: order_by
-  defender_power: order_by
-  exp_gained: order_by
-  health_lost: order_by
-  random_factor: order_by
-}
-
-"""
-Streaming cursor of the table "battle_log"
-"""
-input battle_log_stream_cursor_input {
-  """Stream column input with initial value"""
-  initial_value: battle_log_stream_cursor_value_input!
-
-  """cursor ordering"""
-  ordering: cursor_ordering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input battle_log_stream_cursor_value_input {
-  attacker_id: uuid
-  attacker_power: numeric
-  created_at: timestamp
-  defender_id: uuid
-  defender_power: numeric
-  exp_gained: Int
-  health_lost: Int
-  id: uuid
-  random_factor: numeric
-  winner_id: uuid
-}
-
-"""aggregate sum on columns"""
-type battle_log_sum_fields {
-  attacker_power: numeric
-  defender_power: numeric
-  exp_gained: Int
-  health_lost: Int
-  random_factor: numeric
-}
-
-"""
-order by sum() on columns of table "battle_log"
-"""
-input battle_log_sum_order_by {
-  attacker_power: order_by
-  defender_power: order_by
-  exp_gained: order_by
-  health_lost: order_by
-  random_factor: order_by
-}
-
-"""
-update columns of table "battle_log"
-"""
-enum battle_log_update_column {
-  """column name"""
-  attacker_id
-
-  """column name"""
-  attacker_power
-
-  """column name"""
-  created_at
-
-  """column name"""
-  defender_id
-
-  """column name"""
-  defender_power
-
-  """column name"""
-  exp_gained
-
-  """column name"""
-  health_lost
-
-  """column name"""
-  id
-
-  """column name"""
-  random_factor
-
-  """column name"""
-  winner_id
-}
-
-input battle_log_updates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: battle_log_inc_input
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: battle_log_set_input
-
-  """filter the rows which have to be updated"""
-  where: battle_log_bool_exp!
-}
-
-"""aggregate var_pop on columns"""
-type battle_log_var_pop_fields {
-  attacker_power: Float
-  defender_power: Float
-  exp_gained: Float
-  health_lost: Float
-  random_factor: Float
-}
-
-"""
-order by var_pop() on columns of table "battle_log"
-"""
-input battle_log_var_pop_order_by {
-  attacker_power: order_by
-  defender_power: order_by
-  exp_gained: order_by
-  health_lost: order_by
-  random_factor: order_by
-}
-
-"""aggregate var_samp on columns"""
-type battle_log_var_samp_fields {
-  attacker_power: Float
-  defender_power: Float
-  exp_gained: Float
-  health_lost: Float
-  random_factor: Float
-}
-
-"""
-order by var_samp() on columns of table "battle_log"
-"""
-input battle_log_var_samp_order_by {
-  attacker_power: order_by
-  defender_power: order_by
-  exp_gained: order_by
-  health_lost: order_by
-  random_factor: order_by
-}
-
-"""aggregate variance on columns"""
-type battle_log_variance_fields {
-  attacker_power: Float
-  defender_power: Float
-  exp_gained: Float
-  health_lost: Float
-  random_factor: Float
-}
-
-"""
-order by variance() on columns of table "battle_log"
-"""
-input battle_log_variance_order_by {
-  attacker_power: order_by
-  defender_power: order_by
-  exp_gained: order_by
-  health_lost: order_by
-  random_factor: order_by
-}
-
-scalar bigint
-
-"""
-Boolean expression to compare columns of type "bigint". All fields are combined with logical 'AND'.
-"""
-input bigint_comparison_exp {
-  _eq: bigint
-  _gt: bigint
-  _gte: bigint
-  _in: [bigint!]
-  _is_null: Boolean
-  _lt: bigint
-  _lte: bigint
-  _neq: bigint
-  _nin: [bigint!]
-}
-
 """ordering argument of a cursor"""
 enum cursor_ordering {
   """ascending ordering of the cursor"""
@@ -1546,83 +538,8 @@ input economy_log_variance_order_by {
 columns and relationships of "fish"
 """
 type fish {
-  approval_rate: float8
   artist: String
-
-  """An array relationship"""
-  battleLogsByDefenderId(
-    """distinct select on columns"""
-    distinct_on: [battle_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_log_order_by!]
-
-    """filter the rows returned"""
-    where: battle_log_bool_exp
-  ): [battle_log!]!
-
-  """An aggregate relationship"""
-  battleLogsByDefenderId_aggregate(
-    """distinct select on columns"""
-    distinct_on: [battle_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_log_order_by!]
-
-    """filter the rows returned"""
-    where: battle_log_bool_exp
-  ): battle_log_aggregate!
-
-  """An array relationship"""
-  battle_logs(
-    """distinct select on columns"""
-    distinct_on: [battle_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_log_order_by!]
-
-    """filter the rows returned"""
-    where: battle_log_bool_exp
-  ): [battle_log!]!
-
-  """An aggregate relationship"""
-  battle_logs_aggregate(
-    """distinct select on columns"""
-    distinct_on: [battle_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_log_order_by!]
-
-    """filter the rows returned"""
-    where: battle_log_bool_exp
-  ): battle_log_aggregate!
-  battle_power: numeric
   created_at: timestamp
-  downvotes: Int!
 
   """An array relationship"""
   economy_logs(
@@ -1659,18 +576,11 @@ type fish {
     """filter the rows returned"""
     where: economy_log_bool_exp
   ): economy_log_aggregate!
-  experience: Int!
-  health: Int!
+  fish_name: String
   id: uuid!
   image_url: String!
-  is_alive: Boolean
   is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int!
-  max_health: Int!
-  moderator_notes: String
-  position_row: Int
+  personality_type: String
   report_count: Int
   reported: Boolean
 
@@ -1709,10 +619,6 @@ type fish {
     """filter the rows returned"""
     where: reports_bool_exp
   ): reports_aggregate!
-  score: Int
-  talent: Int!
-  total_losses: Int
-  total_wins: Int
   upvotes: Int!
 
   """An object relationship"""
@@ -1765,24 +671,9 @@ type fish_aggregate {
 }
 
 input fish_aggregate_bool_exp {
-  avg: fish_aggregate_bool_exp_avg
   bool_and: fish_aggregate_bool_exp_bool_and
   bool_or: fish_aggregate_bool_exp_bool_or
-  corr: fish_aggregate_bool_exp_corr
   count: fish_aggregate_bool_exp_count
-  covar_samp: fish_aggregate_bool_exp_covar_samp
-  max: fish_aggregate_bool_exp_max
-  min: fish_aggregate_bool_exp_min
-  stddev_samp: fish_aggregate_bool_exp_stddev_samp
-  sum: fish_aggregate_bool_exp_sum
-  var_samp: fish_aggregate_bool_exp_var_samp
-}
-
-input fish_aggregate_bool_exp_avg {
-  arguments: fish_select_column_fish_aggregate_bool_exp_avg_arguments_columns!
-  distinct: Boolean
-  filter: fish_bool_exp
-  predicate: float8_comparison_exp!
 }
 
 input fish_aggregate_bool_exp_bool_and {
@@ -1799,70 +690,11 @@ input fish_aggregate_bool_exp_bool_or {
   predicate: Boolean_comparison_exp!
 }
 
-input fish_aggregate_bool_exp_corr {
-  arguments: fish_aggregate_bool_exp_corr_arguments!
-  distinct: Boolean
-  filter: fish_bool_exp
-  predicate: float8_comparison_exp!
-}
-
-input fish_aggregate_bool_exp_corr_arguments {
-  X: fish_select_column_fish_aggregate_bool_exp_corr_arguments_columns!
-  Y: fish_select_column_fish_aggregate_bool_exp_corr_arguments_columns!
-}
-
 input fish_aggregate_bool_exp_count {
   arguments: [fish_select_column!]
   distinct: Boolean
   filter: fish_bool_exp
   predicate: Int_comparison_exp!
-}
-
-input fish_aggregate_bool_exp_covar_samp {
-  arguments: fish_aggregate_bool_exp_covar_samp_arguments!
-  distinct: Boolean
-  filter: fish_bool_exp
-  predicate: float8_comparison_exp!
-}
-
-input fish_aggregate_bool_exp_covar_samp_arguments {
-  X: fish_select_column_fish_aggregate_bool_exp_covar_samp_arguments_columns!
-  Y: fish_select_column_fish_aggregate_bool_exp_covar_samp_arguments_columns!
-}
-
-input fish_aggregate_bool_exp_max {
-  arguments: fish_select_column_fish_aggregate_bool_exp_max_arguments_columns!
-  distinct: Boolean
-  filter: fish_bool_exp
-  predicate: float8_comparison_exp!
-}
-
-input fish_aggregate_bool_exp_min {
-  arguments: fish_select_column_fish_aggregate_bool_exp_min_arguments_columns!
-  distinct: Boolean
-  filter: fish_bool_exp
-  predicate: float8_comparison_exp!
-}
-
-input fish_aggregate_bool_exp_stddev_samp {
-  arguments: fish_select_column_fish_aggregate_bool_exp_stddev_samp_arguments_columns!
-  distinct: Boolean
-  filter: fish_bool_exp
-  predicate: float8_comparison_exp!
-}
-
-input fish_aggregate_bool_exp_sum {
-  arguments: fish_select_column_fish_aggregate_bool_exp_sum_arguments_columns!
-  distinct: Boolean
-  filter: fish_bool_exp
-  predicate: float8_comparison_exp!
-}
-
-input fish_aggregate_bool_exp_var_samp {
-  arguments: fish_select_column_fish_aggregate_bool_exp_var_samp_arguments_columns!
-  distinct: Boolean
-  filter: fish_bool_exp
-  predicate: float8_comparison_exp!
 }
 
 """
@@ -1911,19 +743,7 @@ input fish_arr_rel_insert_input {
 
 """aggregate avg on columns"""
 type fish_avg_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
   report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
   upvotes: Float
 }
 
@@ -1931,557 +751,8 @@ type fish_avg_fields {
 order by avg() on columns of table "fish"
 """
 input fish_avg_order_by {
-  approval_rate: order_by
-  battle_power: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
-  level: order_by
-  max_health: order_by
-  position_row: order_by
   report_count: order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
   upvotes: order_by
-}
-
-"""
-columns and relationships of "fish_battle"
-"""
-type fish_battle {
-  approval_rate: float8
-  artist: String
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-  id: uuid
-  image_url: String
-  is_alive: Boolean
-  is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  reported: Boolean
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-  user_id: String
-}
-
-"""
-aggregated selection of "fish_battle"
-"""
-type fish_battle_aggregate {
-  aggregate: fish_battle_aggregate_fields
-  nodes: [fish_battle!]!
-}
-
-"""
-aggregate fields of "fish_battle"
-"""
-type fish_battle_aggregate_fields {
-  avg: fish_battle_avg_fields
-  count(columns: [fish_battle_select_column!], distinct: Boolean): Int!
-  max: fish_battle_max_fields
-  min: fish_battle_min_fields
-  stddev: fish_battle_stddev_fields
-  stddev_pop: fish_battle_stddev_pop_fields
-  stddev_samp: fish_battle_stddev_samp_fields
-  sum: fish_battle_sum_fields
-  var_pop: fish_battle_var_pop_fields
-  var_samp: fish_battle_var_samp_fields
-  variance: fish_battle_variance_fields
-}
-
-"""aggregate avg on columns"""
-type fish_battle_avg_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""
-Boolean expression to filter rows from the table "fish_battle". All fields are combined with a logical 'AND'.
-"""
-input fish_battle_bool_exp {
-  _and: [fish_battle_bool_exp!]
-  _not: fish_battle_bool_exp
-  _or: [fish_battle_bool_exp!]
-  approval_rate: float8_comparison_exp
-  artist: String_comparison_exp
-  battle_power: numeric_comparison_exp
-  created_at: timestamp_comparison_exp
-  downvotes: Int_comparison_exp
-  experience: Int_comparison_exp
-  health: Int_comparison_exp
-  id: uuid_comparison_exp
-  image_url: String_comparison_exp
-  is_alive: Boolean_comparison_exp
-  is_approved: Boolean_comparison_exp
-  is_in_battle_mode: Boolean_comparison_exp
-  last_exp_update: timestamp_comparison_exp
-  level: Int_comparison_exp
-  max_health: Int_comparison_exp
-  moderator_notes: String_comparison_exp
-  position_row: Int_comparison_exp
-  report_count: Int_comparison_exp
-  reported: Boolean_comparison_exp
-  score: Int_comparison_exp
-  talent: Int_comparison_exp
-  total_losses: Int_comparison_exp
-  total_wins: Int_comparison_exp
-  upvotes: Int_comparison_exp
-  user_id: String_comparison_exp
-}
-
-"""
-input type for incrementing numeric columns in table "fish_battle"
-"""
-input fish_battle_inc_input {
-  approval_rate: float8
-  battle_power: numeric
-  downvotes: Int
-  experience: Int
-  health: Int
-  level: Int
-  max_health: Int
-  position_row: Int
-  report_count: Int
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-}
-
-"""
-input type for inserting data into table "fish_battle"
-"""
-input fish_battle_insert_input {
-  approval_rate: float8
-  artist: String
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-  id: uuid
-  image_url: String
-  is_alive: Boolean
-  is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  reported: Boolean
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-  user_id: String
-}
-
-"""aggregate max on columns"""
-type fish_battle_max_fields {
-  approval_rate: float8
-  artist: String
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-  id: uuid
-  image_url: String
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-  user_id: String
-}
-
-"""aggregate min on columns"""
-type fish_battle_min_fields {
-  approval_rate: float8
-  artist: String
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-  id: uuid
-  image_url: String
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-  user_id: String
-}
-
-"""
-response of any mutation on the table "fish_battle"
-"""
-type fish_battle_mutation_response {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [fish_battle!]!
-}
-
-"""Ordering options when selecting data from "fish_battle"."""
-input fish_battle_order_by {
-  approval_rate: order_by
-  artist: order_by
-  battle_power: order_by
-  created_at: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
-  id: order_by
-  image_url: order_by
-  is_alive: order_by
-  is_approved: order_by
-  is_in_battle_mode: order_by
-  last_exp_update: order_by
-  level: order_by
-  max_health: order_by
-  moderator_notes: order_by
-  position_row: order_by
-  report_count: order_by
-  reported: order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
-  upvotes: order_by
-  user_id: order_by
-}
-
-"""
-select columns of table "fish_battle"
-"""
-enum fish_battle_select_column {
-  """column name"""
-  approval_rate
-
-  """column name"""
-  artist
-
-  """column name"""
-  battle_power
-
-  """column name"""
-  created_at
-
-  """column name"""
-  downvotes
-
-  """column name"""
-  experience
-
-  """column name"""
-  health
-
-  """column name"""
-  id
-
-  """column name"""
-  image_url
-
-  """column name"""
-  is_alive
-
-  """column name"""
-  is_approved
-
-  """column name"""
-  is_in_battle_mode
-
-  """column name"""
-  last_exp_update
-
-  """column name"""
-  level
-
-  """column name"""
-  max_health
-
-  """column name"""
-  moderator_notes
-
-  """column name"""
-  position_row
-
-  """column name"""
-  report_count
-
-  """column name"""
-  reported
-
-  """column name"""
-  score
-
-  """column name"""
-  talent
-
-  """column name"""
-  total_losses
-
-  """column name"""
-  total_wins
-
-  """column name"""
-  upvotes
-
-  """column name"""
-  user_id
-}
-
-"""
-input type for updating data in table "fish_battle"
-"""
-input fish_battle_set_input {
-  approval_rate: float8
-  artist: String
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-  id: uuid
-  image_url: String
-  is_alive: Boolean
-  is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  reported: Boolean
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-  user_id: String
-}
-
-"""aggregate stddev on columns"""
-type fish_battle_stddev_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""aggregate stddev_pop on columns"""
-type fish_battle_stddev_pop_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""aggregate stddev_samp on columns"""
-type fish_battle_stddev_samp_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""
-Streaming cursor of the table "fish_battle"
-"""
-input fish_battle_stream_cursor_input {
-  """Stream column input with initial value"""
-  initial_value: fish_battle_stream_cursor_value_input!
-
-  """cursor ordering"""
-  ordering: cursor_ordering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input fish_battle_stream_cursor_value_input {
-  approval_rate: float8
-  artist: String
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-  id: uuid
-  image_url: String
-  is_alive: Boolean
-  is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  reported: Boolean
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-  user_id: String
-}
-
-"""aggregate sum on columns"""
-type fish_battle_sum_fields {
-  approval_rate: float8
-  battle_power: numeric
-  downvotes: Int
-  experience: Int
-  health: Int
-  level: Int
-  max_health: Int
-  position_row: Int
-  report_count: Int
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-}
-
-input fish_battle_updates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: fish_battle_inc_input
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: fish_battle_set_input
-
-  """filter the rows which have to be updated"""
-  where: fish_battle_bool_exp!
-}
-
-"""aggregate var_pop on columns"""
-type fish_battle_var_pop_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""aggregate var_samp on columns"""
-type fish_battle_var_samp_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""aggregate variance on columns"""
-type fish_battle_variance_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
 }
 
 """
@@ -2491,37 +762,19 @@ input fish_bool_exp {
   _and: [fish_bool_exp!]
   _not: fish_bool_exp
   _or: [fish_bool_exp!]
-  approval_rate: float8_comparison_exp
   artist: String_comparison_exp
-  battleLogsByDefenderId: battle_log_bool_exp
-  battleLogsByDefenderId_aggregate: battle_log_aggregate_bool_exp
-  battle_logs: battle_log_bool_exp
-  battle_logs_aggregate: battle_log_aggregate_bool_exp
-  battle_power: numeric_comparison_exp
   created_at: timestamp_comparison_exp
-  downvotes: Int_comparison_exp
   economy_logs: economy_log_bool_exp
   economy_logs_aggregate: economy_log_aggregate_bool_exp
-  experience: Int_comparison_exp
-  health: Int_comparison_exp
+  fish_name: String_comparison_exp
   id: uuid_comparison_exp
   image_url: String_comparison_exp
-  is_alive: Boolean_comparison_exp
   is_approved: Boolean_comparison_exp
-  is_in_battle_mode: Boolean_comparison_exp
-  last_exp_update: timestamp_comparison_exp
-  level: Int_comparison_exp
-  max_health: Int_comparison_exp
-  moderator_notes: String_comparison_exp
-  position_row: Int_comparison_exp
+  personality_type: String_comparison_exp
   report_count: Int_comparison_exp
   reported: Boolean_comparison_exp
   reports: reports_bool_exp
   reports_aggregate: reports_aggregate_bool_exp
-  score: Int_comparison_exp
-  talent: Int_comparison_exp
-  total_losses: Int_comparison_exp
-  total_wins: Int_comparison_exp
   upvotes: Int_comparison_exp
   user: users_bool_exp
   user_id: String_comparison_exp
@@ -2543,17 +796,7 @@ enum fish_constraint {
 input type for incrementing numeric columns in table "fish"
 """
 input fish_inc_input {
-  battle_power: numeric
-  downvotes: Int
-  experience: Int
-  health: Int
-  level: Int
-  max_health: Int
-  position_row: Int
   report_count: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
   upvotes: Int
 }
 
@@ -2562,30 +805,16 @@ input type for inserting data into table "fish"
 """
 input fish_insert_input {
   artist: String
-  battleLogsByDefenderId: battle_log_arr_rel_insert_input
-  battle_logs: battle_log_arr_rel_insert_input
-  battle_power: numeric
   created_at: timestamp
-  downvotes: Int
   economy_logs: economy_log_arr_rel_insert_input
-  experience: Int
-  health: Int
+  fish_name: String
   id: uuid
   image_url: String
-  is_alive: Boolean
   is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
+  personality_type: String
   report_count: Int
   reported: Boolean
   reports: reports_arr_rel_insert_input
-  talent: Int
-  total_losses: Int
-  total_wins: Int
   upvotes: Int
   user: users_obj_rel_insert_input
   user_id: String
@@ -2594,25 +823,13 @@ input fish_insert_input {
 
 """aggregate max on columns"""
 type fish_max_fields {
-  approval_rate: float8
   artist: String
-  battle_power: numeric
   created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
+  fish_name: String
   id: uuid
   image_url: String
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
+  personality_type: String
   report_count: Int
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
   upvotes: Int
   user_id: String
 }
@@ -2621,50 +838,26 @@ type fish_max_fields {
 order by max() on columns of table "fish"
 """
 input fish_max_order_by {
-  approval_rate: order_by
   artist: order_by
-  battle_power: order_by
   created_at: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
+  fish_name: order_by
   id: order_by
   image_url: order_by
-  last_exp_update: order_by
-  level: order_by
-  max_health: order_by
-  moderator_notes: order_by
-  position_row: order_by
+  personality_type: order_by
   report_count: order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
   upvotes: order_by
   user_id: order_by
 }
 
 """aggregate min on columns"""
 type fish_min_fields {
-  approval_rate: float8
   artist: String
-  battle_power: numeric
   created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
+  fish_name: String
   id: uuid
   image_url: String
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
+  personality_type: String
   report_count: Int
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
   upvotes: Int
   user_id: String
 }
@@ -2673,25 +866,13 @@ type fish_min_fields {
 order by min() on columns of table "fish"
 """
 input fish_min_order_by {
-  approval_rate: order_by
   artist: order_by
-  battle_power: order_by
   created_at: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
+  fish_name: order_by
   id: order_by
   image_url: order_by
-  last_exp_update: order_by
-  level: order_by
-  max_health: order_by
-  moderator_notes: order_by
-  position_row: order_by
+  personality_type: order_by
   report_count: order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
   upvotes: order_by
   user_id: order_by
 }
@@ -2728,33 +909,17 @@ input fish_on_conflict {
 
 """Ordering options when selecting data from "fish"."""
 input fish_order_by {
-  approval_rate: order_by
   artist: order_by
-  battleLogsByDefenderId_aggregate: battle_log_aggregate_order_by
-  battle_logs_aggregate: battle_log_aggregate_order_by
-  battle_power: order_by
   created_at: order_by
-  downvotes: order_by
   economy_logs_aggregate: economy_log_aggregate_order_by
-  experience: order_by
-  health: order_by
+  fish_name: order_by
   id: order_by
   image_url: order_by
-  is_alive: order_by
   is_approved: order_by
-  is_in_battle_mode: order_by
-  last_exp_update: order_by
-  level: order_by
-  max_health: order_by
-  moderator_notes: order_by
-  position_row: order_by
+  personality_type: order_by
   report_count: order_by
   reported: order_by
   reports_aggregate: reports_aggregate_order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
   upvotes: order_by
   user: users_order_by
   user_id: order_by
@@ -2767,67 +932,230 @@ input fish_pk_columns_input {
 }
 
 """
-columns and relationships of "fish_rank"
+select columns of table "fish"
 """
-type fish_rank {
-  approval_rate: float8
+enum fish_select_column {
+  """column name"""
+  artist
+
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_name
+
+  """column name"""
+  id
+
+  """column name"""
+  image_url
+
+  """column name"""
+  is_approved
+
+  """column name"""
+  personality_type
+
+  """column name"""
+  report_count
+
+  """column name"""
+  reported
+
+  """column name"""
+  upvotes
+
+  """column name"""
+  user_id
+}
+
+"""
+select "fish_aggregate_bool_exp_bool_and_arguments_columns" columns of table "fish"
+"""
+enum fish_select_column_fish_aggregate_bool_exp_bool_and_arguments_columns {
+  """column name"""
+  is_approved
+
+  """column name"""
+  reported
+}
+
+"""
+select "fish_aggregate_bool_exp_bool_or_arguments_columns" columns of table "fish"
+"""
+enum fish_select_column_fish_aggregate_bool_exp_bool_or_arguments_columns {
+  """column name"""
+  is_approved
+
+  """column name"""
+  reported
+}
+
+"""
+input type for updating data in table "fish"
+"""
+input fish_set_input {
   artist: String
-  battle_power: numeric
   created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
+  fish_name: String
   id: uuid
   image_url: String
+  is_approved: Boolean
+  personality_type: String
+  report_count: Int
+  reported: Boolean
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate stddev on columns"""
+type fish_stddev_fields {
+  report_count: Float
+  upvotes: Float
+}
+
+"""
+order by stddev() on columns of table "fish"
+"""
+input fish_stddev_order_by {
+  report_count: order_by
+  upvotes: order_by
+}
+
+"""aggregate stddev_pop on columns"""
+type fish_stddev_pop_fields {
+  report_count: Float
+  upvotes: Float
+}
+
+"""
+order by stddev_pop() on columns of table "fish"
+"""
+input fish_stddev_pop_order_by {
+  report_count: order_by
+  upvotes: order_by
+}
+
+"""aggregate stddev_samp on columns"""
+type fish_stddev_samp_fields {
+  report_count: Float
+  upvotes: Float
+}
+
+"""
+order by stddev_samp() on columns of table "fish"
+"""
+input fish_stddev_samp_order_by {
+  report_count: order_by
+  upvotes: order_by
+}
+
+"""
+Streaming cursor of the table "fish"
+"""
+input fish_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: fish_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input fish_stream_cursor_value_input {
+  artist: String
+  created_at: timestamp
+  fish_name: String
+  id: uuid
+  image_url: String
+  is_approved: Boolean
+  personality_type: String
+  report_count: Int
+  reported: Boolean
+  upvotes: Int
+  user_id: String
+}
+
+"""aggregate sum on columns"""
+type fish_sum_fields {
+  report_count: Int
+  upvotes: Int
+}
+
+"""
+order by sum() on columns of table "fish"
+"""
+input fish_sum_order_by {
+  report_count: order_by
+  upvotes: order_by
+}
+
+"""测试鱼数据表，用于存储从原作者后端下载的鱼数据"""
+type fish_test {
+  """作者名称"""
+  artist: String
+
+  """计算后的战斗力"""
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int!
+  experience: Int!
+  health: Int!
+
+  """鱼的唯一标识符 (UUID)"""
+  id: uuid!
+
+  """鱼的图片URL（七牛云存储）"""
+  image_url: String!
   is_alive: Boolean
   is_approved: Boolean
   is_in_battle_mode: Boolean
   last_exp_update: timestamp
-  level: Int
-  max_health: Int
+  level: Int!
+  max_health: Int!
   moderator_notes: String
   position_row: Int
   report_count: Int
   reported: Boolean
-  score: Int
-  talent: Int
+
+  """天赋值，影响战斗力"""
+  talent: Int!
   total_losses: Int
   total_wins: Int
-  upvotes: Int
-  user_avatar_url: String
-  user_display_name: String
-  user_id: String
-  user_reputation: Int
+  upvotes: Int!
+
+  """创建该鱼的用户ID"""
+  user_id: String!
 }
 
 """
-aggregated selection of "fish_rank"
+aggregated selection of "fish_test"
 """
-type fish_rank_aggregate {
-  aggregate: fish_rank_aggregate_fields
-  nodes: [fish_rank!]!
+type fish_test_aggregate {
+  aggregate: fish_test_aggregate_fields
+  nodes: [fish_test!]!
 }
 
 """
-aggregate fields of "fish_rank"
+aggregate fields of "fish_test"
 """
-type fish_rank_aggregate_fields {
-  avg: fish_rank_avg_fields
-  count(columns: [fish_rank_select_column!], distinct: Boolean): Int!
-  max: fish_rank_max_fields
-  min: fish_rank_min_fields
-  stddev: fish_rank_stddev_fields
-  stddev_pop: fish_rank_stddev_pop_fields
-  stddev_samp: fish_rank_stddev_samp_fields
-  sum: fish_rank_sum_fields
-  var_pop: fish_rank_var_pop_fields
-  var_samp: fish_rank_var_samp_fields
-  variance: fish_rank_variance_fields
+type fish_test_aggregate_fields {
+  avg: fish_test_avg_fields
+  count(columns: [fish_test_select_column!], distinct: Boolean): Int!
+  max: fish_test_max_fields
+  min: fish_test_min_fields
+  stddev: fish_test_stddev_fields
+  stddev_pop: fish_test_stddev_pop_fields
+  stddev_samp: fish_test_stddev_samp_fields
+  sum: fish_test_sum_fields
+  var_pop: fish_test_var_pop_fields
+  var_samp: fish_test_var_samp_fields
+  variance: fish_test_variance_fields
 }
 
 """aggregate avg on columns"""
-type fish_rank_avg_fields {
-  approval_rate: Float
+type fish_test_avg_fields {
+  """计算后的战斗力"""
   battle_power: Float
   downvotes: Float
   experience: Float
@@ -2836,22 +1164,21 @@ type fish_rank_avg_fields {
   max_health: Float
   position_row: Float
   report_count: Float
-  score: Float
+
+  """天赋值，影响战斗力"""
   talent: Float
   total_losses: Float
   total_wins: Float
   upvotes: Float
-  user_reputation: Float
 }
 
 """
-Boolean expression to filter rows from the table "fish_rank". All fields are combined with a logical 'AND'.
+Boolean expression to filter rows from the table "fish_test". All fields are combined with a logical 'AND'.
 """
-input fish_rank_bool_exp {
-  _and: [fish_rank_bool_exp!]
-  _not: fish_rank_bool_exp
-  _or: [fish_rank_bool_exp!]
-  approval_rate: float8_comparison_exp
+input fish_test_bool_exp {
+  _and: [fish_test_bool_exp!]
+  _not: fish_test_bool_exp
+  _or: [fish_test_bool_exp!]
   artist: String_comparison_exp
   battle_power: numeric_comparison_exp
   created_at: timestamp_comparison_exp
@@ -2870,27 +1197,100 @@ input fish_rank_bool_exp {
   position_row: Int_comparison_exp
   report_count: Int_comparison_exp
   reported: Boolean_comparison_exp
-  score: Int_comparison_exp
   talent: Int_comparison_exp
   total_losses: Int_comparison_exp
   total_wins: Int_comparison_exp
   upvotes: Int_comparison_exp
-  user_avatar_url: String_comparison_exp
-  user_display_name: String_comparison_exp
   user_id: String_comparison_exp
-  user_reputation: Int_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "fish_test"
+"""
+enum fish_test_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  fish_test_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "fish_test"
+"""
+input fish_test_inc_input {
+  """计算后的战斗力"""
+  battle_power: numeric
+  downvotes: Int
+  experience: Int
+  health: Int
+  level: Int
+  max_health: Int
+  position_row: Int
+  report_count: Int
+
+  """天赋值，影响战斗力"""
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+}
+
+"""
+input type for inserting data into table "fish_test"
+"""
+input fish_test_insert_input {
+  """作者名称"""
+  artist: String
+
+  """计算后的战斗力"""
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+
+  """鱼的唯一标识符 (UUID)"""
+  id: uuid
+
+  """鱼的图片URL（七牛云存储）"""
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+
+  """天赋值，影响战斗力"""
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+
+  """创建该鱼的用户ID"""
+  user_id: String
 }
 
 """aggregate max on columns"""
-type fish_rank_max_fields {
-  approval_rate: float8
+type fish_test_max_fields {
+  """作者名称"""
   artist: String
+
+  """计算后的战斗力"""
   battle_power: numeric
   created_at: timestamp
   downvotes: Int
   experience: Int
   health: Int
+
+  """鱼的唯一标识符 (UUID)"""
   id: uuid
+
+  """鱼的图片URL（七牛云存储）"""
   image_url: String
   last_exp_update: timestamp
   level: Int
@@ -2898,27 +1298,33 @@ type fish_rank_max_fields {
   moderator_notes: String
   position_row: Int
   report_count: Int
-  score: Int
+
+  """天赋值，影响战斗力"""
   talent: Int
   total_losses: Int
   total_wins: Int
   upvotes: Int
-  user_avatar_url: String
-  user_display_name: String
+
+  """创建该鱼的用户ID"""
   user_id: String
-  user_reputation: Int
 }
 
 """aggregate min on columns"""
-type fish_rank_min_fields {
-  approval_rate: float8
+type fish_test_min_fields {
+  """作者名称"""
   artist: String
+
+  """计算后的战斗力"""
   battle_power: numeric
   created_at: timestamp
   downvotes: Int
   experience: Int
   health: Int
+
+  """鱼的唯一标识符 (UUID)"""
   id: uuid
+
+  """鱼的图片URL（七牛云存储）"""
   image_url: String
   last_exp_update: timestamp
   level: Int
@@ -2926,20 +1332,39 @@ type fish_rank_min_fields {
   moderator_notes: String
   position_row: Int
   report_count: Int
-  score: Int
+
+  """天赋值，影响战斗力"""
   talent: Int
   total_losses: Int
   total_wins: Int
   upvotes: Int
-  user_avatar_url: String
-  user_display_name: String
+
+  """创建该鱼的用户ID"""
   user_id: String
-  user_reputation: Int
 }
 
-"""Ordering options when selecting data from "fish_rank"."""
-input fish_rank_order_by {
-  approval_rate: order_by
+"""
+response of any mutation on the table "fish_test"
+"""
+type fish_test_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [fish_test!]!
+}
+
+"""
+on_conflict condition type for table "fish_test"
+"""
+input fish_test_on_conflict {
+  constraint: fish_test_constraint!
+  update_columns: [fish_test_update_column!]! = []
+  where: fish_test_bool_exp
+}
+
+"""Ordering options when selecting data from "fish_test"."""
+input fish_test_order_by {
   artist: order_by
   battle_power: order_by
   created_at: order_by
@@ -2958,24 +1383,23 @@ input fish_rank_order_by {
   position_row: order_by
   report_count: order_by
   reported: order_by
-  score: order_by
   talent: order_by
   total_losses: order_by
   total_wins: order_by
   upvotes: order_by
-  user_avatar_url: order_by
-  user_display_name: order_by
   user_id: order_by
-  user_reputation: order_by
+}
+
+"""primary key columns input for table: fish_test"""
+input fish_test_pk_columns_input {
+  """鱼的唯一标识符 (UUID)"""
+  id: uuid!
 }
 
 """
-select columns of table "fish_rank"
+select columns of table "fish_test"
 """
-enum fish_rank_select_column {
-  """column name"""
-  approval_rate
-
+enum fish_test_select_column {
   """column name"""
   artist
 
@@ -3031,7 +1455,243 @@ enum fish_rank_select_column {
   reported
 
   """column name"""
-  score
+  talent
+
+  """column name"""
+  total_losses
+
+  """column name"""
+  total_wins
+
+  """column name"""
+  upvotes
+
+  """column name"""
+  user_id
+}
+
+"""
+input type for updating data in table "fish_test"
+"""
+input fish_test_set_input {
+  """作者名称"""
+  artist: String
+
+  """计算后的战斗力"""
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+
+  """鱼的唯一标识符 (UUID)"""
+  id: uuid
+
+  """鱼的图片URL（七牛云存储）"""
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+
+  """天赋值，影响战斗力"""
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+
+  """创建该鱼的用户ID"""
+  user_id: String
+}
+
+"""aggregate stddev on columns"""
+type fish_test_stddev_fields {
+  """计算后的战斗力"""
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+
+  """天赋值，影响战斗力"""
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type fish_test_stddev_pop_fields {
+  """计算后的战斗力"""
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+
+  """天赋值，影响战斗力"""
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type fish_test_stddev_samp_fields {
+  """计算后的战斗力"""
+  battle_power: Float
+  downvotes: Float
+  experience: Float
+  health: Float
+  level: Float
+  max_health: Float
+  position_row: Float
+  report_count: Float
+
+  """天赋值，影响战斗力"""
+  talent: Float
+  total_losses: Float
+  total_wins: Float
+  upvotes: Float
+}
+
+"""
+Streaming cursor of the table "fish_test"
+"""
+input fish_test_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: fish_test_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input fish_test_stream_cursor_value_input {
+  """作者名称"""
+  artist: String
+
+  """计算后的战斗力"""
+  battle_power: numeric
+  created_at: timestamp
+  downvotes: Int
+  experience: Int
+  health: Int
+
+  """鱼的唯一标识符 (UUID)"""
+  id: uuid
+
+  """鱼的图片URL（七牛云存储）"""
+  image_url: String
+  is_alive: Boolean
+  is_approved: Boolean
+  is_in_battle_mode: Boolean
+  last_exp_update: timestamp
+  level: Int
+  max_health: Int
+  moderator_notes: String
+  position_row: Int
+  report_count: Int
+  reported: Boolean
+
+  """天赋值，影响战斗力"""
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+
+  """创建该鱼的用户ID"""
+  user_id: String
+}
+
+"""aggregate sum on columns"""
+type fish_test_sum_fields {
+  """计算后的战斗力"""
+  battle_power: numeric
+  downvotes: Int
+  experience: Int
+  health: Int
+  level: Int
+  max_health: Int
+  position_row: Int
+  report_count: Int
+
+  """天赋值，影响战斗力"""
+  talent: Int
+  total_losses: Int
+  total_wins: Int
+  upvotes: Int
+}
+
+"""
+update columns of table "fish_test"
+"""
+enum fish_test_update_column {
+  """column name"""
+  artist
+
+  """column name"""
+  battle_power
+
+  """column name"""
+  created_at
+
+  """column name"""
+  downvotes
+
+  """column name"""
+  experience
+
+  """column name"""
+  health
+
+  """column name"""
+  id
+
+  """column name"""
+  image_url
+
+  """column name"""
+  is_alive
+
+  """column name"""
+  is_approved
+
+  """column name"""
+  is_in_battle_mode
+
+  """column name"""
+  last_exp_update
+
+  """column name"""
+  level
+
+  """column name"""
+  max_health
+
+  """column name"""
+  moderator_notes
+
+  """column name"""
+  position_row
+
+  """column name"""
+  report_count
+
+  """column name"""
+  reported
 
   """column name"""
   talent
@@ -3046,140 +1706,23 @@ enum fish_rank_select_column {
   upvotes
 
   """column name"""
-  user_avatar_url
-
-  """column name"""
-  user_display_name
-
-  """column name"""
   user_id
-
-  """column name"""
-  user_reputation
 }
 
-"""aggregate stddev on columns"""
-type fish_rank_stddev_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-  user_reputation: Float
-}
+input fish_test_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: fish_test_inc_input
 
-"""aggregate stddev_pop on columns"""
-type fish_rank_stddev_pop_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-  user_reputation: Float
-}
+  """sets the columns of the filtered rows to the given values"""
+  _set: fish_test_set_input
 
-"""aggregate stddev_samp on columns"""
-type fish_rank_stddev_samp_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-  user_reputation: Float
-}
-
-"""
-Streaming cursor of the table "fish_rank"
-"""
-input fish_rank_stream_cursor_input {
-  """Stream column input with initial value"""
-  initial_value: fish_rank_stream_cursor_value_input!
-
-  """cursor ordering"""
-  ordering: cursor_ordering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input fish_rank_stream_cursor_value_input {
-  approval_rate: float8
-  artist: String
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-  id: uuid
-  image_url: String
-  is_alive: Boolean
-  is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  reported: Boolean
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-  user_avatar_url: String
-  user_display_name: String
-  user_id: String
-  user_reputation: Int
-}
-
-"""aggregate sum on columns"""
-type fish_rank_sum_fields {
-  approval_rate: float8
-  battle_power: numeric
-  downvotes: Int
-  experience: Int
-  health: Int
-  level: Int
-  max_health: Int
-  position_row: Int
-  report_count: Int
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-  user_reputation: Int
+  """filter the rows which have to be updated"""
+  where: fish_test_bool_exp!
 }
 
 """aggregate var_pop on columns"""
-type fish_rank_var_pop_fields {
-  approval_rate: Float
+type fish_test_var_pop_fields {
+  """计算后的战斗力"""
   battle_power: Float
   downvotes: Float
   experience: Float
@@ -3188,17 +1731,17 @@ type fish_rank_var_pop_fields {
   max_health: Float
   position_row: Float
   report_count: Float
-  score: Float
+
+  """天赋值，影响战斗力"""
   talent: Float
   total_losses: Float
   total_wins: Float
   upvotes: Float
-  user_reputation: Float
 }
 
 """aggregate var_samp on columns"""
-type fish_rank_var_samp_fields {
-  approval_rate: Float
+type fish_test_var_samp_fields {
+  """计算后的战斗力"""
   battle_power: Float
   downvotes: Float
   experience: Float
@@ -3207,17 +1750,17 @@ type fish_rank_var_samp_fields {
   max_health: Float
   position_row: Float
   report_count: Float
-  score: Float
+
+  """天赋值，影响战斗力"""
   talent: Float
   total_losses: Float
   total_wins: Float
   upvotes: Float
-  user_reputation: Float
 }
 
 """aggregate variance on columns"""
-type fish_rank_variance_fields {
-  approval_rate: Float
+type fish_test_variance_fields {
+  """计算后的战斗力"""
   battle_power: Float
   downvotes: Float
   experience: Float
@@ -3226,411 +1769,12 @@ type fish_rank_variance_fields {
   max_health: Float
   position_row: Float
   report_count: Float
-  score: Float
+
+  """天赋值，影响战斗力"""
   talent: Float
   total_losses: Float
   total_wins: Float
   upvotes: Float
-  user_reputation: Float
-}
-
-"""
-select columns of table "fish"
-"""
-enum fish_select_column {
-  """column name"""
-  approval_rate
-
-  """column name"""
-  artist
-
-  """column name"""
-  battle_power
-
-  """column name"""
-  created_at
-
-  """column name"""
-  downvotes
-
-  """column name"""
-  experience
-
-  """column name"""
-  health
-
-  """column name"""
-  id
-
-  """column name"""
-  image_url
-
-  """column name"""
-  is_alive
-
-  """column name"""
-  is_approved
-
-  """column name"""
-  is_in_battle_mode
-
-  """column name"""
-  last_exp_update
-
-  """column name"""
-  level
-
-  """column name"""
-  max_health
-
-  """column name"""
-  moderator_notes
-
-  """column name"""
-  position_row
-
-  """column name"""
-  report_count
-
-  """column name"""
-  reported
-
-  """column name"""
-  score
-
-  """column name"""
-  talent
-
-  """column name"""
-  total_losses
-
-  """column name"""
-  total_wins
-
-  """column name"""
-  upvotes
-
-  """column name"""
-  user_id
-}
-
-"""
-select "fish_aggregate_bool_exp_avg_arguments_columns" columns of table "fish"
-"""
-enum fish_select_column_fish_aggregate_bool_exp_avg_arguments_columns {
-  """column name"""
-  approval_rate
-}
-
-"""
-select "fish_aggregate_bool_exp_bool_and_arguments_columns" columns of table "fish"
-"""
-enum fish_select_column_fish_aggregate_bool_exp_bool_and_arguments_columns {
-  """column name"""
-  is_alive
-
-  """column name"""
-  is_approved
-
-  """column name"""
-  is_in_battle_mode
-
-  """column name"""
-  reported
-}
-
-"""
-select "fish_aggregate_bool_exp_bool_or_arguments_columns" columns of table "fish"
-"""
-enum fish_select_column_fish_aggregate_bool_exp_bool_or_arguments_columns {
-  """column name"""
-  is_alive
-
-  """column name"""
-  is_approved
-
-  """column name"""
-  is_in_battle_mode
-
-  """column name"""
-  reported
-}
-
-"""
-select "fish_aggregate_bool_exp_corr_arguments_columns" columns of table "fish"
-"""
-enum fish_select_column_fish_aggregate_bool_exp_corr_arguments_columns {
-  """column name"""
-  approval_rate
-}
-
-"""
-select "fish_aggregate_bool_exp_covar_samp_arguments_columns" columns of table "fish"
-"""
-enum fish_select_column_fish_aggregate_bool_exp_covar_samp_arguments_columns {
-  """column name"""
-  approval_rate
-}
-
-"""
-select "fish_aggregate_bool_exp_max_arguments_columns" columns of table "fish"
-"""
-enum fish_select_column_fish_aggregate_bool_exp_max_arguments_columns {
-  """column name"""
-  approval_rate
-}
-
-"""
-select "fish_aggregate_bool_exp_min_arguments_columns" columns of table "fish"
-"""
-enum fish_select_column_fish_aggregate_bool_exp_min_arguments_columns {
-  """column name"""
-  approval_rate
-}
-
-"""
-select "fish_aggregate_bool_exp_stddev_samp_arguments_columns" columns of table "fish"
-"""
-enum fish_select_column_fish_aggregate_bool_exp_stddev_samp_arguments_columns {
-  """column name"""
-  approval_rate
-}
-
-"""
-select "fish_aggregate_bool_exp_sum_arguments_columns" columns of table "fish"
-"""
-enum fish_select_column_fish_aggregate_bool_exp_sum_arguments_columns {
-  """column name"""
-  approval_rate
-}
-
-"""
-select "fish_aggregate_bool_exp_var_samp_arguments_columns" columns of table "fish"
-"""
-enum fish_select_column_fish_aggregate_bool_exp_var_samp_arguments_columns {
-  """column name"""
-  approval_rate
-}
-
-"""
-input type for updating data in table "fish"
-"""
-input fish_set_input {
-  artist: String
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-  id: uuid
-  image_url: String
-  is_alive: Boolean
-  is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  reported: Boolean
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-  user_id: String
-}
-
-"""aggregate stddev on columns"""
-type fish_stddev_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""
-order by stddev() on columns of table "fish"
-"""
-input fish_stddev_order_by {
-  approval_rate: order_by
-  battle_power: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
-  level: order_by
-  max_health: order_by
-  position_row: order_by
-  report_count: order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
-  upvotes: order_by
-}
-
-"""aggregate stddev_pop on columns"""
-type fish_stddev_pop_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""
-order by stddev_pop() on columns of table "fish"
-"""
-input fish_stddev_pop_order_by {
-  approval_rate: order_by
-  battle_power: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
-  level: order_by
-  max_health: order_by
-  position_row: order_by
-  report_count: order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
-  upvotes: order_by
-}
-
-"""aggregate stddev_samp on columns"""
-type fish_stddev_samp_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""
-order by stddev_samp() on columns of table "fish"
-"""
-input fish_stddev_samp_order_by {
-  approval_rate: order_by
-  battle_power: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
-  level: order_by
-  max_health: order_by
-  position_row: order_by
-  report_count: order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
-  upvotes: order_by
-}
-
-"""
-Streaming cursor of the table "fish"
-"""
-input fish_stream_cursor_input {
-  """Stream column input with initial value"""
-  initial_value: fish_stream_cursor_value_input!
-
-  """cursor ordering"""
-  ordering: cursor_ordering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input fish_stream_cursor_value_input {
-  approval_rate: float8
-  artist: String
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-  id: uuid
-  image_url: String
-  is_alive: Boolean
-  is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  reported: Boolean
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-  user_id: String
-}
-
-"""aggregate sum on columns"""
-type fish_sum_fields {
-  approval_rate: float8
-  battle_power: numeric
-  downvotes: Int
-  experience: Int
-  health: Int
-  level: Int
-  max_health: Int
-  position_row: Int
-  report_count: Int
-  score: Int
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-}
-
-"""
-order by sum() on columns of table "fish"
-"""
-input fish_sum_order_by {
-  approval_rate: order_by
-  battle_power: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
-  level: order_by
-  max_health: order_by
-  position_row: order_by
-  report_count: order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
-  upvotes: order_by
 }
 
 """
@@ -3641,19 +1785,10 @@ enum fish_update_column {
   artist
 
   """column name"""
-  battle_power
-
-  """column name"""
   created_at
 
   """column name"""
-  downvotes
-
-  """column name"""
-  experience
-
-  """column name"""
-  health
+  fish_name
 
   """column name"""
   id
@@ -3662,43 +1797,16 @@ enum fish_update_column {
   image_url
 
   """column name"""
-  is_alive
-
-  """column name"""
   is_approved
 
   """column name"""
-  is_in_battle_mode
-
-  """column name"""
-  last_exp_update
-
-  """column name"""
-  level
-
-  """column name"""
-  max_health
-
-  """column name"""
-  moderator_notes
-
-  """column name"""
-  position_row
+  personality_type
 
   """column name"""
   report_count
 
   """column name"""
   reported
-
-  """column name"""
-  talent
-
-  """column name"""
-  total_losses
-
-  """column name"""
-  total_wins
 
   """column name"""
   upvotes
@@ -3720,19 +1828,7 @@ input fish_updates {
 
 """aggregate var_pop on columns"""
 type fish_var_pop_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
   report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
   upvotes: Float
 }
 
@@ -3740,37 +1836,13 @@ type fish_var_pop_fields {
 order by var_pop() on columns of table "fish"
 """
 input fish_var_pop_order_by {
-  approval_rate: order_by
-  battle_power: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
-  level: order_by
-  max_health: order_by
-  position_row: order_by
   report_count: order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
   upvotes: order_by
 }
 
 """aggregate var_samp on columns"""
 type fish_var_samp_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
   report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
   upvotes: Float
 }
 
@@ -3778,37 +1850,13 @@ type fish_var_samp_fields {
 order by var_samp() on columns of table "fish"
 """
 input fish_var_samp_order_by {
-  approval_rate: order_by
-  battle_power: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
-  level: order_by
-  max_health: order_by
-  position_row: order_by
   report_count: order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
   upvotes: order_by
 }
 
 """aggregate variance on columns"""
 type fish_variance_fields {
-  approval_rate: Float
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
   report_count: Float
-  score: Float
-  talent: Float
-  total_losses: Float
-  total_wins: Float
   upvotes: Float
 }
 
@@ -3816,67 +1864,12 @@ type fish_variance_fields {
 order by variance() on columns of table "fish"
 """
 input fish_variance_order_by {
-  approval_rate: order_by
-  battle_power: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
-  level: order_by
-  max_health: order_by
-  position_row: order_by
   report_count: order_by
-  score: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
   upvotes: order_by
-}
-
-scalar float8
-
-"""
-Boolean expression to compare columns of type "float8". All fields are combined with logical 'AND'.
-"""
-input float8_comparison_exp {
-  _eq: float8
-  _gt: float8
-  _gte: float8
-  _in: [float8!]
-  _is_null: Boolean
-  _lt: float8
-  _lte: float8
-  _neq: float8
-  _nin: [float8!]
 }
 
 """mutation root"""
 type mutation_root {
-  """
-  delete data from the table: "battle_config"
-  """
-  delete_battle_config(
-    """filter the rows which have to be deleted"""
-    where: battle_config_bool_exp!
-  ): battle_config_mutation_response
-
-  """
-  delete single row from the table: "battle_config"
-  """
-  delete_battle_config_by_pk(id: Int!): battle_config
-
-  """
-  delete data from the table: "battle_log"
-  """
-  delete_battle_log(
-    """filter the rows which have to be deleted"""
-    where: battle_log_bool_exp!
-  ): battle_log_mutation_response
-
-  """
-  delete single row from the table: "battle_log"
-  """
-  delete_battle_log_by_pk(id: uuid!): battle_log
-
   """
   delete data from the table: "economy_log"
   """
@@ -3899,17 +1892,25 @@ type mutation_root {
   ): fish_mutation_response
 
   """
-  delete data from the table: "fish_battle"
-  """
-  delete_fish_battle(
-    """filter the rows which have to be deleted"""
-    where: fish_battle_bool_exp!
-  ): fish_battle_mutation_response
-
-  """
   delete single row from the table: "fish"
   """
   delete_fish_by_pk(id: uuid!): fish
+
+  """
+  delete data from the table: "fish_test"
+  """
+  delete_fish_test(
+    """filter the rows which have to be deleted"""
+    where: fish_test_bool_exp!
+  ): fish_test_mutation_response
+
+  """
+  delete single row from the table: "fish_test"
+  """
+  delete_fish_test_by_pk(
+    """鱼的唯一标识符 (UUID)"""
+    id: uuid!
+  ): fish_test
 
   """
   delete data from the table: "reports"
@@ -3964,50 +1965,6 @@ type mutation_root {
   delete_votes_by_pk(id: uuid!): votes
 
   """
-  insert data into the table: "battle_config"
-  """
-  insert_battle_config(
-    """the rows to be inserted"""
-    objects: [battle_config_insert_input!]!
-
-    """upsert condition"""
-    on_conflict: battle_config_on_conflict
-  ): battle_config_mutation_response
-
-  """
-  insert a single row into the table: "battle_config"
-  """
-  insert_battle_config_one(
-    """the row to be inserted"""
-    object: battle_config_insert_input!
-
-    """upsert condition"""
-    on_conflict: battle_config_on_conflict
-  ): battle_config
-
-  """
-  insert data into the table: "battle_log"
-  """
-  insert_battle_log(
-    """the rows to be inserted"""
-    objects: [battle_log_insert_input!]!
-
-    """upsert condition"""
-    on_conflict: battle_log_on_conflict
-  ): battle_log_mutation_response
-
-  """
-  insert a single row into the table: "battle_log"
-  """
-  insert_battle_log_one(
-    """the row to be inserted"""
-    object: battle_log_insert_input!
-
-    """upsert condition"""
-    on_conflict: battle_log_on_conflict
-  ): battle_log
-
-  """
   insert data into the table: "economy_log"
   """
   insert_economy_log(
@@ -4041,22 +1998,6 @@ type mutation_root {
   ): fish_mutation_response
 
   """
-  insert data into the table: "fish_battle"
-  """
-  insert_fish_battle(
-    """the rows to be inserted"""
-    objects: [fish_battle_insert_input!]!
-  ): fish_battle_mutation_response
-
-  """
-  insert a single row into the table: "fish_battle"
-  """
-  insert_fish_battle_one(
-    """the row to be inserted"""
-    object: fish_battle_insert_input!
-  ): fish_battle
-
-  """
   insert a single row into the table: "fish"
   """
   insert_fish_one(
@@ -4066,6 +2007,28 @@ type mutation_root {
     """upsert condition"""
     on_conflict: fish_on_conflict
   ): fish
+
+  """
+  insert data into the table: "fish_test"
+  """
+  insert_fish_test(
+    """the rows to be inserted"""
+    objects: [fish_test_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: fish_test_on_conflict
+  ): fish_test_mutation_response
+
+  """
+  insert a single row into the table: "fish_test"
+  """
+  insert_fish_test_one(
+    """the row to be inserted"""
+    object: fish_test_insert_input!
+
+    """upsert condition"""
+    on_conflict: fish_test_on_conflict
+  ): fish_test
 
   """
   insert data into the table: "reports"
@@ -4156,74 +2119,6 @@ type mutation_root {
   ): votes
 
   """
-  update data of the table: "battle_config"
-  """
-  update_battle_config(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: battle_config_inc_input
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: battle_config_set_input
-
-    """filter the rows which have to be updated"""
-    where: battle_config_bool_exp!
-  ): battle_config_mutation_response
-
-  """
-  update single row of the table: "battle_config"
-  """
-  update_battle_config_by_pk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: battle_config_inc_input
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: battle_config_set_input
-    pk_columns: battle_config_pk_columns_input!
-  ): battle_config
-
-  """
-  update multiples rows of table: "battle_config"
-  """
-  update_battle_config_many(
-    """updates to execute, in order"""
-    updates: [battle_config_updates!]!
-  ): [battle_config_mutation_response]
-
-  """
-  update data of the table: "battle_log"
-  """
-  update_battle_log(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: battle_log_inc_input
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: battle_log_set_input
-
-    """filter the rows which have to be updated"""
-    where: battle_log_bool_exp!
-  ): battle_log_mutation_response
-
-  """
-  update single row of the table: "battle_log"
-  """
-  update_battle_log_by_pk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: battle_log_inc_input
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: battle_log_set_input
-    pk_columns: battle_log_pk_columns_input!
-  ): battle_log
-
-  """
-  update multiples rows of table: "battle_log"
-  """
-  update_battle_log_many(
-    """updates to execute, in order"""
-    updates: [battle_log_updates!]!
-  ): [battle_log_mutation_response]
-
-  """
   update data of the table: "economy_log"
   """
   update_economy_log(
@@ -4272,28 +2167,6 @@ type mutation_root {
   ): fish_mutation_response
 
   """
-  update data of the table: "fish_battle"
-  """
-  update_fish_battle(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: fish_battle_inc_input
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: fish_battle_set_input
-
-    """filter the rows which have to be updated"""
-    where: fish_battle_bool_exp!
-  ): fish_battle_mutation_response
-
-  """
-  update multiples rows of table: "fish_battle"
-  """
-  update_fish_battle_many(
-    """updates to execute, in order"""
-    updates: [fish_battle_updates!]!
-  ): [fish_battle_mutation_response]
-
-  """
   update single row of the table: "fish"
   """
   update_fish_by_pk(
@@ -4312,6 +2185,40 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [fish_updates!]!
   ): [fish_mutation_response]
+
+  """
+  update data of the table: "fish_test"
+  """
+  update_fish_test(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: fish_test_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: fish_test_set_input
+
+    """filter the rows which have to be updated"""
+    where: fish_test_bool_exp!
+  ): fish_test_mutation_response
+
+  """
+  update single row of the table: "fish_test"
+  """
+  update_fish_test_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: fish_test_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: fish_test_set_input
+    pk_columns: fish_test_pk_columns_input!
+  ): fish_test
+
+  """
+  update multiples rows of table: "fish_test"
+  """
+  update_fish_test_many(
+    """updates to execute, in order"""
+    updates: [fish_test_updates!]!
+  ): [fish_test_mutation_response]
 
   """
   update data of the table: "reports"
@@ -4478,92 +2385,6 @@ enum order_by {
 
 type query_root {
   """
-  fetch data from the table: "battle_config"
-  """
-  battle_config(
-    """distinct select on columns"""
-    distinct_on: [battle_config_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_config_order_by!]
-
-    """filter the rows returned"""
-    where: battle_config_bool_exp
-  ): [battle_config!]!
-
-  """
-  fetch aggregated fields from the table: "battle_config"
-  """
-  battle_config_aggregate(
-    """distinct select on columns"""
-    distinct_on: [battle_config_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_config_order_by!]
-
-    """filter the rows returned"""
-    where: battle_config_bool_exp
-  ): battle_config_aggregate!
-
-  """fetch data from the table: "battle_config" using primary key columns"""
-  battle_config_by_pk(id: Int!): battle_config
-
-  """
-  fetch data from the table: "battle_log"
-  """
-  battle_log(
-    """distinct select on columns"""
-    distinct_on: [battle_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_log_order_by!]
-
-    """filter the rows returned"""
-    where: battle_log_bool_exp
-  ): [battle_log!]!
-
-  """
-  fetch aggregated fields from the table: "battle_log"
-  """
-  battle_log_aggregate(
-    """distinct select on columns"""
-    distinct_on: [battle_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_log_order_by!]
-
-    """filter the rows returned"""
-    where: battle_log_bool_exp
-  ): battle_log_aggregate!
-
-  """fetch data from the table: "battle_log" using primary key columns"""
-  battle_log_by_pk(id: uuid!): battle_log
-
-  """
   fetch data from the table: "economy_log"
   """
   economy_log(
@@ -4646,55 +2467,15 @@ type query_root {
     where: fish_bool_exp
   ): fish_aggregate!
 
-  """
-  fetch data from the table: "fish_battle"
-  """
-  fish_battle(
-    """distinct select on columns"""
-    distinct_on: [fish_battle_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [fish_battle_order_by!]
-
-    """filter the rows returned"""
-    where: fish_battle_bool_exp
-  ): [fish_battle!]!
-
-  """
-  fetch aggregated fields from the table: "fish_battle"
-  """
-  fish_battle_aggregate(
-    """distinct select on columns"""
-    distinct_on: [fish_battle_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [fish_battle_order_by!]
-
-    """filter the rows returned"""
-    where: fish_battle_bool_exp
-  ): fish_battle_aggregate!
-
   """fetch data from the table: "fish" using primary key columns"""
   fish_by_pk(id: uuid!): fish
 
   """
-  fetch data from the table: "fish_rank"
+  fetch data from the table: "fish_test"
   """
-  fish_rank(
+  fish_test(
     """distinct select on columns"""
-    distinct_on: [fish_rank_select_column!]
+    distinct_on: [fish_test_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -4703,18 +2484,18 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [fish_rank_order_by!]
+    order_by: [fish_test_order_by!]
 
     """filter the rows returned"""
-    where: fish_rank_bool_exp
-  ): [fish_rank!]!
+    where: fish_test_bool_exp
+  ): [fish_test!]!
 
   """
-  fetch aggregated fields from the table: "fish_rank"
+  fetch aggregated fields from the table: "fish_test"
   """
-  fish_rank_aggregate(
+  fish_test_aggregate(
     """distinct select on columns"""
-    distinct_on: [fish_rank_select_column!]
+    distinct_on: [fish_test_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -4723,11 +2504,17 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [fish_rank_order_by!]
+    order_by: [fish_test_order_by!]
 
     """filter the rows returned"""
-    where: fish_rank_bool_exp
-  ): fish_rank_aggregate!
+    where: fish_test_bool_exp
+  ): fish_test_aggregate!
+
+  """fetch data from the table: "fish_test" using primary key columns"""
+  fish_test_by_pk(
+    """鱼的唯一标识符 (UUID)"""
+    id: uuid!
+  ): fish_test
 
   """An array relationship"""
   reports(
@@ -4810,46 +2597,6 @@ type query_root {
 
   """fetch data from the table: "user_economy" using primary key columns"""
   user_economy_by_pk(user_id: String!): user_economy
-
-  """
-  fetch data from the table: "user_fish_summary"
-  """
-  user_fish_summary(
-    """distinct select on columns"""
-    distinct_on: [user_fish_summary_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [user_fish_summary_order_by!]
-
-    """filter the rows returned"""
-    where: user_fish_summary_bool_exp
-  ): [user_fish_summary!]!
-
-  """
-  fetch aggregated fields from the table: "user_fish_summary"
-  """
-  user_fish_summary_aggregate(
-    """distinct select on columns"""
-    distinct_on: [user_fish_summary_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [user_fish_summary_order_by!]
-
-    """filter the rows returned"""
-    where: user_fish_summary_bool_exp
-  ): user_fish_summary_aggregate!
 
   """
   fetch data from the table: "users"
@@ -5290,120 +3037,6 @@ input reports_updates {
 
 type subscription_root {
   """
-  fetch data from the table: "battle_config"
-  """
-  battle_config(
-    """distinct select on columns"""
-    distinct_on: [battle_config_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_config_order_by!]
-
-    """filter the rows returned"""
-    where: battle_config_bool_exp
-  ): [battle_config!]!
-
-  """
-  fetch aggregated fields from the table: "battle_config"
-  """
-  battle_config_aggregate(
-    """distinct select on columns"""
-    distinct_on: [battle_config_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_config_order_by!]
-
-    """filter the rows returned"""
-    where: battle_config_bool_exp
-  ): battle_config_aggregate!
-
-  """fetch data from the table: "battle_config" using primary key columns"""
-  battle_config_by_pk(id: Int!): battle_config
-
-  """
-  fetch data from the table in a streaming manner: "battle_config"
-  """
-  battle_config_stream(
-    """maximum number of rows returned in a single batch"""
-    batch_size: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [battle_config_stream_cursor_input]!
-
-    """filter the rows returned"""
-    where: battle_config_bool_exp
-  ): [battle_config!]!
-
-  """
-  fetch data from the table: "battle_log"
-  """
-  battle_log(
-    """distinct select on columns"""
-    distinct_on: [battle_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_log_order_by!]
-
-    """filter the rows returned"""
-    where: battle_log_bool_exp
-  ): [battle_log!]!
-
-  """
-  fetch aggregated fields from the table: "battle_log"
-  """
-  battle_log_aggregate(
-    """distinct select on columns"""
-    distinct_on: [battle_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [battle_log_order_by!]
-
-    """filter the rows returned"""
-    where: battle_log_bool_exp
-  ): battle_log_aggregate!
-
-  """fetch data from the table: "battle_log" using primary key columns"""
-  battle_log_by_pk(id: uuid!): battle_log
-
-  """
-  fetch data from the table in a streaming manner: "battle_log"
-  """
-  battle_log_stream(
-    """maximum number of rows returned in a single batch"""
-    batch_size: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [battle_log_stream_cursor_input]!
-
-    """filter the rows returned"""
-    where: battle_log_bool_exp
-  ): [battle_log!]!
-
-  """
   fetch data from the table: "economy_log"
   """
   economy_log(
@@ -5500,116 +3133,8 @@ type subscription_root {
     where: fish_bool_exp
   ): fish_aggregate!
 
-  """
-  fetch data from the table: "fish_battle"
-  """
-  fish_battle(
-    """distinct select on columns"""
-    distinct_on: [fish_battle_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [fish_battle_order_by!]
-
-    """filter the rows returned"""
-    where: fish_battle_bool_exp
-  ): [fish_battle!]!
-
-  """
-  fetch aggregated fields from the table: "fish_battle"
-  """
-  fish_battle_aggregate(
-    """distinct select on columns"""
-    distinct_on: [fish_battle_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [fish_battle_order_by!]
-
-    """filter the rows returned"""
-    where: fish_battle_bool_exp
-  ): fish_battle_aggregate!
-
-  """
-  fetch data from the table in a streaming manner: "fish_battle"
-  """
-  fish_battle_stream(
-    """maximum number of rows returned in a single batch"""
-    batch_size: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [fish_battle_stream_cursor_input]!
-
-    """filter the rows returned"""
-    where: fish_battle_bool_exp
-  ): [fish_battle!]!
-
   """fetch data from the table: "fish" using primary key columns"""
   fish_by_pk(id: uuid!): fish
-
-  """
-  fetch data from the table: "fish_rank"
-  """
-  fish_rank(
-    """distinct select on columns"""
-    distinct_on: [fish_rank_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [fish_rank_order_by!]
-
-    """filter the rows returned"""
-    where: fish_rank_bool_exp
-  ): [fish_rank!]!
-
-  """
-  fetch aggregated fields from the table: "fish_rank"
-  """
-  fish_rank_aggregate(
-    """distinct select on columns"""
-    distinct_on: [fish_rank_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [fish_rank_order_by!]
-
-    """filter the rows returned"""
-    where: fish_rank_bool_exp
-  ): fish_rank_aggregate!
-
-  """
-  fetch data from the table in a streaming manner: "fish_rank"
-  """
-  fish_rank_stream(
-    """maximum number of rows returned in a single batch"""
-    batch_size: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [fish_rank_stream_cursor_input]!
-
-    """filter the rows returned"""
-    where: fish_rank_bool_exp
-  ): [fish_rank!]!
 
   """
   fetch data from the table in a streaming manner: "fish"
@@ -5624,6 +3149,66 @@ type subscription_root {
     """filter the rows returned"""
     where: fish_bool_exp
   ): [fish!]!
+
+  """
+  fetch data from the table: "fish_test"
+  """
+  fish_test(
+    """distinct select on columns"""
+    distinct_on: [fish_test_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_test_order_by!]
+
+    """filter the rows returned"""
+    where: fish_test_bool_exp
+  ): [fish_test!]!
+
+  """
+  fetch aggregated fields from the table: "fish_test"
+  """
+  fish_test_aggregate(
+    """distinct select on columns"""
+    distinct_on: [fish_test_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_test_order_by!]
+
+    """filter the rows returned"""
+    where: fish_test_bool_exp
+  ): fish_test_aggregate!
+
+  """fetch data from the table: "fish_test" using primary key columns"""
+  fish_test_by_pk(
+    """鱼的唯一标识符 (UUID)"""
+    id: uuid!
+  ): fish_test
+
+  """
+  fetch data from the table in a streaming manner: "fish_test"
+  """
+  fish_test_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [fish_test_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: fish_test_bool_exp
+  ): [fish_test!]!
 
   """An array relationship"""
   reports(
@@ -5734,60 +3319,6 @@ type subscription_root {
     """filter the rows returned"""
     where: user_economy_bool_exp
   ): [user_economy!]!
-
-  """
-  fetch data from the table: "user_fish_summary"
-  """
-  user_fish_summary(
-    """distinct select on columns"""
-    distinct_on: [user_fish_summary_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [user_fish_summary_order_by!]
-
-    """filter the rows returned"""
-    where: user_fish_summary_bool_exp
-  ): [user_fish_summary!]!
-
-  """
-  fetch aggregated fields from the table: "user_fish_summary"
-  """
-  user_fish_summary_aggregate(
-    """distinct select on columns"""
-    distinct_on: [user_fish_summary_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [user_fish_summary_order_by!]
-
-    """filter the rows returned"""
-    where: user_fish_summary_bool_exp
-  ): user_fish_summary_aggregate!
-
-  """
-  fetch data from the table in a streaming manner: "user_fish_summary"
-  """
-  user_fish_summary_stream(
-    """maximum number of rows returned in a single batch"""
-    batch_size: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [user_fish_summary_stream_cursor_input]!
-
-    """filter the rows returned"""
-    where: user_fish_summary_bool_exp
-  ): [user_fish_summary!]!
 
   """
   fetch data from the table: "users"
@@ -6215,273 +3746,6 @@ type user_economy_variance_fields {
   fish_food: Float
   total_earned: Float
   total_spent: Float
-}
-
-"""
-columns and relationships of "user_fish_summary"
-"""
-type user_fish_summary {
-  alive_fish: bigint
-  avatar_url: String
-  avg_level: numeric
-  display_name: String
-  max_level: Int
-  reputation_score: Int
-  total_fish: bigint
-  total_losses: bigint
-  total_upvotes: bigint
-  total_wins: bigint
-  user_id: String
-}
-
-"""
-aggregated selection of "user_fish_summary"
-"""
-type user_fish_summary_aggregate {
-  aggregate: user_fish_summary_aggregate_fields
-  nodes: [user_fish_summary!]!
-}
-
-"""
-aggregate fields of "user_fish_summary"
-"""
-type user_fish_summary_aggregate_fields {
-  avg: user_fish_summary_avg_fields
-  count(columns: [user_fish_summary_select_column!], distinct: Boolean): Int!
-  max: user_fish_summary_max_fields
-  min: user_fish_summary_min_fields
-  stddev: user_fish_summary_stddev_fields
-  stddev_pop: user_fish_summary_stddev_pop_fields
-  stddev_samp: user_fish_summary_stddev_samp_fields
-  sum: user_fish_summary_sum_fields
-  var_pop: user_fish_summary_var_pop_fields
-  var_samp: user_fish_summary_var_samp_fields
-  variance: user_fish_summary_variance_fields
-}
-
-"""aggregate avg on columns"""
-type user_fish_summary_avg_fields {
-  alive_fish: Float
-  avg_level: Float
-  max_level: Float
-  reputation_score: Float
-  total_fish: Float
-  total_losses: Float
-  total_upvotes: Float
-  total_wins: Float
-}
-
-"""
-Boolean expression to filter rows from the table "user_fish_summary". All fields are combined with a logical 'AND'.
-"""
-input user_fish_summary_bool_exp {
-  _and: [user_fish_summary_bool_exp!]
-  _not: user_fish_summary_bool_exp
-  _or: [user_fish_summary_bool_exp!]
-  alive_fish: bigint_comparison_exp
-  avatar_url: String_comparison_exp
-  avg_level: numeric_comparison_exp
-  display_name: String_comparison_exp
-  max_level: Int_comparison_exp
-  reputation_score: Int_comparison_exp
-  total_fish: bigint_comparison_exp
-  total_losses: bigint_comparison_exp
-  total_upvotes: bigint_comparison_exp
-  total_wins: bigint_comparison_exp
-  user_id: String_comparison_exp
-}
-
-"""aggregate max on columns"""
-type user_fish_summary_max_fields {
-  alive_fish: bigint
-  avatar_url: String
-  avg_level: numeric
-  display_name: String
-  max_level: Int
-  reputation_score: Int
-  total_fish: bigint
-  total_losses: bigint
-  total_upvotes: bigint
-  total_wins: bigint
-  user_id: String
-}
-
-"""aggregate min on columns"""
-type user_fish_summary_min_fields {
-  alive_fish: bigint
-  avatar_url: String
-  avg_level: numeric
-  display_name: String
-  max_level: Int
-  reputation_score: Int
-  total_fish: bigint
-  total_losses: bigint
-  total_upvotes: bigint
-  total_wins: bigint
-  user_id: String
-}
-
-"""Ordering options when selecting data from "user_fish_summary"."""
-input user_fish_summary_order_by {
-  alive_fish: order_by
-  avatar_url: order_by
-  avg_level: order_by
-  display_name: order_by
-  max_level: order_by
-  reputation_score: order_by
-  total_fish: order_by
-  total_losses: order_by
-  total_upvotes: order_by
-  total_wins: order_by
-  user_id: order_by
-}
-
-"""
-select columns of table "user_fish_summary"
-"""
-enum user_fish_summary_select_column {
-  """column name"""
-  alive_fish
-
-  """column name"""
-  avatar_url
-
-  """column name"""
-  avg_level
-
-  """column name"""
-  display_name
-
-  """column name"""
-  max_level
-
-  """column name"""
-  reputation_score
-
-  """column name"""
-  total_fish
-
-  """column name"""
-  total_losses
-
-  """column name"""
-  total_upvotes
-
-  """column name"""
-  total_wins
-
-  """column name"""
-  user_id
-}
-
-"""aggregate stddev on columns"""
-type user_fish_summary_stddev_fields {
-  alive_fish: Float
-  avg_level: Float
-  max_level: Float
-  reputation_score: Float
-  total_fish: Float
-  total_losses: Float
-  total_upvotes: Float
-  total_wins: Float
-}
-
-"""aggregate stddev_pop on columns"""
-type user_fish_summary_stddev_pop_fields {
-  alive_fish: Float
-  avg_level: Float
-  max_level: Float
-  reputation_score: Float
-  total_fish: Float
-  total_losses: Float
-  total_upvotes: Float
-  total_wins: Float
-}
-
-"""aggregate stddev_samp on columns"""
-type user_fish_summary_stddev_samp_fields {
-  alive_fish: Float
-  avg_level: Float
-  max_level: Float
-  reputation_score: Float
-  total_fish: Float
-  total_losses: Float
-  total_upvotes: Float
-  total_wins: Float
-}
-
-"""
-Streaming cursor of the table "user_fish_summary"
-"""
-input user_fish_summary_stream_cursor_input {
-  """Stream column input with initial value"""
-  initial_value: user_fish_summary_stream_cursor_value_input!
-
-  """cursor ordering"""
-  ordering: cursor_ordering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input user_fish_summary_stream_cursor_value_input {
-  alive_fish: bigint
-  avatar_url: String
-  avg_level: numeric
-  display_name: String
-  max_level: Int
-  reputation_score: Int
-  total_fish: bigint
-  total_losses: bigint
-  total_upvotes: bigint
-  total_wins: bigint
-  user_id: String
-}
-
-"""aggregate sum on columns"""
-type user_fish_summary_sum_fields {
-  alive_fish: bigint
-  avg_level: numeric
-  max_level: Int
-  reputation_score: Int
-  total_fish: bigint
-  total_losses: bigint
-  total_upvotes: bigint
-  total_wins: bigint
-}
-
-"""aggregate var_pop on columns"""
-type user_fish_summary_var_pop_fields {
-  alive_fish: Float
-  avg_level: Float
-  max_level: Float
-  reputation_score: Float
-  total_fish: Float
-  total_losses: Float
-  total_upvotes: Float
-  total_wins: Float
-}
-
-"""aggregate var_samp on columns"""
-type user_fish_summary_var_samp_fields {
-  alive_fish: Float
-  avg_level: Float
-  max_level: Float
-  reputation_score: Float
-  total_fish: Float
-  total_losses: Float
-  total_upvotes: Float
-  total_wins: Float
-}
-
-"""aggregate variance on columns"""
-type user_fish_summary_variance_fields {
-  alive_fish: Float
-  avg_level: Float
-  max_level: Float
-  reputation_score: Float
-  total_fish: Float
-  total_losses: Float
-  total_upvotes: Float
-  total_wins: Float
 }
 
 """

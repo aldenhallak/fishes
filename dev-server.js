@@ -209,7 +209,7 @@ function startServer(port, retryCount = 0) {
   server.listen(port, () => {
     console.log(`\n✅ 开发服务器启动成功！`);
     console.log(`🌐 访问地址: http://localhost:${port}/`);
-    console.log(`📋 测试页面: http://localhost:${port}/test-qiniu-upload.html`);
+    console.log(`📋 测试中心: http://localhost:${port}/test-center.html`);
     console.log(`\n按 Ctrl+C 停止服务器\n`);
   }).on('error', (err) => {
     if (err.code === 'EADDRINUSE') {

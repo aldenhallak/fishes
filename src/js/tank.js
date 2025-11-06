@@ -12,6 +12,34 @@ window.fishes = fishes;
 let isBattleMode = false;
 window.currentUser = null;
 
+// Initialize Fish Dialogue System (Phase 0)
+let fishDialogueManager = null;
+if (typeof SimpleFishDialogueManager !== 'undefined') {
+    fishDialogueManager = new SimpleFishDialogueManager(swimCanvas, swimCtx);
+    console.log('✅ Fish dialogue system initialized');
+}
+
+// Initialize Tank Layout Manager (Community Chat System)
+let tankLayoutManager = null;
+let communityChatManager = null;
+if (typeof TankLayoutManager !== 'undefined') {
+    tankLayoutManager = new TankLayoutManager(swimCanvas, swimCtx);
+    communityChatManager = new CommunityChatManager(tankLayoutManager, fishes);
+    
+    // Export to window for testing and external access
+    window.tankLayoutManager = tankLayoutManager;
+    window.communityChatManager = communityChatManager;
+    
+    console.log('✅ Tank Layout Manager initialized');
+    console.log('✅ Community Chat Manager initialized');
+    
+    // Schedule auto-chats every 5 minutes (only if not in battle mode)
+    if (!isBattleMode) {
+        communityChatManager.scheduleAutoChats(5);
+        console.log('🎮 Auto-chats scheduled every 5 minutes');
+    }
+}
+
 // Export isBattleMode for testing
 Object.defineProperty(window, 'isBattleMode', {
     get: () => isBattleMode,
@@ -42,31 +70,65 @@ async function reloadTankForBattleMode(fishCount = 20) {
         fishes.length = 0;
         console.log('🗑️ 已清空鱼缸');
         
-        // 加载战斗模式的鱼（只加载处于战斗模式的鱼）
-        if (typeof window.fishUtils !== 'undefined' && window.fishUtils.fetchFish) {
+        // 加载战斗模式的鱼（使用现有的 API）
+        try {
             console.log(`📥 加载${fishCount}条战斗模式的鱼...`);
             
-            const battleFish = await window.fishUtils.fetchFish(fishCount, true); // battleModeOnly = true
+            // 使用现有的 getFishBySort 函数加载鱼
+            const allFishDocs = await getFishBySort('recent', fishCount);
             
-            if (battleFish && battleFish.length > 0) {
-                console.log(`✅ 成功加载 ${battleFish.length} 条战斗鱼`);
+            if (allFishDocs && allFishDocs.length > 0) {
+                console.log(`✅ 成功加载 ${allFishDocs.length} 条鱼`);
                 
                 // 创建鱼对象并添加到鱼缸
-                for (const fishData of battleFish) {
-                    const fishObj = await createFishObject(fishData);
-                    if (fishObj) {
-                        fishes.push(fishObj);
+                for (const fishDoc of allFishDocs) {
+                    try {
+                        // 提取鱼数据（处理不同的数据格式）
+                        let fishData;
+                        if (typeof fishDoc.data === 'function') {
+                            fishData = fishDoc.data();
+                        } else if (fishDoc.data && typeof fishDoc.data === 'object') {
+                            fishData = fishDoc.data;
+                        } else {
+                            fishData = fishDoc;
+                        }
+                        
+                        // 跳过已死亡或无血量的鱼
+                        if (fishData.is_alive === false || (fishData.health !== undefined && fishData.health <= 0)) {
+                            console.log(`⏭️ 跳过死亡的鱼: ${fishData.artist || fishData.id} (health: ${fishData.health})`);
+                            continue;
+                        }
+                        
+                        // 使用现有的加载函数
+                        const fishObj = await new Promise((resolve) => {
+                            loadFishImageToTank(
+                                fishData.image_url || fishData.Image, 
+                                fishData, 
+                                () => resolve(null)
+                            );
+                            // 如果 loadFishImageToTank 成功，鱼会被直接添加到 fishes 数组
+                            // 这里我们延迟一点等待加载
+                            setTimeout(() => resolve(true), 100);
+                        });
+                    } catch (err) {
+                        console.warn('加载鱼失败:', err);
                     }
                 }
                 
                 console.log(`🐟 鱼缸中现有 ${fishes.length} 条鱼`);
+                
+                if (fishes.length === 0) {
+                    console.warn('⚠️ 没有成功加载任何鱼');
+                }
             } else {
-                console.warn('⚠️ 没有找到处于战斗模式的鱼');
-                alert('当前没有其他玩家在战斗模式中，请稍后再试。');
+                console.warn('⚠️ 没有找到可用的鱼');
+                alert('当前鱼缸中没有足够的鱼，请稍后再试。');
                 isBattleMode = false;
             }
-        } else {
-            console.error('❌ fishUtils 未加载');
+        } catch (loadError) {
+            console.error('❌ 加载鱼数据失败:', loadError);
+            alert('加载鱼数据失败: ' + loadError.message);
+            isBattleMode = false;
         }
         
     } catch (error) {
@@ -425,8 +487,11 @@ function createFishObject({
     peduncle = .4,
     upvotes = 0,
     userId = null,
-    // Battle-related properties
+    // Community Chat System properties
     id = null,
+    fishName = null,
+    personality = null,
+    // Legacy battle properties
     health = 100,
     level = 1,
     experience = 0,
@@ -451,8 +516,11 @@ function createFishObject({
         peduncle,
         upvotes,
         userId,
-        // Battle-related properties
+        // Community Chat System properties
         id,
+        fishName,
+        personality,
+        // Legacy battle properties
         health,
         level,
         experience,
@@ -499,8 +567,11 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
                 height: fishSize.height,
                 upvotes: fishData.upvotes || 0,
                 userId: fishData.userId || fishData.UserId || fishData.user_id || null,
-                // Battle-related properties
+                // Community Chat System properties
                 id: fishData.id || fishData.docId || null,
+                fishName: fishData.fish_name || null,
+                personality: fishData.personality_type || null,
+                // Legacy battle properties (kept for compatibility)
                 health: fishData.health !== undefined ? fishData.health : 100,
                 level: fishData.level || 1,
                 experience: fishData.experience || 0,
@@ -921,6 +992,14 @@ async function loadInitialFish(sortType = 'recent') {
             setTimeout(() => {
                 loadingIndicator.style.display = 'none';
             }, 500);
+        }
+        
+        // Assign fish to rows for community chat layout (wait for images to load)
+        if (tankLayoutManager) {
+            setTimeout(() => {
+                tankLayoutManager.assignFishToRows(fishes);
+                console.log(`✅ Assigned ${fishes.length} fish to ${tankLayoutManager.rows.length} rows`);
+            }, 1000); // Wait 1 second for images to load
         }
     }
 }
@@ -1521,6 +1600,36 @@ function animateFishes() {
             }
         }
 
+        // 检查鱼的健康值，如果已死亡但还没开始死亡动画，启动死亡动画
+        if (!fish.isDying && !fish.isEntering && isBattleMode) {
+            const fishHealth = fish.health !== undefined ? fish.health : (fish.max_health || 100);
+            const isAlive = fish.is_alive !== undefined ? fish.is_alive : true;
+            
+            if (!isAlive || fishHealth <= 0) {
+                console.log(`☠️ 检测到死亡的鱼: ${fish.artist || fish.docId} (health: ${fishHealth}, is_alive: ${isAlive})`);
+                
+                // 启动死亡动画
+                fish.isDying = true;
+                fish.deathStartTime = Date.now();
+                fish.deathDuration = 2000;
+                fish.originalY = fish.y;
+                fish.opacity = 1;
+                fish.direction = -Math.abs(fish.direction);
+                fish.health = 0;
+                fish.is_alive = false;
+                
+                // 2秒后移除
+                const deadFishId = fish.docId || fish.id;
+                setTimeout(() => {
+                    const index = fishes.findIndex(f => (f.docId || f.id) === deadFishId);
+                    if (index !== -1) {
+                        fishes.splice(index, 1);
+                        console.log(`🗑️ 已自动移除死亡的鱼 (ID: ${deadFishId})`);
+                    }
+                }, 2000);
+            }
+        }
+        
         // Handle death animation
         if (fish.isDying) {
             const elapsed = Date.now() - fish.deathStartTime;
@@ -1709,6 +1818,17 @@ function animateFishes() {
 
     // Render feeding effects
     renderFeedingEffects();
+
+    // Update and draw fish dialogues (Phase 0 - Simple System)
+    if (fishDialogueManager && !isBattleMode && !tankLayoutManager) {
+        fishDialogueManager.updateDialogues(fishes);
+        fishDialogueManager.drawDialogues();
+    }
+    
+    // Render community chat dialogues (New System)
+    if (tankLayoutManager && !isBattleMode) {
+        tankLayoutManager.renderDialogues();
+    }
 
     // Battle collision detection - 只在战斗模式下检测
     if (isBattleMode) {
@@ -1948,7 +2068,26 @@ async function handleBattleCollision(fish1, fish2) {
                 loserFish.is_alive = false;
                 loserFish.health = 0;
                 console.log(`  ☠️ 鱼已死亡`);
-                startFishDeathAnimation(loserFish);
+                
+                // 启动死亡动画
+                loserFish.isDying = true;
+                loserFish.deathStartTime = Date.now();
+                loserFish.deathDuration = 2000; // 2秒死亡动画
+                loserFish.originalY = loserFish.y;
+                loserFish.opacity = 1;
+                loserFish.direction = -Math.abs(loserFish.direction); // 翻转鱼（肚皮朝上）
+                
+                // 2秒后从鱼缸中移除 - 使用 docId 查找以避免对象引用问题
+                const deadFishId = loserFish.docId || loserFish.id;
+                setTimeout(() => {
+                    const index = fishes.findIndex(f => (f.docId || f.id) === deadFishId);
+                    if (index !== -1) {
+                        fishes.splice(index, 1);
+                        console.log(`  🗑️ 已从鱼缸移除死亡的鱼 (ID: ${deadFishId})`);
+                    } else {
+                        console.warn(`  ⚠️ 未找到要移除的死亡鱼 (ID: ${deadFishId})`);
+                    }
+                }, 2000);
             }
             
             // 强制UI立即更新 - 触发重绘
@@ -2094,6 +2233,211 @@ function drawFishStatusUI(ctx, fish, isUserFish, actualY) {
     ctx.fillText(levelExpText, textX, currentY);
     
     ctx.restore();
+}
+
+// ==========================================
+// 聊天面板UI管理
+// ==========================================
+
+// 更新聊天列表显示
+function updateChatUI(chatSession) {
+    const chatMessages = document.getElementById('chat-messages');
+    const chatStatus = document.getElementById('chat-status');
+    
+    if (!chatMessages) return;
+    
+    // 更新状态
+    if (chatStatus) {
+        chatStatus.textContent = `${chatSession.topic} 🎭`;
+        chatStatus.style.color = '#6366F1';
+    }
+    
+    // 清空提示文本（首次聊天时）
+    const placeholder = chatMessages.querySelector('[style*="text-align: center"]');
+    if (placeholder) {
+        placeholder.remove();
+    }
+    
+    // 创建聊天会话卡片
+    const sessionCard = document.createElement('div');
+    sessionCard.style.cssText = `
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 12px;
+        border-left: 3px solid #6366F1;
+        animation: slideIn 0.5s ease;
+    `;
+    
+    // 会话标题
+    const titleDiv = document.createElement('div');
+    titleDiv.style.cssText = `
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    `;
+    titleDiv.innerHTML = `
+        <span style="font-weight: 600; color: #6366F1; font-size: 14px;">💬 ${chatSession.topic}</span>
+        <span style="font-size: 11px; color: #999;">${chatSession.participantCount || chatSession.dialogues?.length || 0} 条消息</span>
+    `;
+    sessionCard.appendChild(titleDiv);
+    
+    // 消息列表
+    if (chatSession.dialogues && chatSession.dialogues.length > 0) {
+        chatSession.dialogues.forEach((msg, index) => {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                background: white;
+                border-radius: 8px;
+                padding: 8px 12px;
+                margin-bottom: 6px;
+                font-size: 13px;
+                line-height: 1.5;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                animation: fadeIn 0.3s ease ${index * 0.1}s both;
+            `;
+            
+            // 根据personality设置颜色
+            const personalityColors = {
+                cheerful: '#FF9800',
+                shy: '#2196F3',
+                brave: '#E91E63',
+                lazy: '#9C27B0'
+            };
+            const color = personalityColors[msg.personality] || '#666';
+            
+            messageDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                    <span style="font-weight: 600; color: ${color}; font-size: 12px;">🐟 ${msg.fishName || 'Unknown'}</span>
+                    <span style="font-size: 10px; color: #999;">${msg.sequence || index + 1}</span>
+                </div>
+                <div style="color: #333;">${msg.message}</div>
+            `;
+            
+            sessionCard.appendChild(messageDiv);
+        });
+    }
+    
+    // 插入到顶部
+    chatMessages.insertBefore(sessionCard, chatMessages.firstChild);
+    
+    // 限制显示最多3个会话
+    while (chatMessages.children.length > 3) {
+        chatMessages.removeChild(chatMessages.lastChild);
+    }
+    
+    // 添加动画样式（如果还没有）
+    if (!document.getElementById('chat-animations')) {
+        const style = document.createElement('style');
+        style.id = 'chat-animations';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            #chat-messages::-webkit-scrollbar {
+                width: 6px;
+            }
+            #chat-messages::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.05);
+                border-radius: 3px;
+            }
+            #chat-messages::-webkit-scrollbar-thumb {
+                background: rgba(99, 102, 241, 0.3);
+                border-radius: 3px;
+            }
+            #chat-messages::-webkit-scrollbar-thumb:hover {
+                background: rgba(99, 102, 241, 0.5);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// 监听聊天事件
+if (communityChatManager) {
+    // 重写startSession方法来触发UI更新
+    const originalStartSession = communityChatManager.startSession.bind(communityChatManager);
+    communityChatManager.startSession = function(chatSession) {
+        console.log('🎭 [Chat UI] 开始显示聊天:', chatSession);
+        
+        // 更新UI
+        updateChatUI(chatSession);
+        
+        // 调用原始方法
+        return originalStartSession(chatSession);
+    };
+}
+
+// 聊天面板切换功能
+const chatPanel = document.getElementById('chat-panel');
+const toggleChatBtn = document.getElementById('toggle-chat-btn');
+const closeChatBtn = document.getElementById('close-chat-panel');
+const tankWrapper = document.getElementById('tank-wrapper-main');
+
+let isChatPanelOpen = false;
+
+function toggleChatPanel() {
+    isChatPanelOpen = !isChatPanelOpen;
+    
+    if (isChatPanelOpen) {
+        // 显示聊天面板
+        chatPanel.style.right = '0';
+        tankWrapper.style.marginRight = '0';
+        toggleChatBtn.textContent = '💬 关闭';
+    } else {
+        // 隐藏聊天面板
+        chatPanel.style.right = '-350px';
+        tankWrapper.style.marginRight = '0';
+        toggleChatBtn.textContent = '💬 聊天';
+    }
+}
+
+if (toggleChatBtn) {
+    toggleChatBtn.addEventListener('click', toggleChatPanel);
+}
+
+if (closeChatBtn) {
+    closeChatBtn.addEventListener('click', toggleChatPanel);
+}
+
+// 立即触发聊天按钮
+const triggerChatBtn = document.getElementById('trigger-chat-btn');
+if (triggerChatBtn && communityChatManager) {
+    triggerChatBtn.addEventListener('click', async () => {
+        const statusEl = document.getElementById('chat-status');
+        if (statusEl) {
+            statusEl.textContent = '生成中...';
+            statusEl.style.color = '#FF9800';
+        }
+        
+        triggerChatBtn.disabled = true;
+        triggerChatBtn.textContent = '⏳ 生成中...';
+        
+        try {
+            await communityChatManager.triggerChat();
+        } catch (error) {
+            console.error('触发聊天失败:', error);
+            if (statusEl) {
+                statusEl.textContent = '❌ 失败';
+                statusEl.style.color = '#f44336';
+            }
+        } finally {
+            triggerChatBtn.disabled = false;
+            triggerChatBtn.textContent = '🎯 立即触发聊天';
+        }
+    });
 }
 
 // Continue the animation loop

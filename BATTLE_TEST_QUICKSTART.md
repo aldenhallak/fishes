@@ -77,6 +77,14 @@ DEF_PASS=your-password
 
 ## 📝 最近修复
 
+### 第五轮修复 (2025-11-05 晚上)
+✅ **鱼加载** - 修复 `fishUtils 未加载` 错误，使用现有 API  
+✅ **死亡动画** - 修复 `startFishDeathAnimation` 未定义错误  
+✅ **死亡效果** - 鱼死亡时翻转（肚皮朝上）并淡出  
+✅ **自动清理** - 2秒后自动从鱼缸移除死亡的鱼  
+
+详细文档：[docs/bug_fixed_docs/BATTLE_DEATH_ANIMATION_FIX.md](docs/bug_fixed_docs/BATTLE_DEATH_ANIMATION_FIX.md)
+
 ### 第四轮修复 (2025-11-05 晚上)
 ✅ **和平模式** - 刚进入鱼缸页时不触发战斗  
 ✅ **战斗触发** - 只有点击战斗按钮后才开始碰撞检测  

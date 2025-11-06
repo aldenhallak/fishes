@@ -273,7 +273,7 @@ function showSuccessModal(fishImageUrl, needsModeration) {
 }
 
 // --- Fish submission modal handler ---
-async function submitFish(artist, needsModeration = false) {
+async function submitFish(artist, needsModeration = false, fishName = null, personality = null) {
     function dataURLtoBlob(dataurl) {
         const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
             bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -347,10 +347,15 @@ async function submitFish(artist, needsModeration = false) {
         }
         
         // 第二步：提交鱼数据
+        // Assign random personality if none selected
+        const finalPersonality = personality || ['cheerful', 'shy', 'brave', 'lazy'][Math.floor(Math.random() * 4)];
+        
         const submitData = {
             userId: currentUser?.id || 'anonymous-dev',
             imageUrl: uploadResult.imageUrl,
-            artist: artist || 'Anonymous'
+            artist: artist || 'Anonymous',
+            fishName: fishName || 'Unnamed Fish',
+            personality: finalPersonality
         };
         console.log('🐟 开始提交鱼数据:', submitData);
         
@@ -432,32 +437,106 @@ swimBtn.addEventListener('click', async () => {
         };
         return; // 不继续执行提交流程
     } else {
-        // Show normal submission modal for good fish
-        showModal(`<div style='text-align:center; padding: 20px;'>
-            <div style='color:#27ae60; font-weight:bold; font-size: 18px; margin-bottom:16px;'>✨ Great Fish!</div>
-            <div style='margin-bottom:20px;'>
-                <label style='display: block; margin-bottom: 8px; font-weight: 500;'>Sign your art:</label>
-                <input id='artist-name' value='${escapeHtml(defaultName)}' style='margin:0; padding:10px; width:80%; max-width:250px; border: 2px solid #27ae60; border-radius: 6px; font-size: 14px;' placeholder='Your name'>
+        // Show normal submission modal for good fish with fish name and personality
+        showModal(`<div style='text-align:center; padding: 20px; max-width: 450px;'>
+            <div style='color:#27ae60; font-weight:bold; font-size: 20px; margin-bottom:16px;'>🐟 Name Your Fish!</div>
+            
+            <div style='text-align: left; margin: 15px 0;'>
+                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Fish Name *</label>
+                <input type='text' id='fish-name' placeholder='e.g., Bubbles, Nemo, Goldie' 
+                    style='width: 100%; padding: 12px; border: 2px solid #27ae60; border-radius: 8px; font-size: 14px; box-sizing: border-box;' 
+                    maxlength='30' required />
+                <small style='color: #999; font-size: 12px;'>Give your fish a unique name!</small>
             </div>
-            <div style='display: flex; gap: 12px; justify-content: center;'>
-                <button id='submit-fish' class='cute-button cute-button-primary' style='padding: 10px 24px; background:#27ae60;'>Submit</button>
-                <button id='cancel-fish' class='cute-button' style='padding: 10px 24px; background: #e0e0e0;'>Cancel</button>
+            
+            <div style='text-align: left; margin: 15px 0;'>
+                <label style='display: block; margin-bottom: 8px; font-weight: bold; color: #333; font-size: 14px;'>Personality (Optional)</label>
+                <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 8px;'>
+                    <label style='cursor: pointer; padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 13px;' class='personality-option' data-personality='cheerful'>
+                        <input type='radio' name='personality' value='cheerful' style='display: none;'>
+                        😊 Cheerful
+                    </label>
+                    <label style='cursor: pointer; padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 13px;' class='personality-option' data-personality='shy'>
+                        <input type='radio' name='personality' value='shy' style='display: none;'>
+                        😳 Shy
+                    </label>
+                    <label style='cursor: pointer; padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 13px;' class='personality-option' data-personality='brave'>
+                        <input type='radio' name='personality' value='brave' style='display: none;'>
+                        💪 Brave
+                    </label>
+                    <label style='cursor: pointer; padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 13px;' class='personality-option' data-personality='lazy'>
+                        <input type='radio' name='personality' value='lazy' style='display: none;'>
+                        😴 Lazy
+                    </label>
+                </div>
+                <small style='color: #999; font-size: 12px;'>Random personality if none selected</small>
+            </div>
+            
+            <div style='text-align: left; margin: 15px 0;'>
+                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Your Name (Optional)</label>
+                <input type='text' id='artist-name' value='${escapeHtml(defaultName)}' 
+                    placeholder='Your artist name' 
+                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' />
+            </div>
+            
+            <div style='margin-top: 20px; padding: 12px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 6px; text-align: left;'>
+                <p style='margin: 0; font-size: 13px; color: #1e40af;'>
+                    <strong>🎉 Coming Soon:</strong> AI Talking Fish! Named fish will be able to chat in the tank!
+                </p>
+            </div>
+            
+            <div style='margin-top: 20px; display: flex; gap: 10px; justify-content: center;'>
+                <button id='submit-fish' class='cute-button cute-button-primary' style='padding: 12px 28px; background:#27ae60; font-weight: bold; font-size: 14px;'>Submit Fish</button>
+                <button id='cancel-fish' class='cute-button' style='padding: 12px 28px; background: #e0e0e0; font-size: 14px;'>Cancel</button>
             </div>
         </div>`, () => { });
     }
     
+    // Add personality selection highlight effect
+    setTimeout(() => {
+        document.querySelectorAll('.personality-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.personality-option').forEach(o => {
+                    o.style.borderColor = '#ddd';
+                    o.style.background = 'white';
+                    o.querySelector('input').checked = false;
+                });
+                this.style.borderColor = '#667eea';
+                this.style.background = '#f0f4ff';
+                this.querySelector('input').checked = true;
+            });
+        });
+    }, 100);
+    
     document.getElementById('submit-fish').onclick = async () => {
+        const fishName = document.getElementById('fish-name').value.trim();
         const artist = document.getElementById('artist-name').value.trim() || 'Anonymous';
+        const personalityRadio = document.querySelector('input[name="personality"]:checked');
+        const personality = personalityRadio ? personalityRadio.value : null;
+        
+        // Validate fish name
+        if (!fishName) {
+            alert('Please give your fish a name!');
+            document.getElementById('fish-name').focus();
+            return;
+        }
+        
         // Save artist name to localStorage for future use
         localStorage.setItem('artistName', artist);
-        console.log('🚀 开始提交鱼，艺术家:', artist);
-        await submitFish(artist, !isFish); // Pass moderation flag
+        
+        console.log('🚀 开始提交鱼');
+        console.log('  鱼名:', fishName);
+        console.log('  个性:', personality || 'random');
+        console.log('  艺术家:', artist);
+        
+        await submitFish(artist, !isFish, fishName, personality); // Pass name and personality
         console.log('✅ submitFish 完成');
+        
         // 关闭modal
-        document.querySelector('div[style*="z-index: 9999"]')?.remove();
+        document.querySelector('.modal')?.remove();
     };
     document.getElementById('cancel-fish').onclick = () => {
-        document.querySelector('div[style*="z-index: 9999"]')?.remove();
+        document.querySelector('.modal')?.remove();
     };
 });
 

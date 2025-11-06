@@ -92,13 +92,21 @@ module.exports = async function handler(req, res) {
   }
   
   try {
-    const { userId, imageUrl, artist } = req.body;
+    const { userId, imageUrl, artist, fishName, personality } = req.body;
     
     // 验证参数
     if (!userId || !imageUrl) {
       return res.status(400).json({
         success: false,
         error: '缺少必填字段：userId 或 imageUrl'
+      });
+    }
+    
+    // 验证鱼名字（可选，但如果提供则验证）
+    if (fishName && fishName.length > 50) {
+      return res.status(400).json({
+        success: false,
+        error: 'Fish name too long (max 50 characters)'
       });
     }
     
@@ -195,12 +203,16 @@ module.exports = async function handler(req, res) {
         $imageUrl: String!
         $artist: String!
         $talent: Int!
+        $fishName: String
+        $personality: String
       ) {
         insert_fish_one(
           object: {
             user_id: $userId
             image_url: $imageUrl
             artist: $artist
+            fish_name: $fishName
+            personality_type: $personality
             talent: $talent
             level: 1
             experience: 0
@@ -220,6 +232,8 @@ module.exports = async function handler(req, res) {
           user_id
           image_url
           artist
+          fish_name
+          personality_type
           talent
           level
           health
@@ -240,7 +254,9 @@ module.exports = async function handler(req, res) {
       userId,
       imageUrl,
       artist: artist || 'Anonymous',
-      talent
+      talent,
+      fishName: fishName || null,
+      personality: personality || null
     });
     
     const newFish = result.insert_fish_one;
@@ -278,6 +294,8 @@ module.exports = async function handler(req, res) {
         id: newFish.id,
         imageUrl: newFish.image_url,
         artist: newFish.artist,
+        fishName: newFish.fish_name,
+        personality: newFish.personality_type,
         talent: newFish.talent,
         level: newFish.level,
         health: newFish.health,

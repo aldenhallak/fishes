@@ -714,6 +714,12 @@ class AuthUI {
     if (this.userContainer) {
       this.userContainer.style.display = 'none';
     }
+    
+    // 隐藏"我的鱼"链接
+    const myFishLink = document.getElementById('my-fish-link');
+    if (myFishLink) {
+      myFishLink.style.display = 'none';
+    }
   }
 
   /**
@@ -770,6 +776,12 @@ class AuthUI {
     this.userContainer.style.display = 'flex';
     if (this.loginBtn) {
       this.loginBtn.style.display = 'none';
+    }
+    
+    // 显示"我的鱼"链接
+    const myFishLink = document.getElementById('my-fish-link');
+    if (myFishLink) {
+      myFishLink.style.display = '';
     }
   }
 

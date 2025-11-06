@@ -280,3 +280,10 @@ console.log(!await promise);  // true (结果是 false)
 
 
 
+
+
+
+
+
+
+

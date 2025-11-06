@@ -297,3 +297,9 @@ if (BattleAnimation.checkCollision(fish1, fish2)) {
 
 
 
+
+
+
+
+
+

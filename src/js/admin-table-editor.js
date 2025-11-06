@@ -101,20 +101,22 @@ function renderTable() {
       <th class="checkbox-cell">
         <input type="checkbox" id="select-all" />
       </th>
-      ${columns.map(col => `
-        <th onclick="handleSort('${col}')" class="${sortColumn === col ? 'sorted' : ''}">
+      ${columns.map(col => {
+        const colName = typeof col === 'string' ? col : col.name;
+        return `
+        <th onclick="handleSort('${colName}')" class="${sortColumn === colName ? 'sorted' : ''}">
           <div>
-            ${formatColumnName(col)}
-            ${readOnlyColumns.includes(col) ? ' 🔒' : ''}
+            ${formatColumnName(colName)}
+            ${readOnlyColumns.includes(colName) ? ' 🔒' : ''}
             <span class="sort-indicator">
-              ${sortColumn === col ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
+              ${sortColumn === colName ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
             </span>
           </div>
           <div style="font-size: 0.7rem; font-weight: normal; margin-top: 0.25rem; font-family: 'Courier New', monospace;">
-            ${col}
+            ${colName}
           </div>
         </th>
-      `).join('')}
+      `}).join('')}
     </tr>
   `;
 
@@ -158,7 +160,10 @@ function renderTable() {
             onchange="toggleRowSelection('${rowId}')"
           />
         </td>
-        ${columns.map(col => renderCell(row, col, rowId)).join('')}
+        ${columns.map(col => {
+          const colName = typeof col === 'string' ? col : col.name;
+          return renderCell(row, colName, rowId);
+        }).join('')}
       </tr>
     `;
   }).join('');
@@ -186,7 +191,7 @@ function renderCell(row, col, rowId) {
   return `
     <td 
       class="${cellClass}"
-      ${!isReadOnly ? `onclick="startEdit('${rowId}', '${col}')"` : ''}
+      ${!isReadOnly ? `onclick="startEdit('${rowId}', '${col}', event)"` : ''}
       data-row-id="${rowId}"
       data-column="${col}"
     >
@@ -252,7 +257,13 @@ function formatColumnName(col) {
 }
 
 // 开始编辑
-window.startEdit = function(rowId, column) {
+window.startEdit = function(rowId, column, event) {
+  // 阻止事件冒泡和默认行为
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  
   if (readOnlyColumns.includes(column)) return;
   
   const cell = document.querySelector(`td[data-row-id="${rowId}"][data-column="${column}"]`);
@@ -284,7 +295,9 @@ window.startEdit = function(rowId, column) {
       <option value="null" ${currentValue === null ? 'selected' : ''}>NULL</option>
     `;
     
-    select.addEventListener('change', () => {
+    // 使用 change 事件保存
+    select.addEventListener('change', (e) => {
+      e.stopPropagation(); // 阻止事件冒泡
       let newValue;
       if (select.value === 'null') {
         newValue = null;
@@ -294,15 +307,31 @@ window.startEdit = function(rowId, column) {
       saveEdit(newValue);
     });
     
-    select.addEventListener('blur', () => cancelEdit());
+    // 处理键盘事件
     select.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') cancelEdit();
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        cancelEdit();
+      }
+    });
+
+    // 阻止点击事件冒泡，防止触发表格的其他事件
+    select.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    select.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
     });
 
     cell.innerHTML = '';
     cell.appendChild(select);
     cell.classList.add('cell-editing');
-    select.focus();
+    
+    // 延迟 focus，确保 DOM 已完全更新
+    setTimeout(() => {
+      select.focus();
+    }, 0);
   } else {
     // 文本字段使用输入框
     const input = document.createElement('input');
@@ -346,9 +375,15 @@ function saveEdit(newValue) {
 
   // 记录更改
   if (!pendingUpdates[rowId]) {
-    pendingUpdates[rowId] = { id: parseInt(rowId) };
+    // 根据表的主键类型决定是否需要 parseInt
+    // fish 表使用 UUID，不需要 parseInt
+    const pkColumn = tableData.columns.find(col => col.name === 'id');
+    const idValue = (pkColumn && pkColumn.type === 'Int') ? parseInt(rowId) : rowId;
+    console.log('[保存编辑] 创建新的待更新记录:', { rowId, pkColumn, idValue });
+    pendingUpdates[rowId] = { id: idValue };
   }
   pendingUpdates[rowId][column] = newValue;
+  console.log('[保存编辑] 待更新记录:', pendingUpdates[rowId]);
 
   // 更新本地数据
   const row = tableData.rows.find(r => r.id.toString() === rowId);
@@ -425,6 +460,8 @@ async function handleSave() {
     return;
   }
 
+  console.log('[处理保存] 准备保存的更新:', updates);
+
   try {
     const saveBtn = document.getElementById('save-btn');
     saveBtn.disabled = true;
@@ -439,6 +476,7 @@ async function handleSave() {
     });
 
     const result = await response.json();
+    console.log('[处理保存] 服务器返回结果:', result);
 
     if (result.success) {
       const { successCount, failureCount } = result.data;

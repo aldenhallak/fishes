@@ -123,13 +123,21 @@ async function handleGet(req, res, tableName) {
   });
 
   const tableData = result[tableName] || [];
-  const columns = tableData.length > 0 ? Object.keys(tableData[0]) : fields;
+  
+  // 返回完整的列信息（包含类型），而不仅仅是字段名
+  const columnInfo = tableInfo.fields
+    .filter(f => !f.isRelation)
+    .map(f => ({
+      name: f.name,
+      type: f.type,
+      isNullable: f.isNullable
+    }));
 
   return res.status(200).json({
     success: true,
     data: {
       tableName,
-      columns,
+      columns: columnInfo,
       rows: tableData,
       pagination: {
         limit: parseInt(limit),

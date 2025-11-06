@@ -221,3 +221,10 @@ UPDATE users SET email = (SELECT email FROM auth.users WHERE id = users.id);
 
 
 
+
+
+
+
+
+
+

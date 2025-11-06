@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COZE API 综合测试</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f7fafc;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    header {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+    
+    h1 {
+      color: #1a202c;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      color: #718096;
+      font-size: 14px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-card {
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      border: 2px solid;
+    }
+    
+    .stat-card.characters {
+      background: #ebf4ff;
+      border-color: #90cdf4;
+      color: #2c5282;
+    }
+    
+    .stat-card.modes {
+      background: #e6fffa;
+      border-color: #81e6d9;
+      color: #234e52;
+    }
+    
+    .stat-label {
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .refresh-btn {
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      color: #4a5568;
+      padding: 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+    
+    .refresh-btn:hover {
+      background: #edf2f7;
+    }
+    
+    .refresh-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .panel {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+    
+    .panel-header {
+      background: linear-gradient(to right, #f7fafc, #edf2f7);
+      padding: 16px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.3s;
+    }
+    
+    .panel-header:hover {
+      background: linear-gradient(to right, #edf2f7, #e2e8f0);
+    }
+    
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a202c;
+    }
+    
+    .panel-icon {
+      width: 24px;
+      height: 24px;
+    }
+    
+    .panel-body {
+      padding: 24px;
+      display: none;
+    }
+    
+    .panel-body.expanded {
+      display: block;
+    }
+    
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    
+    .section {
+      background: #f7fafc;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #4299e1;
+    }
+    
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a202c;
+      margin-bottom: 16px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 6px;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+      font-family: 'Courier New', monospace;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #4299e1;
+    }
+    
+    input:disabled, select:disabled {
+      background: #f7fafc;
+      cursor: not-allowed;
+    }
+    
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .btn-primary {
+      background: #4299e1;
+      color: white;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background: #3182ce;
+    }
+    
+    .btn-success {
+      background: #48bb78;
+      color: white;
+    }
+    
+    .btn-success:hover:not(:disabled) {
+      background: #38a169;
+    }
+    
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #4a5568;
+    }
+    
+    .btn-secondary:hover:not(:disabled) {
+      background: #cbd5e0;
+    }
+    
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    
+    .info-grid {
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+      color: #4a5568;
+    }
+    
+    .info-label {
+      font-weight: 600;
+      color: #1a202c;
+    }
+    
+    .info-value {
+      font-family: 'Courier New', monospace;
+      color: #4299e1;
+    }
+    
+    .message-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid;
+    }
+    
+    .message.user {
+      background: #ebf8ff;
+      border-color: #90cdf4;
+    }
+    
+    .message.assistant {
+      background: #f0fff4;
+      border-color: #9ae6b4;
+    }
+    
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #718096;
+      margin-bottom: 8px;
+    }
+    
+    .message-role {
+      font-weight: 600;
+      color: #1a202c;
+    }
+    
+    .message-content {
+      font-size: 14px;
+      color: #1a202c;
+      white-space: pre-wrap;
+    }
+    
+    .log-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .log-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .log-header {
+      font-size: 13px;
+      font-weight: 600;
+      padding-bottom: 8px;
+      border-bottom: 2px solid;
+    }
+    
+    .log-header.coze {
+      color: #2c5282;
+      border-color: #90cdf4;
+    }
+    
+    .log-header.system {
+      color: #1a202c;
+      border-color: #e2e8f0;
+    }
+    
+    .log-entry {
+      padding: 12px;
+      border-radius: 6px;
+      border: 2px solid;
+      font-size: 12px;
+    }
+    
+    .log-entry.coze-request {
+      background: #bee3f8;
+      border-color: #90cdf4;
+    }
+    
+    .log-entry.coze-response {
+      background: #ebf8ff;
+      border-color: #90cdf4;
+    }
+    
+    .log-entry.normal {
+      background: white;
+      border-color: #e2e8f0;
+    }
+    
+    .log-entry.error {
+      background: #fff5f5;
+      border-color: #fc8181;
+    }
+    
+    .log-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      color: #718096;
+    }
+    
+    .log-type {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: white;
+    }
+    
+    .log-title {
+      font-weight: 600;
+      color: #1a202c;
+    }
+    
+    .log-url {
+      font-size: 11px;
+      color: #4299e1;
+      background: #ebf8ff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin: 8px 0;
+      word-break: break-all;
+    }
+    
+    .log-data {
+      background: #f7fafc;
+      padding: 8px;
+      border-radius: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: #1a202c;
+    }
+    
+    .no-logs {
+      color: #a0aec0;
+      font-style: italic;
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .alert {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    
+    .alert-warning {
+      background: #fefcbf;
+      border: 1px solid #f6e05e;
+      color: #744210;
+    }
+    
+    .alert-info {
+      background: #bee3f8;
+      border: 1px solid #90cdf4;
+      color: #2c5282;
+    }
+    
+    .code {
+      background: #edf2f7;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .status-badge.polling {
+      background: #fefcbf;
+      color: #744210;
+    }
+    
+    @media (max-width: 768px) {
+      .config-grid, .log-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🤖 COZE API 综合测试</h1>
+      <p class="subtitle">聊天测试和实时语音测试平台 - Fish Community Chat</p>
+    </header>
+
+    <!-- 统计信息 -->
+    <div class="stats-grid">
+      <div class="stat-card characters">
+        <div class="stat-label">可用角色</div>
+        <div class="stat-value" id="stats-characters">0</div>
+      </div>
+      <div class="stat-card modes">
+        <div class="stat-label">交互模式</div>
+        <div class="stat-value" id="stats-modes">0</div>
+      </div>
+      <button class="refresh-btn" id="refresh-btn" onclick="loadTestData()">
+        🔄 刷新角色与交互模式
+      </button>
+    </div>
+
+    <!-- 聊天测试面板 -->
+    <div class="panel">
+      <div class="panel-header" onclick="togglePanel(this)">
+        <div class="panel-title">
+          <span class="panel-icon">💬</span>
+          <span>聊天测试</span>
+        </div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="panel-body expanded">
+        <div class="alert alert-info">
+          <strong>📝 使用说明：</strong><br>
+          1. 填写 API Key 和 Bot ID（会自动保存到localStorage）<br>
+          2. 点击"创建会话"建立对话<br>
+          3. 输入消息点击"发送"进行测试<br>
+          4. 下方会显示完整的请求/响应日志
+        </div>
+
+        <div class="config-grid">
+          <!-- 基础配置 -->
+          <div class="section">
+            <div class="section-title">⚙️ 基础配置</div>
+            <div class="form-group">
+              <label for="user-id">用户 ID</label>
+              <input type="text" id="user-id" value="test-user-123" placeholder="输入用户 ID" />
+            </div>
+            <div class="form-group">
+              <label for="api-key">COZE API Key *</label>
+              <input type="password" id="api-key" placeholder="pat_xxx..." />
+            </div>
+            <div class="form-group">
+              <label for="bot-id">Bot ID *</label>
+              <input type="text" id="bot-id" placeholder="7564430661412192308" />
+            </div>
+            <div class="form-group">
+              <label for="base-url">Base URL</label>
+              <input type="text" id="base-url" value="https://api.coze.cn" />
+            </div>
+          </div>
+
+          <!-- 会话信息 -->
+          <div class="section">
+            <div class="section-title">📋 当前会话信息</div>
+            <div class="info-grid">
+              <div>
+                <span class="info-label">conversation_id：</span>
+                <span class="info-value" id="conversation-id">（尚未创建）</span>
+              </div>
+              <div>
+                <span class="info-label">chat_id：</span>
+                <span class="info-value" id="chat-id">（尚未发送消息）</span>
+              </div>
+              <div>
+                <span class="info-label">使用的 Bot ID：</span>
+                <span class="info-value" id="effective-bot-id">（未设置）</span>
+              </div>
+              <div>
+                <span class="status-badge polling" id="polling-status" style="display:none;">
+                  轮询中 (1/2)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 操作区 -->
+        <div class="section">
+          <div class="section-title">🎮 操作</div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="createConversation()">
+              创建会话
+            </button>
+            <button class="btn btn-success" id="send-msg-btn" onclick="sendMessage()" disabled>
+              发送消息
+            </button>
+            <button class="btn btn-secondary" onclick="clearLogs()">
+              清空日志
+            </button>
+            <button class="btn btn-secondary" onclick="copyLogs('coze')">
+              复制COZE日志
+            </button>
+            <button class="btn btn-secondary" onclick="copyLogs('system')">
+              复制系统日志
+            </button>
+            <button class="btn btn-secondary" onclick="copyLogs('all')">
+              复制所有日志
+            </button>
+          </div>
+
+          <div class="form-group" style="margin-top: 20px;">
+            <label for="message-input">消息内容</label>
+            <textarea id="message-input" placeholder="输入要发送的消息..." rows="3"></textarea>
+          </div>
+          <button class="btn btn-success" onclick="sendMessage()" id="send-btn-2" disabled>
+            📤 发送
+          </button>
+        </div>
+
+        <!-- 会话消息 -->
+        <div class="section">
+          <div class="section-title">💬 会话消息</div>
+          <div id="messages-container" class="message-list">
+            <div class="no-logs">暂无消息，先发送一条试试</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COZE API 日志 -->
+    <div class="panel">
+      <div class="panel-header" onclick="togglePanel(this)">
+        <div class="panel-title">
+          <span class="panel-icon">📊</span>
+          <span>COZE API 日志</span>
+        </div>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="panel-body expanded">
+        <div class="alert alert-warning">
+          <strong>💡 日志说明：</strong><br>
+          左侧为 COZE 原始请求/响应，右侧为系统日志。颜色标识：🟦 请求 / 🔵 响应 / ⚪ 系统 / 🔴 错误
+        </div>
+
+        <div class="log-container">
+          <!-- COZE 日志 -->
+          <div class="log-column">
+            <div class="log-header coze">🔵 COZE 原始日志</div>
+            <div id="coze-logs">
+              <div class="no-logs">暂无 COZE 日志</div>
+            </div>
+          </div>
+
+          <!-- 系统日志 -->
+          <div class="log-column">
+            <div class="log-header system">⚪ 系统日志</div>
+            <div id="system-logs">
+              <div class="no-logs">暂无系统日志</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 全局状态
+    const state = {
+      conversationId: '',
+      chatId: '',
+      messages: [],
+      logs: [],
+      isPolling: false,
+      pollingAttempts: 0,
+      pollingTimeout: null
+    };
+
+    const MAX_POLL_ATTEMPTS = 10;  // 参照AIGF_web ChatInterface
+    const POLL_INTERVAL_MS = 3000; // 3秒间隔（保守一点）
+
+    // 页面加载时恢复配置
+    window.addEventListener('DOMContentLoaded', async () => {
+      // 先尝试从API加载环境变量
+      try {
+        const response = await fetch('/api/coze/config');
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          if (result.data.apiKeyFull) {
+            document.getElementById('api-key').value = result.data.apiKeyFull;
+            addLog('✅ 从环境变量加载 API Key', { masked: result.data.apiKey });
+          }
+          if (result.data.botId) {
+            document.getElementById('bot-id').value = result.data.botId;
+            addLog('✅ 从环境变量加载 Bot ID', { botId: result.data.botId });
+          }
+          if (result.data.baseUrl) {
+            document.getElementById('base-url').value = result.data.baseUrl;
+          }
+        }
+      } catch (error) {
+        console.warn('无法从API加载配置，尝试从localStorage读取:', error);
+      }
+      
+      // 如果API没有配置，从localStorage恢复
+      const savedApiKey = localStorage.getItem('coze_api_key');
+      const savedBotId = localStorage.getItem('coze_bot_id');
+      
+      if (!document.getElementById('api-key').value && savedApiKey) {
+        document.getElementById('api-key').value = savedApiKey;
+        addLog('📦 从localStorage恢复 API Key');
+      }
+      if (!document.getElementById('bot-id').value && savedBotId) {
+        document.getElementById('bot-id').value = savedBotId;
+        addLog('📦 从localStorage恢复 Bot ID');
+      }
+
+      // 保存配置到localStorage
+      ['api-key', 'bot-id'].forEach(id => {
+        document.getElementById(id).addEventListener('change', (e) => {
+          if (e.target.value) {
+            localStorage.setItem(`coze_${id.replace('-', '_')}`, e.target.value);
+          }
+        });
+      });
+
+      // 回车发送
+      document.getElementById('message-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+    });
+
+    // 折叠面板
+    function togglePanel(header) {
+      const body = header.nextElementSibling;
+      const icon = header.querySelector('.toggle-icon');
+      body.classList.toggle('expanded');
+      icon.textContent = body.classList.contains('expanded') ? '▼' : '▶';
+    }
+
+    // 添加日志
+    function addLog(title, data, logType = 'normal', url = null) {
+      const log = {
+        title,
+        data,
+        logType,
+        url,
+        timestamp: new Date().toISOString()
+      };
+      state.logs.push(log);
+
+      // 分类显示
+      if (logType === 'coze-request' || logType === 'coze-response') {
+        appendCozeLog(log);
+      } else {
+        appendSystemLog(log);
+      }
+    }
+
+    // 添加 COZE 日志
+    function appendCozeLog(log) {
+      const container = document.getElementById('coze-logs');
+      if (container.querySelector('.no-logs')) {
+        container.innerHTML = '';
+      }
+
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${log.logType}`;
+      
+      const typeLabel = log.logType === 'coze-request' ? '🟦 请求' : '🔵 响应';
+      
+      entry.innerHTML = `
+        <div class="log-title-row">
+          <div>
+            <span class="log-type">${typeLabel}</span>
+            <span class="log-title">${log.title}</span>
+          </div>
+          <span>${new Date(log.timestamp).toLocaleTimeString()}</span>
+        </div>
+        ${log.url ? `<div class="log-url">URL: ${log.url}</div>` : ''}
+        <div class="log-data">${JSON.stringify(log.data, null, 2)}</div>
+      `;
+      // 插入到顶部而不是底部
+      container.insertBefore(entry, container.firstChild);
+    }
+
+    // 添加系统日志
+    function appendSystemLog(log) {
+      const container = document.getElementById('system-logs');
+      if (container.querySelector('.no-logs')) {
+        container.innerHTML = '';
+      }
+
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${log.logType}`;
+      
+      const typeLabel = log.logType === 'error' ? '🔴 错误' : '⚪ 系统';
+      
+      entry.innerHTML = `
+        <div class="log-title-row">
+          <div>
+            <span class="log-type">${typeLabel}</span>
+            <span class="log-title">${log.title}</span>
+          </div>
+          <span>${new Date(log.timestamp).toLocaleTimeString()}</span>
+        </div>
+        <div class="log-data">${JSON.stringify(log.data, null, 2)}</div>
+      `;
+      // 插入到顶部而不是底部
+      container.insertBefore(entry, container.firstChild);
+    }
+
+    // 清空日志
+    function clearLogs() {
+      state.logs = [];
+      document.getElementById('coze-logs').innerHTML = '<div class="no-logs">暂无 COZE 日志</div>';
+      document.getElementById('system-logs').innerHTML = '<div class="no-logs">暂无系统日志</div>';
+    }
+
+    // 复制日志
+    async function copyLogs(type) {
+      let logs;
+      if (type === 'coze') {
+        logs = state.logs.filter(l => l.logType === 'coze-request' || l.logType === 'coze-response');
+      } else if (type === 'system') {
+        logs = state.logs.filter(l => l.logType !== 'coze-request' && l.logType !== 'coze-response');
+      } else {
+        logs = state.logs;
+      }
+
+      if (logs.length === 0) {
+        alert('没有可复制的日志');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(logs, null, 2));
+        addLog('复制成功', { count: logs.length, type });
+      } catch (error) {
+        addLog('复制失败', { error: error.message }, 'error');
+      }
+    }
+
+    // 添加消息到显示区
+    function addMessage(role, content) {
+      const container = document.getElementById('messages-container');
+      if (container.querySelector('.no-logs')) {
+        container.innerHTML = '';
+      }
+
+      const msg = document.createElement('div');
+      msg.className = `message ${role}`;
+      msg.innerHTML = `
+        <div class="message-header">
+          <span class="message-role">${role === 'user' ? '用户' : 'AI'}</span>
+          <span>${new Date().toLocaleTimeString()}</span>
+        </div>
+        <div class="message-content">${content}</div>
+      `;
+      container.appendChild(msg);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // 创建会话
+    async function createConversation() {
+      const apiKey = document.getElementById('api-key').value.trim();
+      const botId = document.getElementById('bot-id').value.trim();
+      const userId = document.getElementById('user-id').value.trim();
+      const baseUrl = document.getElementById('base-url').value.trim();
+
+      if (!apiKey || !botId) {
+        alert('请填写 API Key 和 Bot ID');
+        return;
+      }
+
+      addLog('创建会话请求', { bot_id: botId, user_id: userId });
+
+      try {
+        const response = await fetch(`${baseUrl}/v1/conversation/create`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            bot_id: botId,
+            user_id: userId
+          })
+        });
+
+        const data = await response.json();
+        addLog('COZE创建会话原始响应', data, 'coze-response');
+
+        if (response.ok) {
+          state.conversationId = data.conversation_id || data.data?.id || '';
+          document.getElementById('conversation-id').textContent = state.conversationId;
+          document.getElementById('effective-bot-id').textContent = botId;
+          document.getElementById('send-msg-btn').disabled = false;
+          document.getElementById('send-btn-2').disabled = false;
+
+          addLog('✅ 会话创建成功', { conversation_id: state.conversationId });
+        } else {
+          throw new Error(data.msg || data.message || 'Unknown error');
+        }
+      } catch (error) {
+        addLog('❌ 创建会话失败', { error: error.message }, 'error');
+      }
+    }
+
+    // 发送消息
+    async function sendMessage() {
+      const message = document.getElementById('message-input').value.trim();
+      const apiKey = document.getElementById('api-key').value.trim();
+      const botId = document.getElementById('bot-id').value.trim();
+      const userId = document.getElementById('user-id').value.trim();
+      const baseUrl = document.getElementById('base-url').value.trim();
+
+      if (!state.conversationId) {
+        alert('请先创建会话');
+        return;
+      }
+
+      if (!message) {
+        alert('请输入消息内容');
+        return;
+      }
+
+      addLog('发送消息请求', { conversation_id: state.conversationId, message });
+      addMessage('user', message);
+      document.getElementById('message-input').value = '';
+
+      try {
+        const payload = {
+          bot_id: botId,
+          user_id: userId,
+          stream: false,
+          auto_save_history: true,
+          additional_messages: [{
+            role: 'user',
+            content: message,
+            content_type: 'text'
+          }]
+        };
+
+        const url = `${baseUrl}/v3/chat?conversation_id=${state.conversationId}`;
+        addLog('COZE聊天原始请求', payload, 'coze-request', url);
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        addLog('COZE聊天原始响应', data, 'coze-response');
+
+        console.log('🔍 [调试] COZE响应结构:', data);
+        console.log('🔍 [调试] response.ok:', response.ok);
+        console.log('🔍 [调试] data.code:', data.code);
+        console.log('🔍 [调试] data.data:', data.data);
+        console.log('🔍 [调试] data.data?.id:', data.data?.id);
+
+        // 检查响应成功（COZE API返回code: 0表示成功）
+        if (response.ok && data.code === 0 && data.data) {
+          // 提取chat_id（在data.data.id中）
+          state.chatId = data.data.id || '';
+          document.getElementById('chat-id').textContent = state.chatId;
+
+          addLog('✅ 消息发送成功', { 
+            chat_id: state.chatId,
+            conversation_id: data.data.conversation_id 
+          });
+
+          // 开始轮询AI回复
+          if (state.chatId) {
+            pollMessages(1);
+          } else {
+            addLog('⚠️ 警告: 未获取到chat_id', { response: data }, 'error');
+          }
+        } else {
+          const errorMsg = data.msg || data.message || 'Send failed';
+          throw new Error(`COZE API错误: ${errorMsg} (code: ${data.code})`);
+        }
+      } catch (error) {
+        console.error('❌ 发送消息异常:', error);
+        addLog('❌ 发送消息失败', { 
+          error: error.message,
+          stack: error.stack 
+        }, 'error');
+      }
+    }
+
+    // 轮询消息
+    async function pollMessages(attempt) {
+      if (attempt > MAX_POLL_ATTEMPTS) {
+        addLog('⏱️ 轮询超时', { attempts: attempt });
+        hidePollingStatus();
+        return;
+      }
+
+      showPollingStatus(attempt);
+      state.isPolling = true;
+      state.pollingAttempts = attempt;
+
+      addLog('轮询消息请求', { conversation_id: state.conversationId, chat_id: state.chatId, attempt });
+
+      try {
+        // 先检查chat status（流式输出问题修复）
+        const apiKey = document.getElementById('api-key').value.trim();
+        const baseUrl = document.getElementById('base-url').value.trim();
+        const retrieveUrl = `${baseUrl}/v1/conversation/message/retrieve?conversation_id=${state.conversationId}&chat_id=${state.chatId}`;
+        
+        const retrieveResponse = await fetch(retrieveUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        const retrieveData = await retrieveResponse.json();
+        console.log('🔍 [Chat Status] 检查chat状态:', retrieveData);
+        
+        // 如果chat还在进行中，继续等待
+        if (retrieveData.data?.status === 'in_progress' || retrieveData.data?.status === 'created') {
+          console.log('⏳ [Chat Status] Chat还在进行中，状态:', retrieveData.data?.status);
+          if (attempt < MAX_POLL_ATTEMPTS) {
+            state.pollingTimeout = setTimeout(() => pollMessages(attempt + 1), POLL_INTERVAL_MS);
+          } else {
+            addLog('⏱️ 达到最大轮询次数，停止轮询', { attempts: attempt });
+            hidePollingStatus();
+          }
+          return;
+        }
+        
+        // Chat已完成，获取完整消息
+        console.log('✅ [Chat Status] Chat已完成，状态:', retrieveData.data?.status);
+        
+        // 使用后端代理API获取完整消息
+        const url = '/api/coze/messages';
+        const payload = {
+          conversation_id: state.conversationId,
+          chat_id: state.chatId,
+          limit: 20,
+          order: 'desc'
+        };
+
+        addLog('COZE轮询原始请求', payload, 'coze-request', url);
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        addLog('COZE轮询原始响应', data, 'coze-response');
+
+        console.log('🔍 [轮询调试] 响应:', data);
+        console.log('🔍 [轮询调试] data.success:', data.success);
+        console.log('🔍 [轮询调试] data.data:', data.data);
+        console.log('🔍 [轮询调试] data.data.messages:', data.data?.messages);
+        
+        // 后端API返回格式: { success: true, data: { messages: [...] } }
+        if (response.ok && data.success && data.data?.messages) {
+          const messages = data.data.messages;
+          
+          console.log('🔍 [轮询调试] 提取的消息数组:', messages);
+          console.log('🔍 [轮询调试] 消息数量:', messages.length);
+          
+          if (messages.length > 0) {
+            console.log('🔍 [轮询调试] 收到消息数量:', messages.length);
+            
+            // 后端已经过滤过消息，直接查找AI回复
+            const aiMessage = messages.find(m => {
+              console.log('🔍 [轮询调试] 检查消息:', { 
+                role: m.role, 
+                type: m.type, 
+                content: m.content?.substring(0, 50) 
+              });
+              
+              return m.role === 'assistant' && m.content && m.content.trim();
+            });
+
+            if (aiMessage) {
+              addMessage('assistant', aiMessage.content);
+              addLog('🤖 收到 AI 回复', { 
+                content: aiMessage.content.substring(0, 100), 
+                type: aiMessage.type,
+                attempts: attempt 
+              });
+              hidePollingStatus();
+              return;
+            } else {
+              console.log('⏳ [轮询调试] 未找到有效的AI回复，继续轮询...');
+            }
+          } else {
+            console.log('⏳ [轮询调试] 消息列表为空，AI可能还在生成，继续轮询...');
+          }
+        } else {
+          console.log('❌ [轮询调试] API返回错误或无消息:', data);
+        }
+
+        // 继续轮询
+        if (attempt < MAX_POLL_ATTEMPTS) {
+          state.pollingTimeout = setTimeout(() => pollMessages(attempt + 1), POLL_INTERVAL_MS);
+        } else {
+          addLog('⏱️ 达到最大轮询次数，停止轮询', { attempts: attempt });
+          hidePollingStatus();
+        }
+      } catch (error) {
+        console.error('❌ 轮询异常:', error);
+        addLog('❌ 轮询消息失败', { 
+          error: error.message, 
+          attempts: attempt 
+        }, 'error');
+        
+        if (attempt < MAX_POLL_ATTEMPTS) {
+          state.pollingTimeout = setTimeout(() => pollMessages(attempt + 1), POLL_INTERVAL_MS);
+        } else {
+          hidePollingStatus();
+        }
+      }
+    }
+
+    function showPollingStatus(attempt) {
+      const status = document.getElementById('polling-status');
+      status.textContent = `轮询中 (${attempt}/${MAX_POLL_ATTEMPTS}，每3秒)`;
+      status.style.display = 'inline-block';
+    }
+
+    function hidePollingStatus() {
+      state.isPolling = false;
+      document.getElementById('polling-status').style.display = 'none';
+      if (state.pollingTimeout) {
+        clearTimeout(state.pollingTimeout);
+        state.pollingTimeout = null;
+      }
+    }
+
+    // 加载测试数据（可选）
+    async function loadTestData() {
+      addLog('加载测试数据', '开始加载角色和交互模式数据');
+      // 这里可以实现加载鱼数据和交互模式的逻辑
+      // 目前先显示占位符
+      document.getElementById('stats-characters').textContent = '-';
+      document.getElementById('stats-modes').textContent = '-';
+    }
+  </script>
+</body>
+</html>
+

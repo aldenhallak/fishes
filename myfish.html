@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的鱼收藏 - My Fish Collection | FishArt.Online</title>
+    <meta name="description" content="查看您创建的鱼和收藏的鱼。管理您的个人鱼收藏，查看统计信息和详细资料。">
+    <meta name="keywords" content="我的鱼, 鱼收藏, 个人鱼缸, 创作的鱼, 收藏的鱼">
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="我的鱼收藏 - 个人鱼画廊">
+    <meta property="og:description" content="查看和管理您创建的鱼和收藏的鱼。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fishart.online/myfish.html">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://fishart.online/myfish.html">
+    
+    <link rel="stylesheet" href="src/css/style.css?v=2.0">
+    <link rel="stylesheet" href="src/css/animations.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-theme.css?v=2.0">
+    <link rel="icon" type="image/png" href="/fish_logo.png">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-601YXTKK0L"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-601YXTKK0L');
+    </script>
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "我的鱼收藏 - 个人画廊",
+      "description": "查看和管理您创建的鱼和收藏的鱼收藏。",
+      "url": "https://fishart.online/myfish.html"
+    }
+    </script>
+    
+    <style>
+        /* Main container */
+        .ranking-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .ranking-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .ranking-header h1 {
+            margin: 20px 0 10px;
+            font-size: 2.5em;
+            color: #4F46E5;
+            text-shadow: 2px 2px 4px rgba(99, 102, 241, 0.3);
+            font-weight: 700;
+        }
+        
+        /* Stats display */
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+            border-radius: 15px;
+            border: 2px solid #C7D2FE;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4F46E5;
+        }
+        
+        /* Sort controls */
+        .sort-controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .sort-btn {
+            padding: 10px 20px;
+            border: 2px solid #E0E0E0;
+            background: white;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6366F1;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sort-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+            border-color: #6366F1;
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+        }
+        
+        .sort-btn.active {
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            color: white;
+            border-color: #6366F1;
+        }
+        
+        .sort-btn.active:hover {
+            background: linear-gradient(135deg, #4F46E5, #4338CA);
+        }
+        
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #6366F1;
+            font-weight: 600;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            border: 3px solid #C7D2FE;
+            border-top-color: #6366F1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Grid layout for fish */
+        .fish-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .fish-card {
+            border: 2px solid #C7D2FE;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            background: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            animation: fadeInUp 0.5s ease;
+            position: relative;
+        }
+        
+        .fish-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            border-color: #6366F1;
+        }
+        
+        /* Fish type badge */
+        .fish-type-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .fish-type-badge.own {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+        
+        .fish-type-badge.favorited {
+            background: linear-gradient(135deg, #EC4899, #DB2777);
+            color: white;
+        }
+        
+        .fish-type-badge.dead {
+            background: linear-gradient(135deg, #6B7280, #4B5563);
+            color: white;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .fish-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .fish-image-container {
+            margin-bottom: 15px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .fish-image {
+            max-width: 150px;
+            max-height: 100px;
+            border-radius: 5px;
+        }
+        
+        .fish-info {
+            margin-bottom: 10px;
+        }
+        
+        .fish-artist {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .fish-date {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .fish-level {
+            color: #6366F1;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .fish-health {
+            font-size: 12px;
+            color: #059669;
+            margin-bottom: 10px;
+        }
+        
+        .add-to-tank-hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        /* Navigation */
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+            border: 2px solid #C7D2FE;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 15px;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-links a:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state h2 {
+            color: #4F46E5;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state a {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .empty-state a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .ranking-header h1 {
+                font-size: 2em;
+            }
+            
+            .sort-controls {
+                gap: 8px;
+            }
+            
+            .sort-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            
+            .nav-links {
+                padding: 15px;
+            }
+            
+            .nav-links a {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            
+            .stats-container {
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 10px 15px;
+                min-width: 90px;
+            }
+            
+            .stat-value {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+  <div class="nav-links animate-fadeInUp delay-1">
+        <a href="index.html">🎨 绘画</a>
+        <a href="tank.html">🐠 鱼缸</a>
+        <a href="rank.html">⭐ 排行</a>
+        <a href="profile.html">👤 个人</a>
+        <a href="mytank.html">🏆 我的鱼缸</a>
+        <a href="myfish.html" style="background: linear-gradient(135deg, #10B981, #059669);">🐟 我的鱼</a>
+        <a href="login.html" id="auth-link">🔐 登录</a>
+    </div>
+    
+    <div class="ranking-container">
+        <div class="ranking-header animate-fadeInUp">
+            <h1>🐟 我的鱼收藏</h1>
+        </div>
+        
+        <!-- Stats display -->
+        <div class="stats-container animate-fadeInUp delay-1" id="stats-container" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-label">总数</div>
+                <div class="stat-value" id="stat-total">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">我创作的</div>
+                <div class="stat-value" id="stat-own">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">我收藏的</div>
+                <div class="stat-value" id="stat-favorited">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">存活</div>
+                <div class="stat-value" id="stat-alive">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">平均等级</div>
+                <div class="stat-value" id="stat-avg-level">0</div>
+            </div>
+        </div>
+        
+        <div class="sort-controls animate-fadeInUp delay-2">
+            <button class="sort-btn active" data-sort="date">📅 按日期</button>
+            <button class="sort-btn" data-sort="level">⭐ 按等级</button>
+            <button class="sort-btn" data-sort="name">🔤 按名称</button>
+            <button class="sort-btn" data-sort="type">🏷️ 按类型</button>
+        </div>
+        
+        <div id="loading" class="loading">
+            加载中... 
+        </div>
+        
+        <div id="fish-grid" class="fish-grid" style="display: none;">
+            <!-- Fish cards will be populated here -->
+        </div>
+        
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <h2>还没有鱼哦！</h2>
+            <p>开始创作您的第一条鱼，或者去鱼缸收藏喜欢的鱼吧！</p>
+            <a href="index.html">🎨 开始绘画</a>
+            <a href="tank.html" style="margin-left: 10px;">🐠 浏览鱼缸</a>
+        </div>
+    </div>
+    
+    <!-- Modals are handled by modal-utils.js -->
+    
+    <script src="src/js/footer-utils.js"></script>
+    <!-- Supabase SDK -->
+    <script src="public/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="src/js/supabase-init.js"></script>
+    <script src="src/js/fish-utils.js"></script>
+    <script src="src/js/auth-ui.js"></script>
+    <script src="src/js/modal-utils.js"></script>
+    <script src="src/js/myfish.js"></script>
+    <script>
+        // Initialize navigation authentication
+        initializeAuthNavigation();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
