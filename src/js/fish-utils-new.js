@@ -472,16 +472,9 @@ async function updateAuthenticationUI() {
         myTanksLink.style.display = loggedIn ? 'inline' : 'none';
         
         // If logged in, get default tank and update link to go directly to it
-        if (loggedIn && window.FishTankFavorites) {
-            try {
-                const defaultTank = await window.FishTankFavorites.getDefaultTank();
-                if (defaultTank && defaultTank.id) {
-                    myTanksLink.href = `fishtank-view.html?id=${defaultTank.id}`;
-                }
-            } catch (error) {
-                console.log('Could not get default tank, using tanks list page:', error);
-                // Keep the original href to fishtanks.html
-            }
+        // Always link to mytank.html (simplified tank architecture)
+        if (loggedIn) {
+            myTanksLink.href = 'mytank.html';
         }
     }
     

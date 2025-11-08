@@ -212,7 +212,7 @@ module.exports = async function handler(req, res) {
             image_url: $imageUrl
             artist: $artist
             fish_name: $fishName
-            personality_type: $personality
+            personality: $personality
             talent: $talent
             level: 1
             experience: 0
@@ -233,7 +233,7 @@ module.exports = async function handler(req, res) {
           image_url
           artist
           fish_name
-          personality_type
+          personality
           talent
           level
           health
@@ -295,7 +295,7 @@ module.exports = async function handler(req, res) {
         imageUrl: newFish.image_url,
         artist: newFish.artist,
         fishName: newFish.fish_name,
-        personality: newFish.personality_type,
+        personality: newFish.personality,
         talent: newFish.talent,
         level: newFish.level,
         health: newFish.health,

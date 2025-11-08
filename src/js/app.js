@@ -85,6 +85,8 @@ function createConfetti(x, y, count = 30) {
 }
 
 
+// Function removed - footer should always be visible
+
 // Mouse events
 canvas.addEventListener('mousedown', (e) => {
     drawing = true;
@@ -273,7 +275,7 @@ function showSuccessModal(fishImageUrl, needsModeration) {
 }
 
 // --- Fish submission modal handler ---
-async function submitFish(artist, needsModeration = false, fishName = null, personality = null) {
+async function submitFish(artist, needsModeration = false, fishName = null, personality = null, userInfo = null) {
     function dataURLtoBlob(dataurl) {
         const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
             bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -355,7 +357,8 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
             imageUrl: uploadResult.imageUrl,
             artist: artist || 'Anonymous',
             fishName: fishName || 'Unnamed Fish',
-            personality: finalPersonality
+            personality: finalPersonality,
+            userInfo: userInfo || ''  // 用户信息，供AI聊天使用
         };
         console.log('🐟 开始提交鱼数据:', submitData);
         
@@ -413,6 +416,25 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
 }
 
 swimBtn.addEventListener('click', async () => {
+    // 检查登录状态
+    const isLoggedIn = window.supabaseAuth ? await window.supabaseAuth.isLoggedIn() : false;
+    
+    if (!isLoggedIn) {
+        // 未登录：保存画布数据到sessionStorage
+        const canvasData = canvas.toDataURL('image/png');
+        sessionStorage.setItem('pendingFishCanvas', canvasData);
+        sessionStorage.setItem('pendingFishSubmit', 'true');
+        
+        // 显示登录弹窗
+        if (window.authUI && window.authUI.showLoginModal) {
+            window.authUI.showLoginModal();
+        } else {
+            alert('Please refresh the page and try again.');
+        }
+        return; // 中断流程
+    }
+    
+    // 已登录：继续现有的鱼检测和提交流程
     // Check fish validity for warning purposes
     const isFish = await verifyFishDoodle(canvas);
     lastFishCheck = isFish;
@@ -462,26 +484,57 @@ swimBtn.addEventListener('click', async () => {
             </div>
             
             <div style='text-align: left; margin: 15px 0;'>
-                <label style='display: block; margin-bottom: 8px; font-weight: bold; color: #333; font-size: 14px;'>Personality (Optional)</label>
-                <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 8px;'>
-                    <label style='cursor: pointer; padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 13px;' class='personality-option' data-personality='cheerful'>
+                <label style='display: block; margin-bottom: 8px; font-weight: bold; color: #333; font-size: 14px;'>Personality</label>
+                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;'>
+                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #667eea; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px; background: #f0f4ff;' class='personality-option' data-personality='random'>
+                        <input type='radio' name='personality' value='random' checked style='display: none;'>
+                        🎲 Random
+                    </label>
+                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='funny'>
+                        <input type='radio' name='personality' value='funny' style='display: none;'>
+                        😂 Funny
+                    </label>
+                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='cheerful'>
                         <input type='radio' name='personality' value='cheerful' style='display: none;'>
                         😊 Cheerful
                     </label>
-                    <label style='cursor: pointer; padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 13px;' class='personality-option' data-personality='shy'>
-                        <input type='radio' name='personality' value='shy' style='display: none;'>
-                        😳 Shy
-                    </label>
-                    <label style='cursor: pointer; padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 13px;' class='personality-option' data-personality='brave'>
+                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='brave'>
                         <input type='radio' name='personality' value='brave' style='display: none;'>
                         💪 Brave
                     </label>
-                    <label style='cursor: pointer; padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 13px;' class='personality-option' data-personality='lazy'>
-                        <input type='radio' name='personality' value='lazy' style='display: none;'>
-                        😴 Lazy
+                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='playful'>
+                        <input type='radio' name='personality' value='playful' style='display: none;'>
+                        🎮 Playful
+                    </label>
+                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='curious'>
+                        <input type='radio' name='personality' value='curious' style='display: none;'>
+                        🔍 Curious
+                    </label>
+                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='energetic'>
+                        <input type='radio' name='personality' value='energetic' style='display: none;'>
+                        ⚡ Energetic
+                    </label>
+                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='calm'>
+                        <input type='radio' name='personality' value='calm' style='display: none;'>
+                        😌 Calm
+                    </label>
+                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='gentle'>
+                        <input type='radio' name='personality' value='gentle' style='display: none;'>
+                        🌸 Gentle
                     </label>
                 </div>
-                <small style='color: #999; font-size: 12px;'>Random personality if none selected</small>
+            </div>
+            
+            <div style='text-align: left; margin: 15px 0;'>
+                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>
+                    About You
+                    <span style='color: #6366F1; font-size: 12px; font-weight: normal; margin-left: 8px;'>💬 你的鱼会在聊天中谈到你哦！</span>
+                </label>
+                <input type='text' id='user-info' 
+                    placeholder='e.g., My owner loves pizza' 
+                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' 
+                    maxlength='50' />
+                <small style='color: #999; font-size: 12px;'>你的鱼可能会在聊天时提到这些信息，让它更了解你！</small>
             </div>
             
             <div style='text-align: left; margin: 15px 0;'>
@@ -489,12 +542,6 @@ swimBtn.addEventListener('click', async () => {
                 <input type='text' id='artist-name' value='${escapeHtml(defaultName)}' 
                     placeholder='Your artist name' 
                     style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' />
-            </div>
-            
-            <div style='margin-top: 20px; padding: 12px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 6px; text-align: left;'>
-                <p style='margin: 0; font-size: 13px; color: #1e40af;'>
-                    <strong>🎉 Coming Soon:</strong> AI Talking Fish! Named fish will be able to chat in the tank!
-                </p>
             </div>
             
             <div style='margin-top: 20px; display: flex; gap: 10px; justify-content: center;'>
@@ -523,8 +570,15 @@ swimBtn.addEventListener('click', async () => {
     document.getElementById('submit-fish').onclick = async () => {
         const fishName = document.getElementById('fish-name').value.trim();
         const artist = document.getElementById('artist-name').value.trim() || 'Anonymous';
+        const userInfo = document.getElementById('user-info')?.value.trim() || '';
         const personalityRadio = document.querySelector('input[name="personality"]:checked');
-        const personality = personalityRadio ? personalityRadio.value : null;
+        let personality = personalityRadio ? personalityRadio.value : 'random';
+        
+        // 如果选择random或未选择，随机分配一个个性
+        if (!personality || personality === 'random') {
+            const personalities = ['funny', 'cheerful', 'brave', 'playful', 'curious', 'energetic', 'calm', 'gentle'];
+            personality = personalities[Math.floor(Math.random() * personalities.length)];
+        }
         
         // Validate fish name
         if (!fishName) {
@@ -538,8 +592,9 @@ swimBtn.addEventListener('click', async () => {
         
         console.log('🚀 开始提交鱼');
         console.log('  鱼名:', fishName);
-        console.log('  个性:', personality || 'random');
+        console.log('  个性:', personality);
         console.log('  艺术家:', artist);
+        console.log('  用户信息:', userInfo);
         
         await submitFish(artist, !isFish, fishName, personality); // Pass name and personality
         console.log('✅ submitFish 完成');
@@ -1003,9 +1058,14 @@ async function verifyFishDoodle(canvas) {
     // Display the probability (element is pre-created in HTML to prevent layout shifts)
     const probDiv = document.getElementById('fish-probability');
     if (probDiv) {
-        // 更新文本和样式类
-        probDiv.textContent = `🐠 Fish probability: ${(fishProbability * 100).toFixed(1)}% ${isFish ? '✨' : '⚠️'}`;
-        probDiv.className = isFish ? 'high-probability' : 'low-probability';
+        // 更新HTML内容，保持结构
+        probDiv.innerHTML = `
+            <span>🐠</span>
+            <span>Fish probability: <strong>${(fishProbability * 100).toFixed(1)}%</strong></span>
+        `;
+        // 设置样式类和显示
+        probDiv.className = `game-probability ${isFish ? 'high' : 'low'}`;
+        probDiv.style.display = 'inline-flex';
         probDiv.style.opacity = '1';
     }
     
@@ -1014,11 +1074,12 @@ async function verifyFishDoodle(canvas) {
 
 // Show/hide fish warning and update background color
 function showFishWarning(show) {
-    const drawUI = document.getElementById('draw-ui');
-    if (drawUI) {
-        drawUI.style.background = show ? '#ffeaea' : '#eaffea'; // red for invalid, green for valid
-        drawUI.style.transition = 'background 0.3s';
-    }
+    // 注释掉背景色变化，因为用户不希望显示这个效果
+    // const drawUI = document.getElementById('draw-ui');
+    // if (drawUI) {
+    //     drawUI.style.background = show ? '#ffeaea' : '#eaffea'; // red for invalid, green for valid
+    //     drawUI.style.transition = 'background 0.3s';
+    // }
 }
 
 // After each stroke, check if it's a fish
@@ -1113,3 +1174,205 @@ function showWelcomeBackMessage() {
 document.addEventListener('DOMContentLoaded', () => {
     // All startup checks disabled for better UX
 });
+
+// 监听登录状态变化，处理画布恢复
+if (window.supabaseAuth) {
+    window.supabaseAuth.onAuthStateChange(async (event, session) => {
+        // 登录成功且有待提交的画布
+        if (event === 'SIGNED_IN' && sessionStorage.getItem('pendingFishSubmit') === 'true') {
+            const canvasData = sessionStorage.getItem('pendingFishCanvas');
+            
+            if (canvasData) {
+                // 恢复画布
+                const img = new Image();
+                img.onload = async () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // 清除存储的数据
+                    sessionStorage.removeItem('pendingFishCanvas');
+                    sessionStorage.removeItem('pendingFishSubmit');
+                    
+                    // 关闭登录modal
+                    if (window.authUI && window.authUI.hideLoginModal) {
+                        window.authUI.hideLoginModal();
+                    }
+                    
+                    // 自动继续提交流程
+                    const isFish = await verifyFishDoodle(canvas);
+                    lastFishCheck = isFish;
+                    showFishWarning(!isFish);
+                    
+                    // 获取保存的艺术家名称
+                    const savedArtist = localStorage.getItem('artistName');
+                    const defaultName = (savedArtist && savedArtist !== 'Anonymous') ? savedArtist : 'Anonymous';
+                    
+                    // 显示命名modal
+                    if (!isFish) {
+                        // 显示警告modal（低分鱼）
+                        showModal(`<div style='text-align:center; padding: 20px;'>
+                            <div style='color:#ff6b35; font-weight:bold; font-size: 18px; margin-bottom:16px;'>⚠️ 这可能不是一条鱼</div>
+                            <div style='margin-bottom:20px; line-height:1.6; color: #666;'>
+                                AI未能识别出鱼的特征。请尝试：<br>
+                                • 画一条面向右侧的鱼<br>
+                                • 包含鱼的基本特征（身体、尾巴、鱼鳍）<br>
+                                • 让线条更清晰一些
+                            </div>
+                            <div style='display: flex; gap: 12px; justify-content: center;'>
+                                <button id='try-again-fish' class='cute-button cute-button-primary' style='padding: 10px 24px; background:#3498db;'>重新画一条</button>
+                                <button id='cancel-fish' class='cute-button' style='padding: 10px 24px; background: #e0e0e0;'>取消</button>
+                            </div>
+                        </div>`, () => { });
+                        
+                        document.getElementById('try-again-fish').onclick = () => {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            document.querySelector('div[style*="z-index: 9999"]')?.remove();
+                        };
+                        document.getElementById('cancel-fish').onclick = () => {
+                            document.querySelector('div[style*="z-index: 9999"]')?.remove();
+                        };
+                    } else {
+                        // 显示命名modal（好鱼）
+                        showModal(`<div style='text-align:center; padding: 20px; max-width: 450px;'>
+                            <div style='color:#27ae60; font-weight:bold; font-size: 20px; margin-bottom:16px;'>🐟 Name Your Fish!</div>
+                            
+                            <div style='text-align: left; margin: 15px 0;'>
+                                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Fish Name *</label>
+                                <input type='text' id='fish-name' placeholder='e.g., Bubbles, Nemo, Goldie' 
+                                    style='width: 100%; padding: 12px; border: 2px solid #27ae60; border-radius: 8px; font-size: 14px; box-sizing: border-box;' 
+                                    maxlength='30' required />
+                                <small style='color: #999; font-size: 12px;'>Give your fish a unique name!</small>
+                            </div>
+                            
+                            <div style='text-align: left; margin: 15px 0;'>
+                                <label style='display: block; margin-bottom: 8px; font-weight: bold; color: #333; font-size: 14px;'>Personality</label>
+                                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;'>
+                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #667eea; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px; background: #f0f4ff;' class='personality-option' data-personality='random'>
+                                        <input type='radio' name='personality' value='random' checked style='display: none;'>
+                                        🎲 Random
+                                    </label>
+                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='funny'>
+                                        <input type='radio' name='personality' value='funny' style='display: none;'>
+                                        😂 Funny
+                                    </label>
+                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='cheerful'>
+                                        <input type='radio' name='personality' value='cheerful' style='display: none;'>
+                                        😊 Cheerful
+                                    </label>
+                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='brave'>
+                                        <input type='radio' name='personality' value='brave' style='display: none;'>
+                                        💪 Brave
+                                    </label>
+                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='playful'>
+                                        <input type='radio' name='personality' value='playful' style='display: none;'>
+                                        🎮 Playful
+                                    </label>
+                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='curious'>
+                                        <input type='radio' name='personality' value='curious' style='display: none;'>
+                                        🔍 Curious
+                                    </label>
+                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='energetic'>
+                                        <input type='radio' name='personality' value='energetic' style='display: none;'>
+                                        ⚡ Energetic
+                                    </label>
+                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='calm'>
+                                        <input type='radio' name='personality' value='calm' style='display: none;'>
+                                        😌 Calm
+                                    </label>
+                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='gentle'>
+                                        <input type='radio' name='personality' value='gentle' style='display: none;'>
+                                        🌸 Gentle
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div style='text-align: left; margin: 15px 0;'>
+                                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>
+                                    About You
+                                    <span style='color: #6366F1; font-size: 12px; font-weight: normal; margin-left: 8px;'>💬 你的鱼会在聊天中谈到你哦！</span>
+                                </label>
+                                <input type='text' id='user-info' 
+                                    placeholder='e.g., My owner loves pizza' 
+                                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' 
+                                    maxlength='50' />
+                                <small style='color: #999; font-size: 12px;'>你的鱼可能会在聊天时提到这些信息，让它更了解你！</small>
+                            </div>
+                            
+                            <div style='text-align: left; margin: 15px 0;'>
+                                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Your Name (Optional)</label>
+                                <input type='text' id='artist-name' value='${escapeHtml(defaultName)}' 
+                                    placeholder='Your artist name' 
+                                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' />
+                            </div>
+                            
+                            <div style='margin-top: 20px; display: flex; gap: 10px; justify-content: center;'>
+                                <button id='submit-fish' class='cute-button cute-button-primary' style='padding: 12px 28px; background:#27ae60; font-weight: bold; font-size: 14px;'>Submit Fish</button>
+                                <button id='cancel-fish' class='cute-button' style='padding: 12px 28px; background: #e0e0e0; font-size: 14px;'>Cancel</button>
+                            </div>
+                        </div>`, () => { });
+                        
+                        // Add personality selection highlight effect
+                        setTimeout(() => {
+                            document.querySelectorAll('.personality-option').forEach(option => {
+                                option.addEventListener('click', function() {
+                                    document.querySelectorAll('.personality-option').forEach(o => {
+                                        o.style.borderColor = '#ddd';
+                                        o.style.background = 'white';
+                                        o.querySelector('input').checked = false;
+                                    });
+                                    this.style.borderColor = '#667eea';
+                                    this.style.background = '#f0f4ff';
+                                    this.querySelector('input').checked = true;
+                                });
+                            });
+                        }, 100);
+                        
+                        // 绑定提交按钮事件
+                        document.getElementById('submit-fish').onclick = async () => {
+                            const fishName = document.getElementById('fish-name').value.trim();
+                            const artist = document.getElementById('artist-name').value.trim() || 'Anonymous';
+                            const userInfo = document.getElementById('user-info')?.value.trim() || '';
+                            const personalityRadio = document.querySelector('input[name="personality"]:checked');
+                            let personality = personalityRadio ? personalityRadio.value : 'random';
+                            
+                            // 如果选择random或未选择，随机分配一个个性
+                            if (!personality || personality === 'random') {
+                                const personalities = ['funny', 'cheerful', 'brave', 'playful', 'curious', 'energetic', 'calm', 'gentle'];
+                                personality = personalities[Math.floor(Math.random() * personalities.length)];
+                            }
+                            
+                            // Validate fish name
+                            if (!fishName) {
+                                alert('Please give your fish a name!');
+                                document.getElementById('fish-name').focus();
+                                return;
+                            }
+                            
+                            // Save artist name and user info to localStorage for future use
+                            localStorage.setItem('artistName', artist);
+                            if (userInfo) {
+                                localStorage.setItem('userInfo', userInfo);
+                            }
+                            
+                            console.log('🚀 开始提交鱼');
+                            console.log('  鱼名:', fishName);
+                            console.log('  个性:', personality);
+                            console.log('  艺术家:', artist);
+                            console.log('  用户信息:', userInfo);
+                            
+                            await submitFish(artist, !isFish, fishName, personality, userInfo);
+                            console.log('✅ submitFish 完成');
+                            
+                            // 关闭modal
+                            document.querySelector('.modal')?.remove();
+                        };
+                        document.getElementById('cancel-fish').onclick = () => {
+                            document.querySelector('.modal')?.remove();
+                        };
+                    }
+                };
+                img.src = canvasData;
+            }
+        }
+    });
+}

@@ -33,10 +33,12 @@ if (typeof TankLayoutManager !== 'undefined') {
     console.log('✅ Tank Layout Manager initialized');
     console.log('✅ Community Chat Manager initialized');
     
-    // Schedule auto-chats every 5 minutes (only if not in battle mode)
+    // Schedule auto-chats and monologues (only if not in battle mode)
     if (!isBattleMode) {
         communityChatManager.scheduleAutoChats(5);
+        communityChatManager.scheduleMonologues(15); // Self-talk every 15 seconds
         console.log('🎮 Auto-chats scheduled every 5 minutes');
+        console.log('💬 Monologues scheduled every 15 seconds');
     }
 }
 
@@ -570,7 +572,7 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
                 // Community Chat System properties
                 id: fishData.id || fishData.docId || null,
                 fishName: fishData.fish_name || null,
-                personality: fishData.personality_type || null,
+                personality: fishData.personality || null,
                 // Legacy battle properties (kept for compatibility)
                 health: fishData.health !== undefined ? fishData.health : 100,
                 level: fishData.level || 1,

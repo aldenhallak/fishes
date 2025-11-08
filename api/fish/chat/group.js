@@ -217,7 +217,7 @@ async function generateGroupChat(fishArray) {
  */
 function parseGroupChatResponse(content, fishArray) {
     try {
-        // Try to parse as JSON array
+        // Try to parse as JSON
         let jsonStr = content.trim();
         
         // Remove markdown code blocks if present
@@ -227,9 +227,33 @@ function parseGroupChatResponse(content, fishArray) {
             jsonStr = jsonStr.replace(/^```\s*/, '').replace(/\s*```$/, '');
         }
 
-        const dialogues = JSON.parse(jsonStr);
+        const parsed = JSON.parse(jsonStr);
+        
+        // Check if it's the Coze format with "output" wrapper
+        let dialogues;
+        if (parsed.output && Array.isArray(parsed.output)) {
+            // Coze format: {"output": [{"fish_id": "...", "seq": "1", "talk": "..."}]}
+            dialogues = parsed.output.map(item => {
+                // Find fish name by fish_id
+                const fish = fishArray.find(f => f.fish_id === item.fish_id);
+                return {
+                    fishId: item.fish_id,
+                    fishName: fish?.fish_name || `Fish ${item.seq}`,
+                    message: item.talk,
+                    sequence: parseInt(item.seq, 10)
+                };
+            });
+        } else if (Array.isArray(parsed)) {
+            // Direct array format: [{"fishId": "...", "fishName": "...", "message": "..."}]
+            dialogues = parsed;
+        } else {
+            throw new Error('Invalid dialogue format');
+        }
 
-        if (Array.isArray(dialogues) && dialogues.length > 0) {
+        if (dialogues && dialogues.length > 0) {
+            // Sort by sequence if available
+            dialogues.sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+            
             return {
                 dialogues,
                 participantCount: fishArray.length,
@@ -237,10 +261,11 @@ function parseGroupChatResponse(content, fishArray) {
             };
         }
 
-        throw new Error('Invalid dialogue format');
+        throw new Error('No dialogues found');
 
     } catch (error) {
-        console.error('[Group Chat] Failed to parse as JSON:', error);
+        console.error('[Group Chat] Failed to parse response:', error);
+        console.error('[Group Chat] Content:', content.substring(0, 200));
         
         // Fallback: return as plain text
         return {

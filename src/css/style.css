@@ -40,7 +40,7 @@ body {
 
 /* 提交按钮容器 */
 .submit-button-container {
-    margin: 15px 0 10px;
+    margin: 35px 0 30px; /* 增加与上下组件的距离 */
     text-align: center;
 }
 

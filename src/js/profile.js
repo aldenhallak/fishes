@@ -95,9 +95,9 @@ function updateActionButtons(profile, profileUserId, isCurrentUser, isLoggedIn =
     }
 
     if (isCurrentUser) {
-        // For current user, show their tanks
-        visitTankBtn.href = 'fishtanks.html';
-        visitTankBtn.textContent = isLoggedIn ? 'My Tanks' : 'My Local Tanks';
+        // For current user, show their private tank
+        visitTankBtn.href = 'mytank.html';
+        visitTankBtn.textContent = 'My Tank';
 
         // Show edit profile button for current user only if logged in
         if (isLoggedIn) {
@@ -106,10 +106,9 @@ function updateActionButtons(profile, profileUserId, isCurrentUser, isLoggedIn =
             hideEditProfileButton();
         }
     } else {
-        // For other users, show their public content
-        visitTankBtn.href = `fishtanks.html?userId=${encodeURIComponent(profileUserId)}`;
-        visitTankBtn.textContent = `View ${displayName}'s Tanks`;
-
+        // For other users, hide the tank button (or link to their public fish)
+        visitTankBtn.style.display = 'none';
+        
         // Hide edit profile button for other users
         hideEditProfileButton();
     }

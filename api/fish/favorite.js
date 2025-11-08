@@ -1,11 +1,13 @@
 // =====================================================
 // Add Fish to Favorites API
 // =====================================================
-// POST /api/fishtank/favorite
+// POST /api/fish/favorite
 // Adds a fish to user's favorites
 
 const { createClient } = require('@supabase/supabase-js');
-const { MAX_FAVORITES_PER_USER } = require('../config/fishtank-config');
+
+// Max favorites per user (can be configured)
+const MAX_FAVORITES_PER_USER = 100;
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -197,17 +199,4 @@ module.exports = async function handler(req, res) {
     });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 

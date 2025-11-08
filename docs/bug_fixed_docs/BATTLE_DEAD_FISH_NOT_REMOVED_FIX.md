@@ -244,3 +244,7 @@ if (!fish.isDying && !fish.isEntering && isBattleMode) {
 
 
 
+
+
+
+

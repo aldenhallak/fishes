@@ -96,19 +96,20 @@ class TankRow {
   }
   
   /**
-   * Calculate optimal dialogue width based on text content
+   * Calculate optimal dialogue dimensions based on text content
    * @param {CanvasRenderingContext2D} ctx - Canvas context
    * @param {string} text - Text to measure
-   * @returns {number} - Optimal width
+   * @returns {Object} - {width, height} object
    */
-  calculateDialogueWidth(ctx, text) {
-    // Set font for measurement
-    ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+  calculateDialogueDimensions(ctx, text) {
+    // Set font for measurement - 必须与绘制时使用的字体一致
+    ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
     
-    const padding = 12;
+    const padding = 14;
     const minWidth = 80;   // 最小宽度
     const maxWidth = 250;  // 最大宽度
     const idealMaxLineWidth = 200; // 理想的单行最大宽度
+    const lineHeight = 20; // 行高（增加以配合更大的字体）
     
     // Measure text
     const textWidth = ctx.measureText(text).width;
@@ -124,7 +125,65 @@ class TankRow {
     // Apply min/max constraints
     width = Math.max(minWidth, Math.min(maxWidth, width));
     
-    return width;
+    // Calculate how many lines we'll need
+    const maxTextWidth = width - padding * 2;
+    const lines = this.wrapTextForMeasurement(ctx, text, maxTextWidth);
+    
+    // Calculate height based on number of lines
+    const height = lines.length * lineHeight + padding * 2;
+    
+    return { width, height };
+  }
+  
+  /**
+   * Wrap text for measurement (separate from drawing) - 支持中英文混合
+   * @param {CanvasRenderingContext2D} ctx - Canvas context
+   * @param {string} text - Text to wrap
+   * @param {number} maxWidth - Maximum width
+   * @returns {Array} - Array of text lines
+   */
+  wrapTextForMeasurement(ctx, text, maxWidth) {
+    const lines = [];
+    let currentLine = '';
+    
+    // 先尝试按空格分词（英文）
+    const hasManySpaces = (text.match(/ /g) || []).length > text.length * 0.1;
+    
+    if (hasManySpaces) {
+      // 主要是英文文本，按单词换行
+      const words = text.split(' ');
+      for (const word of words) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+    } else {
+      // 主要是中文或混合文本，按字符换行
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const testLine = currentLine + char;
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = char;
+        } else {
+          currentLine = testLine;
+        }
+      }
+    }
+    
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+    
+    return lines;
   }
   
   /**
@@ -145,8 +204,13 @@ class TankRow {
     
     const slot = TANK_LAYOUT.dialogueSlots[slotIdx];
     
-    // Calculate dialogue width based on text content
-    const width = this.ctx ? this.calculateDialogueWidth(this.ctx, message) : slot.width;
+    // Calculate dialogue dimensions based on text content
+    let dimensions;
+    if (this.ctx) {
+      dimensions = this.calculateDialogueDimensions(this.ctx, message);
+    } else {
+      dimensions = { width: slot.width, height: this.dialogueHeight };
+    }
     
     const dialogue = {
       fishId: fish.id,
@@ -154,12 +218,12 @@ class TankRow {
       text: message,
       x: slot.x,
       y: this.dialogueY,
-      width: width,  // 使用自适应宽度
-      height: this.dialogueHeight,
+      width: dimensions.width,   // 使用自适应宽度
+      height: dimensions.height, // 使用自适应高度
       slotIdx: slotIdx,
       createdAt: Date.now(),
       duration: duration,
-      personality: fish.personality_type || 'cheerful',
+      personality: fish.personality || 'cheerful',
       floatOffset: 0  // 用于浮动动画
     };
     
@@ -384,11 +448,22 @@ class TankLayoutManager {
     this.roundRect(ctx, bubbleX, bubbleY, dialogue.width, dialogue.height, borderRadius);
     ctx.fill();
     
-    // Draw border with subtle style
+    // Draw border with cartoon style - 卡通描边
     ctx.strokeStyle = colors.border;
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 3;
     ctx.shadowBlur = 0;
     ctx.stroke();
+    
+    // 内部高光（卡通光泽效果）
+    const highlightGradient = ctx.createLinearGradient(
+      bubbleX, bubbleY,
+      bubbleX, bubbleY + dialogue.height * 0.4
+    );
+    highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+    highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = highlightGradient;
+    this.roundRect(ctx, bubbleX + 4, bubbleY + 4, dialogue.width - 8, dialogue.height * 0.3, borderRadius - 4);
+    ctx.fill();
     
     // 添加小尾巴指向鱼（如果鱼存在）
     if (dialogue.fish) {
@@ -411,68 +486,85 @@ class TankLayoutManager {
       ctx.shadowBlur = 0;
     }
     
-    // Draw text
-    ctx.fillStyle = colors.text;
-    ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+    // Draw text with cartoon style - 卡通描边效果
+    ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     
     // Word wrap text
-    const padding = 12;
+    const padding = 14;
     const maxWidth = dialogue.width - padding * 2;
     const lines = this.wrapText(ctx, dialogue.text, maxWidth);
     
-    const lineHeight = 18;
+    const lineHeight = 20;
     const startY = bubbleY + (dialogue.height - lines.length * lineHeight) / 2;
     
+    // 绘制文字描边和填充（卡通效果）
     lines.forEach((line, i) => {
-      ctx.fillText(line, bubbleX + padding, startY + i * lineHeight);
+      const x = bubbleX + padding;
+      const y = startY + i * lineHeight;
+      
+      // 白色描边（让文字在任何背景上都清晰）
+      ctx.strokeStyle = colors.textStroke;
+      ctx.lineWidth = 3.5;
+      ctx.lineJoin = 'round';
+      ctx.miterLimit = 2;
+      ctx.strokeText(line, x, y);
+      
+      // 文字填充
+      ctx.fillStyle = colors.text;
+      ctx.fillText(line, x, y);
     });
     
     ctx.restore();
   }
   
   /**
-   * Get colors based on personality
+   * Get colors based on personality - 卡通化配色方案
    * @param {string} personality - Personality type
    * @returns {Object} - Color object
    */
   getPersonalityColors(personality) {
     const colorSchemes = {
       cheerful: {
-        // 温暖的珊瑚橙到桃色渐变
-        gradientStart: 'rgba(255, 218, 185, 0.96)',
-        gradientEnd: 'rgba(255, 192, 159, 0.96)',
-        border: 'rgba(255, 160, 122, 0.6)',
-        text: '#5D4037'
+        // 明亮的黄色系 - 欢快阳光
+        gradientStart: 'rgba(255, 243, 150, 0.98)',
+        gradientEnd: 'rgba(255, 224, 130, 0.98)',
+        border: 'rgba(251, 192, 45, 0.8)',
+        text: '#6D4C00',
+        textStroke: '#FFFFFF'
       },
       shy: {
-        // 清新的薄荷蓝到天蓝色渐变
-        gradientStart: 'rgba(224, 247, 250, 0.96)',
-        gradientEnd: 'rgba(178, 235, 242, 0.96)',
-        border: 'rgba(77, 182, 172, 0.5)',
-        text: '#00695C'
+        // 清新的淡蓝色系 - 安静温柔
+        gradientStart: 'rgba(230, 247, 255, 0.98)',
+        gradientEnd: 'rgba(187, 222, 251, 0.98)',
+        border: 'rgba(100, 181, 246, 0.8)',
+        text: '#004D73',
+        textStroke: '#FFFFFF'
       },
       brave: {
-        // 活力的珊瑚红到橙红渐变
-        gradientStart: 'rgba(255, 205, 210, 0.96)',
-        gradientEnd: 'rgba(255, 171, 145, 0.96)',
-        border: 'rgba(239, 83, 80, 0.5)',
-        text: '#FFFFFF'
+        // 鲜艳的红橙色系 - 活力勇敢
+        gradientStart: 'rgba(255, 224, 224, 0.98)',
+        gradientEnd: 'rgba(255, 183, 183, 0.98)',
+        border: 'rgba(239, 83, 80, 0.8)',
+        text: '#B71C1C',
+        textStroke: '#FFFFFF'
       },
       lazy: {
-        // 柔和的淡紫到薰衣草色渐变
-        gradientStart: 'rgba(243, 229, 245, 0.96)',
-        gradientEnd: 'rgba(225, 190, 231, 0.96)',
-        border: 'rgba(186, 104, 200, 0.5)',
-        text: '#6A1B9A'
+        // 柔和的淡紫色系 - 懒洋洋
+        gradientStart: 'rgba(243, 229, 255, 0.98)',
+        gradientEnd: 'rgba(225, 190, 245, 0.98)',
+        border: 'rgba(186, 104, 200, 0.8)',
+        text: '#4A148C',
+        textStroke: '#FFFFFF'
       },
       default: {
-        // 默认：清爽的白色到浅灰渐变
-        gradientStart: 'rgba(250, 250, 250, 0.96)',
-        gradientEnd: 'rgba(240, 240, 240, 0.96)',
-        border: 'rgba(158, 158, 158, 0.4)',
-        text: '#424242'
+        // 默认：清爽的白色系
+        gradientStart: 'rgba(255, 255, 255, 0.98)',
+        gradientEnd: 'rgba(245, 245, 245, 0.98)',
+        border: 'rgba(189, 189, 189, 0.8)',
+        text: '#333333',
+        textStroke: '#FFFFFF'
       }
     };
     
@@ -497,22 +589,45 @@ class TankLayoutManager {
   }
   
   /**
-   * Wrap text to fit within max width
+   * Wrap text to fit within max width - 支持中英文混合
    */
   wrapText(ctx, text, maxWidth) {
-    const words = text.split(' ');
+    // 确保使用与测量时相同的字体
+    ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+    
     const lines = [];
     let currentLine = '';
     
-    for (const word of words) {
-      const testLine = currentLine + (currentLine ? ' ' : '') + word;
-      const metrics = ctx.measureText(testLine);
-      
-      if (metrics.width > maxWidth && currentLine) {
-        lines.push(currentLine);
-        currentLine = word;
-      } else {
-        currentLine = testLine;
+    // 先尝试按空格分词（英文）
+    const hasManySpaces = (text.match(/ /g) || []).length > text.length * 0.1;
+    
+    if (hasManySpaces) {
+      // 主要是英文文本，按单词换行
+      const words = text.split(' ');
+      for (const word of words) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+    } else {
+      // 主要是中文或混合文本，按字符换行
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const testLine = currentLine + char;
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = char;
+        } else {
+          currentLine = testLine;
+        }
       }
     }
     
@@ -520,7 +635,7 @@ class TankLayoutManager {
       lines.push(currentLine);
     }
     
-    return lines.slice(0, 2); // Max 2 lines per bubble
+    return lines; // 返回所有行，不再限制最多2行
   }
   
   /**

@@ -122,14 +122,14 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.98), rgba(118, 75, 162, 0.98));
-  backdrop-filter: blur(10px);
-  box-shadow: 0 -4px 20px rgba(99, 102, 241, 0.3);
+  background: linear-gradient(180deg, rgba(74, 144, 226, 0.98), rgba(53, 122, 189, 0.98));
+  backdrop-filter: blur(8px);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+  border-top: 2px solid rgba(255, 255, 255, 0.3);
   display: none; /* Hidden by default, shown on mobile */
   justify-content: space-around;
   padding: 6px 0;
   z-index: 999;
-  border-top: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .mobile-social-bar button {

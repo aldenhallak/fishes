@@ -373,7 +373,7 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
                 created_at
                 upvotes
                 fish_name
-                personality_type
+                personality
             }
         }
     `;
@@ -612,15 +612,8 @@ async function updateAuthenticationUI() {
         
         // If logged in, get default tank and update link to go directly to it
         if (isLoggedIn && window.FishTankFavorites) {
-            try {
-                const defaultTank = await window.FishTankFavorites.getDefaultTank();
-                if (defaultTank && defaultTank.id) {
-                    myTanksLink.href = `fishtank-view.html?id=${defaultTank.id}`;
-                }
-            } catch (error) {
-                console.log('Could not get default tank, using tanks list page:', error);
-                // Keep the original href to fishtanks.html
-            }
+            // Always link to mytank.html (simplified tank architecture)
+            myTanksLink.href = 'mytank.html';
         }
     }
     // Update auth link (login/logout)

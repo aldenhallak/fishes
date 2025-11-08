@@ -29,7 +29,7 @@ function createFooter() {
 }
 
 function createSpecialFooter() {
-    // Special footer for fishtank-view.html which has navigation links
+    // Special footer for navigation links
     const footer = document.createElement('footer');
     footer.style.cssText = 'text-align:center; margin:32px 0 12px 0; color:#888; font-size:12px;';
     
@@ -37,7 +37,7 @@ function createSpecialFooter() {
         <a href="index.html" style="color: #0066cc; text-decoration: underline;">draw</a>
         | <a href="tank.html" style="color: #0066cc; text-decoration: underline;">public tank</a>
         | <a href="rank.html" style="color: #0066cc; text-decoration: underline;">rankings</a>
-        | <a href="fishtanks.html" id="my-tanks-link" style="color: #0066cc; text-decoration: underline;">my tank</a>
+        | <a href="mytank.html" id="my-tanks-link" style="color: #0066cc; text-decoration: underline;">my tank</a>
         | <a href="login.html" id="auth-link" style="color: #0066cc; text-decoration: underline;">login</a>
         <br><br>
         🎨 Based on <a href="https://github.com/aldenhallak/fishes" style="color: #0066cc; text-decoration: underline;" target="_blank" rel="noopener">DrawAFish</a> by <a href="https://github.com/aldenhallak" style="color: #0066cc; text-decoration: underline;" target="_blank" rel="noopener">aldenhallak</a> | 
@@ -96,9 +96,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    // Check if this is fishtank-view.html based on the page structure or URL
-    const isSpecialFooter = document.querySelector('#tank-content') !== null || 
-                           window.location.pathname.includes('fishtank-view.html');
+    // Check if this page should use the special footer with navigation links
+    const isSpecialFooter = document.querySelector('#tank-content') !== null;
     
     insertFooter(isSpecialFooter);
     

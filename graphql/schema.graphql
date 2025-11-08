@@ -96,6 +96,23 @@ input String_comparison_exp {
   _similar: String
 }
 
+scalar bigint
+
+"""
+Boolean expression to compare columns of type "bigint". All fields are combined with logical 'AND'.
+"""
+input bigint_comparison_exp {
+  _eq: bigint
+  _gt: bigint
+  _gte: bigint
+  _in: [bigint!]
+  _is_null: Boolean
+  _lt: bigint
+  _lte: bigint
+  _neq: bigint
+  _nin: [bigint!]
+}
+
 """ordering argument of a cursor"""
 enum cursor_ordering {
   """ascending ordering of the cursor"""
@@ -577,6 +594,9 @@ type fish {
     where: economy_log_bool_exp
   ): economy_log_aggregate!
   fish_name: String
+
+  """An object relationship"""
+  fish_personality: fish_personalities
   id: uuid!
   image_url: String!
   is_approved: Boolean
@@ -769,6 +789,7 @@ input fish_bool_exp {
   economy_logs: economy_log_bool_exp
   economy_logs_aggregate: economy_log_aggregate_bool_exp
   fish_name: String_comparison_exp
+  fish_personality: fish_personalities_bool_exp
   id: uuid_comparison_exp
   image_url: String_comparison_exp
   is_approved: Boolean_comparison_exp
@@ -810,6 +831,7 @@ input fish_insert_input {
   created_at: timestamp
   economy_logs: economy_log_arr_rel_insert_input
   fish_name: String
+  fish_personality: fish_personalities_obj_rel_insert_input
   id: uuid
   image_url: String
   is_approved: Boolean
@@ -895,9 +917,6 @@ type fish_monologues {
   content: String!
   created_at: timestamp
   id: uuid!
-
-  """个性类型（可扩展）"""
-  personality: String!
 }
 
 """
@@ -927,7 +946,6 @@ input fish_monologues_bool_exp {
   content: String_comparison_exp
   created_at: timestamp_comparison_exp
   id: uuid_comparison_exp
-  personality: String_comparison_exp
 }
 
 """
@@ -948,9 +966,6 @@ input fish_monologues_insert_input {
   content: String
   created_at: timestamp
   id: uuid
-
-  """个性类型（可扩展）"""
-  personality: String
 }
 
 """aggregate max on columns"""
@@ -959,9 +974,6 @@ type fish_monologues_max_fields {
   content: String
   created_at: timestamp
   id: uuid
-
-  """个性类型（可扩展）"""
-  personality: String
 }
 
 """aggregate min on columns"""
@@ -970,9 +982,6 @@ type fish_monologues_min_fields {
   content: String
   created_at: timestamp
   id: uuid
-
-  """个性类型（可扩展）"""
-  personality: String
 }
 
 """
@@ -1000,7 +1009,6 @@ input fish_monologues_order_by {
   content: order_by
   created_at: order_by
   id: order_by
-  personality: order_by
 }
 
 """primary key columns input for table: fish_monologues"""
@@ -1020,9 +1028,6 @@ enum fish_monologues_select_column {
 
   """column name"""
   id
-
-  """column name"""
-  personality
 }
 
 """
@@ -1033,9 +1038,6 @@ input fish_monologues_set_input {
   content: String
   created_at: timestamp
   id: uuid
-
-  """个性类型（可扩展）"""
-  personality: String
 }
 
 """
@@ -1055,9 +1057,6 @@ input fish_monologues_stream_cursor_value_input {
   content: String
   created_at: timestamp
   id: uuid
-
-  """个性类型（可扩展）"""
-  personality: String
 }
 
 """
@@ -1072,9 +1071,6 @@ enum fish_monologues_update_column {
 
   """column name"""
   id
-
-  """column name"""
-  personality
 }
 
 input fish_monologues_updates {
@@ -1121,6 +1117,7 @@ input fish_order_by {
   created_at: order_by
   economy_logs_aggregate: economy_log_aggregate_order_by
   fish_name: order_by
+  fish_personality: fish_personalities_order_by
   id: order_by
   image_url: order_by
   is_approved: order_by
@@ -1132,6 +1129,335 @@ input fish_order_by {
   user: users_order_by
   user_id: order_by
   votes_aggregate: votes_aggregate_order_by
+}
+
+"""鱼个性类型表 - 预设的个性类型及详细描述"""
+type fish_personalities {
+  created_at: timestamptz
+
+  """个性细节描述 - 详细说明该个性的特征和行为模式"""
+  description: String!
+
+  """An array relationship"""
+  fishes(
+    """distinct select on columns"""
+    distinct_on: [fish_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_order_by!]
+
+    """filter the rows returned"""
+    where: fish_bool_exp
+  ): [fish!]!
+
+  """An aggregate relationship"""
+  fishes_aggregate(
+    """distinct select on columns"""
+    distinct_on: [fish_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_order_by!]
+
+    """filter the rows returned"""
+    where: fish_bool_exp
+  ): fish_aggregate!
+  id: uuid!
+
+  """个性名称（英文，唯一标识）"""
+  name: String!
+  sort: bigint
+}
+
+"""
+aggregated selection of "fish_personalities"
+"""
+type fish_personalities_aggregate {
+  aggregate: fish_personalities_aggregate_fields
+  nodes: [fish_personalities!]!
+}
+
+"""
+aggregate fields of "fish_personalities"
+"""
+type fish_personalities_aggregate_fields {
+  avg: fish_personalities_avg_fields
+  count(columns: [fish_personalities_select_column!], distinct: Boolean): Int!
+  max: fish_personalities_max_fields
+  min: fish_personalities_min_fields
+  stddev: fish_personalities_stddev_fields
+  stddev_pop: fish_personalities_stddev_pop_fields
+  stddev_samp: fish_personalities_stddev_samp_fields
+  sum: fish_personalities_sum_fields
+  var_pop: fish_personalities_var_pop_fields
+  var_samp: fish_personalities_var_samp_fields
+  variance: fish_personalities_variance_fields
+}
+
+"""aggregate avg on columns"""
+type fish_personalities_avg_fields {
+  sort: Float
+}
+
+"""
+Boolean expression to filter rows from the table "fish_personalities". All fields are combined with a logical 'AND'.
+"""
+input fish_personalities_bool_exp {
+  _and: [fish_personalities_bool_exp!]
+  _not: fish_personalities_bool_exp
+  _or: [fish_personalities_bool_exp!]
+  created_at: timestamptz_comparison_exp
+  description: String_comparison_exp
+  fishes: fish_bool_exp
+  fishes_aggregate: fish_aggregate_bool_exp
+  id: uuid_comparison_exp
+  name: String_comparison_exp
+  sort: bigint_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "fish_personalities"
+"""
+enum fish_personalities_constraint {
+  """
+  unique or primary key constraint on columns "name"
+  """
+  fish_personalities_name_key
+
+  """
+  unique or primary key constraint on columns "id"
+  """
+  fish_personalities_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "fish_personalities"
+"""
+input fish_personalities_inc_input {
+  sort: bigint
+}
+
+"""
+input type for inserting data into table "fish_personalities"
+"""
+input fish_personalities_insert_input {
+  created_at: timestamptz
+
+  """个性细节描述 - 详细说明该个性的特征和行为模式"""
+  description: String
+  fishes: fish_arr_rel_insert_input
+  id: uuid
+
+  """个性名称（英文，唯一标识）"""
+  name: String
+  sort: bigint
+}
+
+"""aggregate max on columns"""
+type fish_personalities_max_fields {
+  created_at: timestamptz
+
+  """个性细节描述 - 详细说明该个性的特征和行为模式"""
+  description: String
+  id: uuid
+
+  """个性名称（英文，唯一标识）"""
+  name: String
+  sort: bigint
+}
+
+"""aggregate min on columns"""
+type fish_personalities_min_fields {
+  created_at: timestamptz
+
+  """个性细节描述 - 详细说明该个性的特征和行为模式"""
+  description: String
+  id: uuid
+
+  """个性名称（英文，唯一标识）"""
+  name: String
+  sort: bigint
+}
+
+"""
+response of any mutation on the table "fish_personalities"
+"""
+type fish_personalities_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [fish_personalities!]!
+}
+
+"""
+input type for inserting object relation for remote table "fish_personalities"
+"""
+input fish_personalities_obj_rel_insert_input {
+  data: fish_personalities_insert_input!
+
+  """upsert condition"""
+  on_conflict: fish_personalities_on_conflict
+}
+
+"""
+on_conflict condition type for table "fish_personalities"
+"""
+input fish_personalities_on_conflict {
+  constraint: fish_personalities_constraint!
+  update_columns: [fish_personalities_update_column!]! = []
+  where: fish_personalities_bool_exp
+}
+
+"""Ordering options when selecting data from "fish_personalities"."""
+input fish_personalities_order_by {
+  created_at: order_by
+  description: order_by
+  fishes_aggregate: fish_aggregate_order_by
+  id: order_by
+  name: order_by
+  sort: order_by
+}
+
+"""primary key columns input for table: fish_personalities"""
+input fish_personalities_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "fish_personalities"
+"""
+enum fish_personalities_select_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  description
+
+  """column name"""
+  id
+
+  """column name"""
+  name
+
+  """column name"""
+  sort
+}
+
+"""
+input type for updating data in table "fish_personalities"
+"""
+input fish_personalities_set_input {
+  created_at: timestamptz
+
+  """个性细节描述 - 详细说明该个性的特征和行为模式"""
+  description: String
+  id: uuid
+
+  """个性名称（英文，唯一标识）"""
+  name: String
+  sort: bigint
+}
+
+"""aggregate stddev on columns"""
+type fish_personalities_stddev_fields {
+  sort: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type fish_personalities_stddev_pop_fields {
+  sort: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type fish_personalities_stddev_samp_fields {
+  sort: Float
+}
+
+"""
+Streaming cursor of the table "fish_personalities"
+"""
+input fish_personalities_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: fish_personalities_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input fish_personalities_stream_cursor_value_input {
+  created_at: timestamptz
+
+  """个性细节描述 - 详细说明该个性的特征和行为模式"""
+  description: String
+  id: uuid
+
+  """个性名称（英文，唯一标识）"""
+  name: String
+  sort: bigint
+}
+
+"""aggregate sum on columns"""
+type fish_personalities_sum_fields {
+  sort: bigint
+}
+
+"""
+update columns of table "fish_personalities"
+"""
+enum fish_personalities_update_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  description
+
+  """column name"""
+  id
+
+  """column name"""
+  name
+
+  """column name"""
+  sort
+}
+
+input fish_personalities_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: fish_personalities_inc_input
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: fish_personalities_set_input
+
+  """filter the rows which have to be updated"""
+  where: fish_personalities_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type fish_personalities_var_pop_fields {
+  sort: Float
+}
+
+"""aggregate var_samp on columns"""
+type fish_personalities_var_samp_fields {
+  sort: Float
+}
+
+"""aggregate variance on columns"""
+type fish_personalities_variance_fields {
+  sort: Float
 }
 
 """primary key columns input for table: fish"""
@@ -2825,6 +3151,19 @@ type mutation_root {
   delete_fish_monologues_by_pk(id: uuid!): fish_monologues
 
   """
+  delete data from the table: "fish_personalities"
+  """
+  delete_fish_personalities(
+    """filter the rows which have to be deleted"""
+    where: fish_personalities_bool_exp!
+  ): fish_personalities_mutation_response
+
+  """
+  delete single row from the table: "fish_personalities"
+  """
+  delete_fish_personalities_by_pk(id: uuid!): fish_personalities
+
+  """
   delete data from the table: "fish_test"
   """
   delete_fish_test(
@@ -3007,6 +3346,28 @@ type mutation_root {
     """upsert condition"""
     on_conflict: fish_on_conflict
   ): fish
+
+  """
+  insert data into the table: "fish_personalities"
+  """
+  insert_fish_personalities(
+    """the rows to be inserted"""
+    objects: [fish_personalities_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: fish_personalities_on_conflict
+  ): fish_personalities_mutation_response
+
+  """
+  insert a single row into the table: "fish_personalities"
+  """
+  insert_fish_personalities_one(
+    """the row to be inserted"""
+    object: fish_personalities_insert_input!
+
+    """upsert condition"""
+    on_conflict: fish_personalities_on_conflict
+  ): fish_personalities
 
   """
   insert data into the table: "fish_test"
@@ -3295,6 +3656,40 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [fish_monologues_updates!]!
   ): [fish_monologues_mutation_response]
+
+  """
+  update data of the table: "fish_personalities"
+  """
+  update_fish_personalities(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: fish_personalities_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: fish_personalities_set_input
+
+    """filter the rows which have to be updated"""
+    where: fish_personalities_bool_exp!
+  ): fish_personalities_mutation_response
+
+  """
+  update single row of the table: "fish_personalities"
+  """
+  update_fish_personalities_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: fish_personalities_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: fish_personalities_set_input
+    pk_columns: fish_personalities_pk_columns_input!
+  ): fish_personalities
+
+  """
+  update multiples rows of table: "fish_personalities"
+  """
+  update_fish_personalities_many(
+    """updates to execute, in order"""
+    updates: [fish_personalities_updates!]!
+  ): [fish_personalities_mutation_response]
 
   """
   update data of the table: "fish_test"
@@ -3776,6 +4171,51 @@ type query_root {
 
   """fetch data from the table: "fish_monologues" using primary key columns"""
   fish_monologues_by_pk(id: uuid!): fish_monologues
+
+  """
+  fetch data from the table: "fish_personalities"
+  """
+  fish_personalities(
+    """distinct select on columns"""
+    distinct_on: [fish_personalities_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_personalities_order_by!]
+
+    """filter the rows returned"""
+    where: fish_personalities_bool_exp
+  ): [fish_personalities!]!
+
+  """
+  fetch aggregated fields from the table: "fish_personalities"
+  """
+  fish_personalities_aggregate(
+    """distinct select on columns"""
+    distinct_on: [fish_personalities_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_personalities_order_by!]
+
+    """filter the rows returned"""
+    where: fish_personalities_bool_exp
+  ): fish_personalities_aggregate!
+
+  """
+  fetch data from the table: "fish_personalities" using primary key columns
+  """
+  fish_personalities_by_pk(id: uuid!): fish_personalities
 
   """
   fetch data from the table: "fish_test"
@@ -4912,6 +5352,65 @@ type subscription_root {
   ): [fish_monologues!]!
 
   """
+  fetch data from the table: "fish_personalities"
+  """
+  fish_personalities(
+    """distinct select on columns"""
+    distinct_on: [fish_personalities_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_personalities_order_by!]
+
+    """filter the rows returned"""
+    where: fish_personalities_bool_exp
+  ): [fish_personalities!]!
+
+  """
+  fetch aggregated fields from the table: "fish_personalities"
+  """
+  fish_personalities_aggregate(
+    """distinct select on columns"""
+    distinct_on: [fish_personalities_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_personalities_order_by!]
+
+    """filter the rows returned"""
+    where: fish_personalities_bool_exp
+  ): fish_personalities_aggregate!
+
+  """
+  fetch data from the table: "fish_personalities" using primary key columns
+  """
+  fish_personalities_by_pk(id: uuid!): fish_personalities
+
+  """
+  fetch data from the table in a streaming manner: "fish_personalities"
+  """
+  fish_personalities_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [fish_personalities_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: fish_personalities_bool_exp
+  ): [fish_personalities!]!
+
+  """
   fetch data from the table in a streaming manner: "fish"
   """
   fish_stream(
@@ -5453,6 +5952,23 @@ input timestamp_comparison_exp {
   _nin: [timestamp!]
 }
 
+scalar timestamptz
+
+"""
+Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'.
+"""
+input timestamptz_comparison_exp {
+  _eq: timestamptz
+  _gt: timestamptz
+  _gte: timestamptz
+  _in: [timestamptz!]
+  _is_null: Boolean
+  _lt: timestamptz
+  _lte: timestamptz
+  _neq: timestamptz
+  _nin: [timestamptz!]
+}
+
 """
 columns and relationships of "user_economy"
 """
@@ -5766,6 +6282,9 @@ type user_subscriptions {
   stripe_customer_id: String
   stripe_subscription_id: String
   updated_at: timestamp
+
+  """An object relationship"""
+  user: users!
   user_id: String!
 }
 
@@ -5802,6 +6321,7 @@ input user_subscriptions_bool_exp {
   stripe_customer_id: String_comparison_exp
   stripe_subscription_id: String_comparison_exp
   updated_at: timestamp_comparison_exp
+  user: users_bool_exp
   user_id: String_comparison_exp
 }
 
@@ -5828,6 +6348,7 @@ input user_subscriptions_insert_input {
   stripe_customer_id: String
   stripe_subscription_id: String
   updated_at: timestamp
+  user: users_obj_rel_insert_input
   user_id: String
 }
 
@@ -5867,6 +6388,16 @@ type user_subscriptions_mutation_response {
 }
 
 """
+input type for inserting object relation for remote table "user_subscriptions"
+"""
+input user_subscriptions_obj_rel_insert_input {
+  data: user_subscriptions_insert_input!
+
+  """upsert condition"""
+  on_conflict: user_subscriptions_on_conflict
+}
+
+"""
 on_conflict condition type for table "user_subscriptions"
 """
 input user_subscriptions_on_conflict {
@@ -5886,6 +6417,7 @@ input user_subscriptions_order_by {
   stripe_customer_id: order_by
   stripe_subscription_id: order_by
   updated_at: order_by
+  user: users_order_by
   user_id: order_by
 }
 
@@ -6149,6 +6681,9 @@ type users {
   user_economy: user_economy
   user_level: Int
 
+  """An object relationship"""
+  user_subscription: user_subscriptions
+
   """An array relationship"""
   votes(
     """distinct select on columns"""
@@ -6249,6 +6784,7 @@ input users_bool_exp {
   updated_at: timestamp_comparison_exp
   user_economy: user_economy_bool_exp
   user_level: Int_comparison_exp
+  user_subscription: user_subscriptions_bool_exp
   votes: votes_bool_exp
   votes_aggregate: votes_aggregate_bool_exp
 }
@@ -6306,6 +6842,7 @@ input users_insert_input {
   updated_at: timestamp
   user_economy: user_economy_obj_rel_insert_input
   user_level: Int
+  user_subscription: user_subscriptions_obj_rel_insert_input
   votes: votes_arr_rel_insert_input
 }
 
@@ -6407,6 +6944,7 @@ input users_order_by {
   updated_at: order_by
   user_economy: user_economy_order_by
   user_level: order_by
+  user_subscription: user_subscriptions_order_by
   votes_aggregate: votes_aggregate_order_by
 }
 

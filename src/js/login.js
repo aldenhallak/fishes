@@ -122,20 +122,13 @@ function showAlreadyLoggedInUI(user) {
 // Navigate to tanks page
 async function goToTanks() {
   try {
-    // Try to get user's default tank and redirect directly to it
-    if (window.FishTankFavorites) {
-      const defaultTank = await window.FishTankFavorites.getDefaultTank();
-      if (defaultTank && defaultTank.id) {
-        window.location.href = `fishtank-view.html?id=${defaultTank.id}`;
-        return;
-      }
-    }
+    // Redirect to user's private tank (simplified architecture)
+    window.location.href = 'mytank.html';
   } catch (error) {
-    console.log('Could not get default tank, redirecting to tanks list:', error);
+    console.log('Error redirecting to tank:', error);
+    // Fallback: redirect to mytank anyway
+    window.location.href = 'mytank.html';
   }
-  
-  // Fallback: redirect to tanks list page
-  window.location.href = 'fishtanks.html';
 }
 
 // Logout and stay on login page

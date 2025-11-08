@@ -281,42 +281,61 @@
 .user-menu-trigger {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 24px;
+  gap: 6px;
+  padding: 8px 16px; /* 减小padding以缩小高度 */
+  background: linear-gradient(180deg, #FF9500 0%, #FF8000 100%);
+  border: none;
+  border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 
+    0 6px 0 rgba(0, 0, 0, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.3);
+  color: white;
+  font-weight: 700;
+  font-size: 14px; /* 减小字体大小 */
+  height: auto;
 }
 
 .user-menu-trigger:hover {
-  border-color: #6366F1;
-  background: #f9fafb;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 0 rgba(0, 0, 0, 0.2),
+    0 10px 20px rgba(0, 0, 0, 0.35);
+}
+
+.user-menu-trigger:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 2px 0 rgba(0, 0, 0, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.25);
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
+  width: 20px; /* 减小头像大小 */
+  height: 20px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 .user-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-  max-width: 120px;
+  font-size: 14px; /* 减小字体大小 */
+  font-weight: 700;
+  color: white;
+  max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .user-menu-trigger svg {
   flex-shrink: 0;
-  color: #9ca3af;
+  color: white;
   transition: transform 0.2s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
 .user-dropdown.show .user-menu-trigger svg {

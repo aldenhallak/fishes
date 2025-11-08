@@ -221,8 +221,8 @@ class AuthUI {
    * 创建用户菜单
    */
   createUserMenu() {
-    // 获取导航栏
-    const navLinks = document.querySelector('.nav-links');
+    // 获取导航栏 - 支持两种类名
+    const navLinks = document.querySelector('.game-nav-links') || document.querySelector('.nav-links');
     if (!navLinks) {
       console.error('❌ 未找到导航栏元素');
       return;
@@ -231,13 +231,10 @@ class AuthUI {
     // 创建登录按钮
     const loginBtn = document.createElement('button');
     loginBtn.id = 'login-btn';
-    loginBtn.className = 'nav-link login-btn';
+    loginBtn.className = 'game-btn game-btn-orange';
     loginBtn.innerHTML = `
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
-      </svg>
-      <span class="btn-text">Sign In</span>
+      <span>👤</span>
+      <span>Sign In</span>
     `;
     loginBtn.onclick = () => this.showLoginModal();
     

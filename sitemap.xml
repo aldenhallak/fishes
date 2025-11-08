@@ -30,7 +30,7 @@
     
     <!-- Fish tanks page -->
     <url>
-        <loc>https://fishart.online/fishtanks.html</loc>
+        <loc>https://fishart.online/mytank.html</loc>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
         <lastmod>2025-08-05</lastmod>

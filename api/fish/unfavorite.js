@@ -1,7 +1,7 @@
 // =====================================================
 // Remove Fish from Favorites API
 // =====================================================
-// POST /api/fishtank/unfavorite
+// POST /api/fish/unfavorite
 // Removes a fish from user's favorites
 
 const { createClient } = require('@supabase/supabase-js');
@@ -110,17 +110,4 @@ module.exports = async function handler(req, res) {
     });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 

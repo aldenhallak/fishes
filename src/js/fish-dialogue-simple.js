@@ -28,7 +28,7 @@ class SimpleFishDialogueManager {
         if (!fish.fish_name) return; // Only fish with names can speak
         
         // Get dialogue based on personality
-        const personality = fish.personality_type || getRandomPersonality();
+        const personality = fish.personality || getRandomPersonality();
         const dialogue = getRandomDialogue(personality);
         
         this.activeDialogues.set(fish.id, {
@@ -93,13 +93,13 @@ class SimpleFishDialogueManager {
         const y = dialogue.y;
         const alpha = dialogue.alpha;
 
-        // Set font and measure text
-        ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        // Set font for measuring - 必须与绘制时使用的字体一致
+        ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         const metrics = ctx.measureText(text);
         const textWidth = metrics.width;
         
         // Calculate bubble dimensions
-        const padding = 12;
+        const padding = 14;
         const bubbleWidth = Math.min(textWidth + padding * 2, 300);
         const bubbleHeight = 30;
         const bubbleX = x - bubbleWidth / 2;
@@ -108,7 +108,7 @@ class SimpleFishDialogueManager {
         // Wrap text if needed
         const maxWidth = bubbleWidth - padding * 2;
         const lines = this.wrapText(text, maxWidth);
-        const lineHeight = 18;
+        const lineHeight = 20;
         const totalHeight = lines.length * lineHeight + padding * 2;
 
         ctx.globalAlpha = alpha;
@@ -143,10 +143,29 @@ class SimpleFishDialogueManager {
         );
         ctx.fill();
 
-        // Draw bubble border
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 2;
+        // Draw bubble border with cartoon style
+        ctx.strokeStyle = 'rgba(102, 126, 234, 0.8)';
+        ctx.lineWidth = 3;
         ctx.stroke();
+        
+        // 内部高光（卡通光泽效果）
+        const highlightGradient = ctx.createLinearGradient(
+            bubbleX,
+            bubbleY - (totalHeight - bubbleHeight),
+            bubbleX,
+            bubbleY - (totalHeight - bubbleHeight) + totalHeight * 0.4
+        );
+        highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+        highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = highlightGradient;
+        this.roundRect(
+            bubbleX + 4,
+            bubbleY - (totalHeight - bubbleHeight) + 4,
+            bubbleWidth - 8,
+            totalHeight * 0.3,
+            12
+        );
+        ctx.fill();
 
         // Draw pointer
         ctx.fillStyle = '#667eea';
@@ -157,40 +176,67 @@ class SimpleFishDialogueManager {
         ctx.closePath();
         ctx.fill();
 
-        // Draw text
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        // Draw text with cartoon style - 卡通描边效果
+        ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
         
         lines.forEach((line, i) => {
-            ctx.fillText(
-                line,
-                bubbleX + padding,
-                bubbleY - (totalHeight - bubbleHeight) + padding + (i * lineHeight)
-            );
+            const x = bubbleX + padding;
+            const y = bubbleY - (totalHeight - bubbleHeight) + padding + (i * lineHeight);
+            
+            // 白色描边（让文字更清晰）
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 3.5;
+            ctx.lineJoin = 'round';
+            ctx.miterLimit = 2;
+            ctx.strokeText(line, x, y);
+            
+            // 文字填充
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText(line, x, y);
         });
 
         ctx.globalAlpha = 1.0;
     }
 
-    // Helper: Wrap text to fit width
+    // Helper: Wrap text to fit width - 支持中英文混合
     wrapText(text, maxWidth) {
-        const words = text.split(' ');
+        this.ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        
         const lines = [];
         let currentLine = '';
-
-        this.ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-
-        for (const word of words) {
-            const testLine = currentLine + (currentLine ? ' ' : '') + word;
-            const metrics = this.ctx.measureText(testLine);
-            
-            if (metrics.width > maxWidth && currentLine) {
-                lines.push(currentLine);
-                currentLine = word;
-            } else {
-                currentLine = testLine;
+        
+        // 先尝试按空格分词（英文）
+        const hasManySpaces = (text.match(/ /g) || []).length > text.length * 0.1;
+        
+        if (hasManySpaces) {
+            // 主要是英文文本，按单词换行
+            const words = text.split(' ');
+            for (const word of words) {
+                const testLine = currentLine + (currentLine ? ' ' : '') + word;
+                const metrics = this.ctx.measureText(testLine);
+                
+                if (metrics.width > maxWidth && currentLine) {
+                    lines.push(currentLine);
+                    currentLine = word;
+                } else {
+                    currentLine = testLine;
+                }
+            }
+        } else {
+            // 主要是中文或混合文本，按字符换行
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const testLine = currentLine + char;
+                const metrics = this.ctx.measureText(testLine);
+                
+                if (metrics.width > maxWidth && currentLine) {
+                    lines.push(currentLine);
+                    currentLine = char;
+                } else {
+                    currentLine = testLine;
+                }
             }
         }
         

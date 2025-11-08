@@ -189,3 +189,7 @@ function generateBatchDeleteMutation(tableName, ids) {
 
 
 
+
+
+
+

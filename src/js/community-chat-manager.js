@@ -106,22 +106,14 @@ class CommunityChatManager {
       
       console.log(`Generating chat session: "${topic}" with ${participants.length} fish`);
       
-      // Prepare participant data
-      const participantData = participants.map(fish => ({
-        fishId: fish.id,
-        name: fish.fishName,
-        personality: fish.personality
-      }));
-      
-      // Call backend API
-      const response = await fetch('/api/fish/community-chat', {
+      // Call backend API for group chat (using Coze AI)
+      const response = await fetch('/api/fish/chat/group', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          topic: topic,
-          participants: participantData
+          prompt: `Generate a "${topic}" conversation`
         })
       });
       
@@ -135,17 +127,25 @@ class CommunityChatManager {
         throw new Error(data.error || 'Failed to generate chat');
       }
       
-      console.log(`Chat session generated: ${data.dialogues.length} messages`, {
+      console.log(`✅ Group chat generated: ${data.dialogues?.length || 0} messages`, {
         sessionId: data.sessionId,
-        usedFallback: data.usedFallback
+        topic: data.topic
       });
+      
+      // Map dialogues to expected format
+      const dialogues = (data.dialogues || []).map((d, index) => ({
+        fishId: d.fishId,
+        fishName: d.fishName,
+        message: d.message,
+        sequence: d.sequence || index + 1
+      }));
       
       return {
         sessionId: data.sessionId,
-        topic: data.topic,
-        dialogues: data.dialogues,
-        usedFallback: data.usedFallback,
-        participants: participants
+        topic: data.topic || topic,
+        dialogues: dialogues,
+        usedFallback: false,
+        participants: data.participants || participants
       };
       
     } catch (error) {
@@ -313,6 +313,96 @@ class CommunityChatManager {
         this.startAutoChatSession();
       }
     }, intervalMinutes * 60 * 1000);
+  }
+  
+  /**
+   * Generate a monologue (self-talk) for a random fish
+   * @returns {Promise<Object>} - Generated monologue
+   */
+  async generateMonologue() {
+    try {
+      const eligibleFish = this.fishes.filter(f => f.fishName && f.personality);
+      
+      if (eligibleFish.length === 0) {
+        console.warn('No eligible fish for monologue');
+        return null;
+      }
+      
+      // Randomly select one fish
+      const selectedFish = eligibleFish[Math.floor(Math.random() * eligibleFish.length)];
+      
+      console.log(`🗣️ Generating monologue for: ${selectedFish.fishName} (${selectedFish.personality})`);
+      
+      // Call backend API for monologue
+      const response = await fetch('/api/fish/chat/monologue', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to generate monologue');
+      }
+      
+      console.log(`✅ Monologue generated for ${data.fish?.fishName}: ${data.message?.substring(0, 50)}...`);
+      
+      return {
+        fish: selectedFish,
+        message: data.message,
+        logId: data.logId
+      };
+      
+    } catch (error) {
+      console.error('Failed to generate monologue:', error);
+      return null;
+    }
+  }
+  
+  /**
+   * Display a monologue for a fish
+   */
+  async displayMonologue() {
+    const monologue = await this.generateMonologue();
+    
+    if (!monologue) {
+      return;
+    }
+    
+    // Display the monologue
+    const success = this.layoutManager.showDialogue(
+      monologue.fish, 
+      monologue.message, 
+      8000 // 8 seconds display time for monologue
+    );
+    
+    if (success) {
+      console.log(`💬 [Monologue] ${monologue.fish.fishName}: ${monologue.message}`);
+    }
+  }
+  
+  /**
+   * Schedule periodic monologues (self-talk)
+   * @param {number} intervalSeconds - Interval between monologues in seconds
+   */
+  scheduleMonologues(intervalSeconds = 15) {
+    console.log(`Scheduling monologues every ${intervalSeconds} seconds`);
+    
+    // Start first monologue after 20 seconds
+    setTimeout(() => {
+      this.displayMonologue();
+    }, 20000);
+    
+    // Schedule periodic monologues
+    setInterval(() => {
+      this.displayMonologue();
+    }, intervalSeconds * 1000);
   }
   
   /**

@@ -1,8 +1,8 @@
 // =====================================================
-// Get My Fish API (Created + Favorited)
+// Get My Tank Fish API
 // =====================================================
-// GET /api/fishtank/my-fish
-// Returns all fish for the user's private tank (owned + favorited)
+// GET /api/fish/my-tank
+// Returns user's own fish + favorited fish for Private Tank view
 
 const { createClient } = require('@supabase/supabase-js');
 
@@ -57,33 +57,61 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'Hasura endpoint not configured' });
     }
 
-    // Query to get user's own fish
-    // Note: fish_favorites table is not tracked in Hasura yet
+    // GraphQL query to get user's own fish + favorited fish
     const query = `
-      query GetMyFish($userId: String!) {
-        fish(
-          where: {
-            user_id: {_eq: $userId}
-          },
+      query GetMyTankFish($userId: String!) {
+        # User's own fish
+        ownFish: fish(
+          where: {user_id: {_eq: $userId}}
           order_by: {created_at: desc}
         ) {
           id
           user_id
+          fish_name
           image_url
-          artist
-          created_at
+          personality
           talent
           level
           experience
           health
           max_health
-          battle_power
+          upvotes
+          is_approved
           is_alive
+          created_at
+          updated_at
+        }
+        
+        # User's favorited fish
+        favoritedFish: fish_favorites(
+          where: {user_id: {_eq: $userId}}
+          order_by: {created_at: desc}
+        ) {
+          id
+          fish_id
+          created_at
+          fish {
+            id
+            user_id
+            fish_name
+            image_url
+            personality
+            talent
+            level
+            experience
+            health
+            max_health
+            upvotes
+            is_approved
+            is_alive
+            created_at
+            updated_at
+          }
         }
       }
     `;
 
-    const hasuraResponse = await fetch(hasuraEndpoint, {
+    const response = await fetch(hasuraEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -95,56 +123,55 @@ module.exports = async function handler(req, res) {
       })
     });
 
-    const hasuraData = await hasuraResponse.json();
+    const data = await response.json();
 
-    if (hasuraData.errors) {
-      console.error('Hasura query error:', hasuraData.errors);
-      return res.status(500).json({ 
-        error: 'Failed to query fish data',
-        details: hasuraData.errors,
-        endpoint: hasuraEndpoint
-      });
+    if (data.errors) {
+      console.error('Hasura query error:', data.errors);
+      return res.status(500).json({ error: 'Failed to query fish data' });
     }
 
-    // Process the data
-    const ownFish = hasuraData.data.fish || [];
-    
-    // Mark own fish
-    const markedOwnFish = ownFish.map(fish => ({
-      ...fish,
-      isOwn: true,
-      isFavorited: false
+    // Extract favorited fish from the nested structure
+    const favoritedFish = data.data.favoritedFish.map(fav => ({
+      ...fav.fish,
+      is_favorited: true,
+      favorited_at: fav.created_at
     }));
 
-    // For now, only return own fish (favorites table not tracked yet)
-    const allFish = markedOwnFish;
+    // Combine and sort by created_at
+    const allFish = [
+      ...data.data.ownFish.map(fish => ({
+        ...fish,
+        is_own: true,
+        is_favorited: false
+      })),
+      ...favoritedFish.map(fish => ({
+        ...fish,
+        is_own: false
+      }))
+    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     // Calculate stats
     const stats = {
-      totalFish: allFish.length,
-      ownFish: markedOwnFish.length,
-      favoritedFish: 0, // Favorites feature not available yet (fish_favorites table not tracked)
-      aliveFish: allFish.filter(f => f.is_alive).length,
-      deadFish: allFish.filter(f => !f.is_alive).length,
-      totalLevel: allFish.reduce((sum, f) => sum + f.level, 0),
-      avgLevel: allFish.length > 0 ? (allFish.reduce((sum, f) => sum + f.level, 0) / allFish.length).toFixed(1) : 0
+      totalCount: allFish.length,
+      ownCount: data.data.ownFish.length,
+      favoritedCount: favoritedFish.length,
+      aliveCount: allFish.filter(f => f.is_alive).length,
+      approvedCount: allFish.filter(f => f.is_approved).length
     };
 
     return res.status(200).json({
       success: true,
       fish: allFish,
-      stats
+      stats,
+      userId
     });
 
   } catch (error) {
-    console.error('Error in my-fish:', error);
+    console.error('Error in my-tank:', error);
     return res.status(500).json({ 
       error: 'Internal server error',
       details: error.message 
     });
   }
 };
-
-
-
 

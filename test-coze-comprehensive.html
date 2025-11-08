@@ -687,6 +687,21 @@
           左侧为 COZE 原始请求/响应，右侧为系统日志。颜色标识：🟦 请求 / 🔵 响应 / ⚪ 系统 / 🔴 错误
         </div>
 
+        <div style="margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" onclick="clearLogs()">
+            🗑️ 清空日志
+          </button>
+          <button class="btn btn-secondary" onclick="copyLogs('coze')">
+            📋 复制COZE日志
+          </button>
+          <button class="btn btn-secondary" onclick="copyLogs('system')">
+            📋 复制系统日志
+          </button>
+          <button class="btn btn-secondary" onclick="copyLogs('all')">
+            📋 复制所有日志
+          </button>
+        </div>
+
         <div class="log-container">
           <!-- COZE 日志 -->
           <div class="log-column">
