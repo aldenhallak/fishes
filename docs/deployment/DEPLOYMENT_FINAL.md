@@ -82,8 +82,8 @@ npm install --save-dev @vercel/node@^3.0.0
 - economy_log
 
 也Track所有视图：
-- fish_rank
-- fish_battle
+- fish_with_scores
+- battle_fish
 - user_fish_summary
 
 ### 3.4 配置JWT
@@ -284,4 +284,6 @@ Vercel会自动检测到push并开始部署。
 ---
 
 祝部署顺利！🚀🐟✨
+
+
 

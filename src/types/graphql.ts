@@ -12,6 +12,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  jsonb: { input: any; output: any; }
   numeric: { input: any; output: any; }
   timestamp: { input: any; output: any; }
   uuid: { input: any; output: any; }
@@ -476,7 +477,8 @@ export type Fish = {
   id: Scalars['uuid']['output'];
   image_url: Scalars['String']['output'];
   is_approved?: Maybe<Scalars['Boolean']['output']>;
-  personality_type?: Maybe<Scalars['String']['output']>;
+  /** 鱼的个性描述 - 支持自定义输入（如cheerful, shy, brave, lazy或其他） */
+  personality?: Maybe<Scalars['String']['output']>;
   report_count?: Maybe<Scalars['Int']['output']>;
   reported?: Maybe<Scalars['Boolean']['output']>;
   /** An array relationship */
@@ -658,7 +660,7 @@ export type Fish_Bool_Exp = {
   id?: InputMaybe<Uuid_Comparison_Exp>;
   image_url?: InputMaybe<String_Comparison_Exp>;
   is_approved?: InputMaybe<Boolean_Comparison_Exp>;
-  personality_type?: InputMaybe<String_Comparison_Exp>;
+  personality?: InputMaybe<String_Comparison_Exp>;
   report_count?: InputMaybe<Int_Comparison_Exp>;
   reported?: InputMaybe<Boolean_Comparison_Exp>;
   reports?: InputMaybe<Reports_Bool_Exp>;
@@ -691,7 +693,8 @@ export type Fish_Insert_Input = {
   id?: InputMaybe<Scalars['uuid']['input']>;
   image_url?: InputMaybe<Scalars['String']['input']>;
   is_approved?: InputMaybe<Scalars['Boolean']['input']>;
-  personality_type?: InputMaybe<Scalars['String']['input']>;
+  /** 鱼的个性描述 - 支持自定义输入（如cheerful, shy, brave, lazy或其他） */
+  personality?: InputMaybe<Scalars['String']['input']>;
   report_count?: InputMaybe<Scalars['Int']['input']>;
   reported?: InputMaybe<Scalars['Boolean']['input']>;
   reports?: InputMaybe<Reports_Arr_Rel_Insert_Input>;
@@ -709,7 +712,8 @@ export type Fish_Max_Fields = {
   fish_name?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   image_url?: Maybe<Scalars['String']['output']>;
-  personality_type?: Maybe<Scalars['String']['output']>;
+  /** 鱼的个性描述 - 支持自定义输入（如cheerful, shy, brave, lazy或其他） */
+  personality?: Maybe<Scalars['String']['output']>;
   report_count?: Maybe<Scalars['Int']['output']>;
   upvotes?: Maybe<Scalars['Int']['output']>;
   user_id?: Maybe<Scalars['String']['output']>;
@@ -722,7 +726,8 @@ export type Fish_Max_Order_By = {
   fish_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   image_url?: InputMaybe<Order_By>;
-  personality_type?: InputMaybe<Order_By>;
+  /** 鱼的个性描述 - 支持自定义输入（如cheerful, shy, brave, lazy或其他） */
+  personality?: InputMaybe<Order_By>;
   report_count?: InputMaybe<Order_By>;
   upvotes?: InputMaybe<Order_By>;
   user_id?: InputMaybe<Order_By>;
@@ -736,7 +741,8 @@ export type Fish_Min_Fields = {
   fish_name?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   image_url?: Maybe<Scalars['String']['output']>;
-  personality_type?: Maybe<Scalars['String']['output']>;
+  /** 鱼的个性描述 - 支持自定义输入（如cheerful, shy, brave, lazy或其他） */
+  personality?: Maybe<Scalars['String']['output']>;
   report_count?: Maybe<Scalars['Int']['output']>;
   upvotes?: Maybe<Scalars['Int']['output']>;
   user_id?: Maybe<Scalars['String']['output']>;
@@ -749,10 +755,181 @@ export type Fish_Min_Order_By = {
   fish_name?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   image_url?: InputMaybe<Order_By>;
-  personality_type?: InputMaybe<Order_By>;
+  /** 鱼的个性描述 - 支持自定义输入（如cheerful, shy, brave, lazy或其他） */
+  personality?: InputMaybe<Order_By>;
   report_count?: InputMaybe<Order_By>;
   upvotes?: InputMaybe<Order_By>;
   user_id?: InputMaybe<Order_By>;
+};
+
+/** 鱼自语内容表 - 存储按个性分类的预设自语内容（英文美式幽默风格） */
+export type Fish_Monologues = {
+  __typename?: 'fish_monologues';
+  /** 自语内容（英文） */
+  content: Scalars['String']['output'];
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  id: Scalars['uuid']['output'];
+  /** 个性类型（可扩展） */
+  personality: Scalars['String']['output'];
+};
+
+/** aggregated selection of "fish_monologues" */
+export type Fish_Monologues_Aggregate = {
+  __typename?: 'fish_monologues_aggregate';
+  aggregate?: Maybe<Fish_Monologues_Aggregate_Fields>;
+  nodes: Array<Fish_Monologues>;
+};
+
+/** aggregate fields of "fish_monologues" */
+export type Fish_Monologues_Aggregate_Fields = {
+  __typename?: 'fish_monologues_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Fish_Monologues_Max_Fields>;
+  min?: Maybe<Fish_Monologues_Min_Fields>;
+};
+
+
+/** aggregate fields of "fish_monologues" */
+export type Fish_Monologues_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Fish_Monologues_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Boolean expression to filter rows from the table "fish_monologues". All fields are combined with a logical 'AND'. */
+export type Fish_Monologues_Bool_Exp = {
+  _and?: InputMaybe<Array<Fish_Monologues_Bool_Exp>>;
+  _not?: InputMaybe<Fish_Monologues_Bool_Exp>;
+  _or?: InputMaybe<Array<Fish_Monologues_Bool_Exp>>;
+  content?: InputMaybe<String_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  personality?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "fish_monologues" */
+export enum Fish_Monologues_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  FishMonologuesPkey = 'fish_monologues_pkey'
+}
+
+/** input type for inserting data into table "fish_monologues" */
+export type Fish_Monologues_Insert_Input = {
+  /** 自语内容（英文） */
+  content?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** 个性类型（可扩展） */
+  personality?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate max on columns */
+export type Fish_Monologues_Max_Fields = {
+  __typename?: 'fish_monologues_max_fields';
+  /** 自语内容（英文） */
+  content?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  /** 个性类型（可扩展） */
+  personality?: Maybe<Scalars['String']['output']>;
+};
+
+/** aggregate min on columns */
+export type Fish_Monologues_Min_Fields = {
+  __typename?: 'fish_monologues_min_fields';
+  /** 自语内容（英文） */
+  content?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  /** 个性类型（可扩展） */
+  personality?: Maybe<Scalars['String']['output']>;
+};
+
+/** response of any mutation on the table "fish_monologues" */
+export type Fish_Monologues_Mutation_Response = {
+  __typename?: 'fish_monologues_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Fish_Monologues>;
+};
+
+/** on_conflict condition type for table "fish_monologues" */
+export type Fish_Monologues_On_Conflict = {
+  constraint: Fish_Monologues_Constraint;
+  update_columns?: Array<Fish_Monologues_Update_Column>;
+  where?: InputMaybe<Fish_Monologues_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "fish_monologues". */
+export type Fish_Monologues_Order_By = {
+  content?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  personality?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: fish_monologues */
+export type Fish_Monologues_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "fish_monologues" */
+export enum Fish_Monologues_Select_Column {
+  /** column name */
+  Content = 'content',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Personality = 'personality'
+}
+
+/** input type for updating data in table "fish_monologues" */
+export type Fish_Monologues_Set_Input = {
+  /** 自语内容（英文） */
+  content?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** 个性类型（可扩展） */
+  personality?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Streaming cursor of the table "fish_monologues" */
+export type Fish_Monologues_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Fish_Monologues_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Fish_Monologues_Stream_Cursor_Value_Input = {
+  /** 自语内容（英文） */
+  content?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** 个性类型（可扩展） */
+  personality?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** update columns of table "fish_monologues" */
+export enum Fish_Monologues_Update_Column {
+  /** column name */
+  Content = 'content',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Personality = 'personality'
+}
+
+export type Fish_Monologues_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Fish_Monologues_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Fish_Monologues_Bool_Exp;
 };
 
 /** response of any mutation on the table "fish" */
@@ -787,7 +964,7 @@ export type Fish_Order_By = {
   id?: InputMaybe<Order_By>;
   image_url?: InputMaybe<Order_By>;
   is_approved?: InputMaybe<Order_By>;
-  personality_type?: InputMaybe<Order_By>;
+  personality?: InputMaybe<Order_By>;
   report_count?: InputMaybe<Order_By>;
   reported?: InputMaybe<Order_By>;
   reports_aggregate?: InputMaybe<Reports_Aggregate_Order_By>;
@@ -817,7 +994,7 @@ export enum Fish_Select_Column {
   /** column name */
   IsApproved = 'is_approved',
   /** column name */
-  PersonalityType = 'personality_type',
+  Personality = 'personality',
   /** column name */
   ReportCount = 'report_count',
   /** column name */
@@ -852,7 +1029,8 @@ export type Fish_Set_Input = {
   id?: InputMaybe<Scalars['uuid']['input']>;
   image_url?: InputMaybe<Scalars['String']['input']>;
   is_approved?: InputMaybe<Scalars['Boolean']['input']>;
-  personality_type?: InputMaybe<Scalars['String']['input']>;
+  /** 鱼的个性描述 - 支持自定义输入（如cheerful, shy, brave, lazy或其他） */
+  personality?: InputMaybe<Scalars['String']['input']>;
   report_count?: InputMaybe<Scalars['Int']['input']>;
   reported?: InputMaybe<Scalars['Boolean']['input']>;
   upvotes?: InputMaybe<Scalars['Int']['input']>;
@@ -914,7 +1092,8 @@ export type Fish_Stream_Cursor_Value_Input = {
   id?: InputMaybe<Scalars['uuid']['input']>;
   image_url?: InputMaybe<Scalars['String']['input']>;
   is_approved?: InputMaybe<Scalars['Boolean']['input']>;
-  personality_type?: InputMaybe<Scalars['String']['input']>;
+  /** 鱼的个性描述 - 支持自定义输入（如cheerful, shy, brave, lazy或其他） */
+  personality?: InputMaybe<Scalars['String']['input']>;
   report_count?: InputMaybe<Scalars['Int']['input']>;
   reported?: InputMaybe<Scalars['Boolean']['input']>;
   upvotes?: InputMaybe<Scalars['Int']['input']>;
@@ -1544,7 +1723,7 @@ export enum Fish_Update_Column {
   /** column name */
   IsApproved = 'is_approved',
   /** column name */
-  PersonalityType = 'personality_type',
+  Personality = 'personality',
   /** column name */
   ReportCount = 'report_count',
   /** column name */
@@ -1603,6 +1782,567 @@ export type Fish_Variance_Order_By = {
   upvotes?: InputMaybe<Order_By>;
 };
 
+/** 全局参数配置表 - 存储系统级可调整参数 */
+export type Global_Params = {
+  __typename?: 'global_params';
+  /** 参数说明 */
+  description?: Maybe<Scalars['String']['output']>;
+  /** 参数键名 */
+  key: Scalars['String']['output'];
+  updated_at?: Maybe<Scalars['timestamp']['output']>;
+  /** 参数值 */
+  value: Scalars['String']['output'];
+};
+
+/** aggregated selection of "global_params" */
+export type Global_Params_Aggregate = {
+  __typename?: 'global_params_aggregate';
+  aggregate?: Maybe<Global_Params_Aggregate_Fields>;
+  nodes: Array<Global_Params>;
+};
+
+/** aggregate fields of "global_params" */
+export type Global_Params_Aggregate_Fields = {
+  __typename?: 'global_params_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Global_Params_Max_Fields>;
+  min?: Maybe<Global_Params_Min_Fields>;
+};
+
+
+/** aggregate fields of "global_params" */
+export type Global_Params_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Global_Params_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Boolean expression to filter rows from the table "global_params". All fields are combined with a logical 'AND'. */
+export type Global_Params_Bool_Exp = {
+  _and?: InputMaybe<Array<Global_Params_Bool_Exp>>;
+  _not?: InputMaybe<Global_Params_Bool_Exp>;
+  _or?: InputMaybe<Array<Global_Params_Bool_Exp>>;
+  description?: InputMaybe<String_Comparison_Exp>;
+  key?: InputMaybe<String_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  value?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "global_params" */
+export enum Global_Params_Constraint {
+  /** unique or primary key constraint on columns "key" */
+  GlobalParamsPkey = 'global_params_pkey'
+}
+
+/** input type for inserting data into table "global_params" */
+export type Global_Params_Insert_Input = {
+  /** 参数说明 */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** 参数键名 */
+  key?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamp']['input']>;
+  /** 参数值 */
+  value?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate max on columns */
+export type Global_Params_Max_Fields = {
+  __typename?: 'global_params_max_fields';
+  /** 参数说明 */
+  description?: Maybe<Scalars['String']['output']>;
+  /** 参数键名 */
+  key?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamp']['output']>;
+  /** 参数值 */
+  value?: Maybe<Scalars['String']['output']>;
+};
+
+/** aggregate min on columns */
+export type Global_Params_Min_Fields = {
+  __typename?: 'global_params_min_fields';
+  /** 参数说明 */
+  description?: Maybe<Scalars['String']['output']>;
+  /** 参数键名 */
+  key?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamp']['output']>;
+  /** 参数值 */
+  value?: Maybe<Scalars['String']['output']>;
+};
+
+/** response of any mutation on the table "global_params" */
+export type Global_Params_Mutation_Response = {
+  __typename?: 'global_params_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Global_Params>;
+};
+
+/** on_conflict condition type for table "global_params" */
+export type Global_Params_On_Conflict = {
+  constraint: Global_Params_Constraint;
+  update_columns?: Array<Global_Params_Update_Column>;
+  where?: InputMaybe<Global_Params_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "global_params". */
+export type Global_Params_Order_By = {
+  description?: InputMaybe<Order_By>;
+  key?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  value?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: global_params */
+export type Global_Params_Pk_Columns_Input = {
+  /** 参数键名 */
+  key: Scalars['String']['input'];
+};
+
+/** select columns of table "global_params" */
+export enum Global_Params_Select_Column {
+  /** column name */
+  Description = 'description',
+  /** column name */
+  Key = 'key',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  Value = 'value'
+}
+
+/** input type for updating data in table "global_params" */
+export type Global_Params_Set_Input = {
+  /** 参数说明 */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** 参数键名 */
+  key?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamp']['input']>;
+  /** 参数值 */
+  value?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Streaming cursor of the table "global_params" */
+export type Global_Params_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Global_Params_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Global_Params_Stream_Cursor_Value_Input = {
+  /** 参数说明 */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** 参数键名 */
+  key?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamp']['input']>;
+  /** 参数值 */
+  value?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** update columns of table "global_params" */
+export enum Global_Params_Update_Column {
+  /** column name */
+  Description = 'description',
+  /** column name */
+  Key = 'key',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  Value = 'value'
+}
+
+export type Global_Params_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Global_Params_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Global_Params_Bool_Exp;
+};
+
+/** Stores batch dialogues generated by COZE AI for community chat */
+export type Group_Chat = {
+  __typename?: 'group_chat';
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
+  dialogues: Scalars['jsonb']['output'];
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: Maybe<Scalars['Int']['output']>;
+  /** Auto-cleanup date (7 days from creation) */
+  expires_at?: Maybe<Scalars['timestamp']['output']>;
+  id: Scalars['uuid']['output'];
+  /** Array of fish IDs that participated in this chat */
+  participant_fish_ids: Array<Scalars['uuid']['output']>;
+  /** Time period: morning, afternoon, evening, night */
+  time_of_day?: Maybe<Scalars['String']['output']>;
+  /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
+  topic: Scalars['String']['output'];
+};
+
+
+/** Stores batch dialogues generated by COZE AI for community chat */
+export type Group_ChatDialoguesArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregated selection of "group_chat" */
+export type Group_Chat_Aggregate = {
+  __typename?: 'group_chat_aggregate';
+  aggregate?: Maybe<Group_Chat_Aggregate_Fields>;
+  nodes: Array<Group_Chat>;
+};
+
+/** aggregate fields of "group_chat" */
+export type Group_Chat_Aggregate_Fields = {
+  __typename?: 'group_chat_aggregate_fields';
+  avg?: Maybe<Group_Chat_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Group_Chat_Max_Fields>;
+  min?: Maybe<Group_Chat_Min_Fields>;
+  stddev?: Maybe<Group_Chat_Stddev_Fields>;
+  stddev_pop?: Maybe<Group_Chat_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Group_Chat_Stddev_Samp_Fields>;
+  sum?: Maybe<Group_Chat_Sum_Fields>;
+  var_pop?: Maybe<Group_Chat_Var_Pop_Fields>;
+  var_samp?: Maybe<Group_Chat_Var_Samp_Fields>;
+  variance?: Maybe<Group_Chat_Variance_Fields>;
+};
+
+
+/** aggregate fields of "group_chat" */
+export type Group_Chat_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Group_Chat_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type Group_Chat_Append_Input = {
+  /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
+  dialogues?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Group_Chat_Avg_Fields = {
+  __typename?: 'group_chat_avg_fields';
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "group_chat". All fields are combined with a logical 'AND'. */
+export type Group_Chat_Bool_Exp = {
+  _and?: InputMaybe<Array<Group_Chat_Bool_Exp>>;
+  _not?: InputMaybe<Group_Chat_Bool_Exp>;
+  _or?: InputMaybe<Array<Group_Chat_Bool_Exp>>;
+  created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  dialogues?: InputMaybe<Jsonb_Comparison_Exp>;
+  display_duration?: InputMaybe<Int_Comparison_Exp>;
+  expires_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  participant_fish_ids?: InputMaybe<Uuid_Array_Comparison_Exp>;
+  time_of_day?: InputMaybe<String_Comparison_Exp>;
+  topic?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "group_chat" */
+export enum Group_Chat_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  CommunityChatSessionsPkey = 'community_chat_sessions_pkey'
+}
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type Group_Chat_Delete_At_Path_Input = {
+  /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
+  dialogues?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type Group_Chat_Delete_Elem_Input = {
+  /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
+  dialogues?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type Group_Chat_Delete_Key_Input = {
+  /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
+  dialogues?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** input type for incrementing numeric columns in table "group_chat" */
+export type Group_Chat_Inc_Input = {
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** input type for inserting data into table "group_chat" */
+export type Group_Chat_Insert_Input = {
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
+  dialogues?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Scalars['Int']['input']>;
+  /** Auto-cleanup date (7 days from creation) */
+  expires_at?: InputMaybe<Scalars['timestamp']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Array of fish IDs that participated in this chat */
+  participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  /** Time period: morning, afternoon, evening, night */
+  time_of_day?: InputMaybe<Scalars['String']['input']>;
+  /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
+  topic?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate max on columns */
+export type Group_Chat_Max_Fields = {
+  __typename?: 'group_chat_max_fields';
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: Maybe<Scalars['Int']['output']>;
+  /** Auto-cleanup date (7 days from creation) */
+  expires_at?: Maybe<Scalars['timestamp']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  /** Array of fish IDs that participated in this chat */
+  participant_fish_ids?: Maybe<Array<Scalars['uuid']['output']>>;
+  /** Time period: morning, afternoon, evening, night */
+  time_of_day?: Maybe<Scalars['String']['output']>;
+  /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
+  topic?: Maybe<Scalars['String']['output']>;
+};
+
+/** aggregate min on columns */
+export type Group_Chat_Min_Fields = {
+  __typename?: 'group_chat_min_fields';
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: Maybe<Scalars['Int']['output']>;
+  /** Auto-cleanup date (7 days from creation) */
+  expires_at?: Maybe<Scalars['timestamp']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  /** Array of fish IDs that participated in this chat */
+  participant_fish_ids?: Maybe<Array<Scalars['uuid']['output']>>;
+  /** Time period: morning, afternoon, evening, night */
+  time_of_day?: Maybe<Scalars['String']['output']>;
+  /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
+  topic?: Maybe<Scalars['String']['output']>;
+};
+
+/** response of any mutation on the table "group_chat" */
+export type Group_Chat_Mutation_Response = {
+  __typename?: 'group_chat_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Group_Chat>;
+};
+
+/** on_conflict condition type for table "group_chat" */
+export type Group_Chat_On_Conflict = {
+  constraint: Group_Chat_Constraint;
+  update_columns?: Array<Group_Chat_Update_Column>;
+  where?: InputMaybe<Group_Chat_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "group_chat". */
+export type Group_Chat_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  dialogues?: InputMaybe<Order_By>;
+  display_duration?: InputMaybe<Order_By>;
+  expires_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  participant_fish_ids?: InputMaybe<Order_By>;
+  time_of_day?: InputMaybe<Order_By>;
+  topic?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: group_chat */
+export type Group_Chat_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type Group_Chat_Prepend_Input = {
+  /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
+  dialogues?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** select columns of table "group_chat" */
+export enum Group_Chat_Select_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Dialogues = 'dialogues',
+  /** column name */
+  DisplayDuration = 'display_duration',
+  /** column name */
+  ExpiresAt = 'expires_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  ParticipantFishIds = 'participant_fish_ids',
+  /** column name */
+  TimeOfDay = 'time_of_day',
+  /** column name */
+  Topic = 'topic'
+}
+
+/** input type for updating data in table "group_chat" */
+export type Group_Chat_Set_Input = {
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
+  dialogues?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Scalars['Int']['input']>;
+  /** Auto-cleanup date (7 days from creation) */
+  expires_at?: InputMaybe<Scalars['timestamp']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Array of fish IDs that participated in this chat */
+  participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  /** Time period: morning, afternoon, evening, night */
+  time_of_day?: InputMaybe<Scalars['String']['input']>;
+  /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
+  topic?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Group_Chat_Stddev_Fields = {
+  __typename?: 'group_chat_stddev_fields';
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Group_Chat_Stddev_Pop_Fields = {
+  __typename?: 'group_chat_stddev_pop_fields';
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Group_Chat_Stddev_Samp_Fields = {
+  __typename?: 'group_chat_stddev_samp_fields';
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "group_chat" */
+export type Group_Chat_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Group_Chat_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Group_Chat_Stream_Cursor_Value_Input = {
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
+  dialogues?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Scalars['Int']['input']>;
+  /** Auto-cleanup date (7 days from creation) */
+  expires_at?: InputMaybe<Scalars['timestamp']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Array of fish IDs that participated in this chat */
+  participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  /** Time period: morning, afternoon, evening, night */
+  time_of_day?: InputMaybe<Scalars['String']['input']>;
+  /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
+  topic?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Group_Chat_Sum_Fields = {
+  __typename?: 'group_chat_sum_fields';
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: Maybe<Scalars['Int']['output']>;
+};
+
+/** update columns of table "group_chat" */
+export enum Group_Chat_Update_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Dialogues = 'dialogues',
+  /** column name */
+  DisplayDuration = 'display_duration',
+  /** column name */
+  ExpiresAt = 'expires_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  ParticipantFishIds = 'participant_fish_ids',
+  /** column name */
+  TimeOfDay = 'time_of_day',
+  /** column name */
+  Topic = 'topic'
+}
+
+export type Group_Chat_Updates = {
+  /** append existing jsonb value of filtered columns with new jsonb value */
+  _append?: InputMaybe<Group_Chat_Append_Input>;
+  /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+  _delete_at_path?: InputMaybe<Group_Chat_Delete_At_Path_Input>;
+  /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+  _delete_elem?: InputMaybe<Group_Chat_Delete_Elem_Input>;
+  /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+  _delete_key?: InputMaybe<Group_Chat_Delete_Key_Input>;
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Group_Chat_Inc_Input>;
+  /** prepend existing jsonb value of filtered columns with new jsonb value */
+  _prepend?: InputMaybe<Group_Chat_Prepend_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Group_Chat_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Group_Chat_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Group_Chat_Var_Pop_Fields = {
+  __typename?: 'group_chat_var_pop_fields';
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Group_Chat_Var_Samp_Fields = {
+  __typename?: 'group_chat_var_samp_fields';
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Group_Chat_Variance_Fields = {
+  __typename?: 'group_chat_variance_fields';
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: Maybe<Scalars['Float']['output']>;
+};
+
+export type Jsonb_Cast_Exp = {
+  String?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** Boolean expression to compare columns of type "jsonb". All fields are combined with logical 'AND'. */
+export type Jsonb_Comparison_Exp = {
+  _cast?: InputMaybe<Jsonb_Cast_Exp>;
+  /** is the column contained in the given json value */
+  _contained_in?: InputMaybe<Scalars['jsonb']['input']>;
+  /** does the column contain the given json value at the top level */
+  _contains?: InputMaybe<Scalars['jsonb']['input']>;
+  _eq?: InputMaybe<Scalars['jsonb']['input']>;
+  _gt?: InputMaybe<Scalars['jsonb']['input']>;
+  _gte?: InputMaybe<Scalars['jsonb']['input']>;
+  /** does the string exist as a top-level key in the column */
+  _has_key?: InputMaybe<Scalars['String']['input']>;
+  /** do all of these strings exist as top-level keys in the column */
+  _has_keys_all?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** do any of these strings exist as top-level keys in the column */
+  _has_keys_any?: InputMaybe<Array<Scalars['String']['input']>>;
+  _in?: InputMaybe<Array<Scalars['jsonb']['input']>>;
+  _is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  _lt?: InputMaybe<Scalars['jsonb']['input']>;
+  _lte?: InputMaybe<Scalars['jsonb']['input']>;
+  _neq?: InputMaybe<Scalars['jsonb']['input']>;
+  _nin?: InputMaybe<Array<Scalars['jsonb']['input']>>;
+};
+
 /** mutation root */
 export type Mutation_Root = {
   __typename?: 'mutation_root';
@@ -1614,10 +2354,24 @@ export type Mutation_Root = {
   delete_fish?: Maybe<Fish_Mutation_Response>;
   /** delete single row from the table: "fish" */
   delete_fish_by_pk?: Maybe<Fish>;
+  /** delete data from the table: "fish_monologues" */
+  delete_fish_monologues?: Maybe<Fish_Monologues_Mutation_Response>;
+  /** delete single row from the table: "fish_monologues" */
+  delete_fish_monologues_by_pk?: Maybe<Fish_Monologues>;
   /** delete data from the table: "fish_test" */
   delete_fish_test?: Maybe<Fish_Test_Mutation_Response>;
   /** delete single row from the table: "fish_test" */
   delete_fish_test_by_pk?: Maybe<Fish_Test>;
+  /** delete data from the table: "global_params" */
+  delete_global_params?: Maybe<Global_Params_Mutation_Response>;
+  /** delete single row from the table: "global_params" */
+  delete_global_params_by_pk?: Maybe<Global_Params>;
+  /** delete data from the table: "group_chat" */
+  delete_group_chat?: Maybe<Group_Chat_Mutation_Response>;
+  /** delete single row from the table: "group_chat" */
+  delete_group_chat_by_pk?: Maybe<Group_Chat>;
+  /** delete data from the table: "recent_chat_sessions" */
+  delete_recent_chat_sessions?: Maybe<Recent_Chat_Sessions_Mutation_Response>;
   /** delete data from the table: "reports" */
   delete_reports?: Maybe<Reports_Mutation_Response>;
   /** delete single row from the table: "reports" */
@@ -1626,6 +2380,10 @@ export type Mutation_Root = {
   delete_user_economy?: Maybe<User_Economy_Mutation_Response>;
   /** delete single row from the table: "user_economy" */
   delete_user_economy_by_pk?: Maybe<User_Economy>;
+  /** delete data from the table: "user_subscriptions" */
+  delete_user_subscriptions?: Maybe<User_Subscriptions_Mutation_Response>;
+  /** delete single row from the table: "user_subscriptions" */
+  delete_user_subscriptions_by_pk?: Maybe<User_Subscriptions>;
   /** delete data from the table: "users" */
   delete_users?: Maybe<Users_Mutation_Response>;
   /** delete single row from the table: "users" */
@@ -1640,12 +2398,28 @@ export type Mutation_Root = {
   insert_economy_log_one?: Maybe<Economy_Log>;
   /** insert data into the table: "fish" */
   insert_fish?: Maybe<Fish_Mutation_Response>;
+  /** insert data into the table: "fish_monologues" */
+  insert_fish_monologues?: Maybe<Fish_Monologues_Mutation_Response>;
+  /** insert a single row into the table: "fish_monologues" */
+  insert_fish_monologues_one?: Maybe<Fish_Monologues>;
   /** insert a single row into the table: "fish" */
   insert_fish_one?: Maybe<Fish>;
   /** insert data into the table: "fish_test" */
   insert_fish_test?: Maybe<Fish_Test_Mutation_Response>;
   /** insert a single row into the table: "fish_test" */
   insert_fish_test_one?: Maybe<Fish_Test>;
+  /** insert data into the table: "global_params" */
+  insert_global_params?: Maybe<Global_Params_Mutation_Response>;
+  /** insert a single row into the table: "global_params" */
+  insert_global_params_one?: Maybe<Global_Params>;
+  /** insert data into the table: "group_chat" */
+  insert_group_chat?: Maybe<Group_Chat_Mutation_Response>;
+  /** insert a single row into the table: "group_chat" */
+  insert_group_chat_one?: Maybe<Group_Chat>;
+  /** insert data into the table: "recent_chat_sessions" */
+  insert_recent_chat_sessions?: Maybe<Recent_Chat_Sessions_Mutation_Response>;
+  /** insert a single row into the table: "recent_chat_sessions" */
+  insert_recent_chat_sessions_one?: Maybe<Recent_Chat_Sessions>;
   /** insert data into the table: "reports" */
   insert_reports?: Maybe<Reports_Mutation_Response>;
   /** insert a single row into the table: "reports" */
@@ -1654,6 +2428,10 @@ export type Mutation_Root = {
   insert_user_economy?: Maybe<User_Economy_Mutation_Response>;
   /** insert a single row into the table: "user_economy" */
   insert_user_economy_one?: Maybe<User_Economy>;
+  /** insert data into the table: "user_subscriptions" */
+  insert_user_subscriptions?: Maybe<User_Subscriptions_Mutation_Response>;
+  /** insert a single row into the table: "user_subscriptions" */
+  insert_user_subscriptions_one?: Maybe<User_Subscriptions>;
   /** insert data into the table: "users" */
   insert_users?: Maybe<Users_Mutation_Response>;
   /** insert a single row into the table: "users" */
@@ -1674,12 +2452,34 @@ export type Mutation_Root = {
   update_fish_by_pk?: Maybe<Fish>;
   /** update multiples rows of table: "fish" */
   update_fish_many?: Maybe<Array<Maybe<Fish_Mutation_Response>>>;
+  /** update data of the table: "fish_monologues" */
+  update_fish_monologues?: Maybe<Fish_Monologues_Mutation_Response>;
+  /** update single row of the table: "fish_monologues" */
+  update_fish_monologues_by_pk?: Maybe<Fish_Monologues>;
+  /** update multiples rows of table: "fish_monologues" */
+  update_fish_monologues_many?: Maybe<Array<Maybe<Fish_Monologues_Mutation_Response>>>;
   /** update data of the table: "fish_test" */
   update_fish_test?: Maybe<Fish_Test_Mutation_Response>;
   /** update single row of the table: "fish_test" */
   update_fish_test_by_pk?: Maybe<Fish_Test>;
   /** update multiples rows of table: "fish_test" */
   update_fish_test_many?: Maybe<Array<Maybe<Fish_Test_Mutation_Response>>>;
+  /** update data of the table: "global_params" */
+  update_global_params?: Maybe<Global_Params_Mutation_Response>;
+  /** update single row of the table: "global_params" */
+  update_global_params_by_pk?: Maybe<Global_Params>;
+  /** update multiples rows of table: "global_params" */
+  update_global_params_many?: Maybe<Array<Maybe<Global_Params_Mutation_Response>>>;
+  /** update data of the table: "group_chat" */
+  update_group_chat?: Maybe<Group_Chat_Mutation_Response>;
+  /** update single row of the table: "group_chat" */
+  update_group_chat_by_pk?: Maybe<Group_Chat>;
+  /** update multiples rows of table: "group_chat" */
+  update_group_chat_many?: Maybe<Array<Maybe<Group_Chat_Mutation_Response>>>;
+  /** update data of the table: "recent_chat_sessions" */
+  update_recent_chat_sessions?: Maybe<Recent_Chat_Sessions_Mutation_Response>;
+  /** update multiples rows of table: "recent_chat_sessions" */
+  update_recent_chat_sessions_many?: Maybe<Array<Maybe<Recent_Chat_Sessions_Mutation_Response>>>;
   /** update data of the table: "reports" */
   update_reports?: Maybe<Reports_Mutation_Response>;
   /** update single row of the table: "reports" */
@@ -1692,6 +2492,12 @@ export type Mutation_Root = {
   update_user_economy_by_pk?: Maybe<User_Economy>;
   /** update multiples rows of table: "user_economy" */
   update_user_economy_many?: Maybe<Array<Maybe<User_Economy_Mutation_Response>>>;
+  /** update data of the table: "user_subscriptions" */
+  update_user_subscriptions?: Maybe<User_Subscriptions_Mutation_Response>;
+  /** update single row of the table: "user_subscriptions" */
+  update_user_subscriptions_by_pk?: Maybe<User_Subscriptions>;
+  /** update multiples rows of table: "user_subscriptions" */
+  update_user_subscriptions_many?: Maybe<Array<Maybe<User_Subscriptions_Mutation_Response>>>;
   /** update data of the table: "users" */
   update_users?: Maybe<Users_Mutation_Response>;
   /** update single row of the table: "users" */
@@ -1732,6 +2538,18 @@ export type Mutation_RootDelete_Fish_By_PkArgs = {
 
 
 /** mutation root */
+export type Mutation_RootDelete_Fish_MonologuesArgs = {
+  where: Fish_Monologues_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Fish_Monologues_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
 export type Mutation_RootDelete_Fish_TestArgs = {
   where: Fish_Test_Bool_Exp;
 };
@@ -1740,6 +2558,36 @@ export type Mutation_RootDelete_Fish_TestArgs = {
 /** mutation root */
 export type Mutation_RootDelete_Fish_Test_By_PkArgs = {
   id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Global_ParamsArgs = {
+  where: Global_Params_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Global_Params_By_PkArgs = {
+  key: Scalars['String']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Group_ChatArgs = {
+  where: Group_Chat_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Group_Chat_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Recent_Chat_SessionsArgs = {
+  where: Recent_Chat_Sessions_Bool_Exp;
 };
 
 
@@ -1763,6 +2611,18 @@ export type Mutation_RootDelete_User_EconomyArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_User_Economy_By_PkArgs = {
+  user_id: Scalars['String']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_User_SubscriptionsArgs = {
+  where: User_Subscriptions_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_User_Subscriptions_By_PkArgs = {
   user_id: Scalars['String']['input'];
 };
 
@@ -1813,6 +2673,20 @@ export type Mutation_RootInsert_FishArgs = {
 
 
 /** mutation root */
+export type Mutation_RootInsert_Fish_MonologuesArgs = {
+  objects: Array<Fish_Monologues_Insert_Input>;
+  on_conflict?: InputMaybe<Fish_Monologues_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Fish_Monologues_OneArgs = {
+  object: Fish_Monologues_Insert_Input;
+  on_conflict?: InputMaybe<Fish_Monologues_On_Conflict>;
+};
+
+
+/** mutation root */
 export type Mutation_RootInsert_Fish_OneArgs = {
   object: Fish_Insert_Input;
   on_conflict?: InputMaybe<Fish_On_Conflict>;
@@ -1830,6 +2704,46 @@ export type Mutation_RootInsert_Fish_TestArgs = {
 export type Mutation_RootInsert_Fish_Test_OneArgs = {
   object: Fish_Test_Insert_Input;
   on_conflict?: InputMaybe<Fish_Test_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Global_ParamsArgs = {
+  objects: Array<Global_Params_Insert_Input>;
+  on_conflict?: InputMaybe<Global_Params_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Global_Params_OneArgs = {
+  object: Global_Params_Insert_Input;
+  on_conflict?: InputMaybe<Global_Params_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Group_ChatArgs = {
+  objects: Array<Group_Chat_Insert_Input>;
+  on_conflict?: InputMaybe<Group_Chat_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Group_Chat_OneArgs = {
+  object: Group_Chat_Insert_Input;
+  on_conflict?: InputMaybe<Group_Chat_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Recent_Chat_SessionsArgs = {
+  objects: Array<Recent_Chat_Sessions_Insert_Input>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Recent_Chat_Sessions_OneArgs = {
+  object: Recent_Chat_Sessions_Insert_Input;
 };
 
 
@@ -1858,6 +2772,20 @@ export type Mutation_RootInsert_User_EconomyArgs = {
 export type Mutation_RootInsert_User_Economy_OneArgs = {
   object: User_Economy_Insert_Input;
   on_conflict?: InputMaybe<User_Economy_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_User_SubscriptionsArgs = {
+  objects: Array<User_Subscriptions_Insert_Input>;
+  on_conflict?: InputMaybe<User_Subscriptions_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_User_Subscriptions_OneArgs = {
+  object: User_Subscriptions_Insert_Input;
+  on_conflict?: InputMaybe<User_Subscriptions_On_Conflict>;
 };
 
 
@@ -1934,6 +2862,26 @@ export type Mutation_RootUpdate_Fish_ManyArgs = {
 
 
 /** mutation root */
+export type Mutation_RootUpdate_Fish_MonologuesArgs = {
+  _set?: InputMaybe<Fish_Monologues_Set_Input>;
+  where: Fish_Monologues_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Fish_Monologues_By_PkArgs = {
+  _set?: InputMaybe<Fish_Monologues_Set_Input>;
+  pk_columns: Fish_Monologues_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Fish_Monologues_ManyArgs = {
+  updates: Array<Fish_Monologues_Updates>;
+};
+
+
+/** mutation root */
 export type Mutation_RootUpdate_Fish_TestArgs = {
   _inc?: InputMaybe<Fish_Test_Inc_Input>;
   _set?: InputMaybe<Fish_Test_Set_Input>;
@@ -1952,6 +2900,72 @@ export type Mutation_RootUpdate_Fish_Test_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Fish_Test_ManyArgs = {
   updates: Array<Fish_Test_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Global_ParamsArgs = {
+  _set?: InputMaybe<Global_Params_Set_Input>;
+  where: Global_Params_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Global_Params_By_PkArgs = {
+  _set?: InputMaybe<Global_Params_Set_Input>;
+  pk_columns: Global_Params_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Global_Params_ManyArgs = {
+  updates: Array<Global_Params_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Group_ChatArgs = {
+  _append?: InputMaybe<Group_Chat_Append_Input>;
+  _delete_at_path?: InputMaybe<Group_Chat_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Group_Chat_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Group_Chat_Delete_Key_Input>;
+  _inc?: InputMaybe<Group_Chat_Inc_Input>;
+  _prepend?: InputMaybe<Group_Chat_Prepend_Input>;
+  _set?: InputMaybe<Group_Chat_Set_Input>;
+  where: Group_Chat_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Group_Chat_By_PkArgs = {
+  _append?: InputMaybe<Group_Chat_Append_Input>;
+  _delete_at_path?: InputMaybe<Group_Chat_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Group_Chat_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Group_Chat_Delete_Key_Input>;
+  _inc?: InputMaybe<Group_Chat_Inc_Input>;
+  _prepend?: InputMaybe<Group_Chat_Prepend_Input>;
+  _set?: InputMaybe<Group_Chat_Set_Input>;
+  pk_columns: Group_Chat_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Group_Chat_ManyArgs = {
+  updates: Array<Group_Chat_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Recent_Chat_SessionsArgs = {
+  _inc?: InputMaybe<Recent_Chat_Sessions_Inc_Input>;
+  _set?: InputMaybe<Recent_Chat_Sessions_Set_Input>;
+  where: Recent_Chat_Sessions_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Recent_Chat_Sessions_ManyArgs = {
+  updates: Array<Recent_Chat_Sessions_Updates>;
 };
 
 
@@ -1994,6 +3008,26 @@ export type Mutation_RootUpdate_User_Economy_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_User_Economy_ManyArgs = {
   updates: Array<User_Economy_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_User_SubscriptionsArgs = {
+  _set?: InputMaybe<User_Subscriptions_Set_Input>;
+  where: User_Subscriptions_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_User_Subscriptions_By_PkArgs = {
+  _set?: InputMaybe<User_Subscriptions_Set_Input>;
+  pk_columns: User_Subscriptions_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_User_Subscriptions_ManyArgs = {
+  updates: Array<User_Subscriptions_Updates>;
 };
 
 
@@ -2081,12 +3115,34 @@ export type Query_Root = {
   fish_aggregate: Fish_Aggregate;
   /** fetch data from the table: "fish" using primary key columns */
   fish_by_pk?: Maybe<Fish>;
+  /** fetch data from the table: "fish_monologues" */
+  fish_monologues: Array<Fish_Monologues>;
+  /** fetch aggregated fields from the table: "fish_monologues" */
+  fish_monologues_aggregate: Fish_Monologues_Aggregate;
+  /** fetch data from the table: "fish_monologues" using primary key columns */
+  fish_monologues_by_pk?: Maybe<Fish_Monologues>;
   /** fetch data from the table: "fish_test" */
   fish_test: Array<Fish_Test>;
   /** fetch aggregated fields from the table: "fish_test" */
   fish_test_aggregate: Fish_Test_Aggregate;
   /** fetch data from the table: "fish_test" using primary key columns */
   fish_test_by_pk?: Maybe<Fish_Test>;
+  /** fetch data from the table: "global_params" */
+  global_params: Array<Global_Params>;
+  /** fetch aggregated fields from the table: "global_params" */
+  global_params_aggregate: Global_Params_Aggregate;
+  /** fetch data from the table: "global_params" using primary key columns */
+  global_params_by_pk?: Maybe<Global_Params>;
+  /** fetch data from the table: "group_chat" */
+  group_chat: Array<Group_Chat>;
+  /** fetch aggregated fields from the table: "group_chat" */
+  group_chat_aggregate: Group_Chat_Aggregate;
+  /** fetch data from the table: "group_chat" using primary key columns */
+  group_chat_by_pk?: Maybe<Group_Chat>;
+  /** fetch data from the table: "recent_chat_sessions" */
+  recent_chat_sessions: Array<Recent_Chat_Sessions>;
+  /** fetch aggregated fields from the table: "recent_chat_sessions" */
+  recent_chat_sessions_aggregate: Recent_Chat_Sessions_Aggregate;
   /** An array relationship */
   reports: Array<Reports>;
   /** An aggregate relationship */
@@ -2099,6 +3155,12 @@ export type Query_Root = {
   user_economy_aggregate: User_Economy_Aggregate;
   /** fetch data from the table: "user_economy" using primary key columns */
   user_economy_by_pk?: Maybe<User_Economy>;
+  /** fetch data from the table: "user_subscriptions" */
+  user_subscriptions: Array<User_Subscriptions>;
+  /** fetch aggregated fields from the table: "user_subscriptions" */
+  user_subscriptions_aggregate: User_Subscriptions_Aggregate;
+  /** fetch data from the table: "user_subscriptions" using primary key columns */
+  user_subscriptions_by_pk?: Maybe<User_Subscriptions>;
   /** fetch data from the table: "users" */
   users: Array<Users>;
   /** fetch aggregated fields from the table: "users" */
@@ -2160,6 +3222,29 @@ export type Query_RootFish_By_PkArgs = {
 };
 
 
+export type Query_RootFish_MonologuesArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Monologues_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Monologues_Order_By>>;
+  where?: InputMaybe<Fish_Monologues_Bool_Exp>;
+};
+
+
+export type Query_RootFish_Monologues_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Monologues_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Monologues_Order_By>>;
+  where?: InputMaybe<Fish_Monologues_Bool_Exp>;
+};
+
+
+export type Query_RootFish_Monologues_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
 export type Query_RootFish_TestArgs = {
   distinct_on?: InputMaybe<Array<Fish_Test_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -2180,6 +3265,70 @@ export type Query_RootFish_Test_AggregateArgs = {
 
 export type Query_RootFish_Test_By_PkArgs = {
   id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootGlobal_ParamsArgs = {
+  distinct_on?: InputMaybe<Array<Global_Params_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Global_Params_Order_By>>;
+  where?: InputMaybe<Global_Params_Bool_Exp>;
+};
+
+
+export type Query_RootGlobal_Params_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Global_Params_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Global_Params_Order_By>>;
+  where?: InputMaybe<Global_Params_Bool_Exp>;
+};
+
+
+export type Query_RootGlobal_Params_By_PkArgs = {
+  key: Scalars['String']['input'];
+};
+
+
+export type Query_RootGroup_ChatArgs = {
+  distinct_on?: InputMaybe<Array<Group_Chat_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Group_Chat_Order_By>>;
+  where?: InputMaybe<Group_Chat_Bool_Exp>;
+};
+
+
+export type Query_RootGroup_Chat_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Group_Chat_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Group_Chat_Order_By>>;
+  where?: InputMaybe<Group_Chat_Bool_Exp>;
+};
+
+
+export type Query_RootGroup_Chat_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootRecent_Chat_SessionsArgs = {
+  distinct_on?: InputMaybe<Array<Recent_Chat_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Recent_Chat_Sessions_Order_By>>;
+  where?: InputMaybe<Recent_Chat_Sessions_Bool_Exp>;
+};
+
+
+export type Query_RootRecent_Chat_Sessions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Recent_Chat_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Recent_Chat_Sessions_Order_By>>;
+  where?: InputMaybe<Recent_Chat_Sessions_Bool_Exp>;
 };
 
 
@@ -2229,6 +3378,29 @@ export type Query_RootUser_Economy_By_PkArgs = {
 };
 
 
+export type Query_RootUser_SubscriptionsArgs = {
+  distinct_on?: InputMaybe<Array<User_Subscriptions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<User_Subscriptions_Order_By>>;
+  where?: InputMaybe<User_Subscriptions_Bool_Exp>;
+};
+
+
+export type Query_RootUser_Subscriptions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<User_Subscriptions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<User_Subscriptions_Order_By>>;
+  where?: InputMaybe<User_Subscriptions_Bool_Exp>;
+};
+
+
+export type Query_RootUser_Subscriptions_By_PkArgs = {
+  user_id: Scalars['String']['input'];
+};
+
+
 export type Query_RootUsersArgs = {
   distinct_on?: InputMaybe<Array<Users_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -2272,6 +3444,236 @@ export type Query_RootVotes_AggregateArgs = {
 
 export type Query_RootVotes_By_PkArgs = {
   id: Scalars['uuid']['input'];
+};
+
+/** Shows chat sessions from the last 24 hours with message counts */
+export type Recent_Chat_Sessions = {
+  __typename?: 'recent_chat_sessions';
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  display_duration?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  message_count?: Maybe<Scalars['Int']['output']>;
+  participant_fish_ids?: Maybe<Array<Scalars['uuid']['output']>>;
+  time_of_day?: Maybe<Scalars['String']['output']>;
+  topic?: Maybe<Scalars['String']['output']>;
+};
+
+/** aggregated selection of "recent_chat_sessions" */
+export type Recent_Chat_Sessions_Aggregate = {
+  __typename?: 'recent_chat_sessions_aggregate';
+  aggregate?: Maybe<Recent_Chat_Sessions_Aggregate_Fields>;
+  nodes: Array<Recent_Chat_Sessions>;
+};
+
+/** aggregate fields of "recent_chat_sessions" */
+export type Recent_Chat_Sessions_Aggregate_Fields = {
+  __typename?: 'recent_chat_sessions_aggregate_fields';
+  avg?: Maybe<Recent_Chat_Sessions_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Recent_Chat_Sessions_Max_Fields>;
+  min?: Maybe<Recent_Chat_Sessions_Min_Fields>;
+  stddev?: Maybe<Recent_Chat_Sessions_Stddev_Fields>;
+  stddev_pop?: Maybe<Recent_Chat_Sessions_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Recent_Chat_Sessions_Stddev_Samp_Fields>;
+  sum?: Maybe<Recent_Chat_Sessions_Sum_Fields>;
+  var_pop?: Maybe<Recent_Chat_Sessions_Var_Pop_Fields>;
+  var_samp?: Maybe<Recent_Chat_Sessions_Var_Samp_Fields>;
+  variance?: Maybe<Recent_Chat_Sessions_Variance_Fields>;
+};
+
+
+/** aggregate fields of "recent_chat_sessions" */
+export type Recent_Chat_Sessions_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Recent_Chat_Sessions_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Recent_Chat_Sessions_Avg_Fields = {
+  __typename?: 'recent_chat_sessions_avg_fields';
+  display_duration?: Maybe<Scalars['Float']['output']>;
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "recent_chat_sessions". All fields are combined with a logical 'AND'. */
+export type Recent_Chat_Sessions_Bool_Exp = {
+  _and?: InputMaybe<Array<Recent_Chat_Sessions_Bool_Exp>>;
+  _not?: InputMaybe<Recent_Chat_Sessions_Bool_Exp>;
+  _or?: InputMaybe<Array<Recent_Chat_Sessions_Bool_Exp>>;
+  created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  display_duration?: InputMaybe<Int_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  message_count?: InputMaybe<Int_Comparison_Exp>;
+  participant_fish_ids?: InputMaybe<Uuid_Array_Comparison_Exp>;
+  time_of_day?: InputMaybe<String_Comparison_Exp>;
+  topic?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** input type for incrementing numeric columns in table "recent_chat_sessions" */
+export type Recent_Chat_Sessions_Inc_Input = {
+  display_duration?: InputMaybe<Scalars['Int']['input']>;
+  message_count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** input type for inserting data into table "recent_chat_sessions" */
+export type Recent_Chat_Sessions_Insert_Input = {
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  display_duration?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  message_count?: InputMaybe<Scalars['Int']['input']>;
+  participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  time_of_day?: InputMaybe<Scalars['String']['input']>;
+  topic?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate max on columns */
+export type Recent_Chat_Sessions_Max_Fields = {
+  __typename?: 'recent_chat_sessions_max_fields';
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  display_duration?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  message_count?: Maybe<Scalars['Int']['output']>;
+  participant_fish_ids?: Maybe<Array<Scalars['uuid']['output']>>;
+  time_of_day?: Maybe<Scalars['String']['output']>;
+  topic?: Maybe<Scalars['String']['output']>;
+};
+
+/** aggregate min on columns */
+export type Recent_Chat_Sessions_Min_Fields = {
+  __typename?: 'recent_chat_sessions_min_fields';
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  display_duration?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  message_count?: Maybe<Scalars['Int']['output']>;
+  participant_fish_ids?: Maybe<Array<Scalars['uuid']['output']>>;
+  time_of_day?: Maybe<Scalars['String']['output']>;
+  topic?: Maybe<Scalars['String']['output']>;
+};
+
+/** response of any mutation on the table "recent_chat_sessions" */
+export type Recent_Chat_Sessions_Mutation_Response = {
+  __typename?: 'recent_chat_sessions_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Recent_Chat_Sessions>;
+};
+
+/** Ordering options when selecting data from "recent_chat_sessions". */
+export type Recent_Chat_Sessions_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  display_duration?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  message_count?: InputMaybe<Order_By>;
+  participant_fish_ids?: InputMaybe<Order_By>;
+  time_of_day?: InputMaybe<Order_By>;
+  topic?: InputMaybe<Order_By>;
+};
+
+/** select columns of table "recent_chat_sessions" */
+export enum Recent_Chat_Sessions_Select_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  DisplayDuration = 'display_duration',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  MessageCount = 'message_count',
+  /** column name */
+  ParticipantFishIds = 'participant_fish_ids',
+  /** column name */
+  TimeOfDay = 'time_of_day',
+  /** column name */
+  Topic = 'topic'
+}
+
+/** input type for updating data in table "recent_chat_sessions" */
+export type Recent_Chat_Sessions_Set_Input = {
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  display_duration?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  message_count?: InputMaybe<Scalars['Int']['input']>;
+  participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  time_of_day?: InputMaybe<Scalars['String']['input']>;
+  topic?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Recent_Chat_Sessions_Stddev_Fields = {
+  __typename?: 'recent_chat_sessions_stddev_fields';
+  display_duration?: Maybe<Scalars['Float']['output']>;
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Recent_Chat_Sessions_Stddev_Pop_Fields = {
+  __typename?: 'recent_chat_sessions_stddev_pop_fields';
+  display_duration?: Maybe<Scalars['Float']['output']>;
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Recent_Chat_Sessions_Stddev_Samp_Fields = {
+  __typename?: 'recent_chat_sessions_stddev_samp_fields';
+  display_duration?: Maybe<Scalars['Float']['output']>;
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "recent_chat_sessions" */
+export type Recent_Chat_Sessions_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Recent_Chat_Sessions_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Recent_Chat_Sessions_Stream_Cursor_Value_Input = {
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  display_duration?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  message_count?: InputMaybe<Scalars['Int']['input']>;
+  participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  time_of_day?: InputMaybe<Scalars['String']['input']>;
+  topic?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Recent_Chat_Sessions_Sum_Fields = {
+  __typename?: 'recent_chat_sessions_sum_fields';
+  display_duration?: Maybe<Scalars['Int']['output']>;
+  message_count?: Maybe<Scalars['Int']['output']>;
+};
+
+export type Recent_Chat_Sessions_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Recent_Chat_Sessions_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Recent_Chat_Sessions_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Recent_Chat_Sessions_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Recent_Chat_Sessions_Var_Pop_Fields = {
+  __typename?: 'recent_chat_sessions_var_pop_fields';
+  display_duration?: Maybe<Scalars['Float']['output']>;
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Recent_Chat_Sessions_Var_Samp_Fields = {
+  __typename?: 'recent_chat_sessions_var_samp_fields';
+  display_duration?: Maybe<Scalars['Float']['output']>;
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Recent_Chat_Sessions_Variance_Fields = {
+  __typename?: 'recent_chat_sessions_variance_fields';
+  display_duration?: Maybe<Scalars['Float']['output']>;
+  message_count?: Maybe<Scalars['Float']['output']>;
 };
 
 /** columns and relationships of "reports" */
@@ -2597,6 +3999,14 @@ export type Subscription_Root = {
   fish_aggregate: Fish_Aggregate;
   /** fetch data from the table: "fish" using primary key columns */
   fish_by_pk?: Maybe<Fish>;
+  /** fetch data from the table: "fish_monologues" */
+  fish_monologues: Array<Fish_Monologues>;
+  /** fetch aggregated fields from the table: "fish_monologues" */
+  fish_monologues_aggregate: Fish_Monologues_Aggregate;
+  /** fetch data from the table: "fish_monologues" using primary key columns */
+  fish_monologues_by_pk?: Maybe<Fish_Monologues>;
+  /** fetch data from the table in a streaming manner: "fish_monologues" */
+  fish_monologues_stream: Array<Fish_Monologues>;
   /** fetch data from the table in a streaming manner: "fish" */
   fish_stream: Array<Fish>;
   /** fetch data from the table: "fish_test" */
@@ -2607,6 +4017,28 @@ export type Subscription_Root = {
   fish_test_by_pk?: Maybe<Fish_Test>;
   /** fetch data from the table in a streaming manner: "fish_test" */
   fish_test_stream: Array<Fish_Test>;
+  /** fetch data from the table: "global_params" */
+  global_params: Array<Global_Params>;
+  /** fetch aggregated fields from the table: "global_params" */
+  global_params_aggregate: Global_Params_Aggregate;
+  /** fetch data from the table: "global_params" using primary key columns */
+  global_params_by_pk?: Maybe<Global_Params>;
+  /** fetch data from the table in a streaming manner: "global_params" */
+  global_params_stream: Array<Global_Params>;
+  /** fetch data from the table: "group_chat" */
+  group_chat: Array<Group_Chat>;
+  /** fetch aggregated fields from the table: "group_chat" */
+  group_chat_aggregate: Group_Chat_Aggregate;
+  /** fetch data from the table: "group_chat" using primary key columns */
+  group_chat_by_pk?: Maybe<Group_Chat>;
+  /** fetch data from the table in a streaming manner: "group_chat" */
+  group_chat_stream: Array<Group_Chat>;
+  /** fetch data from the table: "recent_chat_sessions" */
+  recent_chat_sessions: Array<Recent_Chat_Sessions>;
+  /** fetch aggregated fields from the table: "recent_chat_sessions" */
+  recent_chat_sessions_aggregate: Recent_Chat_Sessions_Aggregate;
+  /** fetch data from the table in a streaming manner: "recent_chat_sessions" */
+  recent_chat_sessions_stream: Array<Recent_Chat_Sessions>;
   /** An array relationship */
   reports: Array<Reports>;
   /** An aggregate relationship */
@@ -2623,6 +4055,14 @@ export type Subscription_Root = {
   user_economy_by_pk?: Maybe<User_Economy>;
   /** fetch data from the table in a streaming manner: "user_economy" */
   user_economy_stream: Array<User_Economy>;
+  /** fetch data from the table: "user_subscriptions" */
+  user_subscriptions: Array<User_Subscriptions>;
+  /** fetch aggregated fields from the table: "user_subscriptions" */
+  user_subscriptions_aggregate: User_Subscriptions_Aggregate;
+  /** fetch data from the table: "user_subscriptions" using primary key columns */
+  user_subscriptions_by_pk?: Maybe<User_Subscriptions>;
+  /** fetch data from the table in a streaming manner: "user_subscriptions" */
+  user_subscriptions_stream: Array<User_Subscriptions>;
   /** fetch data from the table: "users" */
   users: Array<Users>;
   /** fetch aggregated fields from the table: "users" */
@@ -2695,6 +4135,36 @@ export type Subscription_RootFish_By_PkArgs = {
 };
 
 
+export type Subscription_RootFish_MonologuesArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Monologues_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Monologues_Order_By>>;
+  where?: InputMaybe<Fish_Monologues_Bool_Exp>;
+};
+
+
+export type Subscription_RootFish_Monologues_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Fish_Monologues_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Fish_Monologues_Order_By>>;
+  where?: InputMaybe<Fish_Monologues_Bool_Exp>;
+};
+
+
+export type Subscription_RootFish_Monologues_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootFish_Monologues_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Fish_Monologues_Stream_Cursor_Input>>;
+  where?: InputMaybe<Fish_Monologues_Bool_Exp>;
+};
+
+
 export type Subscription_RootFish_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Fish_Stream_Cursor_Input>>;
@@ -2729,6 +4199,91 @@ export type Subscription_RootFish_Test_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Fish_Test_Stream_Cursor_Input>>;
   where?: InputMaybe<Fish_Test_Bool_Exp>;
+};
+
+
+export type Subscription_RootGlobal_ParamsArgs = {
+  distinct_on?: InputMaybe<Array<Global_Params_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Global_Params_Order_By>>;
+  where?: InputMaybe<Global_Params_Bool_Exp>;
+};
+
+
+export type Subscription_RootGlobal_Params_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Global_Params_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Global_Params_Order_By>>;
+  where?: InputMaybe<Global_Params_Bool_Exp>;
+};
+
+
+export type Subscription_RootGlobal_Params_By_PkArgs = {
+  key: Scalars['String']['input'];
+};
+
+
+export type Subscription_RootGlobal_Params_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Global_Params_Stream_Cursor_Input>>;
+  where?: InputMaybe<Global_Params_Bool_Exp>;
+};
+
+
+export type Subscription_RootGroup_ChatArgs = {
+  distinct_on?: InputMaybe<Array<Group_Chat_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Group_Chat_Order_By>>;
+  where?: InputMaybe<Group_Chat_Bool_Exp>;
+};
+
+
+export type Subscription_RootGroup_Chat_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Group_Chat_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Group_Chat_Order_By>>;
+  where?: InputMaybe<Group_Chat_Bool_Exp>;
+};
+
+
+export type Subscription_RootGroup_Chat_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootGroup_Chat_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Group_Chat_Stream_Cursor_Input>>;
+  where?: InputMaybe<Group_Chat_Bool_Exp>;
+};
+
+
+export type Subscription_RootRecent_Chat_SessionsArgs = {
+  distinct_on?: InputMaybe<Array<Recent_Chat_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Recent_Chat_Sessions_Order_By>>;
+  where?: InputMaybe<Recent_Chat_Sessions_Bool_Exp>;
+};
+
+
+export type Subscription_RootRecent_Chat_Sessions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Recent_Chat_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Recent_Chat_Sessions_Order_By>>;
+  where?: InputMaybe<Recent_Chat_Sessions_Bool_Exp>;
+};
+
+
+export type Subscription_RootRecent_Chat_Sessions_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Recent_Chat_Sessions_Stream_Cursor_Input>>;
+  where?: InputMaybe<Recent_Chat_Sessions_Bool_Exp>;
 };
 
 
@@ -2789,6 +4344,36 @@ export type Subscription_RootUser_Economy_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<User_Economy_Stream_Cursor_Input>>;
   where?: InputMaybe<User_Economy_Bool_Exp>;
+};
+
+
+export type Subscription_RootUser_SubscriptionsArgs = {
+  distinct_on?: InputMaybe<Array<User_Subscriptions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<User_Subscriptions_Order_By>>;
+  where?: InputMaybe<User_Subscriptions_Bool_Exp>;
+};
+
+
+export type Subscription_RootUser_Subscriptions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<User_Subscriptions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<User_Subscriptions_Order_By>>;
+  where?: InputMaybe<User_Subscriptions_Bool_Exp>;
+};
+
+
+export type Subscription_RootUser_Subscriptions_By_PkArgs = {
+  user_id: Scalars['String']['input'];
+};
+
+
+export type Subscription_RootUser_Subscriptions_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<User_Subscriptions_Stream_Cursor_Input>>;
+  where?: InputMaybe<User_Subscriptions_Bool_Exp>;
 };
 
 
@@ -3139,6 +4724,232 @@ export type User_Economy_Variance_Fields = {
   total_spent?: Maybe<Scalars['Float']['output']>;
 };
 
+/** columns and relationships of "user_subscriptions" */
+export type User_Subscriptions = {
+  __typename?: 'user_subscriptions';
+  cancel_at_period_end?: Maybe<Scalars['Boolean']['output']>;
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  current_period_end?: Maybe<Scalars['timestamp']['output']>;
+  current_period_start?: Maybe<Scalars['timestamp']['output']>;
+  is_active?: Maybe<Scalars['Boolean']['output']>;
+  plan: Scalars['String']['output'];
+  stripe_customer_id?: Maybe<Scalars['String']['output']>;
+  stripe_subscription_id?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamp']['output']>;
+  user_id: Scalars['String']['output'];
+};
+
+/** aggregated selection of "user_subscriptions" */
+export type User_Subscriptions_Aggregate = {
+  __typename?: 'user_subscriptions_aggregate';
+  aggregate?: Maybe<User_Subscriptions_Aggregate_Fields>;
+  nodes: Array<User_Subscriptions>;
+};
+
+/** aggregate fields of "user_subscriptions" */
+export type User_Subscriptions_Aggregate_Fields = {
+  __typename?: 'user_subscriptions_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<User_Subscriptions_Max_Fields>;
+  min?: Maybe<User_Subscriptions_Min_Fields>;
+};
+
+
+/** aggregate fields of "user_subscriptions" */
+export type User_Subscriptions_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<User_Subscriptions_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Boolean expression to filter rows from the table "user_subscriptions". All fields are combined with a logical 'AND'. */
+export type User_Subscriptions_Bool_Exp = {
+  _and?: InputMaybe<Array<User_Subscriptions_Bool_Exp>>;
+  _not?: InputMaybe<User_Subscriptions_Bool_Exp>;
+  _or?: InputMaybe<Array<User_Subscriptions_Bool_Exp>>;
+  cancel_at_period_end?: InputMaybe<Boolean_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  current_period_end?: InputMaybe<Timestamp_Comparison_Exp>;
+  current_period_start?: InputMaybe<Timestamp_Comparison_Exp>;
+  is_active?: InputMaybe<Boolean_Comparison_Exp>;
+  plan?: InputMaybe<String_Comparison_Exp>;
+  stripe_customer_id?: InputMaybe<String_Comparison_Exp>;
+  stripe_subscription_id?: InputMaybe<String_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  user_id?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "user_subscriptions" */
+export enum User_Subscriptions_Constraint {
+  /** unique or primary key constraint on columns "user_id" */
+  UserSubscriptionsPkey = 'user_subscriptions_pkey'
+}
+
+/** input type for inserting data into table "user_subscriptions" */
+export type User_Subscriptions_Insert_Input = {
+  cancel_at_period_end?: InputMaybe<Scalars['Boolean']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  current_period_end?: InputMaybe<Scalars['timestamp']['input']>;
+  current_period_start?: InputMaybe<Scalars['timestamp']['input']>;
+  is_active?: InputMaybe<Scalars['Boolean']['input']>;
+  plan?: InputMaybe<Scalars['String']['input']>;
+  stripe_customer_id?: InputMaybe<Scalars['String']['input']>;
+  stripe_subscription_id?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamp']['input']>;
+  user_id?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate max on columns */
+export type User_Subscriptions_Max_Fields = {
+  __typename?: 'user_subscriptions_max_fields';
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  current_period_end?: Maybe<Scalars['timestamp']['output']>;
+  current_period_start?: Maybe<Scalars['timestamp']['output']>;
+  plan?: Maybe<Scalars['String']['output']>;
+  stripe_customer_id?: Maybe<Scalars['String']['output']>;
+  stripe_subscription_id?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamp']['output']>;
+  user_id?: Maybe<Scalars['String']['output']>;
+};
+
+/** aggregate min on columns */
+export type User_Subscriptions_Min_Fields = {
+  __typename?: 'user_subscriptions_min_fields';
+  created_at?: Maybe<Scalars['timestamp']['output']>;
+  current_period_end?: Maybe<Scalars['timestamp']['output']>;
+  current_period_start?: Maybe<Scalars['timestamp']['output']>;
+  plan?: Maybe<Scalars['String']['output']>;
+  stripe_customer_id?: Maybe<Scalars['String']['output']>;
+  stripe_subscription_id?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamp']['output']>;
+  user_id?: Maybe<Scalars['String']['output']>;
+};
+
+/** response of any mutation on the table "user_subscriptions" */
+export type User_Subscriptions_Mutation_Response = {
+  __typename?: 'user_subscriptions_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<User_Subscriptions>;
+};
+
+/** on_conflict condition type for table "user_subscriptions" */
+export type User_Subscriptions_On_Conflict = {
+  constraint: User_Subscriptions_Constraint;
+  update_columns?: Array<User_Subscriptions_Update_Column>;
+  where?: InputMaybe<User_Subscriptions_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "user_subscriptions". */
+export type User_Subscriptions_Order_By = {
+  cancel_at_period_end?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  current_period_end?: InputMaybe<Order_By>;
+  current_period_start?: InputMaybe<Order_By>;
+  is_active?: InputMaybe<Order_By>;
+  plan?: InputMaybe<Order_By>;
+  stripe_customer_id?: InputMaybe<Order_By>;
+  stripe_subscription_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: user_subscriptions */
+export type User_Subscriptions_Pk_Columns_Input = {
+  user_id: Scalars['String']['input'];
+};
+
+/** select columns of table "user_subscriptions" */
+export enum User_Subscriptions_Select_Column {
+  /** column name */
+  CancelAtPeriodEnd = 'cancel_at_period_end',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  CurrentPeriodEnd = 'current_period_end',
+  /** column name */
+  CurrentPeriodStart = 'current_period_start',
+  /** column name */
+  IsActive = 'is_active',
+  /** column name */
+  Plan = 'plan',
+  /** column name */
+  StripeCustomerId = 'stripe_customer_id',
+  /** column name */
+  StripeSubscriptionId = 'stripe_subscription_id',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "user_subscriptions" */
+export type User_Subscriptions_Set_Input = {
+  cancel_at_period_end?: InputMaybe<Scalars['Boolean']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  current_period_end?: InputMaybe<Scalars['timestamp']['input']>;
+  current_period_start?: InputMaybe<Scalars['timestamp']['input']>;
+  is_active?: InputMaybe<Scalars['Boolean']['input']>;
+  plan?: InputMaybe<Scalars['String']['input']>;
+  stripe_customer_id?: InputMaybe<Scalars['String']['input']>;
+  stripe_subscription_id?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamp']['input']>;
+  user_id?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Streaming cursor of the table "user_subscriptions" */
+export type User_Subscriptions_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: User_Subscriptions_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type User_Subscriptions_Stream_Cursor_Value_Input = {
+  cancel_at_period_end?: InputMaybe<Scalars['Boolean']['input']>;
+  created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  current_period_end?: InputMaybe<Scalars['timestamp']['input']>;
+  current_period_start?: InputMaybe<Scalars['timestamp']['input']>;
+  is_active?: InputMaybe<Scalars['Boolean']['input']>;
+  plan?: InputMaybe<Scalars['String']['input']>;
+  stripe_customer_id?: InputMaybe<Scalars['String']['input']>;
+  stripe_subscription_id?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamp']['input']>;
+  user_id?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** update columns of table "user_subscriptions" */
+export enum User_Subscriptions_Update_Column {
+  /** column name */
+  CancelAtPeriodEnd = 'cancel_at_period_end',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  CurrentPeriodEnd = 'current_period_end',
+  /** column name */
+  CurrentPeriodStart = 'current_period_start',
+  /** column name */
+  IsActive = 'is_active',
+  /** column name */
+  Plan = 'plan',
+  /** column name */
+  StripeCustomerId = 'stripe_customer_id',
+  /** column name */
+  StripeSubscriptionId = 'stripe_subscription_id',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type User_Subscriptions_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<User_Subscriptions_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: User_Subscriptions_Bool_Exp;
+};
+
 /** columns and relationships of "users" */
 export type Users = {
   __typename?: 'users';
@@ -3152,6 +4963,10 @@ export type Users = {
   /** An aggregate relationship */
   economy_logs_aggregate: Economy_Log_Aggregate;
   email: Scalars['String']['output'];
+  /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
+  feeder_info?: Maybe<Scalars['String']['output']>;
+  /** 主人昵称 - 用于鱼聊天时提及主人 */
+  feeder_name?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
   fishes: Array<Fish>;
   /** An aggregate relationship */
@@ -3308,6 +5123,8 @@ export type Users_Bool_Exp = {
   economy_logs?: InputMaybe<Economy_Log_Bool_Exp>;
   economy_logs_aggregate?: InputMaybe<Economy_Log_Aggregate_Bool_Exp>;
   email?: InputMaybe<String_Comparison_Exp>;
+  feeder_info?: InputMaybe<String_Comparison_Exp>;
+  feeder_name?: InputMaybe<String_Comparison_Exp>;
   fishes?: InputMaybe<Fish_Bool_Exp>;
   fishes_aggregate?: InputMaybe<Fish_Aggregate_Bool_Exp>;
   id?: InputMaybe<String_Comparison_Exp>;
@@ -3350,6 +5167,10 @@ export type Users_Insert_Input = {
   display_name?: InputMaybe<Scalars['String']['input']>;
   economy_logs?: InputMaybe<Economy_Log_Arr_Rel_Insert_Input>;
   email?: InputMaybe<Scalars['String']['input']>;
+  /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
+  feeder_info?: InputMaybe<Scalars['String']['input']>;
+  /** 主人昵称 - 用于鱼聊天时提及主人 */
+  feeder_name?: InputMaybe<Scalars['String']['input']>;
   fishes?: InputMaybe<Fish_Arr_Rel_Insert_Input>;
   id?: InputMaybe<Scalars['String']['input']>;
   is_banned?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3373,6 +5194,10 @@ export type Users_Max_Fields = {
   created_at?: Maybe<Scalars['timestamp']['output']>;
   display_name?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
+  /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
+  feeder_info?: Maybe<Scalars['String']['output']>;
+  /** 主人昵称 - 用于鱼聊天时提及主人 */
+  feeder_name?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['String']['output']>;
   last_active?: Maybe<Scalars['timestamp']['output']>;
   reputation_score?: Maybe<Scalars['Int']['output']>;
@@ -3391,6 +5216,10 @@ export type Users_Min_Fields = {
   created_at?: Maybe<Scalars['timestamp']['output']>;
   display_name?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
+  /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
+  feeder_info?: Maybe<Scalars['String']['output']>;
+  /** 主人昵称 - 用于鱼聊天时提及主人 */
+  feeder_name?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['String']['output']>;
   last_active?: Maybe<Scalars['timestamp']['output']>;
   reputation_score?: Maybe<Scalars['Int']['output']>;
@@ -3432,6 +5261,8 @@ export type Users_Order_By = {
   display_name?: InputMaybe<Order_By>;
   economy_logs_aggregate?: InputMaybe<Economy_Log_Aggregate_Order_By>;
   email?: InputMaybe<Order_By>;
+  feeder_info?: InputMaybe<Order_By>;
+  feeder_name?: InputMaybe<Order_By>;
   fishes_aggregate?: InputMaybe<Fish_Aggregate_Order_By>;
   id?: InputMaybe<Order_By>;
   is_banned?: InputMaybe<Order_By>;
@@ -3466,6 +5297,10 @@ export enum Users_Select_Column {
   /** column name */
   Email = 'email',
   /** column name */
+  FeederInfo = 'feeder_info',
+  /** column name */
+  FeederName = 'feeder_name',
+  /** column name */
   Id = 'id',
   /** column name */
   IsBanned = 'is_banned',
@@ -3491,6 +5326,10 @@ export type Users_Set_Input = {
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
   display_name?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
+  /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
+  feeder_info?: InputMaybe<Scalars['String']['input']>;
+  /** 主人昵称 - 用于鱼聊天时提及主人 */
+  feeder_name?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
   is_banned?: InputMaybe<Scalars['Boolean']['input']>;
   last_active?: InputMaybe<Scalars['timestamp']['input']>;
@@ -3544,6 +5383,10 @@ export type Users_Stream_Cursor_Value_Input = {
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
   display_name?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
+  /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
+  feeder_info?: InputMaybe<Scalars['String']['input']>;
+  /** 主人昵称 - 用于鱼聊天时提及主人 */
+  feeder_name?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
   is_banned?: InputMaybe<Scalars['Boolean']['input']>;
   last_active?: InputMaybe<Scalars['timestamp']['input']>;
@@ -3577,6 +5420,10 @@ export enum Users_Update_Column {
   DisplayName = 'display_name',
   /** column name */
   Email = 'email',
+  /** column name */
+  FeederInfo = 'feeder_info',
+  /** column name */
+  FeederName = 'feeder_name',
   /** column name */
   Id = 'id',
   /** column name */
@@ -3629,6 +5476,23 @@ export type Users_Variance_Fields = {
   total_fish_created?: Maybe<Scalars['Float']['output']>;
   total_votes_received?: Maybe<Scalars['Float']['output']>;
   user_level?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'. */
+export type Uuid_Array_Comparison_Exp = {
+  /** is the array contained in the given array value */
+  _contained_in?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  /** does the array contain the given value */
+  _contains?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  _eq?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  _gt?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  _gte?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  _in?: InputMaybe<Array<Array<Scalars['uuid']['input']>>>;
+  _is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  _lt?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  _lte?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  _neq?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  _nin?: InputMaybe<Array<Array<Scalars['uuid']['input']>>>;
 };
 
 /** Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'. */

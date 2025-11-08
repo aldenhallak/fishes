@@ -384,8 +384,20 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
             const today = new Date().toDateString();
             localStorage.setItem('lastFishDate', today);
             
-            // Show enhanced success modal with social sharing
-            showSuccessModal(uploadResult.imageUrl, needsModeration);
+            // Show fish information collection modal
+            if (window.showFishInfoModal) {
+                window.showFishInfoModal(
+                    submitResult.fish.id,
+                    uploadResult.imageUrl,
+                    () => {
+                        // After info is saved, show success modal and redirect
+                        showSuccessModal(uploadResult.imageUrl, needsModeration);
+                    }
+                );
+            } else {
+                // Fallback to original modal if fish-info-modal not loaded
+                showSuccessModal(uploadResult.imageUrl, needsModeration);
+            }
         } else {
             console.error('❌ 提交失败:', submitResult);
             throw new Error(submitResult.error || '提交失败');

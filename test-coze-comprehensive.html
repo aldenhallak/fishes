@@ -470,19 +470,98 @@
       <p class="subtitle">聊天测试和实时语音测试平台 - Fish Community Chat</p>
     </header>
 
-    <!-- 统计信息 -->
-    <div class="stats-grid">
-      <div class="stat-card characters">
-        <div class="stat-label">可用角色</div>
-        <div class="stat-value" id="stats-characters">0</div>
+    <!-- Parameters测试面板 -->
+    <div class="panel">
+      <div class="panel-header" onclick="togglePanel(this)">
+        <div class="panel-title">
+          <span class="panel-icon">🐠</span>
+          <span>Parameters测试（鱼阵列）</span>
+        </div>
+        <span class="toggle-icon">▶</span>
       </div>
-      <div class="stat-card modes">
-        <div class="stat-label">交互模式</div>
-        <div class="stat-value" id="stats-modes">0</div>
+      <div class="panel-body">
+        <div class="alert alert-info">
+          <strong>📝 Parameters用法：</strong><br>
+          根据<a href="https://www.coze.cn/open/docs/developer_guides/chat_v3#57744ece" target="_blank">Coze v3 API文档</a>，使用 <code>parameters</code> 字段向Bot传递参数。<br>
+          鱼聊天功能使用 <code>fish_array</code> 参数传递多条鱼的信息（从鱼表和用户表查询）。<br>
+          <strong>注意：</strong>使用 <code>parameters</code> 字段，不是 <code>custom_variables</code>。
+        </div>
+
+        <div class="config-grid">
+          <!-- Fish Array输入 -->
+          <div class="section" style="grid-column: 1 / -1;">
+            <div class="section-title">🐠 Fish Array（对象数组）</div>
+            <div class="form-group">
+              <label for="fish-array-input">输入fish_array JSON:</label>
+              <textarea 
+                id="fish-array-input" 
+                rows="12"
+                placeholder='[
+  {
+    "fish_id": "uuid-1",
+    "personality": "cheerful",
+    "feeder_name": "Ocean Lover",
+    "feeder_info": "An artist who loves marine life"
+  },
+  {
+    "fish_id": "uuid-2",
+    "personality": "shy",
+    "feeder_name": "Silent Fisher",
+    "feeder_info": "Enjoys quiet moments by the sea"
+  }
+]'
+              ></textarea>
+              <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+                格式：[{"fish_id", "personality", "feeder_name", "feeder_info"}, ...]
+              </small>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-secondary" onclick="loadSampleFishArray()">
+                📋 加载示例数据
+              </button>
+              <button class="btn btn-primary" onclick="validateFishArray()">
+                ✓ 验证格式
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 测试区域 -->
+        <div class="section">
+          <div class="section-title">🧪 测试Parameters传递</div>
+          <div class="form-group">
+            <label for="params-prompt">测试Prompt:</label>
+            <textarea 
+              id="params-prompt" 
+              rows="4"
+              placeholder="输入测试prompt，例如：请这些鱼进行一次群聊对话"
+            ></textarea>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-success" onclick="testParametersChat()" id="test-params-btn">
+              🚀 发送带Parameters的请求
+            </button>
+          </div>
+        </div>
+
+        <!-- 结果显示 -->
+        <div class="section">
+          <div class="section-title">📊 测试结果</div>
+          <div id="params-result" style="
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 8px;
+            min-height: 100px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #1a202c;
+          ">
+            等待测试...
+          </div>
+        </div>
       </div>
-      <button class="refresh-btn" id="refresh-btn" onclick="loadTestData()">
-        🔄 刷新角色与交互模式
-      </button>
     </div>
 
     <!-- 聊天测试面板 -->
@@ -492,9 +571,9 @@
           <span class="panel-icon">💬</span>
           <span>聊天测试</span>
         </div>
-        <span class="toggle-icon">▼</span>
+        <span class="toggle-icon">▶</span>
       </div>
-      <div class="panel-body expanded">
+      <div class="panel-body">
         <div class="alert alert-info">
           <strong>📝 使用说明：</strong><br>
           1. 填写 API Key 和 Bot ID（会自动保存到localStorage）<br>
@@ -1119,6 +1198,277 @@
       // 目前先显示占位符
       document.getElementById('stats-characters').textContent = '-';
       document.getElementById('stats-modes').textContent = '-';
+    }
+
+    // ========== Parameters测试函数 ==========
+
+    // 加载示例鱼数组
+    function loadSampleFishArray() {
+      const sample = [
+        {
+          "fish_id": "sample-uuid-1",
+          "personality": "cheerful",
+          "feeder_name": "Ocean Lover",
+          "feeder_info": "An artist who loves marine life and spends weekends by the sea"
+        },
+        {
+          "fish_id": "sample-uuid-2",
+          "personality": "shy",
+          "feeder_name": "Silent Fisher",
+          "feeder_info": "Enjoys quiet moments by the water, reading books"
+        },
+        {
+          "fish_id": "sample-uuid-3",
+          "personality": "brave",
+          "feeder_name": "Captain Adventure",
+          "feeder_info": "A sailor who has traveled across seven seas"
+        },
+        {
+          "fish_id": "sample-uuid-4",
+          "personality": "lazy",
+          "feeder_name": "Cozy Dreamer",
+          "feeder_info": "Believes the best things in life are free and relaxing"
+        },
+        {
+          "fish_id": "sample-uuid-5",
+          "personality": "curious",
+          "feeder_name": "Science Explorer",
+          "feeder_info": "A marine biologist fascinated by underwater creatures"
+        }
+      ];
+
+      document.getElementById('fish-array-input').value = JSON.stringify(sample, null, 2);
+      addLog('✅ 示例数据已加载', { count: sample.length });
+    }
+
+    // 验证鱼数组格式
+    function validateFishArray() {
+      const input = document.getElementById('fish-array-input').value.trim();
+      
+      if (!input) {
+        alert('请输入fish_array JSON');
+        return false;
+      }
+
+      try {
+        const fishArray = JSON.parse(input);
+
+        if (!Array.isArray(fishArray)) {
+          throw new Error('fish_array必须是数组');
+        }
+
+        if (fishArray.length === 0) {
+          throw new Error('fish_array不能为空');
+        }
+
+        // 验证每个鱼对象的字段
+        fishArray.forEach((fish, index) => {
+          if (!fish.fish_id) throw new Error(`第${index + 1}条鱼缺少fish_id字段`);
+          if (!fish.personality) throw new Error(`第${index + 1}条鱼缺少personality字段`);
+          // feeder_name和feeder_info是可选的
+        });
+
+        addLog('✅ 格式验证通过', { 
+          count: fishArray.length,
+          sample: fishArray[0]
+        });
+        alert(`✅ 验证通过！共${fishArray.length}条鱼数据`);
+        return true;
+
+      } catch (error) {
+        addLog('❌ 格式验证失败', { error: error.message }, 'error');
+        alert(`❌ JSON格式错误: ${error.message}`);
+        return false;
+      }
+    }
+
+    // 测试带Parameters的聊天
+    async function testParametersChat() {
+      const fishArrayInput = document.getElementById('fish-array-input').value.trim();
+      const prompt = document.getElementById('params-prompt').value.trim();
+      const resultDiv = document.getElementById('params-result');
+      const testBtn = document.getElementById('test-params-btn');
+
+      // 验证输入
+      if (!fishArrayInput) {
+        alert('请输入fish_array JSON');
+        return;
+      }
+
+      if (!prompt) {
+        alert('请输入测试prompt');
+        return;
+      }
+
+      // 验证格式
+      let fishArray;
+      try {
+        fishArray = JSON.parse(fishArrayInput);
+        if (!Array.isArray(fishArray) || fishArray.length === 0) {
+          throw new Error('fish_array必须是非空数组');
+        }
+      } catch (error) {
+        alert(`JSON格式错误: ${error.message}`);
+        return;
+      }
+
+      // 获取配置
+      const apiKey = document.getElementById('api-key').value.trim();
+      const botId = document.getElementById('bot-id').value.trim();
+      const userId = document.getElementById('user-id').value.trim();
+      const baseUrl = document.getElementById('base-url').value.trim();
+
+      if (!apiKey || !botId) {
+        alert('请先填写API Key和Bot ID');
+        return;
+      }
+
+      // 禁用按钮
+      testBtn.disabled = true;
+      testBtn.textContent = '测试中...';
+      resultDiv.textContent = '正在创建会话...';
+
+      try {
+        // 1. 创建会话
+        addLog('[Parameters Test] 创建会话', { bot_id: botId });
+        const convResp = await fetch(`${baseUrl}/v1/conversation/create`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ bot_id: botId })
+        });
+
+        const convData = await convResp.json();
+        addLog('[Parameters Test] 会话创建响应', convData, 'coze-response');
+
+        const conversationId = convData.data?.id || convData.conversation_id;
+        if (!conversationId) {
+          throw new Error('未能获取conversation_id');
+        }
+
+        resultDiv.textContent = '会话已创建，发送消息...';
+
+        // 2. 发送带parameters的消息
+        // 根据Coze API文档，使用parameters字段传递参数给Bot
+        const chatPayload = {
+          bot_id: botId,
+          user_id: userId,
+          stream: false,
+          auto_save_history: true,
+          additional_messages: [{
+            role: 'user',
+            content: prompt,
+            content_type: 'text'
+          }],
+          parameters: {
+            fish_array: fishArray  // 直接传递对象数组
+          }
+        };
+        
+        console.log('Fish array parameters:', JSON.stringify(fishArray, null, 2));
+
+        addLog('[Parameters Test] 发送聊天请求（带parameters）', chatPayload, 'coze-request');
+
+        const chatResp = await fetch(`${baseUrl}/v3/chat?conversation_id=${conversationId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(chatPayload)
+        });
+
+        const chatData = await chatResp.json();
+        addLog('[Parameters Test] 聊天响应', chatData, 'coze-response');
+
+        if (chatData.code !== 0) {
+          throw new Error(`Coze API错误: ${chatData.msg}`);
+        }
+
+        const chatId = chatData.data?.id;
+        resultDiv.textContent = '消息已发送，等待AI回复...';
+
+        // 3. 轮询获取回复
+        let attempts = 0;
+        const maxAttempts = 30; // 增加到30次
+        
+        addLog('[Parameters Test] 开始轮询AI回复', { chatId, maxAttempts });
+
+        while (attempts < maxAttempts) {
+          attempts++;
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          
+          resultDiv.textContent = `等待AI回复... (${attempts}/${maxAttempts})`;
+
+          // 简化轮询：直接获取消息列表，不检查状态
+          const msgsResp = await fetch(
+            `${baseUrl}/v3/chat/message/list?conversation_id=${conversationId}&chat_id=${chatId}`,
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ limit: 20, order: 'desc' })
+            }
+          );
+
+          const msgsData = await msgsResp.json();
+          
+          // 检查COZE API是否返回错误
+          if (msgsData.code && msgsData.code !== 0) {
+            addLog(`[Parameters Test] 轮询第${attempts}次 - COZE API错误`, {
+              code: msgsData.code,
+              message: msgsData.msg,
+              full_response: msgsData
+            });
+            continue; // 继续下一次轮询
+          }
+          
+          // 成功响应，提取消息
+          const messages = msgsData.data?.data || msgsData.data || msgsData.messages || [];
+          addLog(`[Parameters Test] 轮询第${attempts}次`, { 
+            code: msgsData.code,
+            message_count: messages.length,
+            messages_preview: messages.slice(0, 2).map(m => ({
+              role: m.role,
+              type: m.type,
+              content_preview: m.content?.substring(0, 50)
+            }))
+          });
+
+          if (messages.length > 0) {
+            // 查找AI回复 - 必须是 role='assistant' 且 type='answer'
+            const aiMessage = messages.find(m => 
+              m.role === 'assistant' && 
+              m.type === 'answer' && 
+              m.content && 
+              m.content.trim()
+            );
+            
+            if (aiMessage) {
+              addLog('[Parameters Test] 完整消息列表', msgsData, 'coze-response');
+              resultDiv.textContent = `✅ 测试成功！\n\nAI回复:\n${aiMessage.content}`;
+              addLog('✅ Parameters测试完成', { response: aiMessage.content });
+              testBtn.disabled = false;
+              testBtn.textContent = '🚀 发送带Parameters的请求';
+              return;
+            }
+          }
+        }
+
+        throw new Error('轮询超时，未获取到AI回复');
+
+      } catch (error) {
+        console.error('[Parameters Test] 错误:', error);
+        addLog('❌ Parameters测试失败', { error: error.message }, 'error');
+        resultDiv.textContent = `❌ 测试失败: ${error.message}`;
+      } finally {
+        testBtn.disabled = false;
+        testBtn.textContent = '🚀 发送带Parameters的请求';
+      }
     }
   </script>
 </body>
