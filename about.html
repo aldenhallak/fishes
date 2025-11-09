@@ -17,7 +17,9 @@
     <link rel="canonical" href="https://fishart.online/about.html">
     
     <link rel="stylesheet" href="src/css/style.css?v=2.0">
-    <link rel="stylesheet" href="src/css/cute-theme.css?v=2.0">
+    <link rel="stylesheet" href="src/css/animations.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
+    <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
     <link rel="icon" type="image/png" href="/fish_logo.png">
     
     <!-- Google tag (gtag.js) -->
@@ -274,7 +276,29 @@
         }
     </style>
 </head>
-<body>
+<body class="game-style">
+  <!-- Background bubbles -->
+  <div class="game-bubbles">
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+  </div>
+
+  <!-- Game Navigation -->
+  <nav class="game-nav">
+    <div class="game-logo">🐠 FishArt.Online</div>
+    <div class="game-nav-links">
+      <a href="index.html" class="game-btn game-btn-white"><span>🎨</span> <span>Draw</span></a>
+      <a href="tank.html" class="game-btn game-btn-white"><span>🐠</span> <span>Tank</span></a>
+      <a href="rank.html" class="game-btn game-btn-white"><span>⭐</span> <span>Rankings</span></a>
+      <a href="test-center.html" class="game-btn game-btn-white"><span>🧪</span> <span>Test</span></a>
+      <a href="about.html" class="game-btn game-btn-white"><span>ℹ️</span> <span>About</span></a>
+      <!-- Login button injected here by auth-ui.js -->
+    </div>
+  </nav>
+
     <div class="about-container">
         <div class="breadcrumb">
             <a href="index.html">Home</a> / About
@@ -459,17 +483,48 @@
             </ul>
         </div>
         
-        <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid #e0e0e0; text-align: center; color: #666;">
-            <p style="font-size: 1.1em; margin-bottom: 15px;">🐠 About DrawAFish / FishArt.Online</p>
-            <p>
-                <a href="index.html" style="color: #6366F1; margin: 0 15px;">Draw Now</a> |
-                <a href="how-to-draw-a-fish.html" style="color: #6366F1; margin: 0 15px;">Tutorial</a> |
-                <a href="fish-drawing-game.html" style="color: #6366F1; margin: 0 15px;">Game</a> |
-                <a href="https://github.com/aldenhallak/fishes" target="_blank" rel="noopener" style="color: #6366F1; margin: 0 15px;">GitHub</a>
-            </p>
-            <p style="margin-top: 20px;">&copy; 2024 FishArt.Online - Free Online Fish Drawing Tool</p>
-        </footer>
     </div>
+
+  <!-- Game Style Footer -->
+  <footer class="game-footer">
+    <div class="game-footer-links">
+      <a href="tank.html" class="game-footer-link">Global Fish Tank</a>
+      <a href="fish-doodle-community.html" class="game-footer-link">Community</a>
+      <a href="about.html" class="game-footer-link">About</a>
+      <a href="how-to-draw-a-fish.html" class="game-footer-link">How to Draw a Fish</a>
+      <a href="fish-drawing-game.html" class="game-footer-link">Fish Drawing Game</a>
+      <a href="faq.html" class="game-footer-link">FAQ</a>
+    </div>
+    <p style="margin: 12px 0 8px; color: rgba(255, 255, 255, 0.9); font-size: 14px;">
+      🎨 Based on 
+      <a href="https://github.com/aldenhallak/fishes" target="_blank" rel="noopener noreferrer" 
+         style="color: white; font-weight: 700; text-decoration: underline;">DrawAFish</a>
+      by
+      <a href="https://github.com/aldenhallak" target="_blank" rel="noopener noreferrer"
+         style="color: white; font-weight: 700; text-decoration: underline;">aldenhallak</a>
+    </p>
+  </footer>
+
+  <!-- Mobile Bottom Social Bar -->
+  <div class="mobile-social-bar">
+    <button class="game-btn game-btn-white" style="flex: 1; margin: 4px;" id="mobile-twitter-btn" title="Follow on X">
+      <span>𝕏</span>
+    </button>
+    <button class="game-btn game-btn-white" style="flex: 1; margin: 4px;" id="mobile-discord-btn" title="Join Discord">
+      <span>💬</span>
+    </button>
+    <button class="game-btn game-btn-white" style="flex: 1; margin: 4px;" id="mobile-share-btn" title="Share">
+      <span>📤</span>
+    </button>
+  </div>
+
+  <script src="src/js/auth-ui.js"></script>
+  <script>
+    // Initialize navigation authentication
+    if (typeof initializeAuthNavigation === 'function') {
+      initializeAuthNavigation();
+    }
+  </script>
 </body>
 </html>
 
