@@ -1329,6 +1329,11 @@ function showModal(html, onClose) {
 }
 
 function handleTankTap(e) {
+    // 检查是否刚刚点击了鱼（防止事件延迟触发）
+    if (window.lastFishClickTime && (Date.now() - window.lastFishClickTime) < 100) {
+        return; // 100ms 内不执行移动逻辑
+    }
+    
     let rect = swimCanvas.getBoundingClientRect();
     let tapX, tapY;
     if (e.touches && e.touches.length > 0) {
@@ -1364,12 +1369,18 @@ function handleTankTap(e) {
         const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
         fishY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
 
-        // Check if tap is within fish bounds
+        // Check if tap is within fish bounds (增加一些容差，避免边缘点击误判)
+        const padding = 5; // 5像素容差
         if (
-            tapX >= fishX && tapX <= fishX + fish.width &&
-            tapY >= fishY && tapY <= fishY + fish.height
+            tapX >= fishX - padding && tapX <= fishX + fish.width + padding &&
+            tapY >= fishY - padding && tapY <= fishY + fish.height + padding
         ) {
-            // 点击到了鱼，不执行移动逻辑
+            // 点击到了鱼，不执行移动逻辑，并阻止事件传播
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            // 记录点击时间，防止后续事件触发移动
+            window.lastFishClickTime = Date.now();
             return;
         }
     }
@@ -1428,15 +1439,37 @@ function handleFishTap(e) {
             fishY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
         }
 
-        // Check if tap is within fish bounds
+        // Check if tap is within fish bounds (增加容差，避免边缘点击误判)
+        const padding = 5; // 5像素容差
         if (
-            tapX >= fishX && tapX <= fishX + fish.width &&
-            tapY >= fishY && tapY <= fishY + fish.height
+            tapX >= fishX - padding && tapX <= fishX + fish.width + padding &&
+            tapY >= fishY - padding && tapY <= fishY + fish.height + padding
         ) {
             // 点击到鱼时，阻止事件传播，只显示弹窗，不移动鱼
             e.preventDefault();
             e.stopPropagation();
-            showFishInfoModal(fish);
+            e.stopImmediatePropagation(); // 阻止所有后续事件处理器
+            
+            // 标记已点击鱼，防止后续事件触发移动
+            const clickTimestamp = Date.now();
+            if (!window.lastFishClickTime) {
+                window.lastFishClickTime = 0;
+            }
+            window.lastFishClickTime = clickTimestamp;
+            
+            // 标记这条鱼被点击了，在动画循环中暂停移动
+            fish.isClicked = true;
+            fish.clickedAt = clickTimestamp;
+            
+            // 清除鱼的速度，让它停止移动
+            fish.vx = 0;
+            fish.vy = 0;
+            
+            // 延迟显示弹窗，确保事件完全处理完毕
+            setTimeout(() => {
+                showFishInfoModal(fish);
+            }, 10);
+            
             return; // Found a fish, don't handle tank tap
         }
     }
@@ -1633,6 +1666,28 @@ function animateFishes() {
             fish.speed = fish.speed * (1 - progress * 0.5);
         } else if (!fish.isEntering) {
             // Normal fish behavior (only if not entering)
+            
+            // 如果鱼被点击了，暂停移动一段时间（3秒）
+            if (fish.isClicked && fish.clickedAt) {
+                const timeSinceClick = Date.now() - fish.clickedAt;
+                if (timeSinceClick < 3000) {
+                    // 3秒内保持完全静止
+                    // 清除所有速度，防止任何移动
+                    fish.vx = 0;
+                    fish.vy = 0;
+                    // 跳过所有移动逻辑，但继续绘制
+                    // 不在这里使用 continue，而是用条件判断跳过移动逻辑
+                } else {
+                    // 3秒后恢复移动
+                    fish.isClicked = false;
+                    fish.clickedAt = null;
+                    // 恢复初始速度
+                    if (Math.abs(fish.vx) < 0.01 && Math.abs(fish.vy) < 0.01) {
+                        fish.vx = fish.speed * fish.direction * 0.1;
+                        fish.vy = 0;
+                    }
+                }
+            }
 
             // Use cached food detection to improve performance
             const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
@@ -1686,91 +1741,99 @@ function animateFishes() {
             if (!fish.vx) fish.vx = 0;
             if (!fish.vy) fish.vy = 0;
 
-            // Always apply base swimming movement
-            fish.vx += fish.speed * fish.direction * 0.1; // Continuous base movement
+            // Always apply base swimming movement (除非鱼被点击了)
+            if (!fish.isClicked) {
+                fish.vx += fish.speed * fish.direction * 0.1; // Continuous base movement
 
-            // Apply food attraction using cached data
-            if (foodDetectionData.nearestFood) {
-                const dx = foodDetectionData.nearestFood.x - foodDetectionData.fishCenterX;
-                const dy = foodDetectionData.nearestFood.y - foodDetectionData.fishCenterY;
-                const distance = foodDetectionData.nearestDistance;
+                // Apply food attraction using cached data
+                if (foodDetectionData.nearestFood) {
+                    const dx = foodDetectionData.nearestFood.x - foodDetectionData.fishCenterX;
+                    const dy = foodDetectionData.nearestFood.y - foodDetectionData.fishCenterY;
+                    const distance = foodDetectionData.nearestDistance;
 
-                if (distance > 0) {
-                    // Calculate attraction force (stronger when closer, with smooth falloff)
-                    const distanceRatio = distance / FOOD_DETECTION_RADIUS;
-                    const attractionStrength = FOOD_ATTRACTION_FORCE * (1 - distanceRatio * distanceRatio);
+                    if (distance > 0) {
+                        // Calculate attraction force (stronger when closer, with smooth falloff)
+                        const distanceRatio = distance / FOOD_DETECTION_RADIUS;
+                        const attractionStrength = FOOD_ATTRACTION_FORCE * (1 - distanceRatio * distanceRatio);
 
-                    // Apply force towards food more gently
-                    fish.vx += (dx / distance) * attractionStrength;
-                    fish.vy += (dy / distance) * attractionStrength;
+                        // Apply force towards food more gently
+                        fish.vx += (dx / distance) * attractionStrength;
+                        fish.vy += (dy / distance) * attractionStrength;
 
-                    // Update fish direction to face the food (but not too abruptly)
-                    if (Math.abs(dx) > 10) { // Only change direction if food is significantly left/right
-                        fish.direction = dx > 0 ? 1 : -1;
+                        // Update fish direction to face the food (but not too abruptly)
+                        if (Math.abs(dx) > 10) { // Only change direction if food is significantly left/right
+                            fish.direction = dx > 0 ? 1 : -1;
+                        }
                     }
                 }
             }
 
-            // Always move based on velocity
-            fish.x += fish.vx;
-            fish.y += fish.vy;
+            // Always move based on velocity (除非鱼被点击了)
+            if (!fish.isClicked) {
+                fish.x += fish.vx;
+                fish.y += fish.vy;
+            }
 
-            // Handle edge collisions BEFORE applying friction
+            // Handle edge collisions BEFORE applying friction (除非鱼被点击了)
             let hitEdge = false;
+            
+            if (!fish.isClicked) {
+                // Left and right edges
+                if (fish.x <= 0) {
+                    fish.x = 0;
+                    fish.direction = 1; // Face right
+                    fish.vx = Math.abs(fish.vx); // Ensure velocity points right
+                    hitEdge = true;
+                    // 随机向上或向下移动1行（30-50像素）
+                    const verticalShift = (Math.random() > 0.5 ? 1 : -1) * (30 + Math.random() * 20);
+                    fish.y = Math.max(0, Math.min(swimCanvas.height - fish.height, fish.y + verticalShift));
+                } else if (fish.x >= swimCanvas.width - fish.width) {
+                    fish.x = swimCanvas.width - fish.width;
+                    fish.direction = -1; // Face left
+                    fish.vx = -Math.abs(fish.vx); // Ensure velocity points left
+                    hitEdge = true;
+                    // 随机向上或向下移动1行（30-50像素）
+                    const verticalShift = (Math.random() > 0.5 ? 1 : -1) * (30 + Math.random() * 20);
+                    fish.y = Math.max(0, Math.min(swimCanvas.height - fish.height, fish.y + verticalShift));
+                }
 
-            // Left and right edges
-            if (fish.x <= 0) {
-                fish.x = 0;
-                fish.direction = 1; // Face right
-                fish.vx = Math.abs(fish.vx); // Ensure velocity points right
-                hitEdge = true;
-                // 随机向上或向下移动1行（30-50像素）
-                const verticalShift = (Math.random() > 0.5 ? 1 : -1) * (30 + Math.random() * 20);
-                fish.y = Math.max(0, Math.min(swimCanvas.height - fish.height, fish.y + verticalShift));
-            } else if (fish.x >= swimCanvas.width - fish.width) {
-                fish.x = swimCanvas.width - fish.width;
-                fish.direction = -1; // Face left
-                fish.vx = -Math.abs(fish.vx); // Ensure velocity points left
-                hitEdge = true;
-                // 随机向上或向下移动1行（30-50像素）
-                const verticalShift = (Math.random() > 0.5 ? 1 : -1) * (30 + Math.random() * 20);
-                fish.y = Math.max(0, Math.min(swimCanvas.height - fish.height, fish.y + verticalShift));
+                // Top and bottom edges
+                if (fish.y <= 0) {
+                    fish.y = 0;
+                    fish.vy = Math.abs(fish.vy) * 0.5; // Bounce off top, but gently
+                    hitEdge = true;
+                } else if (fish.y >= swimCanvas.height - fish.height) {
+                    fish.y = swimCanvas.height - fish.height;
+                    fish.vy = -Math.abs(fish.vy) * 0.5; // Bounce off bottom, but gently
+                    hitEdge = true;
+                }
             }
 
-            // Top and bottom edges
-            if (fish.y <= 0) {
-                fish.y = 0;
-                fish.vy = Math.abs(fish.vy) * 0.5; // Bounce off top, but gently
-                hitEdge = true;
-            } else if (fish.y >= swimCanvas.height - fish.height) {
-                fish.y = swimCanvas.height - fish.height;
-                fish.vy = -Math.abs(fish.vy) * 0.5; // Bounce off bottom, but gently
-                hitEdge = true;
-            }
+            // Apply friction - less when attracted to food (除非鱼被点击了)
+            if (!fish.isClicked) {
+                const frictionFactor = foodDetectionData.hasNearbyFood ? 0.88 : 0.85;
+                fish.vx *= frictionFactor;
+                fish.vy *= frictionFactor;
 
-            // Apply friction - less when attracted to food
-            const frictionFactor = foodDetectionData.hasNearbyFood ? 0.88 : 0.85;
-            fish.vx *= frictionFactor;
-            fish.vy *= frictionFactor;
+                // Limit velocity to prevent fish from moving too fast
+                const maxVel = fish.speed * 2;
+                const velMag = Math.sqrt(fish.vx * fish.vx + fish.vy * fish.vy);
+                if (velMag > maxVel) {
+                    fish.vx = (fish.vx / velMag) * maxVel;
+                    fish.vy = (fish.vy / velMag) * maxVel;
+                }
 
-            // Limit velocity to prevent fish from moving too fast
-            const maxVel = fish.speed * 2;
-            const velMag = Math.sqrt(fish.vx * fish.vx + fish.vy * fish.vy);
-            if (velMag > maxVel) {
-                fish.vx = (fish.vx / velMag) * maxVel;
-                fish.vy = (fish.vy / velMag) * maxVel;
-            }
+                // Ensure minimum movement to prevent complete stops
+                if (Math.abs(fish.vx) < 0.1) {
+                    fish.vx = fish.speed * fish.direction * 0.1;
+                }
 
-            // Ensure minimum movement to prevent complete stops
-            if (Math.abs(fish.vx) < 0.1) {
-                fish.vx = fish.speed * fish.direction * 0.1;
-            }
-
-            // If fish hit an edge, give it a small push away from the edge
-            if (hitEdge) {
-                fish.vx += fish.speed * fish.direction * 0.2;
-                // Add small random vertical component to avoid getting stuck
-                fish.vy += (Math.random() - 0.5) * 0.3;
+                // If fish hit an edge, give it a small push away from the edge
+                if (hitEdge) {
+                    fish.vx += fish.speed * fish.direction * 0.2;
+                    // Add small random vertical component to avoid getting stuck
+                    fish.vy += (Math.random() - 0.5) * 0.3;
+                }
             }
         }
 
@@ -1778,6 +1841,19 @@ function animateFishes() {
         let swimY;
         if (fish.isDying) {
             swimY = fish.y;
+        } else if (fish.isClicked && fish.clickedAt) {
+            // 如果鱼被点击了，完全停止游泳动画，保持静止
+            const timeSinceClick = Date.now() - fish.clickedAt;
+            if (timeSinceClick < 3000) {
+                swimY = fish.y; // 不使用 sine wave，完全静止
+            } else {
+                // 3秒后恢复游泳动画
+                const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
+                const foodDetectionData = foodDetectionCache.get(fishId);
+                const hasNearbyFood = foodDetectionData ? foodDetectionData.hasNearbyFood : false;
+                const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
+                swimY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
+            }
         } else {
             // Use cached food detection data for swim animation
             const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;

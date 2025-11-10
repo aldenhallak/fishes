@@ -49,24 +49,16 @@ module.exports = async function handler(req, res) {
 
     const isOwner = currentUserId && currentUserId === userId;
 
-    // 3. 构建查询条件
-    // 如果是本人，可以看到公开+私密留言
-    // 如果不是本人，只能看到公开留言
-    let whereCondition = {
-      receiver_id: { _eq: userId }
-    };
-
-    if (!isOwner) {
-      whereCondition.visibility = { _eq: 'public' };
-    }
-
-    // 4. 查询留言（包括给用户的留言和给用户的鱼的留言）
-    const messagesQuery = `
-      query GetUserMessages($where: messages_bool_exp!) {
+    // 3. 查询留言（使用管理员权限，在API层过滤）
+    // 先查询所有发给该用户的留言，然后在代码中过滤
+    const allMessagesQuery = `
+      query GetUserMessages($receiverId: String!) {
         messages(
-          where: $where,
+          where: {
+            receiver_id: { _eq: $receiverId }
+          },
           order_by: { created_at: desc },
-          limit: 100
+          limit: 200
         ) {
           id
           sender_id
@@ -76,7 +68,7 @@ module.exports = async function handler(req, res) {
           visibility
           created_at
           sender {
-            user_id
+            id
             display_name
             avatar_url
           }
@@ -86,15 +78,27 @@ module.exports = async function handler(req, res) {
             image_url
           }
         }
-        messages_aggregate(where: $where) {
-          aggregate {
-            count
-          }
-        }
       }
     `;
 
-    const messagesData = await hasura.query(messagesQuery, { where: whereCondition });
+    const allMessagesData = await hasura.query(allMessagesQuery, { receiverId: userId });
+    
+    // 在API层过滤：如果是本人，显示所有；否则只显示公开留言
+    const messages = allMessagesData.messages.filter(msg => {
+      if (isOwner) {
+        return true; // 本人可以看到所有留言
+      }
+      return msg.visibility === 'public'; // 其他人只能看公开留言
+    });
+    
+    const messagesData = {
+      messages: messages,
+      messages_aggregate: {
+        aggregate: {
+          count: messages.length
+        }
+      }
+    };
 
     // 5. 返回结果
     return res.status(200).json({

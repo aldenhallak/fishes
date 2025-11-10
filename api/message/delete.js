@@ -66,7 +66,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 4. 删除留言
+    // 4. 删除留言（使用管理员权限，API层已做权限验证）
     const deleteMutation = `
       mutation DeleteMessage($messageId: uuid!) {
         delete_messages_by_pk(id: $messageId) {
@@ -75,6 +75,7 @@ module.exports = async function handler(req, res) {
       }
     `;
 
+    // 使用管理员权限执行（API层已验证权限）
     const result = await hasura.mutation(deleteMutation, { messageId });
 
     if (!result.delete_messages_by_pk) {

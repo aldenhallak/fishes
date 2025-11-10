@@ -143,7 +143,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // 4. 插入留言到数据库
+    // 4. 插入留言到数据库（使用管理员权限，API层已做权限控制）
     const insertMutation = `
       mutation InsertMessage($message: messages_insert_input!) {
         insert_messages_one(object: $message) {
@@ -159,6 +159,7 @@ module.exports = async function handler(req, res) {
       }
     `;
 
+    // 使用管理员权限执行（API层已验证sender_id = userId）
     const result = await hasura.mutation(insertMutation, { message: messageObject });
 
     if (!result.insert_messages_one) {
