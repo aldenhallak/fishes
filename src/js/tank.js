@@ -30,11 +30,8 @@ if (typeof TankLayoutManager !== 'undefined') {
     console.log('✅ Tank Layout Manager initialized');
     console.log('✅ Community Chat Manager initialized');
     
-    // Schedule auto-chats and monologues
-    communityChatManager.scheduleAutoChats(5);
-    communityChatManager.scheduleMonologues(15); // Self-talk every 15 seconds
-    console.log('🎮 Auto-chats scheduled every 5 minutes');
-    console.log('💬 Monologues scheduled every 15 seconds');
+    // Initialize group chat based on environment variable and user preference
+    initializeGroupChat();
 }
 
 // Food system
@@ -499,7 +496,7 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
 // Global variable to track the newest fish timestamp and listener
 let newestFishTimestamp = null;
 let newFishListener = null;
-let maxTankCapacity = 50; // Dynamic tank capacity controlled by slider
+let maxTankCapacity = 20; // Dynamic tank capacity controlled by slider
 let isUpdatingCapacity = false; // Prevent multiple simultaneous updates
 
 // Update page title based on sort type
@@ -781,7 +778,9 @@ async function loadInitialFish(sortType = 'recent') {
 
     try {
         // Load initial fish from Firestore using shared utility
+        console.log(`🐠 Loading ${maxTankCapacity} fish with sort type: ${sortType}`);
         const allFishDocs = await getFishBySort(sortType, maxTankCapacity); // Load based on current capacity
+        console.log(`🐠 Received ${allFishDocs ? allFishDocs.length : 0} fish documents`);
 
         // Track the newest timestamp for the listener
         if (allFishDocs.length > 0) {
@@ -1050,17 +1049,30 @@ window.addEventListener('DOMContentLoaded', async () => {
         sortSelect.value = sortParam;
     }
 
-    // Initialize capacity from URL parameter
+    // Initialize capacity from URL parameter (if present), otherwise use default (20)
     if (capacityParam) {
         const capacity = parseInt(capacityParam);
         if (capacity >= 1 && capacity <= 100) {
             maxTankCapacity = capacity;
-            const fishCountSlider = document.getElementById('fish-count-slider');
-            if (fishCountSlider) {
-                fishCountSlider.value = capacity;
-            }
         }
+    } else {
+        // No URL parameter, ensure we use the default value (20)
+        maxTankCapacity = 20;
     }
+    
+    // Ensure slider and display are synchronized with maxTankCapacity
+    let fishCountSlider = document.getElementById('fish-count-slider');
+    if (fishCountSlider) {
+        fishCountSlider.value = maxTankCapacity;
+    }
+    
+    const displayElement = document.getElementById('fish-count-display');
+    if (displayElement) {
+        displayElement.textContent = maxTankCapacity;
+    }
+    
+    console.log(`🐠 Initialized tank capacity: ${maxTankCapacity}`);
+    console.log(`🐠 About to load fish with capacity: ${maxTankCapacity}`);
 
     // Update page title based on initial selection
     updatePageTitle(initialSort);
@@ -1092,8 +1104,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         loadFishIntoTank(selectedSort);
     });
 
-    // Handle fish count slider
-    const fishCountSlider = document.getElementById('fish-count-slider');
+    // Handle fish count slider (reuse the variable declared above)
+    if (!fishCountSlider) {
+        fishCountSlider = document.getElementById('fish-count-slider');
+    }
     if (fishCountSlider) {
         // Use debounced function for input events (for real-time display updates)
         const debouncedUpdateCapacity = debounce((newCapacity) => {
@@ -1120,12 +1134,20 @@ window.addEventListener('DOMContentLoaded', async () => {
             updateTankCapacity(newCapacity);
         });
 
-        // Initialize the display
-        updateTankCapacity(maxTankCapacity);
+        // Initialize the display (but don't reload fish, just update UI)
+        const displayElement = document.getElementById('fish-count-display');
+        if (displayElement) {
+            displayElement.textContent = maxTankCapacity;
+        }
     }
 
     // Load initial fish based on URL parameter or default
     await loadFishIntoTank(initialSort);
+    
+    // Update fish count display after initial load
+    setTimeout(() => {
+        updateCurrentFishCount();
+    }, 1000); // Wait 1 second for images to load
 
     // Clean up listener when page is unloaded
     window.addEventListener('beforeunload', () => {
@@ -1143,47 +1165,78 @@ function showFishInfoModal(fish) {
     fishImgCanvas.getContext('2d').drawImage(fish.fishCanvas, 0, 0);
     const imgDataUrl = fishImgCanvas.toDataURL();
 
-    // Scale display size for modal (max 120x80, maintain aspect ratio)
-    const modalWidth = Math.min(120, fish.width);
-    const modalHeight = Math.min(80, fish.height);
+    // Scale display size for modal (2x size, max 400x300, maintain aspect ratio)
+    const baseWidth = Math.min(200, fish.width);
+    const baseHeight = Math.min(150, fish.height);
+    const modalWidth = baseWidth * 2;
+    const modalHeight = baseHeight * 2;
 
-    let info = `<div style='text-align:center;'>`;
-
-    // Add highlighting if this is the user's fish
+    // Check if this is the user's fish
     const isCurrentUserFish = isUserFish(fish);
-    if (isCurrentUserFish) {
-        info += `<div style='margin-bottom: 10px; padding: 8px; background: linear-gradient(135deg, #fff9e6, #fff3d0); border: 2px solid #ffd700; border-radius: 6px; color: #333; font-weight: bold; font-size: 12px; box-shadow: 0 2px 6px rgba(255,215,0,0.3);'>Your Fish</div>`;
-    }
-
-    info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto 10px auto;border:1px solid #808080;background:#ffffff;' alt='Fish'><br>`;
-    info += `<div style='margin-bottom:10px;'>`;
+    const userToken = localStorage.getItem('userToken');
+    const showFavoriteButton = userToken && !isCurrentUserFish;
 
     // Make artist name a clickable link to their profile if userId exists
     const artistName = fish.artist || 'Anonymous';
     const userId = fish.userId;
+    const artistLink = userId 
+        ? `<a href="profile.html?userId=${encodeURIComponent(userId)}" target="_blank" style="color: #4A90E2; text-decoration: none; font-weight: 700;">${escapeHtml(artistName)}</a>`
+        : escapeHtml(artistName);
 
-    if (userId) {
-        info += `<strong>Artist:</strong> <a href="profile.html?userId=${encodeURIComponent(userId)}" target="_blank" style="color: #0000EE; text-decoration: underline;">${escapeHtml(artistName)}</a><br>`;
-    } else {
-        info += `<strong>Artist:</strong> ${escapeHtml(artistName)}<br>`;
+    let info = `<div class="fish-info-modal" style="background: linear-gradient(180deg, #F8F9FA 0%, #E8E8E8 100%); padding: 24px; border-radius: 16px;">`;
+
+    // Add highlighting if this is the user's fish
+    if (isCurrentUserFish) {
+        info += `<div style='margin-bottom: 16px; padding: 10px; background: linear-gradient(135deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border: 3px solid #BFA000; border-radius: 12px; color: #5D4E00; font-weight: 900; font-size: 13px; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2); text-align: center; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⭐ Your Fish</div>`;
     }
 
-    if (fish.createdAt) {
-        info += `<strong>Created:</strong> ${formatDate(fish.createdAt)}<br>`;
-    }
-    info += `<strong>Upvotes: <span class="modal-upvotes">${fish.upvotes || 0}</span></strong>`;
+    // Fish image
+    info += `<div style="text-align: center; margin-bottom: 20px;">`;
+    info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto;border:3px solid rgba(74, 144, 226, 0.3);background:#ffffff;border-radius:12px;box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);' alt='Fish'>`;
     info += `</div>`;
 
-    // Add voting controls using shared utility
-    info += createVotingControlsHTML(fish.docId, fish.upvotes || 0, 'modal-controls');
+    // Fish info section
+    info += `<div style='background: rgba(255, 255, 255, 0.8); padding: 16px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);'>`;
+    info += `<div style='margin-bottom: 8px; font-size: 14px; color: #666;'><strong style='color: #333;'>Artist:</strong> ${artistLink}</div>`;
+    info += `</div>`;
 
-    // Add "Add to Tank" button only if user is logged in
-    const userToken = localStorage.getItem('userToken');
-    if (userToken) {
-        info += `<div style='margin-top: 10px; text-align: center;'>`;
-        info += `<button onclick="showAddToTankModal('${fish.docId}')" style="border: 1px solid #000; padding: 4px 8px; cursor: pointer;">Add to Tank</button>`;
-        info += `</div>`;
+    // Action buttons: Like, Favorite, Report (并列，样式一致)
+    info += `<div class="voting-controls modal-controls" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 20px;">`;
+    
+    // Like button
+    info += `<button class="vote-btn upvote-btn" onclick="handleVote('${fish.docId}', 'up', this)" style="flex: 1; padding: 12px 16px; border: none; border-radius: 12px; background: linear-gradient(180deg, #6FE77D 0%, #4CD964 50%, #3CB54A 100%); border-bottom: 3px solid #2E8B3A; color: white; cursor: pointer; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 6px;">`;
+    info += `👍 <span class="vote-count upvote-count">${fish.upvotes || 0}</span>`;
+    info += `</button>`;
+    
+    // Favorite button (only show if user is logged in and not their own fish)
+    if (showFavoriteButton) {
+        info += `<button class="favorite-btn" id="fav-btn-${fish.docId}" onclick="if(typeof handleFavoriteClick === 'function') handleFavoriteClick('${fish.docId}', event); else alert('收藏功能暂未实现');" style="flex: 1; padding: 12px 16px; border: none; border-radius: 12px; background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E67E00 100%); border-bottom: 3px solid #CC6E00; color: white; cursor: pointer; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Add to favorites">`;
+        info += `⭐ Favorite`;
+        info += `</button>`;
     }
+    
+    // Report button
+    info += `<button class="report-btn" onclick="handleReport('${fish.docId}', this)" style="flex: 1; padding: 12px 16px; border: none; border-radius: 12px; background: linear-gradient(180deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border-bottom: 3px solid #BFA000; color: #5D4E00; cursor: pointer; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Report inappropriate content">`;
+    info += `🚩 Report`;
+    info += `</button>`;
+    
+    info += `</div>`;
+
+    // Add hover effects via CSS (will be handled by existing modal button styles)
+    info += `<style>
+        .modal-content .vote-btn:hover,
+        .modal-content .favorite-btn:hover,
+        .modal-content .report-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+        }
+        .modal-content .vote-btn:active,
+        .modal-content .favorite-btn:active,
+        .modal-content .report-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+        }
+    </style>`;
 
     // Add messages section placeholder
     info += `<div id="fish-messages-container" style="margin-top: 20px; text-align: left;"></div>`;
@@ -1244,30 +1297,16 @@ window.handleReport = handleReport;
 function showModal(html, onClose) {
     let modal = document.createElement('div');
     modal.className = 'modal';
-    modal.style.position = 'fixed';
-    modal.style.left = '0';
-    modal.style.top = '0';
-    modal.style.width = '100%';
-    modal.style.height = '100%';
-    modal.style.background = 'rgba(0,0,0,0.5)';
-    modal.style.display = 'flex';
-    modal.style.alignItems = 'center';
-    modal.style.justifyContent = 'center';
-    modal.style.zIndex = '1000';
 
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
-    modalContent.style.background = 'white';
-    modalContent.style.margin = '100px auto';
-    modalContent.style.padding = '20px';
-    modalContent.style.width = 'auto';
-    modalContent.style.minWidth = '300px';
-    modalContent.style.maxWidth = '90vw';
-    modalContent.style.maxHeight = '90vh';
-    modalContent.style.borderRadius = '10px';
-    modalContent.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
-    modalContent.style.overflow = 'auto';
-    modalContent.innerHTML = html;
+    
+    // Add close button if not already present in HTML
+    if (!html.includes('class="close"') && !html.includes("class='close'")) {
+        modalContent.innerHTML = '<span class="close">&times;</span>' + html;
+    } else {
+        modalContent.innerHTML = html;
+    }
 
     modal.appendChild(modalContent);
 
@@ -1275,6 +1314,13 @@ function showModal(html, onClose) {
         document.body.removeChild(modal);
         if (onClose) onClose();
     }
+    
+    // Add close button click handler
+    const closeBtn = modalContent.querySelector('.close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', close);
+    }
+    
     modal.addEventListener('click', (e) => {
         if (e.target === modal) close();
     });
@@ -1303,7 +1349,32 @@ function handleTankTap(e) {
         return;
     }
 
-    // Original scare behavior
+    // 检查是否点击到了鱼，如果点击到了鱼就不执行移动逻辑
+    const time = Date.now() / 500;
+    for (let i = fishes.length - 1; i >= 0; i--) {
+        const fish = fishes[i];
+        if (fish.isDying) continue;
+
+        const fishX = fish.x;
+        let fishY = fish.y;
+
+        // Account for swimming animation
+        const foodDetectionData = foodDetectionCache.get(fish.docId || `fish_${i}`);
+        const hasNearbyFood = foodDetectionData ? foodDetectionData.hasNearbyFood : false;
+        const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
+        fishY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
+
+        // Check if tap is within fish bounds
+        if (
+            tapX >= fishX && tapX <= fishX + fish.width &&
+            tapY >= fishY && tapY <= fishY + fish.height
+        ) {
+            // 点击到了鱼，不执行移动逻辑
+            return;
+        }
+    }
+
+    // Original scare behavior - 只在没有点击到鱼时执行
     const radius = 120;
     fishes.forEach(fish => {
         const fx = fish.x + fish.width / 2;
@@ -1362,6 +1433,9 @@ function handleFishTap(e) {
             tapX >= fishX && tapX <= fishX + fish.width &&
             tapY >= fishY && tapY <= fishY + fish.height
         ) {
+            // 点击到鱼时，阻止事件传播，只显示弹窗，不移动鱼
+            e.preventDefault();
+            e.stopPropagation();
             showFishInfoModal(fish);
             return; // Found a fish, don't handle tank tap
         }
@@ -1474,14 +1548,17 @@ resizeForMobile();
 // Optimize performance by caching food detection calculations
 let foodDetectionCache = new Map();
 let cacheUpdateCounter = 0;
+let lastFishCountUpdate = 0;
 
 function animateFishes() {
     swimCtx.clearRect(0, 0, swimCanvas.width, swimCanvas.height);
     const time = Date.now() / 500;
+    const currentTime = Date.now();
 
-    // Update fish count display occasionally
-    if (Math.floor(time) % 2 === 0) { // Every 2 seconds
+    // Update fish count display every 2 seconds
+    if (currentTime - lastFishCountUpdate > 2000) {
         updateCurrentFishCount();
+        lastFishCountUpdate = currentTime;
     }
 
     // Update food pellets
@@ -1512,7 +1589,7 @@ function animateFishes() {
         }
 
         // 检查鱼的健康值，如果已死亡但还没开始死亡动画，启动死亡动画
-        if (!fish.isDying && !fish.isEntering && isBattleMode) {
+        if (!fish.isDying && !fish.isEntering && window.isBattleMode) {
             const fishHealth = fish.health !== undefined ? fish.health : (fish.max_health || 100);
             const isAlive = fish.is_alive !== undefined ? fish.is_alive : true;
             
@@ -1982,9 +2059,117 @@ if (communityChatManager) {
     };
 }
 
+// 初始化群聊功能
+async function initializeGroupChat() {
+    if (!communityChatManager) {
+        console.warn('CommunityChatManager not initialized');
+        return;
+    }
+    
+    try {
+        // 从API获取环境变量配置
+        const response = await fetch('/api/config/group-chat');
+        if (!response.ok) {
+            console.log('Could not fetch group chat config, using default (OFF)');
+            // 检查用户本地设置
+            const userPreference = localStorage.getItem('groupChatEnabled');
+            if (userPreference === 'true') {
+                communityChatManager.setGroupChatEnabled(true);
+                updateGroupChatButton(true);
+            }
+            return;
+        }
+        
+        const config = await response.json();
+        const defaultEnabled = config.enabled || false;
+        
+        // 检查用户是否手动设置过（用户设置优先）
+        const userPreference = localStorage.getItem('groupChatEnabled');
+        let shouldEnable = defaultEnabled;
+        
+        if (userPreference !== null) {
+            // 用户有手动设置，使用用户设置
+            shouldEnable = userPreference === 'true';
+            console.log(`Using user preference: ${shouldEnable ? 'ON' : 'OFF'}`);
+        } else {
+            // 用户没有设置，使用环境变量默认值
+            shouldEnable = defaultEnabled;
+            console.log(`Using environment default: ${shouldEnable ? 'ON' : 'OFF'}`);
+        }
+        
+        // 设置群聊状态
+        communityChatManager.setGroupChatEnabled(shouldEnable);
+        updateGroupChatButton(shouldEnable);
+        
+        if (shouldEnable) {
+            console.log('✅ Group chat initialized and enabled');
+        } else {
+            console.log('ℹ️ Group chat initialized but disabled');
+        }
+    } catch (error) {
+        console.error('Failed to initialize group chat:', error);
+        // 默认禁用
+        communityChatManager.setGroupChatEnabled(false);
+        updateGroupChatButton(false);
+    }
+}
+
+// 更新群聊开关按钮状态
+function updateGroupChatButton(enabled) {
+    const toggleGroupChatBtn = document.getElementById('toggle-group-chat-btn');
+    if (!toggleGroupChatBtn) return;
+    
+    const iconSpan = toggleGroupChatBtn.querySelector('.game-control-icon');
+    const textSpan = toggleGroupChatBtn.querySelector('span:last-child');
+    
+    // 保持橙色，但根据状态调整渐变强度
+    toggleGroupChatBtn.className = 'game-btn game-btn-orange';
+    
+    if (enabled) {
+        // 启用状态：使用明亮的橙色渐变
+        toggleGroupChatBtn.style.background = 'linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E67E00 100%)';
+        toggleGroupChatBtn.style.borderBottom = '3px solid #CC6E00';
+        toggleGroupChatBtn.style.color = 'white';
+        toggleGroupChatBtn.style.textShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+        if (iconSpan) iconSpan.textContent = '💬';
+        if (textSpan) textSpan.textContent = 'Chat ON';
+    } else {
+        // 禁用状态：使用较暗的橙色渐变
+        toggleGroupChatBtn.style.background = 'linear-gradient(180deg, #FF9500 0%, #E67E00 50%, #CC6E00 100%)';
+        toggleGroupChatBtn.style.borderBottom = '3px solid #B85C00';
+        toggleGroupChatBtn.style.color = 'white';
+        toggleGroupChatBtn.style.textShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+        if (iconSpan) iconSpan.textContent = '💬';
+        if (textSpan) textSpan.textContent = 'Chat OFF';
+    }
+}
+
+// 切换群聊开关
+function toggleGroupChat() {
+    if (!communityChatManager) {
+        console.warn('CommunityChatManager not initialized');
+        return;
+    }
+    
+    const currentState = communityChatManager.isGroupChatEnabled();
+    const newState = !currentState;
+    
+    // 更新管理器状态
+    communityChatManager.setGroupChatEnabled(newState);
+    
+    // 保存用户偏好到 localStorage
+    localStorage.setItem('groupChatEnabled', newState ? 'true' : 'false');
+    
+    // 更新按钮显示
+    updateGroupChatButton(newState);
+    
+    console.log(`Group chat ${newState ? 'enabled' : 'disabled'} by user`);
+}
+
 // 聊天面板切换功能
 const chatPanel = document.getElementById('chat-panel');
 const toggleChatBtn = document.getElementById('toggle-chat-btn');
+const toggleGroupChatBtn = document.getElementById('toggle-group-chat-btn');
 const closeChatBtn = document.getElementById('close-chat-panel');
 const tankWrapper = document.getElementById('tank-wrapper-main');
 
@@ -1995,24 +2180,51 @@ function toggleChatPanel() {
     
     if (isChatPanelOpen) {
         // 显示聊天面板
+        chatPanel.style.display = 'flex';
+        chatPanel.style.visibility = 'visible';
         chatPanel.style.right = '0';
         tankWrapper.style.marginRight = '0';
-        toggleChatBtn.textContent = '💬 关闭';
+        // 更新按钮文本（保持图标和文本结构）
+        const textSpan = toggleChatBtn.querySelector('span:last-child');
+        if (textSpan) {
+            textSpan.textContent = 'Close';
+        }
     } else {
         // 隐藏聊天面板
         chatPanel.style.right = '-350px';
         tankWrapper.style.marginRight = '0';
-        toggleChatBtn.textContent = '💬 聊天';
+        // 延迟隐藏，等待动画完成
+        setTimeout(() => {
+            chatPanel.style.display = 'none';
+            chatPanel.style.visibility = 'hidden';
+        }, 300);
+        // 恢复按钮文本
+        const textSpan = toggleChatBtn.querySelector('span:last-child');
+        if (textSpan) {
+            textSpan.textContent = 'Chat Box';
+        }
     }
 }
 
+// Chat Box 按钮：只用于切换聊天面板
 if (toggleChatBtn) {
     toggleChatBtn.addEventListener('click', toggleChatPanel);
+    toggleChatBtn.title = '打开/关闭聊天面板';
+}
+
+// Chat ON/OFF 按钮：用于切换所有聊天功能（群聊和自语）
+if (toggleGroupChatBtn) {
+    toggleGroupChatBtn.addEventListener('click', toggleGroupChat);
+    toggleGroupChatBtn.title = '开启/关闭所有聊天功能（群聊和自语）';
 }
 
 if (closeChatBtn) {
     closeChatBtn.addEventListener('click', toggleChatPanel);
 }
+
+// 导出函数供全局使用
+window.toggleGroupChat = toggleGroupChat;
+window.updateGroupChatButton = updateGroupChatButton;
 
 // 立即触发聊天按钮
 const triggerChatBtn = document.getElementById('trigger-chat-btn');

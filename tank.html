@@ -16,148 +16,15 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://fishtalk.app/tank.html">
     
-    <link rel="stylesheet" href="src/css/style.css?v=2.0">
     <link rel="stylesheet" href="src/css/animations.css?v=2.0">
-    <link rel="stylesheet" href="src/css/cute-theme.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
+    <link rel="stylesheet" href="src/css/style.css?v=2.0">
+    <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
+    <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
     <link rel="icon" type="image/png" href="/fish_logo.png">
     
     <style>
-        /* Modal styling - cute theme */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .modal-content {
-            background: white;
-            margin: 100px auto;
-            padding: 25px;
-            width: 420px;
-            max-width: 90%;
-            border-radius: 20px;
-            box-shadow: 0 15px 50px rgba(99, 102, 241, 0.3);
-            animation: fadeInScale 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border: 3px solid #C7D2FE;
-        }
-        
-        /* Special styling for add-to-tank modal */
-        .modal-content.wide {
-            width: 600px;
-            max-width: 90vw;
-        }
-        
-        .close {
-            float: right;
-            cursor: pointer;
-            font-size: 28px;
-            color: #999;
-            transition: all 0.3s ease;
-            line-height: 1;
-            font-weight: 300;
-        }
-        
-        .close:hover {
-            color: #6366F1;
-            transform: rotate(90deg) scale(1.1);
-        }
-        
-        /* Fish info modal specific styles */
-        .fish-info-modal {
-            text-align: center;
-        }
-        
-        .fish-info-modal h3 {
-            margin-top: 0;
-            color: #333;
-            font-size: 18px;
-        }
-        
-        .fish-info-modal .fish-details {
-            margin: 15px 0;
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .fish-info-modal .fish-score {
-            font-size: 16px;
-            font-weight: bold;
-            color: #007bff;
-            margin: 10px 0;
-        }
-        
-        /* Voting controls styling */
-        .voting-controls {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            align-items: center;
-            margin-top: 20px;
-        }
-        
-        .vote-btn {
-            padding: 10px 18px;
-            border: 2px solid #E0E0E0;
-            background: white;
-            cursor: pointer;
-            border-radius: 15px;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            font-size: 15px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .vote-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .upvote-btn {
-            color: #A5B4FC;
-        }
-        
-        .upvote-btn:hover {
-            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
-            border-color: #6366F1;
-            color: #4F46E5;
-        }
-        
-        
-        .report-btn {
-            padding: 10px 14px;
-            border: 2px solid #E0E0E0;
-            background: white;
-            cursor: pointer;
-            border-radius: 15px;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            color: #FFD54F;
-            font-weight: 600;
-        }
-        
-        .report-btn:hover {
-            background: linear-gradient(135deg, #FFF9E6, #FFE082);
-            border-color: #FFD54F;
-            color: #F57C00;
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 5px 15px rgba(255, 213, 79, 0.3);
-        }
-        
-        .vote-count {
-            font-weight: bold;
-        }
-        
-        /* Tank selection in modal */
+        /* Tank selection in modal - 游戏风格优化 */
         .tank-selection-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -168,133 +35,169 @@
         }
         
         .tank-selection-item {
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 16px;
-            background: white;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
         }
         
         .tank-selection-item:hover {
-            border-color: #007bff;
-            background: #f8f9fa;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+            border-color: #4A90E2;
+            background: linear-gradient(180deg, #F8F9FA 0%, #E8E8E8 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2), 0 8px 16px rgba(74, 144, 226, 0.3);
         }
         
         .tank-selection-item h4 {
-            margin: 0 0 8px 0;
+            margin: 0 0 10px 0;
             color: #333;
-            font-size: 1.1em;
-            font-weight: 600;
+            font-size: 1.2em;
+            font-weight: 900;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .tank-selection-item .tank-description {
-            margin: 0 0 8px 0;
+            margin: 0 0 12px 0;
             color: #666;
             font-size: 14px;
-            line-height: 1.4;
+            line-height: 1.6;
         }
         
         .tank-selection-stats {
             display: flex;
-            gap: 15px;
-            margin: 8px 0 12px 0;
-            font-size: 13px;
+            gap: 16px;
+            margin: 12px 0 16px 0;
+            font-size: 14px;
             color: #666;
+            font-weight: 600;
         }
         
         .tank-selection-stats .stat-item {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
         
         .tank-privacy-indicator {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
+            top: 16px;
+            right: 16px;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         
         .tank-privacy-indicator.public {
-            background: #d4edda;
-            color: #155724;
+            background: linear-gradient(180deg, #6FE77D 0%, #4CD964 50%, #3CB54A 100%);
+            border-bottom: 2px solid #2E8B3A;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         
         .tank-privacy-indicator.private {
-            background: #f8d7da;
-            color: #721c24;
+            background: linear-gradient(180deg, #FF6259 0%, #FF3B30 50%, #CC2920 100%);
+            border-bottom: 2px solid #991F19;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         
         .add-to-tank-btn {
             width: 100%;
-            padding: 10px 15px;
-            border: 2px solid #007bff;
-            background: #007bff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+            border-bottom: 3px solid #2C5F8F;
             color: white;
-            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.15s ease;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .add-to-tank-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            pointer-events: none;
         }
         
         .add-to-tank-btn:hover {
-            background: #0056b3;
-            border-color: #0056b3;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+        }
+        
+        .add-to-tank-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
         }
         
         .no-tanks-message {
             text-align: center;
-            padding: 30px 20px;
-            border: 2px dashed #ddd;
-            border-radius: 12px;
-            background: #f8f9fa;
+            padding: 40px 24px;
+            border: 3px dashed rgba(74, 144, 226, 0.3);
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #F8F9FA 0%, #E8E8E8 100%);
             color: #666;
         }
         
         .no-tanks-message h3 {
-            margin: 0 0 10px 0;
+            margin: 0 0 12px 0;
             color: #333;
-            font-size: 1.2em;
+            font-size: 1.3em;
+            font-weight: 900;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .no-tanks-message p {
-            margin: 0 0 15px 0;
-            line-height: 1.5;
+            margin: 0 0 20px 0;
+            line-height: 1.6;
+            font-size: 15px;
         }
         
         .no-tanks-message .btn {
             display: inline-block;
             text-decoration: none;
-            padding: 10px 20px;
-            border: 2px solid #007bff;
-            background: white;
-            color: #007bff;
-            border-radius: 5px;
-            transition: all 0.2s ease;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+            border-bottom: 3px solid #2C5F8F;
+            color: white;
+            font-weight: 700;
+            transition: all 0.15s ease;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
         }
         
         .no-tanks-message .btn:hover {
-            background: #007bff;
-            color: white;
             transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+        }
+        
+        .no-tanks-message .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
         }
         
         /* Mobile-specific styles */
         @media (max-width: 768px) {
-            .modal-content {
-                width: 90%;
-                margin: 50px auto;
-            }
             
             body {
                 margin: 0;
@@ -307,7 +210,7 @@
             
             #swim-canvas {
                 width: 100vw !important;
-                height: calc(100vh - 140px) !important;
+                height: calc(100vh - 80px) !important;
                 max-width: 100vw !important;
                 border: none !important;
                 display: block !important;
@@ -318,57 +221,11 @@
                 z-index: 1;
             }
             
-            .cute-controls-container {
-                padding: 6px 8px !important;
-            }
-            
-            .cute-controls-container h1 {
-                font-size: 14px !important;
-            }
-            
-            .cute-controls-container .control-row {
-                gap: 6px !important;
-            }
-            
-            .cute-controls-container .control-row > div {
-                flex-wrap: wrap;
-                gap: 4px !important;
-            }
-            
-            .cute-controls-container .control-row > div > div {
-                padding: 4px 8px !important;
-            }
-            
-            .cute-controls-container .cute-button {
-                padding: 5px 10px !important;
-                font-size: 11px !important;
-            }
-            
-            .cute-controls-container select {
-                padding: 5px 8px !important;
-                font-size: 11px !important;
-            }
-            
-            .cute-controls-container #tank-share-btn {
-                padding: 5px 12px !important;
-                font-size: 11px !important;
-            }
-            
-            .fish-count-control {
-                min-width: 100% !important;
-                margin-bottom: 4px;
-            }
-            
-            .feed-hint {
-                font-size: 9px !important;
-                text-align: center;
-                width: 100%;
-                padding: 4px !important;
-            }
-            
-            .feed-hint strong {
-                display: block;
-                margin-bottom: 2px;
+            .game-tank-controls {
+                bottom: 0 !important;
+                padding: 6px 12px !important;
+                flex-direction: column !important;
+                gap: 8px !important;
             }
             
             .desktop-only {
@@ -407,23 +264,175 @@
             
             #swim-canvas {
                 width: 100vw !important;
-                height: 100vh !important;
+                height: calc(100vh - 80px) !important;
                 max-width: 100vw !important;
                 border: none !important;
                 display: block !important;
                 margin: 0 !important;
             }
             
-            .controls-container {
-                position: static;
-                transform: none;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 15px;
-                border-top: 1px solid #ddd;
-                backdrop-filter: blur(10px);
-                text-align: center;
-                margin: 0;
+            .game-tank-controls {
+                bottom: 0 !important;
             }
+        }
+        
+        /* 游戏风格选择器 */
+        .game-select {
+            transition: all 0.2s ease;
+        }
+        
+        .game-select:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+        }
+        
+        .game-select:focus {
+            outline: none;
+            border-color: #6366F1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        /* 3D风格图标 */
+        .game-icon-3d {
+            display: inline-block;
+            font-size: 16px;
+            line-height: 1;
+            text-shadow: 
+                0 2px 0 rgba(0, 0, 0, 0.3),
+                0 3px 4px rgba(0, 0, 0, 0.2),
+                0 0 8px rgba(255, 255, 255, 0.3);
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+            transform: perspective(100px) rotateX(-5deg);
+            transition: all 0.2s ease;
+        }
+        
+        .game-icon-3d:hover {
+            transform: perspective(100px) rotateX(0deg) scale(1.1);
+            text-shadow: 
+                0 3px 0 rgba(0, 0, 0, 0.3),
+                0 4px 6px rgba(0, 0, 0, 0.3),
+                0 0 12px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 选择器内的图标 */
+        .game-select option {
+            font-weight: 600;
+        }
+        
+        /* 控制栏内的图标 - 3D立体风格，无边框 */
+        .game-control-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            line-height: 1;
+            /* 多层3D阴影效果 */
+            text-shadow: 
+                0 3px 0 rgba(0, 0, 0, 0.4),
+                0 4px 6px rgba(0, 0, 0, 0.3),
+                0 6px 12px rgba(0, 0, 0, 0.2),
+                0 0 12px rgba(255, 255, 255, 0.4),
+                0 0 20px rgba(255, 255, 255, 0.2);
+            /* 3D透视变换 */
+            transform: perspective(200px) rotateX(-8deg) translateZ(0);
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4)) 
+                    drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+            transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+        }
+        
+        /* 图标顶部高光效果 */
+        .game-control-icon::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 20%;
+            width: 60%;
+            height: 30%;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.6) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .game-control-icon:hover {
+            transform: perspective(200px) rotateX(0deg) translateY(-3px) scale(1.15) translateZ(10px);
+            text-shadow: 
+                0 4px 0 rgba(0, 0, 0, 0.4),
+                0 6px 8px rgba(0, 0, 0, 0.4),
+                0 8px 16px rgba(0, 0, 0, 0.3),
+                0 0 16px rgba(255, 255, 255, 0.6),
+                0 0 28px rgba(255, 255, 255, 0.4);
+            filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5)) 
+                    drop-shadow(0 0 12px rgba(255, 255, 255, 0.5));
+        }
+        
+        .game-control-icon:active {
+            transform: perspective(200px) rotateX(5deg) translateY(1px) scale(1.05) translateZ(0);
+            text-shadow: 
+                0 2px 0 rgba(0, 0, 0, 0.4),
+                0 3px 4px rgba(0, 0, 0, 0.3),
+                0 0 8px rgba(255, 255, 255, 0.3);
+        }
+        
+        /* 鱼数量图标 - 3D立体风格，无边框 */
+        .game-fish-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            line-height: 1;
+            /* 金色3D阴影效果 */
+            text-shadow: 
+                0 3px 0 rgba(0, 0, 0, 0.4),
+                0 4px 6px rgba(0, 0, 0, 0.3),
+                0 6px 12px rgba(0, 0, 0, 0.2),
+                0 0 12px rgba(255, 215, 0, 0.5),
+                0 0 20px rgba(255, 215, 0, 0.3),
+                0 0 30px rgba(255, 255, 255, 0.2);
+            /* 3D透视变换 */
+            transform: perspective(200px) rotateX(-8deg) translateZ(0);
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4)) 
+                    drop-shadow(0 0 10px rgba(255, 215, 0, 0.4))
+                    drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+            transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+        }
+        
+        /* 鱼图标顶部高光效果 */
+        .game-fish-icon::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 20%;
+            width: 60%;
+            height: 30%;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.7) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.9;
+        }
+        
+        .game-fish-icon:hover {
+            transform: perspective(200px) rotateX(0deg) translateY(-3px) scale(1.15) translateZ(10px);
+            text-shadow: 
+                0 4px 0 rgba(0, 0, 0, 0.4),
+                0 6px 8px rgba(0, 0, 0, 0.4),
+                0 8px 16px rgba(0, 0, 0, 0.3),
+                0 0 16px rgba(255, 215, 0, 0.7),
+                0 0 28px rgba(255, 215, 0, 0.5),
+                0 0 40px rgba(255, 255, 255, 0.4);
+            filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5)) 
+                    drop-shadow(0 0 15px rgba(255, 215, 0, 0.6))
+                    drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+        }
+        
+        .game-fish-icon:active {
+            transform: perspective(200px) rotateX(5deg) translateY(1px) scale(1.05) translateZ(0);
+            text-shadow: 
+                0 2px 0 rgba(0, 0, 0, 0.4),
+                0 3px 4px rgba(0, 0, 0, 0.3),
+                0 0 8px rgba(255, 215, 0, 0.4);
         }
         
         /* Responsive design for tank selection modal */
@@ -487,7 +496,7 @@
     }
     </script>
 </head>
-<body>
+<body class="game-style">
   <!-- 海洋风格背景气泡 -->
   <div class="background-bubbles"></div>
 
@@ -519,8 +528,8 @@
       </div>
     </div>
     
-    <!-- 聊天面板 (默认隐藏，靠右贴边) -->
-    <div class="chat-panel" id="chat-panel" style="position: fixed; right: -350px; top: 80px; width: 340px; height: calc(100vh - 100px); background: rgba(255, 255, 255, 0.98); border-radius: 20px 0 0 20px; padding: 20px; box-shadow: -4px 0 32px rgba(0, 0, 0, 0.15); backdrop-filter: blur(10px); border: 2px solid rgba(99, 102, 241, 0.2); border-right: none; display: flex; flex-direction: column; transition: right 0.3s ease; z-index: 999;">
+    <!-- 聊天面板 (默认完全隐藏) -->
+    <div class="chat-panel" id="chat-panel" style="position: fixed; right: -350px; top: 80px; width: 340px; height: calc(100vh - 100px); background: rgba(255, 255, 255, 0.98); border-radius: 20px 0 0 20px; padding: 20px; box-shadow: -4px 0 32px rgba(0, 0, 0, 0.15); backdrop-filter: blur(10px); border: 2px solid rgba(99, 102, 241, 0.2); border-right: none; display: none; flex-direction: column; transition: right 0.3s ease; z-index: 999; visibility: hidden;">
       <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid rgba(99, 102, 241, 0.1);">
         <span style="font-size: 24px;">💬</span>
         <h3 style="margin: 0; color: #6366F1; font-size: 18px;">鱼群聊天</h3>
@@ -546,83 +555,53 @@
     </div>
   </div>
   
-  <!-- 控制栏 -->
-  <div class="cute-controls-container" style="padding: 10px 15px;">
-    <!-- 标题和主要控制 -->
-    <div class="control-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-        <h1 style="margin: 0; font-size: 20px; color: #6366F1; display: flex; align-items: center; gap: 6px;">
-          🐟 Global Fish Tank
-        </h1>
-        <p style="margin: 4px 0 0 0; font-size: 13px; color: #666; font-weight: 500;">
-          🌍 A living aquarium of 50K+ doodles from artists worldwide
-        </p>
-      </div>
-      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px;">
-        <!-- 排序控制 -->
-        <div style="display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.5); padding: 6px 12px; border-radius: 12px; backdrop-filter: blur(10px);">
-          <span style="font-size: 16px;">🔍</span>
-          <select id="tank-sort" class="cute-select" style="padding: 8px 12px; font-size: 13px; border: 2px solid #C7D2FE; border-radius: 10px; background: white; font-weight: 500; cursor: pointer;">
-            <option value="recent">🆕 Most Recent</option>
-            <option value="popular">⭐ Most Popular</option>
-            <option value="random">🎲 Random</option>
-          </select>
-          <button id="refresh-tank" class="cute-button cute-button-primary" style="padding: 8px 16px; font-size: 13px; border-radius: 10px; font-weight: 500;">
-            🔄 Refresh
-          </button>
-        </div>
-      </div>
-      
-      <!-- 右侧按钮组 -->
-      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-        <a href="index.html" class="cute-button cute-button-primary" style="padding: 6px 14px; font-size: 13px; background: #27ae60;">
-          🎨 Draw Fish
-        </a>
-        <button id="tank-share-btn" class="cute-button" style="padding: 6px 16px; font-size: 13px; background: linear-gradient(135deg, #FF6B9D, #FF8F6B); color: white; border: none; font-weight: 600; box-shadow: 0 4px 12px rgba(255, 107, 157, 0.4); transition: all 0.3s ease;">
-          📤 Share
-        </button>
-        <button id="toggle-chat-btn" class="cute-button" style="padding: 6px 16px; font-size: 13px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); transition: all 0.3s ease;">
-          💬 聊天
-        </button>
-        <!-- Battle button hidden for community chat system -->
-        <!-- <button id="tank-battle-btn" class="cute-button" style="padding: 6px 16px; font-size: 13px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4); transition: all 0.3s ease;">
-          ⚔️ Battle
-        </button> -->
-        <label class="cute-checkbox" style="margin: 0;">
-          <input type="checkbox" id="notifications-toggle" checked>
-          <span class="checkmark"></span>
-          <span style="font-size: 13px;">🔔</span>
-        </label>
-        <a href="rank.html" class="cute-button cute-button-primary" style="padding: 6px 12px; font-size: 13px;">⭐</a>
-        <a href="profile.html" class="cute-button cute-button-primary" style="padding: 6px 12px; font-size: 13px;">👤</a>
-        <a href="myfish.html" id="my-fish-link" class="cute-button cute-button-primary" style="padding: 6px 12px; font-size: 13px; display: none;">🐟</a>
-        <a href="mytank.html" id="my-tanks-link" class="cute-button cute-button-primary" style="padding: 6px 12px; font-size: 13px;">🏆</a>
-      </div>
+  <!-- 游戏风格控制栏 -->
+  <div class="game-tank-controls" style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(180deg, rgba(74, 144, 226, 0.95) 0%, rgba(53, 122, 189, 0.95) 100%); backdrop-filter: blur(8px); padding: 8px 16px; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3); border-top: 2px solid rgba(255, 255, 255, 0.3); z-index: 999; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+    <!-- 左侧：排序控制 -->
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <select id="tank-sort" class="game-select" style="padding: 6px 12px; font-size: 13px; border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 12px; cursor: pointer; background: linear-gradient(180deg, rgba(74, 144, 226, 0.9) 0%, rgba(53, 122, 189, 0.9) 100%); color: white; font-weight: 700; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'><path fill=\'%23ffffff\' d=\'M6 9L1 4h10z\'/></svg>'); background-repeat: no-repeat; background-position: right 8px center; padding-right: 32px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
+        <option value="recent" style="background: rgba(74, 144, 226, 0.95); color: white;">🆕 Most Recent</option>
+        <option value="popular" style="background: rgba(74, 144, 226, 0.95); color: white;">⭐ Most Popular</option>
+        <option value="random" style="background: rgba(74, 144, 226, 0.95); color: white;">🎲 Random</option>
+      </select>
+      <button id="refresh-tank" class="game-btn game-btn-white" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
+        <span class="game-control-icon">🔄</span>
+        <span>Refresh</span>
+      </button>
     </div>
     
-    <!-- 鱼数量滑块和喂食提示 -->
-    <div class="control-row" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-      <div class="fish-count-control" style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 250px;">
-        <span class="control-label" style="font-size: 13px;">🐠 Fish count:</span>
-        <span id="fish-count-display" class="cute-badge" style="font-size: 12px;">50</span>
-        <input type="range" id="fish-count-slider" min="1" max="100" value="50" class="cute-slider" style="flex: 1;">
-        <span id="current-fish-count" class="count-detail" style="font-size: 12px;"></span>
-      </div>
-      
-      <div class="feed-hint" style="font-size: 12px; margin: 0;">
-        <strong>🍔 Feed the fish:</strong> 
-        <span class="desktop-only">Hold Shift + Click or Right-click</span>
-        <span class="mobile-only">Double-tap or Long-press</span>
-        to drop food pellets
-      </div>
+    <!-- 中间：鱼数量控制 -->
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: rgba(255, 255, 255, 0.15); padding: 6px 12px; border-radius: 12px; backdrop-filter: blur(4px);">
+      <span class="game-fish-icon">🐠</span>
+      <span style="font-size: 13px; color: white; font-weight: 700; min-width: 30px; text-align: center; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 8px rgba(255, 255, 255, 0.3);" id="fish-count-display">20</span>
+      <input type="range" id="fish-count-slider" min="1" max="100" value="20" style="width: 120px; cursor: pointer; accent-color: #FFD700; height: 6px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+      <span id="current-fish-count" style="font-size: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);"></span>
     </div>
     
-    <!-- 加载指示器 -->
-    <div id="loading-indicator" class="cute-loader" style="display: none;">
-      <div class="cute-loader-dot"></div>
-      <div class="cute-loader-dot"></div>
-      <div class="cute-loader-dot"></div>
+    <!-- 右侧：操作按钮 -->
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <a href="index.html" class="game-btn game-btn-green" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
+        <span class="game-control-icon">🎨</span>
+        <span>Draw</span>
+      </a>
+      <button id="tank-share-btn" class="game-btn game-btn-orange" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
+        <span class="game-control-icon">📤</span>
+        <span>Share</span>
+      </button>
+      <button id="toggle-chat-btn" class="game-btn game-btn-orange" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
+        <span class="game-control-icon">💬</span>
+        <span>Chat Box</span>
+      </button>
+      <button id="toggle-group-chat-btn" class="game-btn game-btn-orange" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
+        <span class="game-control-icon">💬</span>
+        <span>Chat ON</span>
+      </button>
     </div>
+  </div>
+  
+  <!-- 加载指示器 -->
+  <div id="loading-indicator" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 1000; background: rgba(255, 255, 255, 0.95); padding: 20px 40px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
+    <div style="text-align: center; color: #6366F1; font-weight: 600;">Loading...</div>
   </div>
   <script src="src/js/footer-utils.js"></script>
   <!-- Supabase SDK -->
@@ -647,7 +626,9 @@
     <script src="src/js/tank.js?v=4.0"></script>
   <script>
     // Initialize navigation authentication
-    initializeAuthNavigation();
+    if (typeof initializeAuthNavigation === 'function') {
+      initializeAuthNavigation();
+    }
     
     // Share button handler - directly show custom modal for better UX
     const tankShareBtn = document.getElementById('tank-share-btn');

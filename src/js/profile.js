@@ -204,6 +204,11 @@ function displayProfile(profile, searchedUserId = null) {
     // Show profile content
     document.getElementById('profile-content').style.display = 'block';
     document.getElementById('profile-empty').style.display = 'none';
+    
+    // Load messages if MessageUI is available
+    if (typeof MessageUI !== 'undefined' && profileUserId) {
+        loadUserMessages(profileUserId);
+    }
 }
 
 // Show loading state
@@ -795,3 +800,50 @@ function createBackgroundBubbles() {
 
 // 页面加载时初始化气泡效果
 createBackgroundBubbles();
+
+/**
+ * 加载用户收到的留言
+ * @param {string} userId - 用户ID
+ */
+async function loadUserMessages(userId) {
+    try {
+        const messagesSection = document.getElementById('profile-messages-section');
+        const messagesContainer = document.getElementById('profile-messages-container');
+        const messagesCount = document.getElementById('profile-messages-count');
+        
+        if (!messagesSection || !messagesContainer) {
+            return;
+        }
+
+        // 显示留言区域
+        messagesSection.style.display = 'block';
+
+        // 使用 MessageUI 渲染留言
+        if (typeof MessageUI !== 'undefined') {
+            await MessageUI.renderMessagesSection('profile-messages-container', 'to_owner', userId, {
+                showForm: false,
+                showFishInfo: true,
+                showDeleteBtn: true,
+                title: '收到的留言'
+            });
+
+            // 更新留言数量
+            const messages = messagesContainer.querySelectorAll('.message-card');
+            if (messagesCount) {
+                messagesCount.textContent = messages.length;
+            }
+        } else {
+            messagesContainer.innerHTML = '<div class="messages-empty">留言功能加载中...</div>';
+        }
+    } catch (error) {
+        console.error('Load user messages error:', error);
+        const messagesContainer = document.getElementById('profile-messages-container');
+        if (messagesContainer) {
+            messagesContainer.innerHTML = `
+                <div class="message-error">
+                    加载留言失败：${error.message || '未知错误'}
+                </div>
+            `;
+        }
+    }
+}

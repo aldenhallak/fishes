@@ -358,6 +358,26 @@ class TankLayoutManager {
   }
   
   /**
+   * Clear all dialogues from all rows
+   */
+  clearAllDialogues() {
+    for (const row of this.rows) {
+      // Get all active dialogue IDs before clearing
+      const activeDialogueIds = Array.from(row.activeDialogues.keys());
+      
+      // Remove all dialogues
+      for (const fishId of activeDialogueIds) {
+        row.removeDialogue(fishId);
+      }
+      
+      // Clear the queue as well
+      row.dialogueQueue = [];
+    }
+    
+    console.log('✅ All dialogues cleared');
+  }
+  
+  /**
    * Render all dialogues in the tank
    */
   renderDialogues() {

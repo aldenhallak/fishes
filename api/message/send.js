@@ -127,8 +127,8 @@ module.exports = async function handler(req, res) {
       // 验证用户是否存在
       const userCheckQuery = `
         query CheckUser($userId: String!) {
-          users_by_pk(user_id: $userId) {
-            user_id
+          users_by_pk(id: $userId) {
+            id
           }
         }
       `;

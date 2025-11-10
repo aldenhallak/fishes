@@ -20,6 +20,9 @@
   font-weight: 500;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  flex-shrink: 0; /* 防止登录按钮被压缩 */
+  white-space: nowrap; /* 防止文字换行 */
+  z-index: 1002; /* 确保在导航栏上方 */
 }
 
 .login-btn:hover {
@@ -276,6 +279,7 @@
   position: relative;
   display: none;
   align-items: center;
+  flex-shrink: 0; /* 防止用户容器被压缩 */
 }
 
 .user-menu-trigger {
@@ -294,6 +298,9 @@
   color: white;
   font-weight: 700;
   font-size: 14px; /* 减小字体大小 */
+  flex-shrink: 0; /* 防止用户菜单被压缩 */
+  white-space: nowrap; /* 防止文字换行 */
+  z-index: 1002; /* 确保在导航栏上方 */
   height: auto;
 }
 

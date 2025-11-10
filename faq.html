@@ -16,8 +16,11 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://fishtalk.app/faq.html">
     
+    <link rel="stylesheet" href="src/css/animations.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
     <link rel="stylesheet" href="src/css/style.css?v=2.0">
-    <link rel="stylesheet" href="src/css/cute-theme.css?v=2.0">
+    <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
+    <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
     <link rel="icon" type="image/png" href="/fish_logo.png">
     
     <!-- Google tag (gtag.js) -->
@@ -130,6 +133,7 @@
             padding: 40px 20px;
             background: white;
             min-height: 100vh;
+            padding-top: 70px; /* 为导航栏留出空间 */
         }
         
         .faq-header {
@@ -326,8 +330,69 @@
         }
     </style>
 </head>
-<body>
-    <div class="faq-container">
+<body class="game-style">
+  <!-- 海洋风格背景气泡 -->
+  <div class="background-bubbles"></div>
+
+  <!-- Top Navigation Bar -->
+  <nav class="game-nav">
+    <!-- 汉堡菜单按钮 -->
+    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="打开菜单">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <div class="game-logo">
+      FishTalk.app
+    </div>
+    <div class="game-nav-links">
+      <a href="#about" class="game-btn game-btn-white">
+        <span>ℹ️</span>
+        <span>About</span>
+      </a>
+      <a href="test-center.html" class="game-btn game-btn-white">
+        <span>🧪</span>
+        <span>Test</span>
+      </a>
+      <!-- 登录按钮和用户菜单将由 auth-ui.js 动态插入 -->
+    </div>
+  </nav>
+
+  <!-- 侧边栏菜单 -->
+  <div id="sidebar-menu" class="sidebar-menu">
+    <div class="sidebar-header">
+      <h3>🐟 Menu</h3>
+      <button id="close-sidebar-btn" class="close-sidebar-btn" aria-label="Close menu">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link">
+        <span class="sidebar-icon">🎨</span>
+        <span>Draw Fish</span>
+      </a>
+      <a href="tank.html" class="sidebar-link">
+        <span class="sidebar-icon">🌊</span>
+        <span>Global Tank</span>
+      </a>
+      <a href="mytank.html" class="sidebar-link">
+        <span class="sidebar-icon">🏆</span>
+        <span>My Tank</span>
+      </a>
+      <a href="rank.html" class="sidebar-link">
+        <span class="sidebar-icon">⭐</span>
+        <span>Rank</span>
+      </a>
+      <a href="#" id="sidebar-share-btn" class="sidebar-link">
+        <span class="sidebar-icon">📤</span>
+        <span>Share</span>
+      </a>
+    </nav>
+  </div>
+  
+  <!-- 侧边栏遮罩 -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <div class="faq-container" style="padding-top: 70px;">
         <div class="breadcrumb">
             <a href="index.html">Home</a> / FAQ
         </div>
@@ -665,33 +730,74 @@
             </ul>
         </div>
         
-        <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid #e0e0e0; text-align: center; color: #666;">
-            <p>&copy; 2024 FishTalk.app - Draw a Fish Online for Free</p>
-        </footer>
+    </div>
+
+  <!-- Bottom Info Bar -->
+  <footer class="game-footer">
+    <!-- SEO Content Section -->
+    <div style="max-width: 1000px; margin: 4px auto; padding: 6px 16px; background: rgba(255, 255, 255, 0.08); border-radius: 12px; text-align: center;">
+      <p style="font-size: 12px; line-height: 1.4; color: rgba(255, 255, 255, 0.9); margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+        <strong>Draw a fish online</strong> and watch it swim in our <strong>global tank</strong> with 50,000+ doodles from artists worldwide! Our free AI tool validates your fish art in real-time. See <strong>weird, creative, and funny fish</strong> drawings. Perfect for artists, students, teachers.
+      </p>
     </div>
     
-    <script>
-        function toggleFaq(element) {
-            const answer = element.nextElementSibling;
-            const toggle = element.querySelector('.faq-toggle');
-            
-            // Close all other FAQs
-            document.querySelectorAll('.faq-answer').forEach(a => {
-                if (a !== answer) {
-                    a.classList.remove('active');
-                }
-            });
-            document.querySelectorAll('.faq-toggle').forEach(t => {
-                if (t !== toggle) {
-                    t.textContent = '+';
-                }
-            });
-            
-            // Toggle current FAQ
-            answer.classList.toggle('active');
-            toggle.textContent = answer.classList.contains('active') ? '−' : '+';
-        }
-    </script>
+    <div class="game-footer-links">
+      <a href="tank.html" class="game-footer-link">Global Fish Tank</a>
+      <a href="fish-doodle-community.html" class="game-footer-link">Community</a>
+      <a href="about.html" class="game-footer-link">About</a>
+      <a href="how-to-draw-a-fish.html" class="game-footer-link">How to Draw a Fish</a>
+      <a href="fish-drawing-game.html" class="game-footer-link">Fish Drawing Game</a>
+      <a href="faq.html" class="game-footer-link">FAQ</a>
+    </div>
+    
+    <p style="margin: 6px 0 4px; color: rgba(255, 255, 255, 0.9); font-size: 12px;">
+      🎨 Based on 
+      <a href="https://github.com/aldenhallak/fishes" target="_blank" rel="noopener noreferrer" 
+         style="color: white; font-weight: 700; text-decoration: underline;">DrawAFish</a>
+      by
+      <a href="https://github.com/aldenhallak" target="_blank" rel="noopener noreferrer"
+         style="color: white; font-weight: 700; text-decoration: underline;">aldenhallak</a>
+    </p>
+  </footer>
+
+  <!-- Supabase SDK -->
+  <script src="public/supabase-config.js?v=2.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js?v=2.3"></script>
+  
+  <script src="src/js/fish-utils.js?v=2.5"></script>
+  <script src="src/js/social-config.js?v=2.1"></script>
+  <script src="src/js/social-share.js?v=2.1"></script>
+  <script src="src/js/auth-ui.js?v=2.5"></script>
+  <script src="src/js/fish-info-modal.js?v=1.0"></script>
+  <script src="src/js/hamburger-menu.js?v=1.0"></script>
+  <script>
+    // Initialize navigation authentication
+    if (typeof initializeAuthNavigation === 'function') {
+      initializeAuthNavigation();
+    }
+    
+    function toggleFaq(element) {
+        const answer = element.nextElementSibling;
+        const toggle = element.querySelector('.faq-toggle');
+        
+        // Close all other FAQs
+        document.querySelectorAll('.faq-answer').forEach(a => {
+            if (a !== answer) {
+                a.classList.remove('active');
+            }
+        });
+        document.querySelectorAll('.faq-toggle').forEach(t => {
+            if (t !== toggle) {
+                t.textContent = '+';
+            }
+        });
+        
+        // Toggle current FAQ
+        answer.classList.toggle('active');
+        toggle.textContent = answer.classList.contains('active') ? '−' : '+';
+    }
+  </script>
 </body>
 </html>
 

@@ -44,7 +44,7 @@
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch(`${API_BASE}/api/fishtank/favorite`, {
+      const response = await fetch(`${API_BASE}/api/fish/favorite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,7 @@
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch(`${API_BASE}/api/fishtank/unfavorite`, {
+      const response = await fetch(`${API_BASE}/api/fish/unfavorite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +150,7 @@
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch(`${API_BASE}/api/fishtank/my-fish`, {
+      const response = await fetch(`${API_BASE}/api/fish/my-tank`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -164,7 +164,7 @@
       }
 
       // Filter only favorited fish
-      const favoritedFish = data.fish.filter(f => f.isFavorited);
+      const favoritedFish = data.fish.filter(f => f.is_favorited);
       
       return favoritedFish;
     } catch (error) {
@@ -275,7 +275,7 @@
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch(`${API_BASE}/api/fishtank/my-fish`, {
+      const response = await fetch(`${API_BASE}/api/fish/my-tank`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`

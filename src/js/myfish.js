@@ -48,8 +48,8 @@ function escapeHtml(text) {
  * 创建简化的鱼卡片（不含投票/举报按钮）
  */
 function createSimplifiedFishCard(fish) {
-    const isOwn = fish.isOwn || false;
-    const isFavorited = fish.isFavorited || false;
+    const isOwn = fish.is_own || fish.isOwn || false;
+    const isFavorited = fish.is_favorited || fish.isFavorited || false;
     const isAlive = fish.is_alive !== false; // 默认为 true
     
     // 移除类型标识图标
@@ -121,10 +121,10 @@ function updateStats(stats) {
         statsContainer.style.display = 'flex';
     }
     
-    document.getElementById('stat-total').textContent = stats.totalFish || 0;
-    document.getElementById('stat-own').textContent = stats.ownFish || 0;
-    document.getElementById('stat-favorited').textContent = stats.favoritedFish || 0;
-    document.getElementById('stat-alive').textContent = stats.aliveFish || 0;
+    document.getElementById('stat-total').textContent = stats.totalCount || stats.totalFish || 0;
+    document.getElementById('stat-own').textContent = stats.ownCount || stats.ownFish || 0;
+    document.getElementById('stat-favorited').textContent = stats.favoritedCount || stats.favoritedFish || 0;
+    document.getElementById('stat-alive').textContent = stats.aliveCount || stats.aliveFish || 0;
     document.getElementById('stat-avg-level').textContent = stats.avgLevel || '0';
 }
 
@@ -167,8 +167,8 @@ function sortFish(fishArray, sortType) {
             sorted.sort((a, b) => {
                 const getTypeOrder = (fish) => {
                     if (!fish.is_alive) return 3;
-                    if (fish.isOwn) return 1;
-                    if (fish.isFavorited) return 2;
+                    if (fish.is_own || fish.isOwn) return 1;
+                    if (fish.is_favorited || fish.isFavorited) return 2;
                     return 4;
                 };
                 return getTypeOrder(a) - getTypeOrder(b);
@@ -232,7 +232,7 @@ async function loadMyFish() {
         
         // 调用 API
         const BACKEND_URL = window.location.origin;
-        const response = await fetch(`${BACKEND_URL}/api/fishtank/my-fish`, {
+        const response = await fetch(`${BACKEND_URL}/api/fish/my-tank`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,

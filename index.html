@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="src/css/style.css?v=2.0">
     <link rel="stylesheet" href="src/css/traffic.css?v=2.0">
     <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
+    <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
     <link rel="icon" type="image/png" href="/fish_logo.png">
     
     <!-- Google tag (gtag.js) -->
@@ -139,6 +140,13 @@
 
   <!-- Top Navigation Bar -->
   <nav class="game-nav">
+    <!-- 汉堡菜单按钮 -->
+    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="打开菜单">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
     <div class="game-logo">
       FishTalk.app
     </div>
@@ -154,6 +162,39 @@
       <!-- 登录按钮和用户菜单将由 auth-ui.js 动态插入 -->
     </div>
   </nav>
+
+  <!-- 侧边栏菜单 -->
+  <div id="sidebar-menu" class="sidebar-menu">
+    <div class="sidebar-header">
+      <h3>🐟 Menu</h3>
+      <button id="close-sidebar-btn" class="close-sidebar-btn" aria-label="Close menu">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link">
+        <span class="sidebar-icon">🎨</span>
+        <span>Draw Fish</span>
+      </a>
+      <a href="tank.html" class="sidebar-link">
+        <span class="sidebar-icon">🌊</span>
+        <span>Global Tank</span>
+      </a>
+      <a href="mytank.html" class="sidebar-link">
+        <span class="sidebar-icon">🏆</span>
+        <span>My Tank</span>
+      </a>
+      <a href="rank.html" class="sidebar-link">
+        <span class="sidebar-icon">⭐</span>
+        <span>Rank</span>
+      </a>
+      <a href="#" id="sidebar-share-btn" class="sidebar-link">
+        <span class="sidebar-icon">📤</span>
+        <span>Share</span>
+      </a>
+    </nav>
+  </div>
+  
+  <!-- 侧边栏遮罩 -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
   <!-- Coming Soon Banner - Removed (feature now live) -->
 
@@ -272,6 +313,7 @@
   <script src="src/js/social-share.js?v=2.1"></script>
   <script src="src/js/auth-ui.js?v=2.5"></script>
   <script src="src/js/fish-info-modal.js?v=1.0"></script>
+  <script src="src/js/hamburger-menu.js?v=1.0"></script>
   <script src="src/js/app.js?v=2.3"></script>
   <script>
     // Initialize social links for footer and mobile

@@ -30,8 +30,8 @@ module.exports = async function handler(req, res) {
     // 2. 验证用户是否存在
     const userQuery = `
       query GetUser($userId: String!) {
-        users_by_pk(user_id: $userId) {
-          user_id
+        users_by_pk(id: $userId) {
+          id
           display_name
           avatar_url
         }
@@ -100,7 +100,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       success: true,
       userInfo: {
-        userId: userData.users_by_pk.user_id,
+        userId: userData.users_by_pk.id,
         displayName: userData.users_by_pk.display_name,
         avatarUrl: userData.users_by_pk.avatar_url
       },

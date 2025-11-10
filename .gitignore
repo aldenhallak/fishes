@@ -1,7 +1,7 @@
-# 环境变量（包含敏感信息）
-.env
-.env.local
-.env.*.local
+# 告诉 Cursor 不要忽略 .env 文件
+!.env.local
+!.env
+!.env.*
 
 # Node modules
 node_modules/

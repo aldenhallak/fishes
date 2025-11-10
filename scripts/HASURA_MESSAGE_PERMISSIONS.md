@@ -84,6 +84,8 @@
 }
 ```
 
+**注意：** `sender_id` 和 `receiver_id` 字段对应 `users` 表的 `id` 字段（主键），不是 `user_id`。
+
 ---
 
 ## Delete 权限
@@ -133,10 +135,10 @@
 ### Object Relationships
 
 1. **sender** → users
-   - Foreign key: `sender_id` → `users.user_id`
+   - Foreign key: `sender_id` → `users.id`
 
 2. **receiver** → users
-   - Foreign key: `receiver_id` → `users.user_id`
+   - Foreign key: `receiver_id` → `users.id`
 
 3. **fish** → fish
    - Foreign key: `fish_id` → `fish.id`
@@ -144,10 +146,10 @@
 ### Array Relationships (在其他表中配置)
 
 1. **users.sent_messages** → messages
-   - Foreign key: `messages.sender_id` → `user_id`
+   - Foreign key: `messages.sender_id` → `users.id`
 
 2. **users.received_messages** → messages
-   - Foreign key: `messages.receiver_id` → `user_id`
+   - Foreign key: `messages.receiver_id` → `users.id`
 
 3. **fish.messages** → messages
    - Foreign key: `messages.fish_id` → `id`

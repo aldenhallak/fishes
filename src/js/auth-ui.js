@@ -112,52 +112,68 @@ class AuthUI {
       return;
     }
 
-    // 从localStorage读取开发环境登录凭据
-    const devEmail = localStorage.getItem('DEV_USER');
-    const devPass = localStorage.getItem('DEV_PASS');
-    
-    if (devEmail && devPass) {
-      console.log('🔧 Development auto-login enabled');
-      console.log('📧 Email:', devEmail);
-      
-      try {
-        const { data, error } = await window.supabaseAuth.client.auth.signInWithPassword({
-          email: devEmail,
-          password: devPass
-        });
-        
-        if (error) {
-          console.error('❌ Auto-login failed:', error.message);
-        } else {
-          console.log('✅ Auto-login successful');
-          
-          // 存储用户信息
-          if (data.user) {
-            localStorage.setItem('userToken', data.session.access_token);
-            localStorage.setItem('userData', JSON.stringify(data.user));
-          }
-          
-          // 检查是否有重定向URL（但不要从index跳转）
-          const redirectUrl = localStorage.getItem('loginRedirect');
-          const currentPath = window.location.pathname;
-          const isOnIndex = currentPath.includes('index.html') || currentPath === '/';
-          
-          if (redirectUrl && redirectUrl !== window.location.href && !isOnIndex) {
-            localStorage.removeItem('loginRedirect');
-            window.location.href = redirectUrl;
-          } else {
-            // Clear redirect if on index page
-            localStorage.removeItem('loginRedirect');
-          }
-        }
-      } catch (error) {
-        console.error('❌ Auto-login exception:', error);
+    // 仅在开发环境（localhost）检查自动登录
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      console.log('ℹ️ Auto-login only available in development (localhost)');
+      return;
+    }
+
+    try {
+      // 从API获取登录模式配置
+      const response = await fetch('/api/config/login-mode');
+      if (!response.ok) {
+        console.log('ℹ️ Could not fetch login mode config, skipping auto-login');
+        return;
       }
-    } else {
-      console.log('ℹ️ No development credentials found in localStorage');
-      console.log('ℹ️ To enable auto-login, set:');
-      console.log('   localStorage.setItem("DEV_USER", "your-email@example.com")');
-      console.log('   localStorage.setItem("DEV_PASS", "your-password")');
+
+      const config = await response.json();
+      
+      // 检查是否启用自动登录
+      if (config.loginMode !== 'AUTO' || !config.autoLoginEnabled) {
+        console.log('ℹ️ Auto-login disabled (LOGIN_MODE != AUTO)');
+        return;
+      }
+
+      if (!config.email || !config.password) {
+        console.log('ℹ️ Auto-login credentials not configured (DEF_USER/DEF_PASS missing)');
+        return;
+      }
+
+      console.log('🔧 Auto-login enabled (LOGIN_MODE=AUTO)');
+      console.log('📧 Email:', config.email);
+      
+      // 执行自动登录
+      const { data, error } = await window.supabaseAuth.client.auth.signInWithPassword({
+        email: config.email,
+        password: config.password
+      });
+      
+      if (error) {
+        console.error('❌ Auto-login failed:', error.message);
+      } else {
+        console.log('✅ Auto-login successful');
+        
+        // 存储用户信息
+        if (data.user) {
+          localStorage.setItem('userToken', data.session.access_token);
+          localStorage.setItem('userData', JSON.stringify(data.user));
+        }
+        
+        // 检查是否有重定向URL（但不要从index跳转）
+        const redirectUrl = localStorage.getItem('loginRedirect');
+        const currentPath = window.location.pathname;
+        const isOnIndex = currentPath.includes('index.html') || currentPath === '/';
+        
+        if (redirectUrl && redirectUrl !== window.location.href && !isOnIndex) {
+          localStorage.removeItem('loginRedirect');
+          window.location.href = redirectUrl;
+        } else {
+          // Clear redirect if on index page
+          localStorage.removeItem('loginRedirect');
+        }
+      }
+    } catch (error) {
+      console.error('❌ Auto-login exception:', error);
     }
   }
 

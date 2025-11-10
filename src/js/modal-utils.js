@@ -447,23 +447,29 @@ class ModalManager {
                 const modalContent = modalResult.modal.querySelector('.modal-content');
                 if (modalContent) {
                     modalContent.classList.add('wide');
-                    // Override the width for tank selection
-                    modalContent.style.width = '600px';
-                    modalContent.style.maxWidth = '90vw';
                 }
             }
             
             return modalResult;
         } else {
-            // Fallback modal creation matching rank page design
+            // Fallback modal creation using game style
             const modal = document.createElement('div');
             modal.className = 'modal';
-            modal.style.cssText = 'position: fixed; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;';
             
             const modalContent = document.createElement('div');
-            modalContent.className = 'modal-content wide'; // Add wide class for tank selection
-            modalContent.style.cssText = 'background: white; margin: 100px auto; padding: 20px; width: auto; min-width: 300px; max-width: 90vw; max-height: 90vh; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); overflow: auto;';
-            modalContent.innerHTML = html;
+            // Add wide class for tank selection if needed
+            if (html.includes('tank-selection-grid') || html.includes('Add Fish to Tank')) {
+                modalContent.className = 'modal-content wide';
+            } else {
+                modalContent.className = 'modal-content';
+            }
+            
+            // Add close button if not already present in HTML
+            if (!html.includes('class="close"') && !html.includes("class='close'")) {
+                modalContent.innerHTML = '<span class="close">&times;</span>' + html;
+            } else {
+                modalContent.innerHTML = html;
+            }
             
             modal.appendChild(modalContent);
             
@@ -471,6 +477,12 @@ class ModalManager {
                 document.body.removeChild(modal);
                 this.selectedFishId = null;
             };
+            
+            // Add close button click handler
+            const closeBtn = modalContent.querySelector('.close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', close);
+            }
             
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) close();

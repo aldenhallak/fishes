@@ -82,8 +82,18 @@ body.game-style {
 
 /* 为main元素添加顶部间距，避免被固定导航栏遮挡 */
 main {
-  padding-top: 70px !important; /* 导航栏高度 + 一些额外间距 */
+  padding-top: 60px !important; /* 导航栏高度 + 一些额外间距 */
   flex: 1; /* 占据剩余空间 */
+}
+
+/* 确保section内的按钮组与footer之间有20px间距 */
+main section:last-child .game-btn-group {
+  margin-bottom: 20px !important;
+}
+
+/* 确保按钮组与footer之间有20px间距 */
+.game-btn-group {
+  margin-bottom: 20px !important;
 }
 
 /* ===== 海洋背景装饰 ===== */
@@ -157,7 +167,7 @@ main {
 .game-nav {
   background: linear-gradient(180deg, rgba(74, 144, 226, 0.95) 0%, rgba(53, 122, 189, 0.95) 100%);
   backdrop-filter: blur(8px);
-  padding: 12px 20px;
+  padding: 6px 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   border-bottom: 2px solid rgba(255, 255, 255, 0.3);
   position: fixed;
@@ -169,14 +179,17 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px; /* 添加间距 */
   animation: slideDown 0.5s ease;
   flex-shrink: 0; /* 防止导航栏被压缩 */
   margin: 0 !important; /* 确保没有上边距 */
   margin-top: 0 !important;
+  min-height: 48px; /* 缩小最小高度 */
+  box-sizing: border-box;
 }
 
 .game-logo {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 900;
   color: white;
   text-shadow: 
@@ -184,20 +197,24 @@ main {
     0 0 20px rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   animation: logoFloat 3s ease-in-out infinite;
+  flex-shrink: 0; /* 防止logo被压缩 */
+  white-space: nowrap; /* 防止文字换行 */
 }
 
 .game-nav-links {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-shrink: 0; /* 防止链接区域被压缩 */
+  min-width: 0; /* 允许在空间不足时收缩 */
 }
 
 /* 导航栏小按钮 */
 .game-nav-links .game-btn {
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 6px 12px;
+  font-size: 13px;
   gap: 4px;
 }
 
@@ -589,7 +606,7 @@ main {
   gap: 24px;
   justify-content: center;
   flex-wrap: wrap;
-  margin: var(--game-space-md) 0 20px 0; /* 底部间距20px */
+  margin: var(--game-space-md) 0 20px 0 !important; /* 底部间距20px */
 }
 
 /* ===== 标题样式 - 游戏风格 ===== */
@@ -899,6 +916,7 @@ main {
     flex-direction: column;
     width: 100%;
     gap: 12px;
+    margin-bottom: 20px !important;
   }
   
   .game-btn {
@@ -949,5 +967,288 @@ main {
   .game-footer-link {
     min-width: 200px; /* 移动设备上设置最小宽度 */
     text-align: center; /* 文字居中 */
+  }
+}
+
+/* ===== 游戏风格弹窗系统 ===== */
+.modal {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  width: 420px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 8px 0 rgba(0, 0, 0, 0.2),
+    0 16px 40px rgba(0, 0, 0, 0.4);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  position: relative;
+  animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* 弹窗顶部彩色条 */
+.modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, 
+    var(--game-orange) 0%, 
+    var(--game-yellow) 25%, 
+    var(--game-green) 50%, 
+    var(--game-blue) 75%, 
+    var(--game-purple) 100%);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+/* 弹窗顶部光泽效果 */
+.modal-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  pointer-events: none;
+}
+
+/* 宽弹窗样式 */
+.modal-content.wide {
+  width: 600px;
+  max-width: 90vw;
+}
+
+/* 关闭按钮 */
+.modal .close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #FF6259 0%, #FF3B30 50%, #CC2920 100%);
+  border: none;
+  border-bottom: 3px solid #991F19;
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 4px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  transition: all 0.15s ease;
+  z-index: 1;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.modal .close::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+  border-radius: 50% 50% 0 0;
+  pointer-events: none;
+}
+
+.modal .close:hover {
+  transform: translateY(-2px) rotate(90deg) scale(1.1);
+  box-shadow: 
+    0 6px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+.modal .close:active {
+  transform: translateY(2px) rotate(90deg) scale(1.05);
+  box-shadow: 
+    0 2px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* 弹窗标题 */
+.modal-content h2,
+.modal-content h3 {
+  color: var(--game-dark);
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.modal-content h2 {
+  font-size: 28px;
+}
+
+.modal-content h3 {
+  font-size: 22px;
+}
+
+/* 弹窗内容文本 */
+.modal-content p,
+.modal-content .fish-details {
+  color: #666;
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 12px 0;
+}
+
+/* 弹窗内的按钮组 */
+.modal-content .voting-controls,
+.modal-content .game-btn-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+/* 弹窗内的投票按钮 */
+.modal-content .vote-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color: white;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  transform: translateY(0);
+}
+
+.modal-content .vote-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  pointer-events: none;
+}
+
+.modal-content .vote-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+}
+
+.modal-content .vote-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.modal-content .upvote-btn {
+  background: linear-gradient(180deg, var(--game-green-light) 0%, var(--game-green) 50%, #3CB54A 100%);
+  border-bottom: 3px solid #2E8B3A;
+}
+
+.modal-content .report-btn {
+  background: linear-gradient(180deg, var(--game-yellow-light) 0%, var(--game-yellow) 50%, #E5BF00 100%);
+  border-bottom: 3px solid #BFA000;
+  color: #5D4E00;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* 弹窗内的鱼信息 */
+.modal-content .fish-info-modal {
+  text-align: center;
+}
+
+.modal-content .fish-score {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--game-blue);
+  margin: 16px 0;
+  text-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);
+}
+
+/* 弹窗内的投票计数 */
+.modal-content .vote-count {
+  font-weight: 900;
+  font-size: 16px;
+}
+
+/* 弹窗动画 */
+@keyframes modalBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.8);
+  }
+  50% {
+    transform: translateY(10px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 响应式弹窗 */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90vw;
+    padding: 24px;
+    margin: 20px;
+  }
+  
+  .modal-content.wide {
+    width: 95vw;
+  }
+  
+  .modal-content h2 {
+    font-size: 24px;
+  }
+  
+  .modal-content h3 {
+    font-size: 20px;
+  }
+  
+  .modal .close {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    top: 12px;
+    right: 12px;
   }
 }

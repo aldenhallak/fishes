@@ -25,8 +25,8 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // 从环境变量读取测试凭据
-    const email = process.env.DEF_USE || 'test@example.com';
+    // 从环境变量读取测试凭据（兼容 DEF_USER 和 DEF_USE）
+    const email = process.env.DEF_USER || process.env.DEF_USE || 'test@example.com';
     const password = process.env.DEF_PASS || 'test123456';
 
     console.log('🧪 Providing test credentials for development');

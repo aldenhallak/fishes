@@ -23,6 +23,13 @@ class CommunityChatManager {
     this.timeBetweenMessages = 6000; // 6 seconds between messages
     this.playbackTimer = null;
     
+    // Auto-chat scheduling
+    this.autoChatInterval = null;
+    this.monologueInterval = null;
+    
+    // Group chat enabled state (can be overridden by user)
+    this.groupChatEnabled = false;
+    
     // Statistics
     this.stats = {
       sessionsPlayed: 0,
@@ -270,6 +277,12 @@ class CommunityChatManager {
    * @returns {Promise} - Resolves when session starts
    */
   async startAutoChatSession() {
+    // Check if group chat is enabled before starting
+    if (!this.groupChatEnabled) {
+      console.log('Group chat is disabled, skipping auto chat session');
+      return;
+    }
+    
     if (this.isPlaying) {
       console.log('Chat session already in progress');
       return;
@@ -291,6 +304,11 @@ class CommunityChatManager {
    * @returns {Promise} - Resolves when session starts
    */
   async triggerChat() {
+    if (!this.groupChatEnabled) {
+      console.log('❌ Group chat is disabled, cannot trigger chat');
+      return;
+    }
+    
     console.log('🎮 Manually triggering community chat...');
     return this.startAutoChatSession();
   }
@@ -300,16 +318,29 @@ class CommunityChatManager {
    * @param {number} intervalMinutes - Interval between chats in minutes
    */
   scheduleAutoChats(intervalMinutes = 5) {
+    // Clear existing interval if any
+    if (this.autoChatInterval) {
+      clearInterval(this.autoChatInterval);
+      this.autoChatInterval = null;
+    }
+    
+    if (!this.groupChatEnabled) {
+      console.log('Group chat is disabled, skipping auto-chat scheduling');
+      return;
+    }
+    
     console.log(`Scheduling auto-chats every ${intervalMinutes} minutes`);
     
     // Start first chat after 10 seconds
     setTimeout(() => {
-      this.startAutoChatSession();
+      if (this.groupChatEnabled && !this.isPlaying) {
+        this.startAutoChatSession();
+      }
     }, 10000);
     
     // Schedule periodic chats
-    setInterval(() => {
-      if (!this.isPlaying) {
+    this.autoChatInterval = setInterval(() => {
+      if (this.groupChatEnabled && !this.isPlaying) {
         this.startAutoChatSession();
       }
     }, intervalMinutes * 60 * 1000);
@@ -369,6 +400,11 @@ class CommunityChatManager {
    * Display a monologue for a fish
    */
   async displayMonologue() {
+    // Check if group chat is enabled before displaying
+    if (!this.groupChatEnabled) {
+      return;
+    }
+    
     const monologue = await this.generateMonologue();
     
     if (!monologue) {
@@ -392,17 +428,101 @@ class CommunityChatManager {
    * @param {number} intervalSeconds - Interval between monologues in seconds
    */
   scheduleMonologues(intervalSeconds = 15) {
+    // Clear existing interval if any
+    if (this.monologueInterval) {
+      clearInterval(this.monologueInterval);
+      this.monologueInterval = null;
+    }
+    
+    if (!this.groupChatEnabled) {
+      console.log('Group chat is disabled, skipping monologue scheduling');
+      return;
+    }
+    
     console.log(`Scheduling monologues every ${intervalSeconds} seconds`);
     
     // Start first monologue after 20 seconds
     setTimeout(() => {
-      this.displayMonologue();
+      if (this.groupChatEnabled) {
+        this.displayMonologue();
+      }
     }, 20000);
     
     // Schedule periodic monologues
-    setInterval(() => {
-      this.displayMonologue();
+    this.monologueInterval = setInterval(() => {
+      if (this.groupChatEnabled) {
+        this.displayMonologue();
+      }
     }, intervalSeconds * 1000);
+  }
+  
+  /**
+   * Enable group chat functionality (including monologues)
+   */
+  enableGroupChat() {
+    if (this.groupChatEnabled) {
+      return; // Already enabled
+    }
+    
+    this.groupChatEnabled = true;
+    console.log('✅ Group chat and monologues enabled');
+    
+    // Restart scheduling if manager was initialized
+    if (this.layoutManager) {
+      this.scheduleAutoChats(5);
+      this.scheduleMonologues(15);
+    }
+  }
+  
+  /**
+   * Disable group chat functionality (including monologues)
+   */
+  disableGroupChat() {
+    if (!this.groupChatEnabled) {
+      return; // Already disabled
+    }
+    
+    this.groupChatEnabled = false;
+    console.log('❌ Group chat and monologues disabled');
+    
+    // Stop current session
+    this.stopSession();
+    
+    // Clear all dialogues from display
+    if (this.layoutManager) {
+      this.layoutManager.clearAllDialogues();
+    }
+    
+    // Clear intervals
+    if (this.autoChatInterval) {
+      clearInterval(this.autoChatInterval);
+      this.autoChatInterval = null;
+    }
+    
+    if (this.monologueInterval) {
+      clearInterval(this.monologueInterval);
+      this.monologueInterval = null;
+    }
+  }
+  
+  /**
+   * Set group chat enabled state
+   * @param {boolean} enabled - Whether to enable group chat
+   */
+  setGroupChatEnabled(enabled) {
+    if (enabled) {
+      this.enableGroupChat();
+    } else {
+      this.disableGroupChat();
+    }
+  }
+  
+  /**
+   * Check if group chat is enabled
+   * @returns {boolean} - Whether group chat is enabled
+   */
+  isGroupChatEnabled() {
+    return this.groupChatEnabled;
   }
   
   /**
