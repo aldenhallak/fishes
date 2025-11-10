@@ -52,15 +52,8 @@ function createSimplifiedFishCard(fish) {
     const isFavorited = fish.isFavorited || false;
     const isAlive = fish.is_alive !== false; // 默认为 true
     
-    // 确定鱼的类型标识
-    let typeBadge = '';
-    if (!isAlive) {
-        typeBadge = '<span class="fish-type-badge dead">💀 已逝</span>';
-    } else if (isOwn) {
-        typeBadge = '<span class="fish-type-badge own">ME</span>';
-    } else if (isFavorited) {
-        typeBadge = '<span class="fish-type-badge favorited">❤️ 收藏</span>';
-    }
+    // 移除类型标识图标
+    const typeBadge = '';
     
     const fishId = fish.id || fish.docId;
     const artist = fish.artist || fish.Artist || 'Anonymous';
@@ -72,7 +65,6 @@ function createSimplifiedFishCard(fish) {
     
     return `
         <div class="fish-card" data-fish-id="${fishId}" onclick="showAddToTankModal('${fishId}')" title="点击添加到鱼缸">
-            ${typeBadge}
             <div class="fish-image-container">
                 <img class="fish-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" alt="Fish" data-fish-id="${fishId}">
             </div>

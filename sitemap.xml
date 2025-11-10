@@ -6,7 +6,7 @@
     
     <!-- Main drawing page -->
     <url>
-        <loc>https://fishart.online/</loc>
+        <loc>https://fishtalk.app/</loc>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
         <lastmod>2025-10-30</lastmod>
@@ -14,7 +14,7 @@
     
     <!-- Fish tank page -->
     <url>
-        <loc>https://fishart.online/tank.html</loc>
+        <loc>https://fishtalk.app/tank.html</loc>
         <changefreq>hourly</changefreq>
         <priority>0.9</priority>
         <lastmod>2025-10-30</lastmod>
@@ -22,7 +22,7 @@
     
     <!-- Rankings page -->
     <url>
-        <loc>https://fishart.online/rank.html</loc>
+        <loc>https://fishtalk.app/rank.html</loc>
         <changefreq>hourly</changefreq>
         <priority>0.9</priority>
         <lastmod>2025-10-30</lastmod>
@@ -30,7 +30,7 @@
     
     <!-- Fish tanks page -->
     <url>
-        <loc>https://fishart.online/mytank.html</loc>
+        <loc>https://fishtalk.app/mytank.html</loc>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
         <lastmod>2025-08-05</lastmod>
@@ -38,7 +38,7 @@
     
     <!-- Profile page -->
     <url>
-        <loc>https://fishart.online/profile.html</loc>
+        <loc>https://fishtalk.app/profile.html</loc>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
         <lastmod>2025-08-05</lastmod>
@@ -46,7 +46,7 @@
     
     <!-- Login page -->
     <url>
-        <loc>https://fishart.online/login.html</loc>
+        <loc>https://fishtalk.app/login.html</loc>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
         <lastmod>2025-07-23</lastmod>
@@ -54,28 +54,28 @@
     
     <!-- SEO Landing Pages -->
     <url>
-        <loc>https://fishart.online/how-to-draw-a-fish.html</loc>
+        <loc>https://fishtalk.app/how-to-draw-a-fish.html</loc>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
         <lastmod>2025-10-30</lastmod>
     </url>
     
     <url>
-        <loc>https://fishart.online/fish-drawing-game.html</loc>
+        <loc>https://fishtalk.app/fish-drawing-game.html</loc>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
         <lastmod>2025-10-30</lastmod>
     </url>
     
     <url>
-        <loc>https://fishart.online/about.html</loc>
+        <loc>https://fishtalk.app/about.html</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
         <lastmod>2025-10-30</lastmod>
     </url>
     
     <url>
-        <loc>https://fishart.online/faq.html</loc>
+        <loc>https://fishtalk.app/faq.html</loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
         <lastmod>2025-10-30</lastmod>
@@ -83,21 +83,21 @@
     
     <!-- Social Feature Pages -->
     <url>
-        <loc>https://fishart.online/fish-doodle-community.html</loc>
+        <loc>https://fishtalk.app/fish-doodle-community.html</loc>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
         <lastmod>2025-10-30</lastmod>
     </url>
     
     <url>
-        <loc>https://fishart.online/share-fish-doodle.html</loc>
+        <loc>https://fishtalk.app/share-fish-doodle.html</loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
         <lastmod>2025-10-30</lastmod>
     </url>
     
     <url>
-        <loc>https://fishart.online/weird-fish-drawings.html</loc>
+        <loc>https://fishtalk.app/weird-fish-drawings.html</loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
         <lastmod>2025-10-30</lastmod>
@@ -105,7 +105,7 @@
     
     <!-- Tutorial Pages -->
     <url>
-        <loc>https://fishart.online/tutorials/easy-fish-drawing-ideas.html</loc>
+        <loc>https://fishtalk.app/tutorials/easy-fish-drawing-ideas.html</loc>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
         <lastmod>2025-10-30</lastmod>

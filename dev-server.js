@@ -48,11 +48,12 @@ const server = http.createServer(async (req, res) => {
       const apiPath = pathname.replace('/api/', '');
       let apiFile = path.join(__dirname, 'api', apiPath + '.js');
       
-      // 检查是否为动态路由（如 /api/admin/tables/fish）
+      // 检查是否为动态路由（如 /api/admin/tables/fish 或 /api/profile/userId）
       let dynamicMatch = null;
       if (!fs.existsSync(apiFile)) {
-        // 尝试匹配动态路由 /api/admin/tables/[tableName]
         const parts = apiPath.split('/');
+        
+        // 尝试匹配动态路由 /api/admin/tables/[tableName]
         if (parts.length >= 3 && parts[0] === 'admin' && parts[1] === 'tables' && parts[2]) {
           // /api/admin/tables/{tableName} -> api/admin/tables/[tableName].js
           apiFile = path.join(__dirname, 'api', 'admin', 'tables', '[tableName].js');
@@ -61,6 +62,18 @@ const server = http.createServer(async (req, res) => {
             req.query = req.query || parsedUrl.query || {};
             req.query.tableName = parts[2];
             dynamicMatch = { tableName: parts[2] };
+          }
+        }
+        
+        // 尝试匹配动态路由 /api/profile/[userId]
+        if (parts.length === 2 && parts[0] === 'profile' && parts[1]) {
+          // /api/profile/{userId} -> api/profile/[userId].js
+          apiFile = path.join(__dirname, 'api', 'profile', '[userId].js');
+          if (fs.existsSync(apiFile)) {
+            // 将动态参数添加到 req.query
+            req.query = req.query || parsedUrl.query || {};
+            req.query.userId = parts[1];
+            dynamicMatch = { userId: parts[1] };
           }
         }
       }

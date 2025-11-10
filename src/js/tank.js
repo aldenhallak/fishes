@@ -5,11 +5,8 @@ const swimCanvas = document.getElementById('swim-canvas');
 const swimCtx = swimCanvas.getContext('2d');
 const fishes = [];
 
-// Export fishes array to window for external access (e.g., Battle button)
+// Export fishes array to window for external access
 window.fishes = fishes;
-
-// Battle mode state
-let isBattleMode = false;
 window.currentUser = null;
 
 // Initialize Fish Dialogue System (Phase 0)
@@ -33,115 +30,12 @@ if (typeof TankLayoutManager !== 'undefined') {
     console.log('✅ Tank Layout Manager initialized');
     console.log('✅ Community Chat Manager initialized');
     
-    // Schedule auto-chats and monologues (only if not in battle mode)
-    if (!isBattleMode) {
-        communityChatManager.scheduleAutoChats(5);
-        communityChatManager.scheduleMonologues(15); // Self-talk every 15 seconds
-        console.log('🎮 Auto-chats scheduled every 5 minutes');
-        console.log('💬 Monologues scheduled every 15 seconds');
-    }
+    // Schedule auto-chats and monologues
+    communityChatManager.scheduleAutoChats(5);
+    communityChatManager.scheduleMonologues(15); // Self-talk every 15 seconds
+    console.log('🎮 Auto-chats scheduled every 5 minutes');
+    console.log('💬 Monologues scheduled every 15 seconds');
 }
-
-// Export isBattleMode for testing
-Object.defineProperty(window, 'isBattleMode', {
-    get: () => isBattleMode,
-    set: (value) => { isBattleMode = value; }
-});
-
-/**
- * 重新加载鱼缸为战斗模式
- * @param {number} fishCount - 要加载的鱼的数量（默认20条）
- */
-async function reloadTankForBattleMode(fishCount = 20) {
-    try {
-        console.log('🎮 切换到战斗模式...');
-        
-        // 设置战斗模式标志
-        isBattleMode = true;
-        
-        // 获取当前用户
-        if (window.supabaseAuth && window.supabaseAuth.getCurrentUser) {
-            const user = await window.supabaseAuth.getCurrentUser();
-            if (user) {
-                window.currentUser = user;
-                console.log('✅ 当前用户:', user.id);
-            }
-        }
-        
-        // 清空现有的鱼
-        fishes.length = 0;
-        console.log('🗑️ 已清空鱼缸');
-        
-        // 加载战斗模式的鱼（使用现有的 API）
-        try {
-            console.log(`📥 加载${fishCount}条战斗模式的鱼...`);
-            
-            // 使用现有的 getFishBySort 函数加载鱼
-            const allFishDocs = await getFishBySort('recent', fishCount);
-            
-            if (allFishDocs && allFishDocs.length > 0) {
-                console.log(`✅ 成功加载 ${allFishDocs.length} 条鱼`);
-                
-                // 创建鱼对象并添加到鱼缸
-                for (const fishDoc of allFishDocs) {
-                    try {
-                        // 提取鱼数据（处理不同的数据格式）
-                        let fishData;
-                        if (typeof fishDoc.data === 'function') {
-                            fishData = fishDoc.data();
-                        } else if (fishDoc.data && typeof fishDoc.data === 'object') {
-                            fishData = fishDoc.data;
-                        } else {
-                            fishData = fishDoc;
-                        }
-                        
-                        // 跳过已死亡或无血量的鱼
-                        if (fishData.is_alive === false || (fishData.health !== undefined && fishData.health <= 0)) {
-                            console.log(`⏭️ 跳过死亡的鱼: ${fishData.artist || fishData.id} (health: ${fishData.health})`);
-                            continue;
-                        }
-                        
-                        // 使用现有的加载函数
-                        const fishObj = await new Promise((resolve) => {
-                            loadFishImageToTank(
-                                fishData.image_url || fishData.Image, 
-                                fishData, 
-                                () => resolve(null)
-                            );
-                            // 如果 loadFishImageToTank 成功，鱼会被直接添加到 fishes 数组
-                            // 这里我们延迟一点等待加载
-                            setTimeout(() => resolve(true), 100);
-                        });
-                    } catch (err) {
-                        console.warn('加载鱼失败:', err);
-                    }
-                }
-                
-                console.log(`🐟 鱼缸中现有 ${fishes.length} 条鱼`);
-                
-                if (fishes.length === 0) {
-                    console.warn('⚠️ 没有成功加载任何鱼');
-                }
-            } else {
-                console.warn('⚠️ 没有找到可用的鱼');
-                alert('当前鱼缸中没有足够的鱼，请稍后再试。');
-                isBattleMode = false;
-            }
-        } catch (loadError) {
-            console.error('❌ 加载鱼数据失败:', loadError);
-            alert('加载鱼数据失败: ' + loadError.message);
-            isBattleMode = false;
-        }
-        
-    } catch (error) {
-        console.error('战斗模式加载失败:', error);
-        alert('加载战斗模式失败: ' + error.message);
-        isBattleMode = false;
-    }
-}
-
-// Export to window for external access
-window.reloadTankForBattleMode = reloadTankForBattleMode;
 
 // Food system
 const foodPellets = [];
@@ -1291,9 +1185,24 @@ function showFishInfoModal(fish) {
         info += `</div>`;
     }
 
+    // Add messages section placeholder
+    info += `<div id="fish-messages-container" style="margin-top: 20px; text-align: left;"></div>`;
+
     info += `</div>`;
 
     showModal(info, () => { });
+    
+    // Load messages after modal is shown
+    setTimeout(() => {
+        if (typeof MessageUI !== 'undefined' && fish.docId) {
+            MessageUI.renderMessagesSection('fish-messages-container', 'to_fish', fish.docId, {
+                showForm: true,
+                showFishInfo: false,
+                showDeleteBtn: true,
+                title: '💬 留言板'
+            });
+        }
+    }, 100);
 }
 
 // Tank-specific vote handler using shared utilities
@@ -1804,12 +1713,6 @@ function animateFishes() {
         }
 
         drawWigglingFish(fish, fish.x, swimY, fish.direction, time, fish.phase);
-        
-        // Draw fish status UI (only in battle mode)
-        if (isBattleMode) {
-            const isCurrentUserFish = isUserFish(fish);
-            drawFishStatusUI(swimCtx, fish, isCurrentUserFish, swimY);
-        }
     }
 
     // Render food pellets
@@ -1822,19 +1725,14 @@ function animateFishes() {
     renderFeedingEffects();
 
     // Update and draw fish dialogues (Phase 0 - Simple System)
-    if (fishDialogueManager && !isBattleMode && !tankLayoutManager) {
+    if (fishDialogueManager && !tankLayoutManager) {
         fishDialogueManager.updateDialogues(fishes);
         fishDialogueManager.drawDialogues();
     }
     
     // Render community chat dialogues (New System)
-    if (tankLayoutManager && !isBattleMode) {
+    if (tankLayoutManager) {
         tankLayoutManager.renderDialogues();
-    }
-
-    // Battle collision detection - 只在战斗模式下检测
-    if (isBattleMode) {
-        checkBattleCollisions();
     }
 
     requestAnimationFrame(animateFishes);
@@ -1939,309 +1837,11 @@ function drawWigglingFish(fish, x, y, direction, time, phase) {
     }
 }
 
-// ============================================
-// Battle Collision Detection
-// ============================================
-let isProcessingBattle = false;
-
-async function checkBattleCollisions() {
-    // 如果不在战斗模式，跳过检测
-    if (!isBattleMode) return;
-    
-    // 如果正在处理战斗，跳过检测
-    if (isProcessingBattle || !window.BattleAnimation) return;
-    
-    // 检测所有鱼对之间的碰撞
-    for (let i = 0; i < fishes.length; i++) {
-        for (let j = i + 1; j < fishes.length; j++) {
-            const fish1 = fishes[i];
-            const fish2 = fishes[j];
-            
-            // 跳过正在进入或死亡的鱼
-            if (fish1.isDying || fish2.isDying || fish1.isEntering || fish2.isEntering) continue;
-            
-            // 获取鱼的ID
-            const fish1Id = fish1.docId || fish1.id;
-            const fish2Id = fish2.docId || fish2.id;
-            
-            if (!fish1Id || !fish2Id) continue;
-            
-            // 检查冷却时间
-            if (BattleAnimation.isInCooldown(fish1Id) || BattleAnimation.isInCooldown(fish2Id)) continue;
-            
-            // 使用 BattleAnimation 的碰撞检测（包含行位置检查）
-            if (BattleAnimation.checkCollision(fish1, fish2)) {
-                // 触发战斗
-                isProcessingBattle = true;
-                await handleBattleCollision(fish1, fish2);
-                isProcessingBattle = false;
-                return; // 一次只处理一场战斗
-            }
-        }
-    }
-}
-
-async function handleBattleCollision(fish1, fish2) {
-    try {
-        const fish1Id = fish1.docId || fish1.id;
-        const fish2Id = fish2.docId || fish2.id;
-        
-        console.log('⚔️ 战斗碰撞检测:', fish1.artist || fish1Id, 'vs', fish2.artist || fish2Id);
-        
-        // 调用战斗API
-        const response = await fetch(`${window.BACKEND_URL || ''}/api/battle/execute`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                attackerId: fish1Id,
-                defenderId: fish2Id
-            })
-        });
-        
-        if (!response.ok) {
-            console.error('战斗API调用失败:', response.status);
-            return;
-        }
-        
-        const result = await response.json();
-        
-        if (!result.success) {
-            console.error('战斗执行失败:', result.error);
-            return;
-        }
-        
-        console.log('⚔️ 战斗结果:', result.data);
-        
-        // 播放战斗动画
-        if (window.BattleAnimation) {
-            await BattleAnimation.playBattleAnimation(
-                swimCtx,
-                { ...fish1, id: fish1Id },
-                { ...fish2, id: fish2Id },
-                result.data
-            );
-        }
-        
-        // 更新鱼的状态 - 立即应用战斗结果
-        const battleData = result.data;
-        
-        // 根据winner和loser ID更新对应的鱼
-        const winner = battleData.changes?.winner;
-        const loser = battleData.changes?.loser;
-        
-        if (winner && loser) {
-            // 找到获胜和失败的鱼对象
-            const winnerFish = (winner.id === fish1Id) ? fish1 : fish2;
-            const loserFish = (loser.id === fish1Id) ? fish1 : fish2;
-            
-            // 更新获胜方的所有属性
-            console.log(`🏆 获胜方 ${winner.name || winnerFish.artist}: 经验+${winner.expGained}${winner.levelUp ? ', 升到Lv.' + winner.newLevel : ''}`);
-            
-            // 立即更新经验值（使用API返回的增加值）
-            if (winner.expGained !== undefined) {
-                winnerFish.experience = (winnerFish.experience || 0) + winner.expGained;
-                console.log(`  📈 新经验: ${winnerFish.experience}`);
-            }
-            
-            // 立即更新等级
-            if (winner.levelUp && winner.newLevel !== undefined) {
-                winnerFish.level = winner.newLevel;
-                console.log(`  ⬆️ 新等级: Lv.${winnerFish.level}`);
-            }
-            
-            // 更新最大血量（如果升级）
-            if (winner.newMaxHealth !== undefined) {
-                winnerFish.max_health = winner.newMaxHealth;
-            }
-            
-            // 更新失败方的所有属性
-            console.log(`💔 失败方 ${loser.name || loserFish.artist}: -${loser.healthLost}HP, 当前${loser.newHealth}HP${loser.isDead ? ' (死亡)' : ''}`);
-            
-            // 立即更新血量
-            if (loser.newHealth !== undefined) {
-                loserFish.health = loser.newHealth;
-                console.log(`  💔 新血量: ${loserFish.health}/${loserFish.max_health || 100}`);
-            }
-            
-            // 立即更新生存状态
-            if (loser.isDead) {
-                loserFish.is_alive = false;
-                loserFish.health = 0;
-                console.log(`  ☠️ 鱼已死亡`);
-                
-                // 启动死亡动画
-                loserFish.isDying = true;
-                loserFish.deathStartTime = Date.now();
-                loserFish.deathDuration = 2000; // 2秒死亡动画
-                loserFish.originalY = loserFish.y;
-                loserFish.opacity = 1;
-                loserFish.direction = -Math.abs(loserFish.direction); // 翻转鱼（肚皮朝上）
-                
-                // 2秒后从鱼缸中移除 - 使用 docId 查找以避免对象引用问题
-                const deadFishId = loserFish.docId || loserFish.id;
-                setTimeout(() => {
-                    const index = fishes.findIndex(f => (f.docId || f.id) === deadFishId);
-                    if (index !== -1) {
-                        fishes.splice(index, 1);
-                        console.log(`  🗑️ 已从鱼缸移除死亡的鱼 (ID: ${deadFishId})`);
-                    } else {
-                        console.warn(`  ⚠️ 未找到要移除的死亡鱼 (ID: ${deadFishId})`);
-                    }
-                }, 2000);
-            }
-            
-            // 强制UI立即更新 - 触发重绘
-            if (typeof drawFishStatusUI === 'function') {
-                // 下一帧立即重绘两条鱼的状态
-                requestAnimationFrame(() => {
-                    console.log('🔄 强制更新战斗鱼的UI显示');
-                });
-            }
-        } else {
-            console.warn('⚠️ 战斗结果数据不完整:', battleData);
-        }
-        
-        // 战斗后让鱼掉头并分开
-        const winnerId = battleData.winnerId;
-        const loserFishObj = winnerId === fish1Id ? fish2 : fish1;
-        const winnerFishObj = winnerId === fish1Id ? fish1 : fish2;
-        
-        // 失败者掉头逃跑
-        if (loserFishObj && loserFishObj.is_alive !== false) {
-            loserFishObj.direction *= -1; // 反转方向
-            loserFishObj.vx = loserFishObj.speed * loserFishObj.direction * 2; // 加速逃跑
-            loserFishObj.vy += (Math.random() - 0.5) * loserFishObj.speed; // 随机垂直移动
-        }
-        
-        // 胜利者也可能掉头
-        if (winnerFishObj && Math.random() > 0.5) {
-            winnerFishObj.direction *= -1;
-            winnerFishObj.vx = winnerFishObj.speed * winnerFishObj.direction * 1.5;
-        }
-        
-        // 记录冷却时间
-        BattleAnimation.lastBattleTime[fish1Id] = Date.now();
-        BattleAnimation.lastBattleTime[fish2Id] = Date.now();
-        
-    } catch (error) {
-        console.error('战斗处理错误:', error);
-    }
-}
-
-/**
- * 绘制鱼的状态UI（样式1a - 确认版本）
- * @param {CanvasRenderingContext2D} ctx - Canvas上下文
- * @param {Object} fish - 鱼对象
- * @param {boolean} isUserFish - 是否是用户的鱼
- * @param {number} actualY - 鱼的实际Y位置（包含波动）
- */
-function drawFishStatusUI(ctx, fish, isUserFish, actualY) {
-    // 更宽松的检查条件：只要有fish对象和canvas就绘制
-    if (!fish || !fish.fishCanvas) {
-        return;
-    }
-    
-    // 如果鱼已死亡但没有is_alive字段被明确设置为false，仍然显示UI
-    // (只在明确死亡时不显示)
-    if (fish.is_alive === false) {
-        return;
-    }
-    
-    const x = fish.x || 0;
-    const y = actualY !== undefined ? actualY : (fish.y || 0); // 使用实际Y位置（包含波动）
-    const width = fish.width || 80; // 提供默认宽度
-    
-    // UI配置
-    const padding = 5;
-    const lineHeight = 16;
-    const heartSize = 12;
-    const heartSpacing = 17; // 红心之间的间距（用户要求）
-    const fontSize = 12;
-    
-    // 颜色配置 - 用户的鱼和其他鱼不同
-    const textColor = isUserFish ? '#FFD700' : '#FFFFFF'; // 金色 vs 白色
-    const bgColor = 'rgba(0, 0, 0, 0.6)';
-    const expBarBg = 'rgba(255, 255, 255, 0.3)';
-    const expBarFill = isUserFish ? '#00FF00' : '#4CAF50'; // 亮绿 vs 普通绿
-    
-    ctx.save();
-    ctx.font = `${fontSize}px Arial`;
-    
-    // 计算UI元素位置（显示在鱼的上方）
-    let currentY = y - padding - lineHeight;
-    
-    // 第一行：血条（5个红心）
-    const maxHearts = 5;
-    const health = (fish.health !== undefined && fish.health !== null) ? fish.health : 100;
-    const maxHealth = (fish.max_health !== undefined && fish.max_health !== null) ? fish.max_health : 100;
-    const healthPercent = health / maxHealth;
-    const filledHearts = Math.ceil(healthPercent * maxHearts);
-    
-    const heartsWidth = maxHearts * heartSize + (maxHearts - 1) * (heartSpacing - heartSize);
-    const heartsX = x + (width - heartsWidth) / 2;
-    
-    for (let i = 0; i < maxHearts; i++) {
-        const heartX = heartsX + i * heartSpacing;
-        const heartY = currentY - heartSize;
-        
-        // 判断是否填充
-        const isFilled = i < filledHearts;
-        
-        // 绘制红心
-        ctx.fillStyle = isFilled ? '#FF0000' : 'rgba(100, 100, 100, 0.5)';
-        ctx.beginPath();
-        
-        // 红心路径（使用贝塞尔曲线绘制）
-        const centerX = heartX + heartSize / 2;
-        const centerY = heartY + heartSize / 2;
-        const topY = centerY - heartSize * 0.3;
-        
-        ctx.moveTo(centerX, centerY + heartSize * 0.3);
-        
-        // 左半边
-        ctx.bezierCurveTo(
-            centerX - heartSize * 0.5, centerY + heartSize * 0.1,
-            centerX - heartSize * 0.5, topY,
-            centerX, topY
-        );
-        
-        // 右半边
-        ctx.bezierCurveTo(
-            centerX + heartSize * 0.5, topY,
-            centerX + heartSize * 0.5, centerY + heartSize * 0.1,
-            centerX, centerY + heartSize * 0.3
-        );
-        
-        ctx.closePath();
-        ctx.fill();
-    }
-    
-    // 在红心上方绘制等级和经验值
-    currentY = currentY - heartSize - 6; // 移到红心上方
-    
-    const level = (fish.level !== undefined && fish.level !== null) ? fish.level : 1;
-    const exp = (fish.experience !== undefined && fish.experience !== null) ? fish.experience : 0;
-    const expToNextLevel = Math.pow(level, 2) * 100;
-    const expPercent = expToNextLevel > 0 ? Math.min(100, Math.floor((exp / expToNextLevel) * 100)) : 0;
-    
-    const levelExpText = `Lv.${level}  ${expPercent}%`;
-    const textWidth = ctx.measureText(levelExpText).width;
-    const textX = x + (width - textWidth) / 2;
-    
-    // 绘制文本（无背景）
-    ctx.fillStyle = textColor;
-    ctx.fillText(levelExpText, textX, currentY);
-    
-    ctx.restore();
-}
-
 // ==========================================
-// 聊天面板UI管理
+// Chat UI Management
 // ==========================================
 
-// 更新聊天列表显示
+// Update chat list display
 function updateChatUI(chatSession) {
     const chatMessages = document.getElementById('chat-messages');
     const chatStatus = document.getElementById('chat-status');
@@ -2441,6 +2041,38 @@ if (triggerChatBtn && communityChatManager) {
         }
     });
 }
+
+// ===== 背景气泡效果 =====
+function createBackgroundBubbles() {
+    const container = document.querySelector('.background-bubbles');
+    if (!container) return;
+    
+    const bubbleCount = 20; // 鱼缸页面多一些气泡
+    
+    for (let i = 0; i < bubbleCount; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        
+        // 随机大小
+        const size = Math.random() * 40 + 20;
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+        
+        // 随机水平位置
+        bubble.style.left = Math.random() * 100 + '%';
+        
+        // 随机动画延迟
+        bubble.style.animationDelay = Math.random() * 5 + 's';
+        
+        // 随机动画持续时间
+        bubble.style.animationDuration = (Math.random() * 3 + 4) + 's';
+        
+        container.appendChild(bubble);
+    }
+}
+
+// 页面加载时初始化气泡效果
+createBackgroundBubbles();
 
 // Continue the animation loop
 requestAnimationFrame(animateFishes);

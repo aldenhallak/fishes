@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draw a Fish Online - Free AI Fish Drawing Tool | FishArt.Online</title>
+    <title>Draw a Fish Online - Free AI Fish Drawing Tool | FishTalk.app</title>
     <meta name="description" content="Draw a fish online & watch it swim in our global tank with 50K+ doodles! Create fish art, see weird & creative fish from artists worldwide. Free AI drawing tool.">
     <meta name="keywords" content="draw a fish, draw a fish online, drawafish, fish drawing, fish drawing tool, online fish drawing, AI fish drawing, free fish drawing, draw fish game, fish art">
-    <meta name="author" content="FishArt AI Community">
+    <meta name="author" content="FishTalk AI Community">
     
     <!-- Open Graph tags for social media -->
-    <meta property="og:title" content="FishArt AI - Create & Share Your Fish">
+    <meta property="og:title" content="FishTalk AI - Create & Share Your Fish">
     <meta property="og:description" content="Draw a fish with real-time AI validation and watch it swim! Join our community and share your creations. Free AI-powered drawing tool.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://fishart.online">
-    <meta property="og:image" content="https://fishart.online/fish_logo.png">
-    <meta property="og:site_name" content="FishArt AI">
+    <meta property="og:url" content="https://fishtalk.app">
+    <meta property="og:image" content="https://fishtalk.app/fish_logo.png">
+    <meta property="og:site_name" content="FishTalk AI">
     <meta property="og:locale" content="en_US">
     
     <!-- X (Twitter) Card tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="FishArt AI - Try It Now!">
+    <meta name="twitter:title" content="FishTalk AI - Try It Now!">
     <meta name="twitter:description" content="Draw a fish with AI validation and watch it swim! 🐟 Join our community of creators.">
-    <meta name="twitter:image" content="https://fishart.online/fish_logo.png">
+    <meta name="twitter:image" content="https://fishtalk.app/fish_logo.png">
     <meta name="twitter:site" content="@ZING__AI">
     <meta name="twitter:creator" content="@ZING__AI">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://fishart.online">
+    <link rel="canonical" href="https://fishtalk.app">
     
     <link rel="stylesheet" href="src/css/animations.css?v=2.0">
     <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
@@ -50,10 +50,10 @@
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Draw a Fish Online - FishArt.Online",
+      "name": "Draw a Fish Online - FishTalk.app",
       "alternateName": ["FishArt", "DrawAFish", "Fish Drawing Tool"],
       "description": "Free online fish drawing tool with AI validation. Draw a fish, watch it swim in our community tank, share your art, and vote on fish drawings. Perfect for artists of all ages.",
-      "url": "https://fishart.online",
+      "url": "https://fishtalk.app",
       "applicationCategory": "GameApplication",
       "genre": ["Drawing Game", "Art Tool", "Educational Game"],
       "operatingSystem": "Web Browser",
@@ -66,10 +66,10 @@
       },
       "creator": {
         "@type": "Organization",
-        "name": "FishArt.Online"
+        "name": "FishTalk.app"
       },
       "keywords": "draw a fish, draw fish online, fish drawing, drawafish, fish drawing tool, online drawing, AI fish drawing, free fish drawing game, fish art, digital fish drawing",
-      "screenshot": "https://fishart.online/fish_logo.png",
+      "screenshot": "https://fishtalk.app/fish_logo.png",
       "featureList": [
         "Draw a fish with AI validation",
         "Real-time fish recognition",
@@ -81,7 +81,7 @@
       ],
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "https://fishart.online"
+        "@id": "https://fishtalk.app"
       },
       "audience": {
         "@type": "Audience",
@@ -122,7 +122,7 @@
       "@type": "CreativeWork",
       "name": "Fish Drawing Tool",
       "description": "Online tool to draw fish and create digital fish art",
-      "url": "https://fishart.online",
+      "url": "https://fishtalk.app",
       "creator": {
         "@type": "Organization",
         "name": "fifteen.games"
@@ -134,22 +134,13 @@
     </script>
 </head>
 <body class="game-style">
-  <!-- 背景装饰 - 浮动气泡 -->
-  <div class="game-bubbles">
-    <div class="game-bubble"></div>
-    <div class="game-bubble"></div>
-    <div class="game-bubble"></div>
-    <div class="game-bubble"></div>
-    <div class="game-bubble"></div>
-    <div class="game-bubble"></div>
-    <div class="game-bubble"></div>
-    <div class="game-bubble"></div>
-  </div>
+  <!-- 海洋风格背景气泡 -->
+  <div class="background-bubbles"></div>
 
   <!-- Top Navigation Bar -->
   <nav class="game-nav">
     <div class="game-logo">
-      🐟 FishArt AI
+      🐟 FishTalk AI
     </div>
     <div class="game-nav-links">
       <a href="#about" class="game-btn game-btn-white">
@@ -195,7 +186,7 @@
         <div class="game-canvas-wrapper">
           <canvas id="draw-canvas" width="600" height="360" aria-label="Fish drawing canvas for creating digital fish art"></canvas>
           <!-- 绘画粒子容器 -->
-          <div class="particles-container" id="drawing-particles"></div>
+          <div id="drawing-particles"></div>
         </div>
         
         <!-- 提交按钮 -->
@@ -214,6 +205,9 @@
           </a>
           <a href="rank.html" class="game-btn game-btn-blue" title="Vote on fish drawings">
             <span>⭐</span> <span>Rank</span>
+          </a>
+          <a href="fish-settings.html" id="settings-link" class="game-btn game-btn-purple" title="Fish settings" style="display: none;">
+            <span>⚙️</span> <span>Settings</span>
           </a>
           <a href="myfish.html" class="game-btn game-btn-blue" title="View my fish collection" id="my-fish-link" style="display: none;">
             <span>🐟</span> <span>My Fish</span>
@@ -361,7 +355,7 @@
       modal.style.cssText = 'background: white; padding: 40px; border-radius: 16px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center;';
       
       modal.innerHTML = `
-        <h2 style="color: #6366F1; margin-bottom: 20px; font-size: 28px;">🐟 FishArt AI</h2>
+        <h2 style="color: #6366F1; margin-bottom: 20px; font-size: 28px;">🐟 FishTalk AI</h2>
         <p style="font-size: 16px; line-height: 1.8; color: #333; margin-bottom: 24px;">
           Draw a fish and watch it swim in the global tank! Our AI validates your drawings in real-time. 
           Join thousands of artists creating unique fish art.

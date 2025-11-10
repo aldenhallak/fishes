@@ -194,7 +194,7 @@ function createFishCard(fish) {
     const userFishClass = isCurrentUserFish ? ' user-fish-highlight' : '';
 
     const fishImageContainer =
-        `<div class="fish-image-container" onclick="showAddToTankModal('${fish.docId}')" title="Click to add to your tank" style="cursor: pointer;">`;
+        `<div class="fish-image-container">`;
     
     // Only show favorite button for other users' fish and if user is logged in
     const showFavoriteButton = userToken && !isCurrentUserFish;
@@ -695,3 +695,37 @@ window.handleReport = handleReport;
 window.handleFavoriteClick = handleFavoriteClick;
 // Modal functions are now handled by modal-utils.js
 // showAddToTankModal, closeAddToTankModal, and closeLoginPromptModal are exported there
+
+// ===== 背景气泡效果 =====
+function createBackgroundBubbles() {
+    const container = document.querySelector('.background-bubbles');
+    if (!container) return;
+    
+    const bubbleCount = 15;
+    
+    for (let i = 0; i < bubbleCount; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        
+        // 随机大小
+        const size = Math.random() * 40 + 20;
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+        
+        // 随机水平位置
+        bubble.style.left = Math.random() * 100 + '%';
+        
+        // 随机动画延迟
+        bubble.style.animationDelay = Math.random() * 5 + 's';
+        
+        // 随机动画持续时间
+        bubble.style.animationDuration = (Math.random() * 3 + 4) + 's';
+        
+        container.appendChild(bubble);
+    }
+}
+
+// 页面加载时初始化气泡效果
+document.addEventListener('DOMContentLoaded', () => {
+    createBackgroundBubbles();
+});

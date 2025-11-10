@@ -19,4 +19,4 @@ Allow: /src/js/
 Allow: /public/
 
 # Sitemap location
-Sitemap: https://fishart.online/sitemap.xml
+Sitemap: https://fishtalk.app/sitemap.xml

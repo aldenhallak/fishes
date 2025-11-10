@@ -89,10 +89,24 @@ window.loadBackendConfig = loadBackendConfig;
 // Send vote to endpoint
 async function sendVote(fishId, voteType) {
     try {
-        // 获取Supabase认证token
+        // 获取Supabase认证token和用户ID
         let authToken = null;
+        let userId = null;
+        
         if (window.supabaseAuth) {
             authToken = await window.supabaseAuth.getAccessToken();
+            const user = await window.supabaseAuth.getUser();
+            userId = user?.id;
+        }
+        
+        // 如果没有用户ID，检查localStorage
+        if (!userId) {
+            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            userId = userInfo.userId;
+        }
+        
+        if (!userId) {
+            throw new Error('请先登录才能投票');
         }
         
         const headers = {
@@ -108,13 +122,15 @@ async function sendVote(fishId, voteType) {
             headers: headers,
             body: JSON.stringify({
                 fishId: fishId,
+                userId: userId,
                 voteType: voteType // 'up' or 'down'
             })
         });
 
         if (!response.ok) {
-            console.error(`Vote failed with status: ${response.status}`);
-            throw new Error(`Vote failed with status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            console.error(`Vote failed with status: ${response.status}`, errorData);
+            throw new Error(errorData.error || `Vote failed with status: ${response.status}`);
         }
 
         const responseData = await response.json();
@@ -302,8 +318,8 @@ async function getRandomFish(limit = 25, userId = null) {
  * 从Hasura获取鱼数据
  */
 async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null, battleModeOnly = false) {
-    // 构建GraphQL查询
-    let orderBy = { created_at: 'desc' };
+    // 确定排序字段
+    let orderByClause = '{ created_at: desc }';
     
     // 对于random，使用随机offset
     if (sortType === 'random') {
@@ -338,25 +354,28 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
             console.warn('无法获取鱼总数，使用默认offset:', error);
         }
         
-        orderBy = { created_at: 'desc' };
+        orderByClause = '{ created_at: desc }';
     } else {
         switch (sortType) {
             case 'hot':
             case 'popular':
-                orderBy = { upvotes: 'desc' };
+                orderByClause = '{ upvotes: desc }';
                 break;
             case 'score':
-                orderBy = { upvotes: 'desc' }; // 可以创建一个计算字段
+                orderByClause = '{ upvotes: desc }';
                 break;
             case 'recent':
             case 'date':
-                orderBy = { created_at: 'desc' };
+                orderByClause = '{ created_at: desc }';
                 break;
+            default:
+                orderByClause = '{ created_at: desc }';
         }
     }
 
+    // 构建GraphQL查询 - 直接在查询字符串中插入 order_by
     const query = `
-        query GetFish($limit: Int!, $offset: Int!, $orderBy: [fish_order_by!], $userId: String) {
+        query GetFish($limit: Int!, $offset: Int!, $userId: String) {
             fish(
                 where: {
                     is_approved: { _eq: true }
@@ -364,7 +383,7 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
                 }
                 limit: $limit
                 offset: $offset
-                order_by: $orderBy
+                order_by: [${orderByClause}]
             ) {
                 id
                 user_id
@@ -379,9 +398,8 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
     `;
 
     const variables = {
-        limit,
-        offset,
-        orderBy: [orderBy]
+        limit: parseInt(limit),
+        offset: parseInt(offset)
     };
 
     if (userId) {
@@ -657,19 +675,48 @@ function getDisplayName(profile) {
 }
 
 // Get user profile data from API
+// Get user profile data from Hasura
 async function getUserProfile(userId) {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/profile/${encodeURIComponent(userId)}`);
+        const query = `
+            query GetUserProfile($userId: String!) {
+                users_by_pk(id: $userId) {
+                    id
+                    display_name
+                    email
+                    avatar_url
+                    created_at
+                }
+            }
+        `;
+
+        const response = await fetch('/api/graphql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                query,
+                variables: { userId }
+            })
+        });
 
         if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error('User not found');
-            }
-            throw new Error(`Failed to fetch profile: ${response.status}`);
+            throw new Error(`GraphQL request failed: ${response.status}`);
         }
 
-        const data = await response.json();
-        return data.profile;
+        const result = await response.json();
+
+        if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+            throw new Error(result.errors[0].message);
+        }
+
+        if (!result.data || !result.data.users_by_pk) {
+            throw new Error('User not found');
+        }
+
+        return result.data.users_by_pk;
     } catch (error) {
         console.error('Error fetching profile:', error);
         throw error;

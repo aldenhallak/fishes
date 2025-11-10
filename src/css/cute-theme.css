@@ -629,3 +629,230 @@ body {
   }
 }
 
+/* ===== 海洋风格装饰效果 ===== */
+
+/* 背景气泡容器 */
+.background-bubbles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* 单个气泡样式 */
+.bubble {
+  position: absolute;
+  bottom: -60px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: float-up 7s ease-in infinite;
+  box-shadow: 
+    inset 0 0 10px rgba(255, 255, 255, 0.5),
+    0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+/* 气泡上浮动画 */
+@keyframes float-up {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-50vh) translateX(20px) scale(1.1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(-20px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* 鱼缸装饰层 */
+.tank-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 水草样式 */
+.seaweed {
+  position: absolute;
+  bottom: 0;
+  width: 40px;
+  height: 120px;
+  background: linear-gradient(to top, #4CAF50, #8BC34A);
+  border-radius: 50% 50% 0 0;
+  transform-origin: bottom center;
+  animation: sway 3s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.seaweed-left {
+  left: 5%;
+  animation-delay: 0s;
+}
+
+.seaweed-right {
+  right: 5%;
+  animation-delay: 1.5s;
+  background: linear-gradient(to top, #388E3C, #7CB342);
+}
+
+/* 水草摇摆动画 */
+@keyframes sway {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+/* 底部沙地 */
+.sand-layer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(to bottom, #FFD54F, #FFA726);
+  border-radius: 0;
+  opacity: 0.8;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 装饰物基础样式 */
+.decoration {
+  position: absolute;
+  bottom: 35px;
+  opacity: 0.7;
+}
+
+/* 贝壳 */
+.decoration.shell {
+  left: 15%;
+  width: 30px;
+  height: 25px;
+  background: linear-gradient(135deg, #FFF8E1, #FFECB3);
+  border-radius: 50% 50% 45% 45%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 海星 */
+.decoration.starfish {
+  right: 20%;
+  width: 35px;
+  height: 35px;
+  background: #FF8A65;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+  animation: starfish-twinkle 4s ease-in-out infinite;
+}
+
+@keyframes starfish-twinkle {
+  0%, 100% {
+    opacity: 0.7;
+    transform: rotate(0deg);
+  }
+  50% {
+    opacity: 0.9;
+    transform: rotate(10deg);
+  }
+}
+
+/* 石头 */
+.decoration.rock {
+  left: 30%;
+  width: 40px;
+  height: 30px;
+  background: linear-gradient(135deg, #9E9E9E, #757575);
+  border-radius: 40% 60% 50% 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* 光线效果容器 */
+.light-beams {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* 单个光束 */
+.light-beam {
+  position: absolute;
+  top: -50%;
+  width: 80px;
+  height: 150%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  transform: skewX(-15deg);
+  animation: light-shimmer 8s ease-in-out infinite;
+  opacity: 0.4;
+}
+
+.light-beam:nth-child(1) {
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.light-beam.delay-1 {
+  left: 50%;
+  animation-delay: 2s;
+  width: 100px;
+}
+
+.light-beam.delay-2 {
+  left: 75%;
+  animation-delay: 4s;
+  width: 60px;
+}
+
+/* 光线闪烁动画 */
+@keyframes light-shimmer {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 鱼缸包装器 */
+.tank-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+

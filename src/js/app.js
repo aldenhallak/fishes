@@ -84,6 +84,34 @@ function createConfetti(x, y, count = 30) {
     }
 }
 
+// ===== 背景气泡效果 =====
+function createBackgroundBubbles() {
+    const container = document.querySelector('.background-bubbles');
+    if (!container) return;
+    
+    const bubbleCount = 15;
+    
+    for (let i = 0; i < bubbleCount; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        
+        // 随机大小
+        const size = Math.random() * 40 + 20;
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+        
+        // 随机水平位置
+        bubble.style.left = Math.random() * 100 + '%';
+        
+        // 随机动画延迟
+        bubble.style.animationDelay = Math.random() * 5 + 's';
+        
+        // 随机动画持续时间
+        bubble.style.animationDuration = (Math.random() * 3 + 4) + 's';
+        
+        container.appendChild(bubble);
+    }
+}
 
 // Function removed - footer should always be visible
 
@@ -185,6 +213,7 @@ const swimBtn = document.getElementById('swim-btn');
 // Modal helpers
 function showModal(html, onClose) {
     let modal = document.createElement('div');
+    modal.className = 'modal'; // Add class for easy selection
     modal.style.position = 'fixed';
     modal.style.left = '0';
     modal.style.top = '0';
@@ -211,52 +240,107 @@ function showModal(html, onClose) {
 function showSuccessModal(fishImageUrl, needsModeration) {
     const config = window.SOCIAL_CONFIG;
     const overlay = document.createElement('div');
-    overlay.className = 'success-modal-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+        padding: 32px;
+        border-radius: 24px;
+        min-width: 400px;
+        max-width: 500px;
+        width: 90vw;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 
+            0 8px 0 rgba(0, 0, 0, 0.2),
+            0 15px 50px rgba(74, 144, 226, 0.4);
+        border: 3px solid rgba(255, 255, 255, 0.9);
+        border-bottom: 5px solid rgba(74, 144, 226, 0.6);
+        font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
+        position: relative;
+        animation: fadeInScale 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    `;
     
     const modalHTML = `
-        <div class="success-modal-content">
-            <h2 style="color: #27ae60; margin-bottom: 20px;">🎉 ${needsModeration ? 'Fish Submitted!' : 'Your Fish is Swimming!'}</h2>
-            
-            <div class="fish-preview">
-                <img src="${fishImageUrl}" alt="Your fish" style="max-width: 200px; border-radius: 10px; border: 3px solid #27ae60;">
-            </div>
-            
-            <p class="cta-text" style="font-size: 16px; margin: 20px 0;">
-                ${needsModeration 
-                    ? 'Your fish will appear in the tank after review.' 
-                    : 'Love creating with AI? Join our community!'}
-            </p>
-            
-            <div class="social-actions" style="display: flex; gap: 12px; justify-content: center; margin: 20px 0;">
-                <a href="${config.twitter.url}" target="_blank" rel="noopener noreferrer" class="btn btn-twitter" style="display: flex; align-items: center; gap: 6px; padding: 10px 20px; background: #000; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                    Follow on X
-                </a>
-                <a href="${config.discord.inviteUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-discord" style="display: flex; align-items: center; gap: 6px; padding: 10px 20px; background: #5865F2; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
-                    </svg>
-                    Join Discord
-                </a>
-            </div>
-            
-            <div class="cta-text" style="margin-top: 24px; font-weight: 600;">
-                Share your creation:
-            </div>
-            
-            <div id="share-buttons-container"></div>
-            
-            <div style="margin-top: 24px; text-align: center;">
-                <button onclick="window.location.href='tank.html'" class="cute-button cute-button-primary" style="padding: 12px 30px;">
-                    View Fish Tank →
-                </button>
-            </div>
+        <h2 style="color: #4A90E2; margin: 0 0 24px 0; font-size: 28px; text-align: center; font-weight: bold;">
+            🎉 ${needsModeration ? 'Fish Submitted!' : 'Your Fish is Swimming!'}
+        </h2>
+        
+        <div style="text-align: center; margin-bottom: 24px;">
+            <img src="${fishImageUrl}" alt="Your fish" style="max-width: 200px; border-radius: 16px; border: 3px solid #4A90E2; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);">
+        </div>
+        
+        <p style="font-size: 16px; margin: 0 0 24px 0; text-align: center; color: #666;">
+            ${needsModeration 
+                ? '🐠 Your fish will appear in the tank after review.' 
+                : '💙 Love creating with AI? Join our community!'}
+        </p>
+        
+        <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap;">
+            <a href="${config.twitter.url}" target="_blank" rel="noopener noreferrer" 
+               style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: #000; color: white; 
+                      text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 14px;
+                      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); transition: all 0.3s ease;
+                      border: 2px solid transparent;"
+               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 0, 0, 0.35)';"
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.25)';">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                Follow on X
+            </a>
+            <a href="${config.discord.inviteUrl}" target="_blank" rel="noopener noreferrer"
+               style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: #5865F2; color: white;
+                      text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 14px;
+                      box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4); transition: all 0.3s ease;
+                      border: 2px solid transparent;"
+               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(88, 101, 242, 0.5)';"
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(88, 101, 242, 0.4)';">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                </svg>
+                Join Discord
+            </a>
+        </div>
+        
+        <div style="text-align: center; margin: 24px 0 16px 0; font-weight: 600; font-size: 16px; color: #333;">
+            📢 Share your creation:
+        </div>
+        
+        <div id="share-buttons-container" style="margin-bottom: 24px;"></div>
+        
+        <div style="text-align: center;">
+            <button onclick="window.location.href='tank.html'" 
+                    style="padding: 14px 40px; font-size: 18px; font-weight: bold; color: white;
+                           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                           border: none; border-radius: 16px; cursor: pointer;
+                           box-shadow: 0 6px 0 rgba(102, 126, 234, 0.4), 0 8px 20px rgba(102, 126, 234, 0.3);
+                           transition: all 0.2s ease; position: relative; top: 0;"
+                    onmouseover="this.style.top='-2px'; this.style.boxShadow='0 8px 0 rgba(102, 126, 234, 0.4), 0 10px 25px rgba(102, 126, 234, 0.4)';"
+                    onmouseout="this.style.top='0'; this.style.boxShadow='0 6px 0 rgba(102, 126, 234, 0.4), 0 8px 20px rgba(102, 126, 234, 0.3)';"
+                    onmousedown="this.style.top='3px'; this.style.boxShadow='0 3px 0 rgba(102, 126, 234, 0.4), 0 5px 15px rgba(102, 126, 234, 0.3)';"
+                    onmouseup="this.style.top='0'; this.style.boxShadow='0 6px 0 rgba(102, 126, 234, 0.4), 0 8px 20px rgba(102, 126, 234, 0.3)';">
+                🌊 Let's Swim! 🐟
+            </button>
         </div>
     `;
     
-    overlay.innerHTML = modalHTML;
+    modalContent.innerHTML = modalHTML;
+    overlay.appendChild(modalContent);
     document.body.appendChild(overlay);
     
     // Add share buttons using the social share module
@@ -269,13 +353,18 @@ function showSuccessModal(fishImageUrl, needsModeration) {
     // Close modal when clicking outside
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
-            document.body.removeChild(overlay);
+            overlay.style.animation = 'fadeIn 0.3s ease reverse';
+            setTimeout(() => {
+                if (overlay.parentNode) {
+                    document.body.removeChild(overlay);
+                }
+            }, 300);
         }
     });
 }
 
 // --- Fish submission modal handler ---
-async function submitFish(artist, needsModeration = false, fishName = null, personality = null, userInfo = null) {
+async function submitFish(artist, needsModeration = false, fishName = null, personality = null) {
     function dataURLtoBlob(dataurl) {
         const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
             bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -387,20 +476,8 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
             const today = new Date().toDateString();
             localStorage.setItem('lastFishDate', today);
             
-            // Show fish information collection modal
-            if (window.showFishInfoModal) {
-                window.showFishInfoModal(
-                    submitResult.fish.id,
-                    uploadResult.imageUrl,
-                    () => {
-                        // After info is saved, show success modal and redirect
-                        showSuccessModal(uploadResult.imageUrl, needsModeration);
-                    }
-                );
-            } else {
-                // Fallback to original modal if fish-info-modal not loaded
-                showSuccessModal(uploadResult.imageUrl, needsModeration);
-            }
+            // 显示社交分享成功弹窗
+            showSuccessModal(uploadResult.imageUrl, needsModeration);
         } else {
             console.error('❌ 提交失败:', submitResult);
             throw new Error(submitResult.error || '提交失败');
@@ -526,22 +603,22 @@ swimBtn.addEventListener('click', async () => {
             </div>
             
             <div style='text-align: left; margin: 15px 0;'>
+                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Your Name</label>
+                <input type='text' id='artist-name' value='${escapeHtml(defaultName)}' 
+                    placeholder='Your artist name' 
+                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' />
+            </div>
+            
+            <div style='text-align: left; margin: 15px 0;'>
                 <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>
                     About You
-                    <span style='color: #6366F1; font-size: 12px; font-weight: normal; margin-left: 8px;'>💬 你的鱼会在聊天中谈到你哦！</span>
+                    <span style='color: #6366F1; font-size: 12px; font-weight: normal; margin-left: 8px;'>💬 Your fish will mention you in chat!</span>
                 </label>
                 <input type='text' id='user-info' 
                     placeholder='e.g., My owner loves pizza' 
                     style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' 
                     maxlength='50' />
-                <small style='color: #999; font-size: 12px;'>你的鱼可能会在聊天时提到这些信息，让它更了解你！</small>
-            </div>
-            
-            <div style='text-align: left; margin: 15px 0;'>
-                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Your Name (Optional)</label>
-                <input type='text' id='artist-name' value='${escapeHtml(defaultName)}' 
-                    placeholder='Your artist name' 
-                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' />
+                <small style='color: #999; font-size: 12px;'>Your fish may mention this information in chat to get to know you better!</small>
             </div>
             
             <div style='margin-top: 20px; display: flex; gap: 10px; justify-content: center;'>
@@ -587,14 +664,16 @@ swimBtn.addEventListener('click', async () => {
             return;
         }
         
-        // Save artist name to localStorage for future use
+        // Save artist name and user info to localStorage for future use
         localStorage.setItem('artistName', artist);
+        if (userInfo) {
+            localStorage.setItem('userInfo', userInfo);
+        }
         
         console.log('🚀 开始提交鱼');
         console.log('  鱼名:', fishName);
         console.log('  个性:', personality);
         console.log('  艺术家:', artist);
-        console.log('  用户信息:', userInfo);
         
         await submitFish(artist, !isFish, fishName, personality); // Pass name and personality
         console.log('✅ submitFish 完成');
@@ -607,20 +686,20 @@ swimBtn.addEventListener('click', async () => {
     };
 });
 
-// Paint options UI - 简化配色方案
+// Paint options UI - 涂鸦风格配色方案
 const colors = [
     '#000000', // 黑色
     '#FFFFFF', // 白色
-    '#FF6B6B', // 红色
-    '#FFA500', // 橙色
-    '#FFD54F', // 黄色
-    '#A5D6A7', // 浅绿色
-    '#4FC3F7', // 浅蓝色
-    '#4169E1', // 深蓝色
-    '#FF6B9D', // 粉红色
-    '#9B59B6', // 紫色
+    '#FF0000', // 大红
+    '#FF6600', // 大橙
+    '#FFFF00', // 大黄
+    '#00FF00', // 大绿
+    '#00CCFF', // 大青
+    '#0066FF', // 大蓝
+    '#FF00FF', // 大紫
+    '#FF1493', // 玫红
     '#8B4513', // 棕色
-    '#95A5A6'  // 灰色
+    '#808080'  // 灰色
 ];
 let currentColor = colors[0];
 let currentLineWidth = 6;
@@ -1287,22 +1366,22 @@ if (window.supabaseAuth) {
                             </div>
                             
                             <div style='text-align: left; margin: 15px 0;'>
+                                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Your Name</label>
+                                <input type='text' id='artist-name' value='${escapeHtml(defaultName)}' 
+                                    placeholder='Your artist name' 
+                                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' />
+                            </div>
+                            
+                            <div style='text-align: left; margin: 15px 0;'>
                                 <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>
                                     About You
-                                    <span style='color: #6366F1; font-size: 12px; font-weight: normal; margin-left: 8px;'>💬 你的鱼会在聊天中谈到你哦！</span>
+                                    <span style='color: #6366F1; font-size: 12px; font-weight: normal; margin-left: 8px;'>💬 Your fish will mention you in chat!</span>
                                 </label>
                                 <input type='text' id='user-info' 
                                     placeholder='e.g., My owner loves pizza' 
                                     style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' 
                                     maxlength='50' />
-                                <small style='color: #999; font-size: 12px;'>你的鱼可能会在聊天时提到这些信息，让它更了解你！</small>
-                            </div>
-                            
-                            <div style='text-align: left; margin: 15px 0;'>
-                                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Your Name (Optional)</label>
-                                <input type='text' id='artist-name' value='${escapeHtml(defaultName)}' 
-                                    placeholder='Your artist name' 
-                                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' />
+                                <small style='color: #999; font-size: 12px;'>Your fish may mention this information in chat to get to know you better!</small>
                             </div>
                             
                             <div style='margin-top: 20px; display: flex; gap: 10px; justify-content: center;'>
@@ -1358,9 +1437,8 @@ if (window.supabaseAuth) {
                             console.log('  鱼名:', fishName);
                             console.log('  个性:', personality);
                             console.log('  艺术家:', artist);
-                            console.log('  用户信息:', userInfo);
                             
-                            await submitFish(artist, !isFish, fishName, personality, userInfo);
+                            await submitFish(artist, !isFish, fishName, personality);
                             console.log('✅ submitFish 完成');
                             
                             // 关闭modal
@@ -1376,3 +1454,8 @@ if (window.supabaseAuth) {
         }
     });
 }
+
+// ===== 页面加载时初始化气泡效果 =====
+document.addEventListener('DOMContentLoaded', () => {
+    createBackgroundBubbles();
+});

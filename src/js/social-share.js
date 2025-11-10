@@ -191,7 +191,7 @@ class SocialShare {
     modal.style.cssText = 'background: white; padding: 30px; border-radius: 16px; max-width: 400px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center;';
     
     modal.innerHTML = `
-      <h3 style="margin: 0 0 20px 0; color: #6366F1; font-size: 20px;">📤 Share FishArt AI</h3>
+      <h3 style="margin: 0 0 20px 0; color: #6366F1; font-size: 20px;">📤 Share FishTalk AI</h3>
       <div id="share-buttons-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
     `;
     

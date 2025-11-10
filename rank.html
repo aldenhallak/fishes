@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Best Fish Drawings - Vote & Rankings | FishArt.Online</title>
+    <title>Best Fish Drawings - Vote & Rankings | FishTalk.app</title>
     <meta name="description" content="Vote on the best fish doodles! Discover weird & creative fish from our global community. See top-ranked fish art, trending creations & funny fish drawings from artists worldwide.">
     <meta name="keywords" content="best fish drawings, fish art rankings, vote on fish, weird fish drawings, creative fish doodles, fish drawing contest, community fish voting, funny fish art, trending fish drawings">
     
@@ -11,14 +11,17 @@
     <meta property="og:title" content="Fish Rankings - Vote on Community Fish Art">
     <meta property="og:description" content="Vote on and rank the best fish drawings from our community. Discover trending fish art.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://fishart.online/rank.html">
+    <meta property="og:url" content="https://fishtalk.app/rank.html">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://fishart.online/rank.html">
+    <link rel="canonical" href="https://fishtalk.app/rank.html">
     
-    <link rel="stylesheet" href="src/css/style.css?v=2.0">
     <link rel="stylesheet" href="src/css/animations.css?v=2.0">
-    <link rel="stylesheet" href="src/css/cute-theme.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
+    <link rel="stylesheet" href="src/css/style.css?v=2.0">
+    <link rel="stylesheet" href="src/css/traffic.css?v=2.0">
+    <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
+    <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
     <link rel="stylesheet" href="src/css/fishtank-favorites.css">
     <link rel="icon" type="image/png" href="/fish_logo.png">
     
@@ -39,7 +42,7 @@
       "@type": "WebPage",
       "name": "Fish Rankings - Community Art Gallery",
       "description": "Browse and vote on fish artwork from our creative community. Discover trending artists and see the most popular fish drawings.",
-      "url": "https://fishart.online/rank.html",
+      "url": "https://fishtalk.app/rank.html",
       "breadcrumb": {
         "@type": "BreadcrumbList",
         "itemListElement": [
@@ -47,13 +50,13 @@
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://fishart.online"
+            "item": "https://fishtalk.app"
           },
           {
             "@type": "ListItem", 
             "position": 2,
             "name": "Rankings",
-            "item": "https://fishart.online/rank.html"
+            "item": "https://fishtalk.app/rank.html"
           }
         ]
       },
@@ -69,11 +72,13 @@
     <style>
         /* Main container */
         .ranking-container {
+            width: 100%;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             position: relative;
             z-index: 1;
+            box-sizing: border-box;
         }
         
         .ranking-header {
@@ -149,6 +154,11 @@
             animation: spin 1s linear infinite;
         }
         
+        /* 状态完成时不显示转圈动画 */
+        .status-complete::after {
+            display: none;
+        }
+        
         /* Grid layout for fish ranking */
         .fish-grid {
             display: grid;
@@ -162,7 +172,7 @@
             border-radius: 20px;
             padding: 20px;
             text-align: center;
-            background: white;
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 50%, #DDD6FE 100%);
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
             transition: all 0.3s ease;
             cursor: pointer;
@@ -380,8 +390,66 @@
         }
     </style>
 </head>
-<body>
-  <div class="nav-links animate-fadeInUp delay-1">
+<body class="game-style">
+  <!-- 背景装饰 - 浮动气泡 -->
+  <div class="game-bubbles">
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+  </div>
+
+  <!-- Top Navigation Bar -->
+  <nav class="game-nav">
+    <!-- 汉堡菜单按钮 -->
+    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="打开菜单">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <a href="index.html" class="game-logo" style="cursor: pointer; text-decoration: none; color: white;">
+      🐟 FishTalk AI
+    </a>
+    <div class="game-nav-links">
+      <!-- 登录按钮和用户菜单将由 auth-ui.js 动态插入 -->
+    </div>
+  </nav>
+
+  <!-- 侧边栏菜单 -->
+  <div id="sidebar-menu" class="sidebar-menu">
+    <div class="sidebar-header">
+      <h3>🐟 Menu</h3>
+      <button id="close-sidebar-btn" class="close-sidebar-btn" aria-label="Close menu">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link">
+        <span class="sidebar-icon">🎨</span>
+        <span>Draw Fish</span>
+      </a>
+      <a href="tank.html" class="sidebar-link">
+        <span class="sidebar-icon">🌊</span>
+        <span>Global Tank</span>
+      </a>
+      <a href="mytank.html" class="sidebar-link">
+        <span class="sidebar-icon">🏆</span>
+        <span>My Tank</span>
+      </a>
+      <a href="#" id="sidebar-share-btn" class="sidebar-link">
+        <span class="sidebar-icon">📤</span>
+        <span>Share</span>
+      </a>
+    </nav>
+  </div>
+  
+  <!-- 侧边栏遮罩 -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <div class="nav-links animate-fadeInUp delay-1" style="display: none;">
         <a href="index.html">🎨 Draw</a>
         <a href="tank.html">🐠 Tank</a>
         <a href="rank.html">⭐ Rankings</a>
@@ -398,9 +466,7 @@
         
         <div class="sort-controls">
             <button class="sort-btn active" data-sort="hot">🔥 Sort by Hot</button>
-            <button class="sort-btn" data-sort="score">⭐ Sort by Score</button>
             <button class="sort-btn" data-sort="date">📅 Sort by Date</button>
-            <button class="sort-btn" data-sort="random">🎲 Random Order</button>
         </div>
         
         <div id="loading" class="loading">
@@ -420,8 +486,12 @@
     <script src="public/supabase-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="src/js/supabase-init.js"></script>
-    <script src="src/js/fish-utils.js"></script>
-    <script src="src/js/auth-ui.js"></script>
+    <script src="src/js/fish-utils.js?v=2.5"></script>
+    <script src="src/js/social-config.js?v=2.1"></script>
+    <script src="src/js/social-share.js?v=2.1"></script>
+    <script src="src/js/auth-ui.js?v=2.5"></script>
+    <script src="src/js/fish-info-modal.js?v=1.0"></script>
+    <script src="src/js/hamburger-menu.js?v=1.0"></script>
     <script src="src/js/modal-utils.js"></script>
     <!-- Fish Tank Favorites Module -->
     <script src="src/js/fishtank-favorites.js"></script>
@@ -432,5 +502,25 @@
         // Initialize navigation authentication
         initializeAuthNavigation();
     </script>
+
+  <!-- Bottom Info Bar -->
+  <footer class="game-footer">
+    <!-- SEO Content Section -->
+    <div style="max-width: 1000px; margin: 10px auto; padding: 10px 20px; background: rgba(255, 255, 255, 0.08); border-radius: 12px; text-align: center;">
+      <p style="font-size: 14px; line-height: 1.5; color: rgba(255, 255, 255, 0.9); margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+        <strong>Draw a fish online</strong> and watch it swim in our <strong>global tank</strong> with 50,000+ doodles from artists worldwide! Our free AI tool validates your fish art in real-time. See <strong>weird, creative, and funny fish</strong> drawings. Perfect for artists, students, teachers.
+      </p>
+    </div>
+    
+    <div class="game-footer-links">
+      <a href="tank.html" class="game-footer-link">Global Fish Tank</a>
+      <a href="fish-doodle-community.html" class="game-footer-link">Community</a>
+      <a href="about.html" class="game-footer-link">About</a>
+      <a href="how-to-draw-a-fish.html" class="game-footer-link">How to Draw a Fish</a>
+      <a href="fish-drawing-game.html" class="game-footer-link">Fish Drawing Game</a>
+      <a href="faq.html" class="game-footer-link">FAQ</a>
+    </div>
+  </footer>
+
 </body>
 </html>

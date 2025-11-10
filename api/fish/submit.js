@@ -1,19 +1,18 @@
 /**
  * 提交新鱼API
  * POST /api/fish/submit
- * Body: { userId, imageUrl, artist }
+ * Body: { userId, imageUrl, artist, fishName, personality, userInfo }
  * 
  * 功能：
  * 1. 确保用户记录存在（如果不存在则自动创建）
- * 2. 获取或创建用户经济数据
- * 3. 检查鱼食余额（需要2个鱼食）
- * 4. 生成随机天赋值（25-75）
- * 5. 创建鱼记录
- * 6. 扣除鱼食
- * 7. 记录经济日志
+ * 2. 检查会员权限（是否可以创建更多鱼）
+ * 3. 创建鱼记录
+ * 
+ * 注意：战斗系统和经济系统已弃用
  */
 
 require('dotenv').config({ path: '.env.local' });
+const { canCreateFish } = require('../middleware/membership');
 
 const HASURA_GRAPHQL_ENDPOINT = process.env.HASURA_GRAPHQL_ENDPOINT;
 const HASURA_ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET;
@@ -36,9 +35,6 @@ if (!HASURA_ADMIN_SECRET) {
   console.error('请在 .env.local 文件中设置：');
   console.error('HASURA_ADMIN_SECRET=your-admin-secret');
 }
-
-// 创建新鱼消耗的鱼食数量
-const CREATE_COST = 2;
 
 async function queryHasura(query, variables = {}) {
   if (!HASURA_GRAPHQL_ENDPOINT || !HASURA_ADMIN_SECRET) {
@@ -75,17 +71,6 @@ async function queryHasura(query, variables = {}) {
   return result.data;
 }
 
-/**
- * 获取天赋评级
- */
-function getTalentRating(talent) {
-  if (talent >= 70) return { grade: 'S', color: '#FFD700', text: '传说' };
-  if (talent >= 60) return { grade: 'A', color: '#9370DB', text: '卓越' };
-  if (talent >= 50) return { grade: 'B', color: '#4169E1', text: '优秀' };
-  if (talent >= 40) return { grade: 'C', color: '#32CD32', text: '良好' };
-  return { grade: 'D', color: '#808080', text: '普通' };
-}
-
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -93,6 +78,13 @@ module.exports = async function handler(req, res) {
   
   try {
     const { userId, imageUrl, artist, fishName, personality } = req.body;
+    
+    console.log('\n📥 收到提交请求:');
+    console.log('  userId:', userId);
+    console.log('  imageUrl:', imageUrl);
+    console.log('  artist:', artist);
+    console.log('  fishName:', fishName);
+    console.log('  personality:', personality);
     
     // 验证参数
     if (!userId || !imageUrl) {
@@ -152,57 +144,26 @@ module.exports = async function handler(req, res) {
       userData = await queryHasura(createUserQuery, { userId });
     }
     
-    // 2. 获取或创建用户经济数据
-    const getOrCreateEconomyQuery = `
-      query GetOrCreateEconomy($userId: String!) {
-        user_economy_by_pk(user_id: $userId) {
-          user_id
-          fish_food
-        }
-      }
-    `;
-    
-    let economyData = await queryHasura(getOrCreateEconomyQuery, { userId });
-    
-    // 如果用户经济数据不存在，创建一个
-    if (!economyData.user_economy_by_pk) {
-      console.log('经济数据不存在，创建新经济记录:', userId);
-      const createEconomyQuery = `
-        mutation CreateEconomy($userId: String!) {
-          insert_user_economy_one(object: { user_id: $userId, fish_food: 10 }) {
-            user_id
-            fish_food
-          }
-        }
-      `;
-      
-      economyData = await queryHasura(createEconomyQuery, { userId });
-      economyData.user_economy_by_pk = economyData.insert_user_economy_one;
-    }
-    
-    const economy = economyData.user_economy_by_pk;
-    
-    // 3. 检查鱼食余额
-    if (economy.fish_food < CREATE_COST) {
-      return res.json({
+    // 2. 检查会员权限
+    const membershipCheck = await canCreateFish(userId);
+    if (!membershipCheck.canCreate) {
+      return res.status(403).json({
         success: false,
-        insufficientFunds: true,
-        message: '鱼食不足，无法创建新鱼',
-        current: economy.fish_food,
-        required: CREATE_COST
+        error: 'Membership limit reached',
+        message: membershipCheck.reason,
+        tier: membershipCheck.tier,
+        currentCount: membershipCheck.currentCount,
+        maxCount: membershipCheck.maxCount
       });
     }
     
-    // 4. 生成随机天赋值（25-75）
-    const talent = Math.floor(Math.random() * 51) + 25;
-    
-    // 5. 执行事务：创建鱼 + 扣除鱼食
-    const transactionQuery = `
+    // 3. 创建鱼记录
+    console.log('  步骤4: 创建鱼记录...');
+    const createFishQuery = `
       mutation SubmitFish(
         $userId: String!
         $imageUrl: String!
         $artist: String!
-        $talent: Int!
         $fishName: String
         $personality: String
       ) {
@@ -213,19 +174,10 @@ module.exports = async function handler(req, res) {
             artist: $artist
             fish_name: $fishName
             personality: $personality
-            talent: $talent
-            level: 1
-            experience: 0
-            health: 10
-            max_health: 10
             upvotes: 0
-            battle_power: 0
-            is_alive: true
             is_approved: true
-            is_in_battle_mode: false
-            position_row: 0
-            total_wins: 0
-            total_losses: 0
+            report_count: 0
+            reported: false
           }
         ) {
           id
@@ -234,59 +186,28 @@ module.exports = async function handler(req, res) {
           artist
           fish_name
           personality
-          talent
-          level
-          health
-          max_health
+          upvotes
           created_at
-        }
-        
-        update_user_economy_by_pk(
-          pk_columns: { user_id: $userId }
-          _inc: { fish_food: -2 total_spent: 2 }
-        ) {
-          fish_food
         }
       }
     `;
     
-    const result = await queryHasura(transactionQuery, {
+    const result = await queryHasura(createFishQuery, {
       userId,
       imageUrl,
       artist: artist || 'Anonymous',
-      talent,
       fishName: fishName || null,
       personality: personality || null
     });
     
     const newFish = result.insert_fish_one;
-    const newBalance = result.update_user_economy_by_pk.fish_food;
     
-    // 6. 记录经济日志（单独查询，因为需要鱼ID）
-    const logQuery = `
-      mutation LogEconomy($userId: String!, $fishId: uuid!, $amount: Int!, $balance: Int!) {
-        insert_economy_log_one(
-          object: {
-            user_id: $userId,
-            fish_id: $fishId,
-            action: "create",
-            amount: $amount,
-            balance_after: $balance
-          }
-        ) {
-          id
-        }
-      }
-    `;
+    console.log('✅ 鱼创建成功！');
+    console.log('  ID:', newFish.id);
+    console.log('  名字:', newFish.fish_name);
+    console.log('  个性:', newFish.personality);
     
-    await queryHasura(logQuery, {
-      userId,
-      fishId: newFish.id,
-      amount: -CREATE_COST,
-      balance: newBalance
-    });
-    
-    // 7. 返回成功结果
+    // 4. 返回成功结果
     return res.json({
       success: true,
       message: '创建成功！',
@@ -296,17 +217,9 @@ module.exports = async function handler(req, res) {
         artist: newFish.artist,
         fishName: newFish.fish_name,
         personality: newFish.personality,
-        talent: newFish.talent,
-        level: newFish.level,
-        health: newFish.health,
-        maxHealth: newFish.max_health,
+        upvotes: newFish.upvotes,
         createdAt: newFish.created_at
-      },
-      economy: {
-        fishFood: newBalance,
-        spent: CREATE_COST
-      },
-      talentRating: getTalentRating(talent)
+      }
     });
     
   } catch (error) {

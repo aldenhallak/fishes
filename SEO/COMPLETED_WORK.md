@@ -8,7 +8,7 @@
 ### 1. 页面优化（5个核心页面）
 
 #### index.html（首页）
-- **标题优化**: "Draw a Fish Online - Free AI Fish Drawing Tool | FishArt.Online"
+- **标题优化**: "Draw a Fish Online - Free AI Fish Drawing Tool | FishTalk.app"
 - **描述优化**: 包含核心关键词，吸引点击
 - **H1优化**: "🐠 Draw a Fish Online! 🐠"
 - **内容优化**: 添加SEO友好的可见介绍段落
@@ -51,7 +51,7 @@
 
 #### about.html
 - **字数**: 2000+
-- **目标关键词**: "what is drawafish", "about fishart.online"
+- **目标关键词**: "what is drawafish", "about fishtalk.app"
 - **内容**: 项目介绍、使命、技术、团队、FAQ
 - **Schema**: Organization Schema
 - **重点**: 回答"what is drawafish"问题
@@ -177,8 +177,8 @@
 ```bash
 # 1. 提交到Google Search Console
 # 访问: https://search.google.com/search-console
-# 添加属性: https://fishart.online
-# 提交sitemap: https://fishart.online/sitemap.xml
+# 添加属性: https://fishtalk.app
+# 提交sitemap: https://fishtalk.app/sitemap.xml
 
 # 2. 发布到Product Hunt
 # 访问: https://www.producthunt.com/

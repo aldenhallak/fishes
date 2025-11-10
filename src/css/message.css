@@ -1,0 +1,462 @@
+/**
+ * 留言系统样式
+ * 用于鱼详情弹窗和个人页面
+ */
+
+/* ============================================
+   留言容器
+   ============================================ */
+
+.messages-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #e2e8f0;
+}
+
+.messages-section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.messages-section-title::before {
+  content: '💬';
+  font-size: 18px;
+}
+
+/* ============================================
+   留言列表
+   ============================================ */
+
+.messages-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+.messages-empty {
+  text-align: center;
+  padding: 30px;
+  color: #999;
+  font-size: 14px;
+}
+
+.messages-empty::before {
+  content: '📭';
+  display: block;
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+/* ============================================
+   留言卡片
+   ============================================ */
+
+.message-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.message-card:hover {
+  background: #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.message-sender {
+  font-weight: 600;
+  color: #4F46E5;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.message-sender-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366F1, #4F46E5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.message-time {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.message-content {
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  margin-bottom: 8px;
+}
+
+.message-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-visibility {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #64748b;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: white;
+}
+
+.message-visibility.public::before {
+  content: '🌍';
+}
+
+.message-visibility.private::before {
+  content: '🔒';
+}
+
+.message-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.message-delete-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.message-delete-btn:hover {
+  background: #fee2e2;
+}
+
+/* ============================================
+   发送表单
+   ============================================ */
+
+.message-form {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.message-form-group {
+  margin-bottom: 12px;
+}
+
+.message-form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.message-form-textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.message-form-textarea:focus {
+  outline: none;
+  border-color: #6366F1;
+}
+
+.message-char-count {
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: right;
+  margin-top: 4px;
+}
+
+.message-char-count.warning {
+  color: #f59e0b;
+}
+
+.message-char-count.error {
+  color: #ef4444;
+}
+
+.message-visibility-options {
+  display: flex;
+  gap: 15px;
+}
+
+.message-visibility-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.message-visibility-option input[type="radio"] {
+  cursor: pointer;
+}
+
+.message-visibility-option label {
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+}
+
+.message-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.message-submit-btn {
+  background: #6366F1;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.message-submit-btn:hover {
+  background: #4F46E5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.message-submit-btn:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.message-cancel-btn {
+  background: white;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.message-cancel-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+/* ============================================
+   错误和成功提示
+   ============================================ */
+
+.message-error {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.message-error::before {
+  content: '⚠️';
+}
+
+.message-success {
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  color: #059669;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.message-success::before {
+  content: '✅';
+}
+
+/* ============================================
+   加载状态
+   ============================================ */
+
+.messages-loading {
+  text-align: center;
+  padding: 20px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.messages-loading::before {
+  content: '⏳';
+  display: block;
+  font-size: 30px;
+  margin-bottom: 8px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ============================================
+   响应式设计
+   ============================================ */
+
+@media (max-width: 768px) {
+  .message-card {
+    padding: 10px;
+  }
+
+  .message-content {
+    font-size: 13px;
+  }
+
+  .message-form {
+    padding: 12px;
+  }
+
+  .message-form-textarea {
+    min-height: 50px;
+  }
+
+  .messages-list {
+    max-height: 250px;
+  }
+}
+
+/* ============================================
+   个人页面特定样式
+   ============================================ */
+
+.profile-messages-section {
+  margin-top: 30px;
+}
+
+.profile-messages-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-messages-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.profile-messages-count {
+  background: #6366F1;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.profile-message-card {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+.profile-message-card:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.1);
+}
+
+.profile-message-type-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.profile-message-type-badge.to-fish {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.profile-message-type-badge.to-owner {
+  background: #fce7f3;
+  color: #9f1239;
+}
+
+.profile-message-fish-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.profile-message-fish-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+}
+
+.profile-message-fish-name {
+  font-size: 12px;
+  color: #64748b;
+}
+

@@ -28,9 +28,9 @@
 
 **步骤**:
 1. 访问 https://search.google.com/search-console
-2. 添加属性: `https://fishart.online`
+2. 添加属性: `https://fishtalk.app`
 3. 验证所有权（HTML文件上传或DNS验证）
-4. 提交sitemap: `https://fishart.online/sitemap.xml`
+4. 提交sitemap: `https://fishtalk.app/sitemap.xml`
 5. 请求索引所有新页面
 
 **为什么重要**: 让Google发现和索引您的新SEO内容。
@@ -39,7 +39,7 @@
 
 #### Product Hunt (推荐优先)
 1. 访问 https://www.producthunt.com/
-2. 创建账号并发布FishArt.Online
+2. 创建账号并发布FishTalk.app
 3. 标题: "Draw a Fish Online - AI-Powered Fish Drawing Game"
 4. 描述: 突出AI实时验证、免费、社区特性
 5. 标签: #ai, #drawing, #game, #education, #creativity
@@ -56,7 +56,7 @@
 
 #### Hacker News
 1. 访问 https://news.ycombinator.com/submit
-2. 标题格式: "Show HN: FishArt.Online – Draw fish and watch them swim (AI-powered)"
+2. 标题格式: "Show HN: FishTalk.app – Draw fish and watch them swim (AI-powered)"
 3. 最佳发布时间: 美国东部时间早上8-10点
 
 #### Indie Hackers
@@ -69,7 +69,7 @@
 #### Twitter/X策略
 发布以下类型的内容:
 ```
-🐠 Just launched FishArt.Online - draw a fish and watch it swim!
+🐠 Just launched FishTalk.app - draw a fish and watch it swim!
 
 ✨ Features:
 • AI validates your drawing in real-time
@@ -77,7 +77,7 @@
 • Vote on fish from artists worldwide
 • 100% free, no signup needed
 
-Try it: https://fishart.online
+Try it: https://fishtalk.app
 
 #AI #Drawing #GameDev #Creative
 ```
@@ -85,7 +85,7 @@ Try it: https://fishart.online
 #### LinkedIn
 面向专业人士:
 ```
-Excited to share FishArt.Online - an educational tool combining AI and creativity!
+Excited to share FishTalk.app - an educational tool combining AI and creativity!
 
 Perfect for:
 - Teachers (art & STEM education)
@@ -94,7 +94,7 @@ Perfect for:
 
 Built with ONNX Runtime Web for in-browser AI inference.
 
-Check it out: https://fishart.online
+Check it out: https://fishtalk.app
 ```
 
 ## 📝 可选但推荐的任务
@@ -107,7 +107,7 @@ Check it out: https://fishart.online
 - 目标字数: 1200-1500字
 
 **文章2**: "Best Online Drawing Tools for Fish Art"
-- 重点: 工具对比（以FishArt.Online为主）
+- 重点: 工具对比（以FishTalk.app为主）
 - 关键词: "online drawing tools", "fish art tools"
 - 目标字数: 1000-1200字
 

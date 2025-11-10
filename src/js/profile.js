@@ -763,3 +763,35 @@ function showSignupPrompt() {
         `;
     }
 }
+
+// ===== 背景气泡效果 =====
+function createBackgroundBubbles() {
+    const container = document.querySelector('.background-bubbles');
+    if (!container) return;
+    
+    const bubbleCount = 15;
+    
+    for (let i = 0; i < bubbleCount; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        
+        // 随机大小
+        const size = Math.random() * 40 + 20;
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+        
+        // 随机水平位置
+        bubble.style.left = Math.random() * 100 + '%';
+        
+        // 随机动画延迟
+        bubble.style.animationDelay = Math.random() * 5 + 's';
+        
+        // 随机动画持续时间
+        bubble.style.animationDuration = (Math.random() * 3 + 4) + 's';
+        
+        container.appendChild(bubble);
+    }
+}
+
+// 页面加载时初始化气泡效果
+createBackgroundBubbles();

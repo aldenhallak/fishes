@@ -176,7 +176,7 @@ class AuthUI {
       <div class="auth-modal-content">
         <button class="auth-modal-close" aria-label="Close">&times;</button>
         <div class="auth-modal-header">
-          <h2>🐟 Sign in to FishArt</h2>
+          <h2>🐟 Sign in to FishTalk</h2>
           <p>Choose your preferred sign-in method</p>
         </div>
         <div class="auth-modal-body">
@@ -717,6 +717,12 @@ class AuthUI {
     if (myFishLink) {
       myFishLink.style.display = 'none';
     }
+    
+    // 隐藏"Settings"链接
+    const settingsLink = document.getElementById('settings-link');
+    if (settingsLink) {
+      settingsLink.style.display = 'none';
+    }
   }
 
   /**
@@ -779,6 +785,12 @@ class AuthUI {
     const myFishLink = document.getElementById('my-fish-link');
     if (myFishLink) {
       myFishLink.style.display = '';
+    }
+    
+    // 显示"Settings"链接
+    const settingsLink = document.getElementById('settings-link');
+    if (settingsLink) {
+      settingsLink.style.display = '';
     }
   }
 

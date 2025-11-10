@@ -5,7 +5,7 @@
 ### ✅ 第一阶段：页面优化（已完成）
 
 #### 1. 首页 (index.html) 优化
-- ✅ **Title优化**: "Draw a Fish Online - Free AI Fish Drawing Tool | FishArt.Online"
+- ✅ **Title优化**: "Draw a Fish Online - Free AI Fish Drawing Tool | FishTalk.app"
 - ✅ **Meta描述优化**: 包含核心关键词"draw a fish online", "drawafish", "fish drawing"
 - ✅ **H1标签优化**: "🐠 Draw a Fish Online! 🐠"
 - ✅ **可见SEO内容**: 将隐藏SEO内容改为可见的hero介绍区块

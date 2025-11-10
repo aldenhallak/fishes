@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fish Doodle Game - Draw, Share & Compete Online | FishArt.Online</title>
+    <title>Fish Doodle Game - Draw, Share & Compete Online | FishTalk.app</title>
     <meta name="description" content="Play the ultimate fish doodle game! Draw fish, see them swim in our global tank with 50K+ doodles, compete to create the weirdest fish & share with artists worldwide.">
     <meta name="keywords" content="fish doodle game, fish drawing game, online drawing game, weird fish contest, creative fish game, multiplayer doodle game, fish art community, draw fish online">
     
@@ -11,13 +11,18 @@
     <meta property="og:title" content="Fish Drawing Game - Draw, Compete & Share Online">
     <meta property="og:description" content="Join the fun fish drawing game! Create fish art, watch them swim, and compete with artists worldwide. Free online game!">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://fishart.online/fish-drawing-game.html">
-    <meta property="og:image" content="https://fishart.online/fish_logo.png">
+    <meta property="og:url" content="https://fishtalk.app/fish-drawing-game.html">
+    <meta property="og:image" content="https://fishtalk.app/fish_logo.png">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://fishart.online/fish-drawing-game.html">
+    <link rel="canonical" href="https://fishtalk.app/fish-drawing-game.html">
     
+    <link rel="stylesheet" href="src/css/animations.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
     <link rel="stylesheet" href="src/css/style.css?v=2.0">
+    <link rel="stylesheet" href="src/css/traffic.css?v=2.0">
+    <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
+    <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
     <link rel="stylesheet" href="src/css/cute-theme.css?v=2.0">
     <link rel="icon" type="image/png" href="/fish_logo.png">
     
@@ -40,12 +45,12 @@
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://fishart.online/"
+        "item": "https://fishtalk.app/"
       },{
         "@type": "ListItem",
         "position": 2,
         "name": "Fish Drawing Game",
-        "item": "https://fishart.online/fish-drawing-game.html"
+        "item": "https://fishtalk.app/fish-drawing-game.html"
       }]
     }
     </script>
@@ -55,9 +60,9 @@
     {
       "@context": "https://schema.org",
       "@type": "Game",
-      "name": "Fish Drawing Game - FishArt.Online",
+      "name": "Fish Drawing Game - FishTalk.app",
       "description": "Free online fish drawing game with AI validation. Draw fish, watch them swim in a community tank, vote on other players' art, and compete for the top spot!",
-      "url": "https://fishart.online/fish-drawing-game.html",
+      "url": "https://fishtalk.app/fish-drawing-game.html",
       "gamePlatform": "Web Browser",
       "numberOfPlayers": {
         "@type": "QuantitativeValue",
@@ -349,7 +354,69 @@
         }
     </style>
 </head>
-<body>
+<body class="game-style">
+  <!-- 背景装饰 - 浮动气泡 -->
+  <div class="game-bubbles">
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+  </div>
+
+  <!-- Top Navigation Bar -->
+  <nav class="game-nav">
+    <!-- 汉堡菜单按钮 -->
+    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="打开菜单">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <a href="index.html" class="game-logo" style="cursor: pointer; text-decoration: none; color: white;">
+      🐟 FishTalk.app
+    </a>
+    <div class="game-nav-links">
+      <!-- 登录按钮和用户菜单将由 auth-ui.js 动态插入 -->
+    </div>
+  </nav>
+
+  <!-- 侧边栏菜单 -->
+  <div id="sidebar-menu" class="sidebar-menu">
+    <div class="sidebar-header">
+      <h3>🐟 Menu</h3>
+      <button id="close-sidebar-btn" class="close-sidebar-btn" aria-label="Close menu">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link">
+        <span class="sidebar-icon">🎨</span>
+        <span>Draw Fish</span>
+      </a>
+      <a href="tank.html" class="sidebar-link">
+        <span class="sidebar-icon">🌊</span>
+        <span>Global Tank</span>
+      </a>
+      <a href="mytank.html" class="sidebar-link">
+        <span class="sidebar-icon">🏆</span>
+        <span>My Tank</span>
+      </a>
+      <a href="rank.html" class="sidebar-link">
+        <span class="sidebar-icon">⭐</span>
+        <span>Rank</span>
+      </a>
+      <a href="#" id="sidebar-share-btn" class="sidebar-link">
+        <span class="sidebar-icon">📤</span>
+        <span>Share</span>
+      </a>
+    </nav>
+  </div>
+  
+  <!-- 侧边栏遮罩 -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
     <div class="game-container">
         <div class="breadcrumb">
             <a href="index.html">Home</a> / Fish Drawing Game
@@ -364,7 +431,7 @@
         <div class="section">
             <h2>About the Fish Drawing Game</h2>
             <p style="font-size: 1.15em; line-height: 1.8;">
-                Welcome to the most fun <strong>fish drawing game online</strong>! FishArt.Online combines creative drawing with competitive gaming. 
+                Welcome to the most fun <strong>fish drawing game online</strong>! FishTalk.app combines creative drawing with competitive gaming. 
                 <strong>Draw a fish</strong>, watch it come alive and swim in our community tank, then compete with players from around the world to create the best fish art!
             </p>
             <p style="font-size: 1.15em; line-height: 1.8;">
@@ -539,17 +606,45 @@
             </ul>
         </div>
         
-        <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid #e0e0e0; text-align: center; color: #666;">
-            <p style="font-size: 1.1em; margin-bottom: 15px;">🎮 Play the Best Online Fish Drawing Game</p>
-            <p>
-                <a href="index.html" style="color: #6366F1; margin: 0 15px;">Play Now</a> |
-                <a href="tank.html" style="color: #6366F1; margin: 0 15px;">Fish Tank</a> |
-                <a href="rank.html" style="color: #6366F1; margin: 0 15px;">Rankings</a> |
-                <a href="how-to-draw-a-fish.html" style="color: #6366F1; margin: 0 15px;">Tutorial</a>
-            </p>
-            <p style="margin-top: 20px;">&copy; 2024 FishArt.Online - Free Fish Drawing Game</p>
-        </footer>
     </div>
+
+  <!-- Bottom Info Bar -->
+  <footer class="game-footer">
+    <!-- SEO Content Section -->
+    <div style="max-width: 1000px; margin: 10px auto; padding: 10px 20px; background: rgba(255, 255, 255, 0.08); border-radius: 12px; text-align: center;">
+      <p style="font-size: 14px; line-height: 1.5; color: rgba(255, 255, 255, 0.9); margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+        <strong>Draw a fish online</strong> and watch it swim in our <strong>global tank</strong> with 50,000+ doodles from artists worldwide! Our free AI tool validates your fish art in real-time. See <strong>weird, creative, and funny fish</strong> drawings. Perfect for artists, students, teachers.
+      </p>
+    </div>
+    
+    <div class="game-footer-links">
+      <a href="tank.html" class="game-footer-link">Global Fish Tank</a>
+      <a href="fish-doodle-community.html" class="game-footer-link">Community</a>
+      <a href="about.html" class="game-footer-link">About</a>
+      <a href="how-to-draw-a-fish.html" class="game-footer-link">How to Draw a Fish</a>
+      <a href="fish-drawing-game.html" class="game-footer-link">Fish Drawing Game</a>
+      <a href="faq.html" class="game-footer-link">FAQ</a>
+    </div>
+  </footer>
+
+  <!-- Supabase SDK -->
+  <script src="public/supabase-config.js?v=2.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js?v=2.3"></script>
+  
+  <script src="src/js/fish-utils.js?v=2.5"></script>
+  <script src="src/js/fishtank-favorites.js"></script>
+  <script src="src/js/social-config.js?v=2.1"></script>
+  <script src="src/js/social-share.js?v=2.1"></script>
+  <script src="src/js/auth-ui.js?v=2.5"></script>
+  <script src="src/js/fish-info-modal.js?v=1.0"></script>
+  <script src="src/js/hamburger-menu.js?v=1.0"></script>
+  <script>
+    // Initialize navigation authentication
+    if (typeof initializeAuthNavigation === 'function') {
+      initializeAuthNavigation();
+    }
+  </script>
 </body>
 </html>
 

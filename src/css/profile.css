@@ -3,8 +3,11 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+    padding-bottom: 10px; /* 减少底部内边距 */
     position: relative;
     z-index: 1;
+    /* Sticky Footer: 让主内容区域填充剩余空间 */
+    flex: 1;
 }
 
 .profile-header {
@@ -26,7 +29,7 @@
     border-radius: 20px;
     padding: 30px;
     box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
-    margin-bottom: 30px;
+    margin-bottom: 10px; /* 减少底部边距，从 30px 改为 10px */
     animation: fadeInUp 0.5s ease;
 }
 
@@ -82,8 +85,22 @@
 
 .profile-stats {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 15px;
+}
+
+/* 响应式: 在小屏幕上显示2列 */
+@media (max-width: 768px) {
+    .profile-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 在超小屏幕上显示1列 */
+@media (max-width: 480px) {
+    .profile-stats {
+        grid-template-columns: 1fr;
+    }
 }
 
 .stat-item {

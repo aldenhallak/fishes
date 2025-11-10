@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile - Your Fish Art Statistics | FishArt.Online</title>
+    <title>User Profile - Your Fish Art Statistics | FishTalk.app</title>
     <meta name="description" content="View your fish drawing statistics, total scores, and community engagement.">
     <meta name="keywords" content="user profile, fish art statistics, drawing progress, artist profile, fish drawing stats, community engagement">
     
@@ -11,10 +11,10 @@
     <meta property="og:title" content="User Profile - Your Fish Art Statistics">
     <meta property="og:description" content="View your fish drawing statistics, total scores, and community engagement.">
     <meta property="og:type" content="profile">
-    <meta property="og:url" content="https://fishart.online/profile.html">
+    <meta property="og:url" content="https://fishtalk.app/profile.html">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://fishart.online/profile.html">
+    <link rel="canonical" href="https://fishtalk.app/profile.html">
     
     <link rel="stylesheet" href="src/css/style.css?v=2.0">
     <link rel="stylesheet" href="src/css/profile.css?v=2.0">
@@ -34,6 +34,9 @@
 
 </head>
 <body>
+  <!-- 海洋风格背景气泡 -->
+  <div class="background-bubbles"></div>
+
   <div class="nav-links">
         <a href="index.html">draw</a>
         <a href="tank.html">tank</a>
@@ -91,6 +94,15 @@
                 <button onclick="shareProfile()" class="action-btn">Share Profile</button>
             </div>
         </div>
+        
+        <!-- Messages Section -->
+        <div id="profile-messages-section" class="profile-messages-section" style="display: none;">
+            <div class="profile-messages-header">
+                <h3 class="profile-messages-title">收到的留言</h3>
+                <span class="profile-messages-count" id="profile-messages-count">0</span>
+            </div>
+            <div id="profile-messages-container"></div>
+        </div>
     </div>
     
     <script src="src/js/footer-utils.js"></script>
@@ -106,5 +118,30 @@
         // Initialize navigation authentication
         initializeAuthNavigation();
     </script>
+
+  <!-- Game Style Footer -->
+  <footer class="game-footer">
+    <div class="game-footer-links">
+      <a href="tank.html" class="game-footer-link">Global Fish Tank</a>
+      <a href="fish-doodle-community.html" class="game-footer-link">Community</a>
+      <a href="about.html" class="game-footer-link">About</a>
+      <a href="how-to-draw-a-fish.html" class="game-footer-link">How to Draw a Fish</a>
+      <a href="fish-drawing-game.html" class="game-footer-link">Fish Drawing Game</a>
+      <a href="faq.html" class="game-footer-link">FAQ</a>
+    </div>
+    <p style="margin: 6px 0 4px; color: rgba(255, 255, 255, 0.9); font-size: 13px; line-height: 1.4;">
+      🎨 Based on 
+      <a href="https://github.com/aldenhallak/fishes" target="_blank" rel="noopener noreferrer" 
+         style="color: white; font-weight: 700; text-decoration: underline;">DrawAFish</a>
+      by
+      <a href="https://github.com/aldenhallak" target="_blank" rel="noopener noreferrer"
+         style="color: white; font-weight: 700; text-decoration: underline;">aldenhallak</a>
+    </p>
+  </footer>
+
+  <!-- Message System -->
+  <link rel="stylesheet" href="src/css/message.css">
+  <script src="src/js/message-client.js"></script>
+  <script src="src/js/message-ui.js"></script>
 </body>
 </html>

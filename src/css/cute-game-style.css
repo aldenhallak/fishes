@@ -57,6 +57,10 @@
 }
 
 /* ===== 全局样式 ===== */
+html {
+  height: 100%;
+}
+
 body.game-style {
   font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
   background: var(--ocean-gradient);
@@ -67,6 +71,10 @@ body.game-style {
   position: relative;
   margin: 0;
   padding: 0;
+  /* Sticky Footer 布局 */
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ===== 海洋背景装饰 ===== */
@@ -125,6 +133,7 @@ body.game-style {
   justify-content: space-between;
   align-items: center;
   animation: slideDown 0.5s ease;
+  flex-shrink: 0; /* 防止导航栏被压缩 */
 }
 
 .game-logo {
@@ -573,35 +582,42 @@ body.game-style {
 .game-footer {
   background: linear-gradient(180deg, rgba(74, 144, 226, 0.95) 0%, rgba(53, 122, 189, 0.95) 100%);
   backdrop-filter: blur(8px);
-  padding: 20px var(--game-space-lg); /* 减小垂直padding */
+  padding: 16px 24px; /* 压缩内边距 */
   text-align: center;
   border-top: 2px solid rgba(255, 255, 255, 0.3);
-  margin-top: 60px; /* 增加与上方按钮的间距 */
+  margin-top: auto; /* 自动推到底部 */
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
   color: white;
+  flex-shrink: 0; /* 防止 footer 被压缩 */
 }
 
 .game-footer-links {
   display: flex;
-  gap: var(--game-space-md);
+  gap: 24px; /* 固定间隔，确保按钮之间有足够空间 */
   justify-content: center;
   flex-wrap: wrap;
-  margin: 10px 0; /* 减小上下边距 */
+  margin: 8px 0; /* 进一步减小上下边距 */
 }
 
 .game-footer-link {
   color: white;
   text-decoration: none;
-  font-weight: 600;
-  padding: 10px 18px;
-  border-radius: var(--radius-md);
-  transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.1);
+  font-weight: 400;
+  padding: 8px 16px; /* 添加内边距，让按钮更容易点击和识别 */
+  border-radius: 6px; /* 圆角让每个链接更独立 */
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.1); /* 半透明背景 */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* 边框增强分隔感 */
+  box-shadow: none;
+  white-space: nowrap; /* 防止文字换行 */
 }
 
 .game-footer-link:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.2); /* 悬停时背景变亮 */
+  transform: translateY(-2px); /* 轻微上浮效果 */
+  border-color: rgba(255, 255, 255, 0.4); /* 边框变亮 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+  text-decoration: none;
 }
 
 /* 社交按钮组 */
@@ -867,6 +883,12 @@ body.game-style {
   
   .game-footer-links {
     flex-direction: column;
-    gap: var(--game-space-sm);
+    gap: 12px; /* 移动设备上较小的间隔 */
+    align-items: center; /* 居中对齐 */
+  }
+  
+  .game-footer-link {
+    min-width: 200px; /* 移动设备上设置最小宽度 */
+    text-align: center; /* 文字居中 */
   }
 }

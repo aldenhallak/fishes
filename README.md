@@ -1,13 +1,13 @@
 20251030-22：23
 
 
-# FishArt.Online - Interactive Fish Drawing
+# FishTalk.app - Interactive Fish Drawing
 
-🐟 **[FishArt.Online](https://fishart.online)** 🐟
+🐟 **[FishTalk.app](https://fishtalk.app)** 🐟
 
 Users have their fish drawings AI-validated in real time and watch their creations swim in a shared tank. 
 
-[![Fish Drawing](https://img.shields.io/badge/Game-Live-brightgreen)](https://fishart.online)
+[![Fish Drawing](https://img.shields.io/badge/Game-Live-brightgreen)](https://fishtalk.app)
 [![AI Powered](https://img.shields.io/badge/AI-ONNX-blue)](https://onnx.ai/)
 [![Community](https://img.shields.io/badge/Community-Voting-orange)](#features)
 
@@ -76,7 +76,7 @@ Images → Qiniu Cloud CDN (3000+ nodes)
 
 ## 🚀 Getting Started
 
-1. **Visit [FishArt.Online](https://fishart.online)**
+1. **Visit [FishTalk.app](https://fishtalk.app)**
 2. **Start drawing** on the canvas (fish should face right!)
 3. **Watch the AI** give feedback through background color changes
 4. **Submit your fish** when you're happy with it
@@ -136,11 +136,11 @@ Images → Qiniu Cloud CDN (3000+ nodes)
 
 ### [fish-trainer](https://github.com/aldenhallak/fish-trainer)
 - Contains the PyTorch code for training the fish doodle classifier.
-- Exports the trained model to ONNX format, which is used by FishArt.Online for in-browser inference.
+- Exports the trained model to ONNX format, which is used by FishTalk.app for in-browser inference.
 - Includes data augmentation, preprocessing, and model evaluation scripts.
 
 ### [fish-be](https://github.com/aldenhallak/fish-be)
-- The backend for FishArt.Online, deployed as a serverless function (I'm using cloud run :~)).
+- The backend for FishTalk.app, deployed as a serverless function (I'm using cloud run :~)).
 - Handles fish image uploads, processes and stores submissions, and returns the canonical fish image for the tank.
 - May also provide endpoints for moderation, stats, or gallery features.
 
