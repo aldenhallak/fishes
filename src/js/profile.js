@@ -22,6 +22,11 @@ async function getUserProfileFromHasura(userId) {
                         }
                     }
                 }
+                fish_favorites_aggregate(where: {user_id: {_eq: $userId}}) {
+                    aggregate {
+                        count
+                    }
+                }
             }
         `;
 
@@ -53,6 +58,17 @@ async function getUserProfileFromHasura(userId) {
 
         const user = result.data.users_by_pk;
         
+        // Get favorite count from separate query
+        const favoriteCount = result.data.fish_favorites_aggregate?.aggregate?.count || 0;
+        
+        // Debug logging
+        console.log('📊 Profile data:', {
+            userId: user.id,
+            fishCount: user.fishes_aggregate.aggregate.count || 0,
+            favoriteCount: favoriteCount,
+            rawData: result.data
+        });
+        
         // Transform to match expected profile format
         return {
             userId: user.id,
@@ -64,7 +80,8 @@ async function getUserProfileFromHasura(userId) {
             fishCount: user.fishes_aggregate.aggregate.count || 0,
             totalScore: user.fishes_aggregate.aggregate.sum?.upvotes || 0,
             totalUpvotes: user.fishes_aggregate.aggregate.sum?.upvotes || 0,
-            reputationScore: user.reputation_score || 0
+            reputationScore: user.reputation_score || 0,
+            favoriteCount: favoriteCount
         };
     } catch (error) {
         console.error('Error fetching profile from Hasura:', error);
@@ -186,6 +203,12 @@ function displayProfile(profile, searchedUserId = null) {
     // Update statistics
     document.getElementById('fish-count').textContent = profile.fishCount || 0;
     document.getElementById('total-upvotes').textContent = profile.totalUpvotes || 0;
+    
+    // Update favorite count if element exists
+    const favoriteCountElement = document.getElementById('favorite-count');
+    if (favoriteCountElement) {
+        favoriteCountElement.textContent = profile.favoriteCount || 0;
+    }
 
     // Note: Score color removed as we now only use upvotes
 
@@ -281,7 +304,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         createdAt: new Date().toISOString(),
                         fishCount: 0,
                         totalUpvotes: 0,
-                        reputationScore: 0
+                        reputationScore: 0,
+                        favoriteCount: 0
                     };
                     displayProfile(fallbackProfile, userId);
                 });
@@ -452,17 +476,8 @@ function exitEditMode() {
 
     const displayName = currentProfile.displayName || currentProfile.artistName || 'Anonymous User';
     
-    // Show different labels based on login status
-    let displayText;
-    if (isCurrentUser && isLoggedIn) {
-        displayText = `${displayName} (You)`;
-    } else if (isCurrentUser && !isLoggedIn) {
-        displayText = `${displayName} (Your Local Profile)`;
-    } else {
-        displayText = displayName;
-    }
-    
-    profileName.textContent = displayText;
+    // 直接显示用户名，不添加任何后缀
+    profileName.textContent = displayName;
 
     // Update avatar with new initial
     const nameForInitial = currentProfile.displayName || currentProfile.artistName || 'User';

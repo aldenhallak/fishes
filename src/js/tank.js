@@ -782,9 +782,92 @@ async function loadInitialFish(sortType = 'recent') {
         const allFishDocs = await getFishBySort(sortType, maxTankCapacity); // Load based on current capacity
         console.log(`🐠 Received ${allFishDocs ? allFishDocs.length : 0} fish documents`);
 
+        // Get current user ID to filter user's own fish
+        let currentUserId = null;
+        try {
+            if (typeof getCurrentUserId === 'function') {
+                currentUserId = await getCurrentUserId();
+            }
+        } catch (error) {
+            console.warn('Failed to get current user ID:', error);
+        }
+
+        // Filter user's own fish - keep only the newest one
+        let filteredFishDocs = allFishDocs;
+        if (currentUserId) {
+            const userFishDocs = [];
+            const otherFishDocs = [];
+
+            allFishDocs.forEach(doc => {
+                // Handle different possible backend API formats
+                let data;
+                if (typeof doc.data === 'function') {
+                    data = doc.data();
+                } else if (doc.data && typeof doc.data === 'object') {
+                    data = doc.data;
+                } else if (doc.id && (doc.image || doc.Image)) {
+                    data = doc;
+                } else {
+                    otherFishDocs.push(doc);
+                    return;
+                }
+
+                // Check if this fish belongs to the current user
+                const fishUserId = data.user_id || data.UserId || data.userId || data.owner_id || data.ownerId;
+                if (fishUserId === currentUserId) {
+                    userFishDocs.push(doc);
+                } else {
+                    otherFishDocs.push(doc);
+                }
+            });
+
+            // If user has multiple fish, keep only the newest one
+            if (userFishDocs.length > 1) {
+                // Sort user's fish by creation date (newest first)
+                userFishDocs.sort((a, b) => {
+                    let aData, bData;
+                    if (typeof a.data === 'function') {
+                        aData = a.data();
+                    } else if (a.data && typeof a.data === 'object') {
+                        aData = a.data;
+                    } else {
+                        aData = a;
+                    }
+
+                    if (typeof b.data === 'function') {
+                        bData = b.data();
+                    } else if (b.data && typeof b.data === 'object') {
+                        bData = b.data;
+                    } else {
+                        bData = b;
+                    }
+
+                    const aDate = aData.CreatedAt || aData.createdAt;
+                    const bDate = bData.CreatedAt || bData.createdAt;
+
+                    if (!aDate && !bDate) return 0;
+                    if (!aDate) return 1;
+                    if (!bDate) return -1;
+
+                    const aTime = aDate instanceof Date ? aDate.getTime() : new Date(aDate).getTime();
+                    const bTime = bDate instanceof Date ? bDate.getTime() : new Date(bDate).getTime();
+
+                    return bTime - aTime; // Newest first
+                });
+
+                // Keep only the newest user fish
+                const newestUserFish = userFishDocs[0];
+                console.log(`🐠 User has ${userFishDocs.length} fish, keeping only the newest one`);
+                filteredFishDocs = [newestUserFish, ...otherFishDocs];
+            } else {
+                // User has 0 or 1 fish, no filtering needed
+                filteredFishDocs = allFishDocs;
+            }
+        }
+
         // Track the newest timestamp for the listener
-        if (allFishDocs.length > 0) {
-            const sortedByDate = allFishDocs.filter(doc => {
+        if (filteredFishDocs.length > 0) {
+            const sortedByDate = filteredFishDocs.filter(doc => {
                 // Handle different possible backend API formats for filtering
                 let data;
                 if (typeof doc.data === 'function') {
@@ -840,7 +923,7 @@ async function loadInitialFish(sortType = 'recent') {
             }
         }
 
-        allFishDocs.forEach((doc, index) => {
+        filteredFishDocs.forEach((doc, index) => {
 
             // Handle different possible backend API formats
             let data, fishId;
@@ -896,6 +979,111 @@ async function loadInitialFish(sortType = 'recent') {
                 console.log(`✅ Assigned ${fishes.length} fish to ${tankLayoutManager.rows.length} rows`);
             }, 1000); // Wait 1 second for images to load
         }
+        
+        // Filter user's fish after loading - keep only the newest one
+        setTimeout(async () => {
+            await filterUserFishToNewestOnly();
+        }, 1500); // Wait 1.5 seconds for all images to load
+    }
+}
+
+// Filter user's fish to keep only the newest one
+async function filterUserFishToNewestOnly() {
+    try {
+        // Get current user ID from multiple sources
+        let currentUserId = null;
+        
+        // Try getCurrentUserId function first
+        if (typeof getCurrentUserId === 'function') {
+            try {
+                currentUserId = await getCurrentUserId();
+            } catch (error) {
+                console.warn('getCurrentUserId failed:', error);
+            }
+        }
+        
+        // Fallback to localStorage if getCurrentUserId returns null
+        if (!currentUserId) {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                try {
+                    const parsed = JSON.parse(userData);
+                    currentUserId = parsed.userId || parsed.uid || parsed.id;
+                } catch (error) {
+                    console.warn('Failed to parse userData:', error);
+                }
+            }
+            
+            // Also try userId directly from localStorage
+            if (!currentUserId) {
+                currentUserId = localStorage.getItem('userId');
+            }
+        }
+        
+        if (!currentUserId) {
+            console.log('🐠 No user ID found, skipping user fish filtering');
+            return; // User not logged in, no filtering needed
+        }
+        
+        console.log('🐠 Filtering user fish, currentUserId:', currentUserId);
+        
+        // Find all user's fish in the tank
+        const userFish = fishes.filter(f => {
+            if (f.isDying) return false;
+            const fUserId = f.userId || f.user_id || f.UserId || f.owner_id || f.ownerId;
+            return fUserId === currentUserId;
+        });
+        
+        // If user has multiple fish, keep only the newest one
+        if (userFish.length > 1) {
+            // Sort by creation date (newest first)
+            userFish.sort((a, b) => {
+                const aDate = a.createdAt;
+                const bDate = b.createdAt;
+                
+                // Handle Firestore timestamp format
+                let aTime, bTime;
+                if (aDate && aDate._seconds) {
+                    aTime = aDate._seconds * 1000 + (aDate._nanoseconds || 0) / 1000000;
+                } else if (aDate instanceof Date) {
+                    aTime = aDate.getTime();
+                } else if (aDate) {
+                    aTime = new Date(aDate).getTime();
+                } else {
+                    aTime = 0;
+                }
+                
+                if (bDate && bDate._seconds) {
+                    bTime = bDate._seconds * 1000 + (bDate._nanoseconds || 0) / 1000000;
+                } else if (bDate instanceof Date) {
+                    bTime = bDate.getTime();
+                } else if (bDate) {
+                    bTime = new Date(bDate).getTime();
+                } else {
+                    bTime = 0;
+                }
+                
+                return bTime - aTime; // Newest first
+            });
+            
+            // Keep only the newest one, remove the rest
+            const newestUserFish = userFish[0];
+            const fishToRemove = userFish.slice(1);
+            
+            console.log(`🐠 User has ${userFish.length} fish, keeping only the newest one (ID: ${newestUserFish.docId || newestUserFish.id})`);
+            
+            // Remove old user fish with death animation
+            fishToRemove.forEach((oldFish, index) => {
+                setTimeout(() => {
+                    const oldFishIndex = fishes.indexOf(oldFish);
+                    if (oldFishIndex !== -1 && !oldFish.isDying) {
+                        animateFishDeath(oldFishIndex);
+                    }
+                }, index * 200); // Stagger the death animations
+            });
+        }
+    } catch (error) {
+        console.error('Error filtering user fish:', error);
     }
 }
 
@@ -923,10 +1111,21 @@ async function checkForNewFish() {
         // 使用getFishBySort获取最新的鱼，确保使用正确的后端
         const newFishDocs = await getFishBySort('recent', 5, null, 'desc', null);
         
+        // Get current user ID once before processing fish
+        let currentUserId = null;
+        try {
+            if (typeof getCurrentUserId === 'function') {
+                currentUserId = await getCurrentUserId();
+            }
+        } catch (error) {
+            console.warn('Failed to get current user ID in checkForNewFish:', error);
+        }
+
         // 转换为后端API格式
         const data = { data: newFishDocs };
 
-        data.data.forEach((fishItem) => {
+        // Use for...of loop instead of forEach to support async operations
+        for (const fishItem of data.data) {
             // Handle different possible backend API formats
             let fishData, fishId;
 
@@ -945,24 +1144,82 @@ async function checkForNewFish() {
             } else {
                 // Unknown format
                 console.warn('Skipping fish with unknown format in checkForNewFish:', fishItem);
-                return;
+                continue;
             }
 
             // Skip if data is still undefined or null
             if (!fishData) {
                 console.warn('Skipping fish with no data in checkForNewFish:', fishId, fishItem);
-                return;
+                continue;
             }
 
             const imageUrl = fishData.image || fishData.Image; // Try lowercase first, then uppercase
 
             if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.startsWith('http')) {
                 console.warn('Skipping fish with invalid image:', fishId, fishData);
-                return;
+                continue;
             }
 
             // Only add if we haven't seen this fish before
             if (!fishes.some(f => f.docId === fishId)) {
+
+                // Check if this new fish belongs to the current user
+                const fishUserId = fishData.user_id || fishData.UserId || fishData.userId || fishData.owner_id || fishData.ownerId;
+                const isUserFish = currentUserId && fishUserId === currentUserId;
+
+                // If this is user's fish, check if there are other user's fish in the tank
+                if (isUserFish) {
+                    // Find all user's fish currently in the tank
+                    const userFishInTank = fishes.filter(f => {
+                        if (f.isDying) return false;
+                        const fUserId = f.userId || f.user_id || f.UserId || f.owner_id || f.ownerId;
+                        return fUserId === currentUserId;
+                    });
+
+                    // If user already has fish in tank, remove the oldest one(s) to keep only the newest
+                    if (userFishInTank.length > 0) {
+                        // Sort user's fish by creation date (oldest first)
+                        userFishInTank.sort((a, b) => {
+                            const aDate = a.createdAt;
+                            const bDate = b.createdAt;
+                            if (!aDate && !bDate) return 0;
+                            if (!aDate) return 1;
+                            if (!bDate) return -1;
+                            const aTime = aDate instanceof Date ? aDate.getTime() : new Date(aDate).getTime();
+                            const bTime = bDate instanceof Date ? bDate.getTime() : new Date(bDate).getTime();
+                            return aTime - bTime; // Oldest first
+                        });
+
+                        // Remove all old user fish except the newest one (if new fish is newer)
+                        const newestUserFishInTank = userFishInTank[userFishInTank.length - 1];
+                        const newFishDate = fishData.CreatedAt || fishData.createdAt;
+                        const newestInTankDate = newestUserFishInTank.createdAt;
+
+                        // Compare dates to see if new fish is newer
+                        let shouldRemoveOldFish = true;
+                        if (newFishDate && newestInTankDate) {
+                            const newFishTime = newFishDate instanceof Date ? newFishDate.getTime() : new Date(newFishDate).getTime();
+                            const newestInTankTime = newestInTankDate instanceof Date ? newestInTankDate.getTime() : new Date(newestInTankDate).getTime();
+                            shouldRemoveOldFish = newFishTime > newestInTankTime;
+                        }
+
+                        if (shouldRemoveOldFish) {
+                            // Remove all old user fish
+                            userFishInTank.forEach((oldFish, index) => {
+                                const oldFishIndex = fishes.indexOf(oldFish);
+                                if (oldFishIndex !== -1 && !oldFish.isDying) {
+                                    console.log(`🐠 Removing old user fish to make room for newest one`);
+                                    animateFishDeath(oldFishIndex);
+                                }
+                            });
+                        } else {
+                            // New fish is older than existing user fish, don't add it
+                            console.log(`🐠 New fish is older than existing user fish, skipping`);
+                            continue;
+                        }
+                    }
+                }
+
                 // Update newest timestamp
                 const fishDate = fishData.CreatedAt || fishData.createdAt;
                 if (!newestFishTimestamp || (fishDate && new Date(fishDate) > new Date(newestFishTimestamp))) {
@@ -971,8 +1228,17 @@ async function checkForNewFish() {
 
                 // If at capacity, animate death of oldest fish, then add new one
                 if (fishes.length >= maxTankCapacity) {
-                    // Find the oldest fish by creation date (excluding dying fish)
-                    const aliveFish = fishes.filter(f => !f.isDying);
+                    // Find the oldest fish by creation date (excluding dying fish and user's fish if this is user's new fish)
+                    const aliveFish = fishes.filter(f => {
+                        if (f.isDying) return false;
+                        // If adding user's fish, exclude other user's fish from removal candidates
+                        if (isUserFish) {
+                            const fUserId = f.userId || f.user_id || f.UserId || f.owner_id || f.ownerId;
+                            return fUserId !== currentUserId;
+                        }
+                        return true;
+                    });
+
                     let oldestFishIndex = -1;
                     let oldestDate = null;
 
@@ -1004,6 +1270,15 @@ async function checkForNewFish() {
                                 showNewFishNotification(fishData.Artist || fishData.artist || 'Anonymous');
                             });
                         });
+                    } else {
+                        // No fish to remove, but we're at capacity - add anyway (user's old fish were already removed)
+                        loadFishImageToTank(imageUrl, {
+                            ...fishData,
+                            docId: fishId
+                        }, (newFish) => {
+                            // Show subtle notification
+                            showNewFishNotification(fishData.Artist || fishData.artist || 'Anonymous');
+                        });
                     }
                 } else {
                     // Tank not at capacity, add fish immediately
@@ -1016,7 +1291,7 @@ async function checkForNewFish() {
                     });
                 }
             }
-        });
+        }
     } catch (error) {
         console.error('Error checking for new fish:', error);
     }
@@ -1433,55 +1708,42 @@ function handleFishTap(e) {
         tapY = e.clientY - rect.top;
     }
 
-    console.log('[handleFishTap] tapX:', tapX, 'tapY:', tapY, 'fishCount:', fishes.length);
 
     // Check if tap hit any fish (iterate from top to bottom)
     for (let i = fishes.length - 1; i >= 0; i--) {
         const fish = fishes[i];
 
-        // Calculate fish position including any swimming animation
-        const time = Date.now() / 500;
+        // Use base position (fish.y) for hit detection instead of animated position
+        // This makes the click target stable and easier to hit
         const fishX = fish.x;
-        let fishY = fish.y;
-
-        // Account for swimming animation unless fish is dying
-        if (!fish.isDying) {
-            const foodDetectionData = foodDetectionCache.get(fish.docId || `fish_${i}`);
-            const hasNearbyFood = foodDetectionData ? foodDetectionData.hasNearbyFood : false;
-            const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
-            fishY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
-        }
+        const fishY = fish.y;
 
         const isWithinBounds = tapX >= fishX && tapX <= fishX + fish.width &&
                               tapY >= fishY && tapY <= fishY + fish.height;
-        
-        if (i === 0) {
-            console.log('[handleFishTap] fish[0]:', {
-                fishX, fishY, width: fish.width, height: fish.height,
-                tapX, tapY, isWithinBounds
-            });
-        }
 
         // Check if tap is within fish bounds
         if (isWithinBounds) {
-            console.log('[handleFishTap] HIT fish[' + i + ']');
+            // Calculate the current animated swimY for freezing
+            const time = Date.now() / 500;
+            let frozenSwimY = fish.y;
+            
+            if (!fish.isDying) {
+                const foodDetectionData = foodDetectionCache.get(fish.docId || `fish_${i}`);
+                const hasNearbyFood = foodDetectionData ? foodDetectionData.hasNearbyFood : false;
+                const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
+                frozenSwimY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
+            }
+            
             // 标记鱼被点击，冻结游泳动画
             fish.isClicked = true;
             fish.clickedAt = Date.now();
-            fish.frozenSwimY = fishY; // 保存点击时的 swimY
-            
-            console.log('[handleFishTap] Set fish clicked:', {
-                isClicked: fish.isClicked,
-                clickedAt: fish.clickedAt,
-                frozenSwimY: fish.frozenSwimY
-            });
+            fish.frozenSwimY = frozenSwimY; // 保存点击时的 swimY
             
             showFishInfoModal(fish);
             return; // Found a fish, don't handle tank tap
         }
     }
 
-    console.log('[handleFishTap] No fish hit, calling handleTankTap');
     // No fish was hit, handle tank tap
     handleTankTap(e);
 }
@@ -1673,138 +1935,143 @@ function animateFishes() {
             // Slow down horizontal movement
             fish.speed = fish.speed * (1 - progress * 0.5);
         } else if (!fish.isEntering) {
-            // Normal fish behavior (only if not entering)
-            // Use cached food detection to improve performance
-            const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
-            let foodDetectionData = foodDetectionCache.get(fishId);
+            // Check if fish is clicked and frozen
+            const isClickedAndFrozen = fish.isClicked && fish.clickedAt && (Date.now() - fish.clickedAt < 5000);
+            
+            if (!isClickedAndFrozen) {
+                // Normal fish behavior (only if not entering and not clicked)
+                // Use cached food detection to improve performance
+                const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
+                let foodDetectionData = foodDetectionCache.get(fishId);
 
-            if (!foodDetectionData) {
-                // Calculate food detection data and cache it
-                const fishCenterX = fish.x + fish.width / 2;
-                const fishCenterY = fish.y + fish.height / 2;
+                if (!foodDetectionData) {
+                    // Calculate food detection data and cache it
+                    const fishCenterX = fish.x + fish.width / 2;
+                    const fishCenterY = fish.y + fish.height / 2;
 
-                let nearestFood = null;
-                let nearestDistance = FOOD_DETECTION_RADIUS;
-                let hasNearbyFood = false;
+                    let nearestFood = null;
+                    let nearestDistance = FOOD_DETECTION_RADIUS;
+                    let hasNearbyFood = false;
 
-                // Optimize: Only check active food pellets
-                const activePellets = foodPellets.filter(p => !p.consumed);
+                    // Optimize: Only check active food pellets
+                    const activePellets = foodPellets.filter(p => !p.consumed);
 
-                // Find nearest food pellet using more efficient distance calculation
-                for (const pellet of activePellets) {
-                    const dx = pellet.x - fishCenterX;
-                    const dy = pellet.y - fishCenterY;
+                    // Find nearest food pellet using more efficient distance calculation
+                    for (const pellet of activePellets) {
+                        const dx = pellet.x - fishCenterX;
+                        const dy = pellet.y - fishCenterY;
 
-                    // Use squared distance for initial comparison (more efficient)
-                    const distanceSquared = dx * dx + dy * dy;
-                    const radiusSquared = FOOD_DETECTION_RADIUS * FOOD_DETECTION_RADIUS;
+                        // Use squared distance for initial comparison (more efficient)
+                        const distanceSquared = dx * dx + dy * dy;
+                        const radiusSquared = FOOD_DETECTION_RADIUS * FOOD_DETECTION_RADIUS;
 
-                    if (distanceSquared < radiusSquared) {
-                        hasNearbyFood = true;
+                        if (distanceSquared < radiusSquared) {
+                            hasNearbyFood = true;
 
-                        // Only calculate actual distance if within radius
-                        const distance = Math.sqrt(distanceSquared);
-                        if (distance < nearestDistance) {
-                            nearestFood = pellet;
-                            nearestDistance = distance;
+                            // Only calculate actual distance if within radius
+                            const distance = Math.sqrt(distanceSquared);
+                            if (distance < nearestDistance) {
+                                nearestFood = pellet;
+                                nearestDistance = distance;
+                            }
+                        }
+                    }
+
+                    foodDetectionData = {
+                        nearestFood,
+                        nearestDistance,
+                        hasNearbyFood,
+                        fishCenterX,
+                        fishCenterY
+                    };
+
+                    foodDetectionCache.set(fishId, foodDetectionData);
+                }
+
+                // Initialize velocity if not set
+                if (!fish.vx) fish.vx = 0;
+                if (!fish.vy) fish.vy = 0;
+
+                // Always apply base swimming movement
+                fish.vx += fish.speed * fish.direction * 0.1; // Continuous base movement
+
+                // Apply food attraction using cached data
+                if (foodDetectionData.nearestFood) {
+                    const dx = foodDetectionData.nearestFood.x - foodDetectionData.fishCenterX;
+                    const dy = foodDetectionData.nearestFood.y - foodDetectionData.fishCenterY;
+                    const distance = foodDetectionData.nearestDistance;
+
+                    if (distance > 0) {
+                        // Calculate attraction force (stronger when closer, with smooth falloff)
+                        const distanceRatio = distance / FOOD_DETECTION_RADIUS;
+                        const attractionStrength = FOOD_ATTRACTION_FORCE * (1 - distanceRatio * distanceRatio);
+
+                        // Apply force towards food more gently
+                        fish.vx += (dx / distance) * attractionStrength;
+                        fish.vy += (dy / distance) * attractionStrength;
+
+                        // Update fish direction to face the food (but not too abruptly)
+                        if (Math.abs(dx) > 10) { // Only change direction if food is significantly left/right
+                            fish.direction = dx > 0 ? 1 : -1;
                         }
                     }
                 }
 
-                foodDetectionData = {
-                    nearestFood,
-                    nearestDistance,
-                    hasNearbyFood,
-                    fishCenterX,
-                    fishCenterY
-                };
+                // Always move based on velocity
+                fish.x += fish.vx;
+                fish.y += fish.vy;
 
-                foodDetectionCache.set(fishId, foodDetectionData);
-            }
+                // Handle edge collisions BEFORE applying friction
+                let hitEdge = false;
 
-            // Initialize velocity if not set
-            if (!fish.vx) fish.vx = 0;
-            if (!fish.vy) fish.vy = 0;
-
-            // Always apply base swimming movement
-            fish.vx += fish.speed * fish.direction * 0.1; // Continuous base movement
-
-            // Apply food attraction using cached data
-            if (foodDetectionData.nearestFood) {
-                const dx = foodDetectionData.nearestFood.x - foodDetectionData.fishCenterX;
-                const dy = foodDetectionData.nearestFood.y - foodDetectionData.fishCenterY;
-                const distance = foodDetectionData.nearestDistance;
-
-                if (distance > 0) {
-                    // Calculate attraction force (stronger when closer, with smooth falloff)
-                    const distanceRatio = distance / FOOD_DETECTION_RADIUS;
-                    const attractionStrength = FOOD_ATTRACTION_FORCE * (1 - distanceRatio * distanceRatio);
-
-                    // Apply force towards food more gently
-                    fish.vx += (dx / distance) * attractionStrength;
-                    fish.vy += (dy / distance) * attractionStrength;
-
-                    // Update fish direction to face the food (but not too abruptly)
-                    if (Math.abs(dx) > 10) { // Only change direction if food is significantly left/right
-                        fish.direction = dx > 0 ? 1 : -1;
-                    }
+                // Left and right edges
+                if (fish.x <= 0) {
+                    fish.x = 0;
+                    fish.direction = 1; // Face right
+                    fish.vx = Math.abs(fish.vx); // Ensure velocity points right
+                    hitEdge = true;
+                } else if (fish.x >= swimCanvas.width - fish.width) {
+                    fish.x = swimCanvas.width - fish.width;
+                    fish.direction = -1; // Face left
+                    fish.vx = -Math.abs(fish.vx); // Ensure velocity points left
+                    hitEdge = true;
                 }
-            }
 
-            // Always move based on velocity
-            fish.x += fish.vx;
-            fish.y += fish.vy;
+                // Top and bottom edges
+                if (fish.y <= 0) {
+                    fish.y = 0;
+                    fish.vy = Math.abs(fish.vy) * 0.5; // Bounce off top, but gently
+                    hitEdge = true;
+                } else if (fish.y >= swimCanvas.height - fish.height) {
+                    fish.y = swimCanvas.height - fish.height;
+                    fish.vy = -Math.abs(fish.vy) * 0.5; // Bounce off bottom, but gently
+                    hitEdge = true;
+                }
 
-            // Handle edge collisions BEFORE applying friction
-            let hitEdge = false;
+                // Apply friction - less when attracted to food
+                const frictionFactor = foodDetectionData.hasNearbyFood ? 0.88 : 0.85;
+                fish.vx *= frictionFactor;
+                fish.vy *= frictionFactor;
 
-            // Left and right edges
-            if (fish.x <= 0) {
-                fish.x = 0;
-                fish.direction = 1; // Face right
-                fish.vx = Math.abs(fish.vx); // Ensure velocity points right
-                hitEdge = true;
-            } else if (fish.x >= swimCanvas.width - fish.width) {
-                fish.x = swimCanvas.width - fish.width;
-                fish.direction = -1; // Face left
-                fish.vx = -Math.abs(fish.vx); // Ensure velocity points left
-                hitEdge = true;
-            }
+                // Limit velocity to prevent fish from moving too fast
+                const maxVel = fish.speed * 2;
+                const velMag = Math.sqrt(fish.vx * fish.vx + fish.vy * fish.vy);
+                if (velMag > maxVel) {
+                    fish.vx = (fish.vx / velMag) * maxVel;
+                    fish.vy = (fish.vy / velMag) * maxVel;
+                }
 
-            // Top and bottom edges
-            if (fish.y <= 0) {
-                fish.y = 0;
-                fish.vy = Math.abs(fish.vy) * 0.5; // Bounce off top, but gently
-                hitEdge = true;
-            } else if (fish.y >= swimCanvas.height - fish.height) {
-                fish.y = swimCanvas.height - fish.height;
-                fish.vy = -Math.abs(fish.vy) * 0.5; // Bounce off bottom, but gently
-                hitEdge = true;
-            }
+                // Ensure minimum movement to prevent complete stops
+                if (Math.abs(fish.vx) < 0.1) {
+                    fish.vx = fish.speed * fish.direction * 0.1;
+                }
 
-            // Apply friction - less when attracted to food
-            const frictionFactor = foodDetectionData.hasNearbyFood ? 0.88 : 0.85;
-            fish.vx *= frictionFactor;
-            fish.vy *= frictionFactor;
-
-            // Limit velocity to prevent fish from moving too fast
-            const maxVel = fish.speed * 2;
-            const velMag = Math.sqrt(fish.vx * fish.vx + fish.vy * fish.vy);
-            if (velMag > maxVel) {
-                fish.vx = (fish.vx / velMag) * maxVel;
-                fish.vy = (fish.vy / velMag) * maxVel;
-            }
-
-            // Ensure minimum movement to prevent complete stops
-            if (Math.abs(fish.vx) < 0.1) {
-                fish.vx = fish.speed * fish.direction * 0.1;
-            }
-
-            // If fish hit an edge, give it a small push away from the edge
-            if (hitEdge) {
-                fish.vx += fish.speed * fish.direction * 0.2;
-                // Add small random vertical component to avoid getting stuck
-                fish.vy += (Math.random() - 0.5) * 0.3;
+                // If fish hit an edge, give it a small push away from the edge
+                if (hitEdge) {
+                    fish.vx += fish.speed * fish.direction * 0.2;
+                    // Add small random vertical component to avoid getting stuck
+                    fish.vy += (Math.random() - 0.5) * 0.3;
+                }
             }
         }
 
@@ -1815,11 +2082,11 @@ function animateFishes() {
         } else if (fish.isClicked && fish.clickedAt) {
             // 如果鱼被点击了，检查是否在冻结期内
             const timeSinceClick = Date.now() - fish.clickedAt;
-            if (timeSinceClick < 3000) {
-                // 3秒内使用冻结的 swimY，完全静止
+            if (timeSinceClick < 5000) {
+                // 5秒内使用冻结的 swimY，完全静止
                 swimY = fish.frozenSwimY !== undefined ? fish.frozenSwimY : fish.y;
             } else {
-                // 3秒后恢复游泳动画
+                // 5秒后恢复游泳动画
                 fish.isClicked = false;
                 fish.clickedAt = null;
                 fish.frozenSwimY = null;

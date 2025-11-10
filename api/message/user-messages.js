@@ -62,6 +62,7 @@ module.exports = async function handler(req, res) {
         ) {
           id
           sender_id
+          receiver_id
           fish_id
           message_type
           content
