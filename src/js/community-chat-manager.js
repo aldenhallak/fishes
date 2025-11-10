@@ -37,6 +37,18 @@ class CommunityChatManager {
       lastPlaybackTime: null
     };
     
+    // Page visibility and user activity tracking
+    this.isPageVisible = true;
+    this.lastActivityTime = Date.now();
+    this.startTime = Date.now();
+    this.isPaused = false;
+    this.checkInterval = null;
+    
+    // Configuration for cost control
+    this.maxInactiveTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+    this.maxRunTime = 60 * 60 * 1000; // 1 hour in milliseconds
+    this.checkIntervalMs = 60 * 1000; // 60 seconds
+    
     console.log('CommunityChatManager initialized');
   }
   
@@ -283,6 +295,12 @@ class CommunityChatManager {
       return;
     }
     
+    // Check if generation should be paused
+    if (this.shouldPauseGeneration()) {
+      console.log('⏸️ Skipping auto chat session (generation paused)');
+      return;
+    }
+    
     if (this.isPlaying) {
       console.log('Chat session already in progress');
       return;
@@ -523,6 +541,148 @@ class CommunityChatManager {
    */
   isGroupChatEnabled() {
     return this.groupChatEnabled;
+  }
+  
+  /**
+   * Check if page is currently visible
+   * @returns {boolean} - Whether page is visible
+   */
+  isPageVisible() {
+    return !document.hidden && this.isPageVisible === true;
+  }
+  
+  /**
+   * Check if user is currently active
+   * @returns {boolean} - Whether user is active
+   */
+  isUserActive() {
+    const now = Date.now();
+    const inactiveTime = now - this.lastActivityTime;
+    return inactiveTime < this.maxInactiveTime;
+  }
+  
+  /**
+   * Check if maximum run time has been exceeded
+   * @returns {boolean} - Whether max run time exceeded
+   */
+  hasExceededMaxRunTime() {
+    const now = Date.now();
+    const runTime = now - this.startTime;
+    return runTime > this.maxRunTime;
+  }
+  
+  /**
+   * Determine if generation should be paused
+   * @returns {boolean} - Whether generation should be paused
+   */
+  shouldPauseGeneration() {
+    // If group chat is disabled, always pause
+    if (!this.groupChatEnabled) {
+      return true;
+    }
+    
+    // Pause if page is not visible
+    if (!this.isPageVisible()) {
+      return true;
+    }
+    
+    // Pause if user is inactive
+    if (!this.isUserActive()) {
+      return true;
+    }
+    
+    // Pause if max run time exceeded
+    if (this.hasExceededMaxRunTime()) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Pause generation to prevent cost
+   */
+  pauseGeneration() {
+    if (this.isPaused) {
+      return; // Already paused
+    }
+    
+    this.isPaused = true;
+    console.log('⏸️ Pausing chat generation to prevent cost (page hidden, user inactive, or max time exceeded)');
+    
+    // Clear intervals but keep them in memory for resume
+    if (this.autoChatInterval) {
+      clearInterval(this.autoChatInterval);
+      this.autoChatInterval = null;
+    }
+    
+    if (this.monologueInterval) {
+      clearInterval(this.monologueInterval);
+      this.monologueInterval = null;
+    }
+  }
+  
+  /**
+   * Resume generation when conditions are met
+   */
+  resumeGeneration() {
+    if (!this.isPaused) {
+      return; // Not paused
+    }
+    
+    // Check if we should actually resume
+    if (this.shouldPauseGeneration()) {
+      return; // Conditions not met, stay paused
+    }
+    
+    this.isPaused = false;
+    console.log('▶️ Resuming chat generation');
+    
+    // Restart scheduling if group chat is enabled
+    if (this.groupChatEnabled) {
+      this.scheduleAutoChats(5);
+      this.scheduleMonologues(15);
+    }
+  }
+  
+  /**
+   * Update page visibility state
+   * @param {boolean} visible - Whether page is visible
+   */
+  setPageVisible(visible) {
+    const wasVisible = this.isPageVisible;
+    this.isPageVisible = visible;
+    
+    if (wasVisible !== visible) {
+      if (visible) {
+        console.log('📄 Page became visible');
+        this.resumeGeneration();
+      } else {
+        console.log('📄 Page became hidden');
+        this.pauseGeneration();
+      }
+    }
+  }
+  
+  /**
+   * Update user activity timestamp
+   */
+  updateUserActivity() {
+    const wasActive = this.isUserActive();
+    this.lastActivityTime = Date.now();
+    
+    if (!wasActive && this.isUserActive()) {
+      console.log('👆 User activity detected');
+      this.resumeGeneration();
+    }
+  }
+  
+  /**
+   * Reset start time (when user manually enables or resumes)
+   */
+  resetStartTime() {
+    this.startTime = Date.now();
+    console.log('🔄 Reset run time counter');
   }
   
   /**

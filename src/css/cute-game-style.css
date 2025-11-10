@@ -1224,6 +1224,15 @@ main section:last-child .game-btn-group {
   }
 }
 
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 /* 响应式弹窗 */
 @media (max-width: 768px) {
   .modal-content {

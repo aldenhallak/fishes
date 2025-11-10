@@ -492,6 +492,105 @@
         .hamburger-menu-btn:hover {
             background: rgba(0, 0, 0, 0.5) !important;
         }
+        
+        /* Fish Talk Toggle Switch Styles */
+        #fish-talk-toggle {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 8px;
+            padding-top: 12px;
+        }
+        
+        #fish-talk-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        #fish-talk-switch:checked + span {
+            background-color: #6366F1 !important;
+        }
+        
+        #fish-talk-switch:checked + span + span {
+            transform: translateX(24px) !important;
+        }
+        
+        #fish-talk-switch + span {
+            transition: background-color 0.3s ease;
+        }
+        
+        #fish-talk-switch + span + span {
+            transition: transform 0.3s ease;
+        }
+        
+        /* Chat Box Switch Styles */
+        #toggle-chat-btn-sidebar {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 8px;
+            padding-top: 12px;
+        }
+        
+        #toggle-chat-btn-sidebar:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        #chat-box-switch:checked + span {
+            background-color: #6366F1 !important;
+        }
+        
+        #chat-box-switch:checked + span + span {
+            transform: translateX(24px) !important;
+        }
+        
+        #chat-box-switch + span {
+            transition: background-color 0.3s ease;
+        }
+        
+        #chat-box-switch + span + span {
+            transition: transform 0.3s ease;
+        }
+        
+        /* Sidebar Tank Controls Styles */
+        #sidebar-menu .game-select,
+        #sidebar-menu .game-btn {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* Share and Refresh buttons - left aligned like Profile */
+        #sidebar-menu #tank-share-btn-sidebar,
+        #sidebar-menu #refresh-tank-sidebar {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+        }
+        
+        /* Chat Box Toggle - same style as Fish Talk */
+        #sidebar-menu #toggle-chat-btn-sidebar {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+        
+        #sidebar-menu #tank-sort-sidebar {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* Ensure the tank controls section is visible */
+        #sidebar-menu .sidebar-nav > div:last-child {
+            display: block !important;
+            visibility: visible !important;
+        }
+        
+        /* Style for sidebar controls container */
+        #sidebar-menu .sidebar-nav > div:last-child > div {
+            display: block !important;
+            visibility: visible !important;
+        }
     </style>
     
     <!-- Google tag (gtag.js) -->
@@ -561,6 +660,63 @@
         <span class="sidebar-icon">👤</span>
         <span>Profile</span>
       </a>
+      <!-- Share Button (Menu Style) -->
+      <a href="#" id="tank-share-btn-sidebar" class="sidebar-link">
+        <span class="sidebar-icon">📤</span>
+        <span>Share</span>
+      </a>
+      <!-- Refresh Button (Menu Style) -->
+      <a href="#" id="refresh-tank-sidebar" class="sidebar-link">
+        <span class="sidebar-icon">🔄</span>
+        <span>Refresh</span>
+      </a>
+      <!-- Fish Talk Toggle (Global) -->
+      <div class="sidebar-link" id="fish-talk-toggle" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="sidebar-icon">💬</span>
+          <span>Fish Talk</span>
+        </div>
+        <label style="position: relative; display: inline-block; width: 50px; height: 26px; margin: 0;">
+          <input type="checkbox" id="fish-talk-switch" style="opacity: 0; width: 0; height: 0;">
+          <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px;"></span>
+          <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+        </label>
+      </div>
+      <!-- Chat Box Toggle (Switch Style) -->
+      <div class="sidebar-link" id="toggle-chat-btn-sidebar" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="sidebar-icon">💬</span>
+          <span>Chat Box</span>
+        </div>
+        <label style="position: relative; display: inline-block; width: 50px; height: 26px; margin: 0;">
+          <input type="checkbox" id="chat-box-switch" style="opacity: 0; width: 0; height: 0;">
+          <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px;"></span>
+          <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+        </label>
+      </div>
+      
+      <!-- Tank Controls Section -->
+      <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 8px; padding-top: 12px;">
+        <!-- Sort Selector -->
+        <div style="padding: 8px 16px; margin-bottom: 8px;">
+          <select id="tank-sort-sidebar" class="game-select" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 12px; cursor: pointer; background: linear-gradient(180deg, rgba(74, 144, 226, 0.9) 0%, rgba(53, 122, 189, 0.9) 100%); color: white; font-weight: 700; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'><path fill=\'%23ffffff\' d=\'M6 9L1 4h10z\'/></svg>'); background-repeat: no-repeat; background-position: right 8px center; padding-right: 32px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
+            <option value="recent" style="background: rgba(74, 144, 226, 0.95); color: white;">🆕 Most Recent</option>
+            <option value="popular" style="background: rgba(74, 144, 226, 0.95); color: white;">⭐ Most Popular</option>
+            <option value="random" style="background: rgba(74, 144, 226, 0.95); color: white;">🎲 Random</option>
+          </select>
+        </div>
+        
+        <!-- Fish Count Selector -->
+        <div style="padding: 8px 16px; margin-bottom: 8px;">
+          <select id="fish-count-selector-sidebar" class="game-select" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 12px; cursor: pointer; background: linear-gradient(180deg, rgba(74, 144, 226, 0.9) 0%, rgba(53, 122, 189, 0.9) 100%); color: white; font-weight: 700; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'><path fill=\'%23ffffff\' d=\'M6 9L1 4h10z\'/></svg>'); background-repeat: no-repeat; background-position: right 8px center; padding-right: 32px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
+            <option value="10" style="background: rgba(74, 144, 226, 0.95); color: white;">🐠 10</option>
+            <option value="20" style="background: rgba(74, 144, 226, 0.95); color: white;" selected>🐠 20</option>
+            <option value="30" style="background: rgba(74, 144, 226, 0.95); color: white;">🐠 30</option>
+            <option value="40" style="background: rgba(74, 144, 226, 0.95); color: white;">🐠 40</option>
+            <option value="50" style="background: rgba(74, 144, 226, 0.95); color: white;">🐠 50</option>
+          </select>
+        </div>
+      </div>
     </nav>
   </div>
   
@@ -625,50 +781,6 @@
     </div>
   </div>
   
-  <!-- 游戏风格控制栏 -->
-  <div class="game-tank-controls" style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(180deg, rgba(74, 144, 226, 0.95) 0%, rgba(53, 122, 189, 0.95) 100%); backdrop-filter: blur(8px); padding: 8px 16px; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3); border-top: 2px solid rgba(255, 255, 255, 0.3); z-index: 999; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-    <!-- 左侧：排序控制 -->
-    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-      <select id="tank-sort" class="game-select" style="padding: 6px 12px; font-size: 13px; border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 12px; cursor: pointer; background: linear-gradient(180deg, rgba(74, 144, 226, 0.9) 0%, rgba(53, 122, 189, 0.9) 100%); color: white; font-weight: 700; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'><path fill=\'%23ffffff\' d=\'M6 9L1 4h10z\'/></svg>'); background-repeat: no-repeat; background-position: right 8px center; padding-right: 32px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
-        <option value="recent" style="background: rgba(74, 144, 226, 0.95); color: white;">🆕 Most Recent</option>
-        <option value="popular" style="background: rgba(74, 144, 226, 0.95); color: white;">⭐ Most Popular</option>
-        <option value="random" style="background: rgba(74, 144, 226, 0.95); color: white;">🎲 Random</option>
-      </select>
-      <button id="refresh-tank" class="game-btn game-btn-white" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
-        <span class="game-control-icon">🔄</span>
-        <span>Refresh</span>
-      </button>
-    </div>
-    
-    <!-- 中间：鱼数量控制 -->
-    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: rgba(255, 255, 255, 0.15); padding: 6px 12px; border-radius: 12px; backdrop-filter: blur(4px);">
-      <span class="game-fish-icon">🐠</span>
-      <span style="font-size: 13px; color: white; font-weight: 700; min-width: 30px; text-align: center; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 8px rgba(255, 255, 255, 0.3);" id="fish-count-display">20</span>
-      <input type="range" id="fish-count-slider" min="1" max="100" value="20" style="width: 120px; cursor: pointer; accent-color: #FFD700; height: 6px; border-radius: 3px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
-      <span id="current-fish-count" style="font-size: 12px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);"></span>
-    </div>
-    
-    <!-- 右侧：操作按钮 -->
-    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-      <a href="index.html" class="game-btn game-btn-green" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
-        <span class="game-control-icon">🎨</span>
-        <span>Draw</span>
-      </a>
-      <button id="tank-share-btn" class="game-btn game-btn-orange" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
-        <span class="game-control-icon">📤</span>
-        <span>Share</span>
-      </button>
-      <button id="toggle-chat-btn" class="game-btn game-btn-orange" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
-        <span class="game-control-icon">💬</span>
-        <span>Chat Box</span>
-      </button>
-      <button id="toggle-group-chat-btn" class="game-btn game-btn-orange" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
-        <span class="game-control-icon">💬</span>
-        <span>Chat ON</span>
-      </button>
-    </div>
-  </div>
-  
   <!-- 加载指示器 -->
   <div id="loading-indicator" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 1000; background: rgba(255, 255, 255, 0.95); padding: 20px 40px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
     <div style="text-align: center; color: #6366F1; font-weight: 600;">Loading...</div>
@@ -700,26 +812,117 @@
       initializeAuthNavigation();
     }
     
-    // Share button handler - directly show custom modal for better UX
-    const tankShareBtn = document.getElementById('tank-share-btn');
-    if (tankShareBtn) {
-      tankShareBtn.addEventListener('click', () => {
-        if (window.socialShare) {
-          window.socialShare.showShareModal();
+    // Sidebar controls - independent functionality
+    (function() {
+      // Wait for DOM and tank.js to be fully loaded
+      setTimeout(() => {
+        const sortSelectSidebar = document.getElementById('tank-sort-sidebar');
+        const refreshBtnSidebar = document.getElementById('refresh-tank-sidebar');
+        const shareBtnSidebar = document.getElementById('tank-share-btn-sidebar');
+        const chatBoxSwitch = document.getElementById('chat-box-switch');
+        const chatBoxToggle = document.getElementById('toggle-chat-btn-sidebar');
+        const fishCountSelector = document.getElementById('fish-count-selector-sidebar');
+        
+        // Sort selector - trigger loadFishIntoTank directly
+        if (sortSelectSidebar) {
+          sortSelectSidebar.addEventListener('change', () => {
+            const selectedSort = sortSelectSidebar.value;
+            if (typeof loadFishIntoTank === 'function') {
+              loadFishIntoTank(selectedSort);
+            }
+            // Update URL
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('sort', selectedSort);
+            window.history.replaceState({}, '', newUrl);
+          });
         }
-      });
-      
-      // Add hover effect
-      tankShareBtn.addEventListener('mouseenter', () => {
-        tankShareBtn.style.transform = 'translateY(-2px) scale(1.05)';
-        tankShareBtn.style.boxShadow = '0 6px 20px rgba(255, 107, 157, 0.6)';
-      });
-      
-      tankShareBtn.addEventListener('mouseleave', () => {
-        tankShareBtn.style.transform = 'translateY(0) scale(1)';
-        tankShareBtn.style.boxShadow = '0 4px 12px rgba(255, 107, 157, 0.4)';
-      });
-    }
+        
+        // Refresh button - trigger loadFishIntoTank with current sort
+        if (refreshBtnSidebar) {
+          refreshBtnSidebar.addEventListener('click', (e) => {
+            e.preventDefault();
+            const selectedSort = sortSelectSidebar ? sortSelectSidebar.value : 'recent';
+            if (typeof loadFishIntoTank === 'function') {
+              loadFishIntoTank(selectedSort);
+            }
+          });
+        }
+        
+        // Share button - trigger share modal
+        if (shareBtnSidebar) {
+          shareBtnSidebar.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.socialShare && window.socialShare.showShareModal) {
+              window.socialShare.showShareModal();
+            }
+          });
+        }
+        
+        // Chat box switch - toggle chat panel
+        if (chatBoxSwitch && chatBoxToggle) {
+          const chatPanel = document.getElementById('chat-panel');
+          const tankWrapper = document.getElementById('tank-wrapper-main');
+          
+          // Initialize switch state
+          if (chatPanel) {
+            const isOpen = chatPanel.style.right === '0' || chatPanel.style.display === 'flex';
+            chatBoxSwitch.checked = isOpen;
+          }
+          
+          // Toggle function
+          const toggleChatPanel = () => {
+            const isOpen = chatBoxSwitch.checked;
+            
+            if (isOpen) {
+              chatPanel.style.display = 'flex';
+              chatPanel.style.visibility = 'visible';
+              chatPanel.style.right = '0';
+              if (tankWrapper) tankWrapper.style.marginRight = '0';
+            } else {
+              chatPanel.style.right = '-350px';
+              if (tankWrapper) tankWrapper.style.marginRight = '0';
+              setTimeout(() => {
+                chatPanel.style.display = 'none';
+                chatPanel.style.visibility = 'hidden';
+              }, 300);
+            }
+          };
+          
+          // When switch is toggled
+          chatBoxSwitch.addEventListener('change', (e) => {
+            e.stopPropagation();
+            toggleChatPanel();
+          });
+          
+          // Also allow clicking the entire toggle area
+          chatBoxToggle.addEventListener('click', (e) => {
+            if (e.target !== chatBoxSwitch && !e.target.closest('label')) {
+              chatBoxSwitch.checked = !chatBoxSwitch.checked;
+              chatBoxSwitch.dispatchEvent(new Event('change'));
+            }
+          });
+        }
+        
+        // Fish count selector - update tank capacity
+        if (fishCountSelector) {
+          fishCountSelector.addEventListener('change', () => {
+            const value = parseInt(fishCountSelector.value);
+            if (value >= 1 && value <= 100) {
+              // Update tank capacity if function exists
+              if (typeof updateTankCapacity === 'function') {
+                updateTankCapacity(value);
+              } else if (typeof window.updateTankCapacity === 'function') {
+                window.updateTankCapacity(value);
+              }
+              // Update URL
+              const newUrl = new URL(window.location);
+              newUrl.searchParams.set('capacity', value);
+              window.history.replaceState({}, '', newUrl);
+            }
+          });
+        }
+      }, 500);
+    })();
     
     // Battle button handler - Commented out for community chat system
     /* const tankBattleBtn = document.getElementById('tank-battle-btn');
@@ -857,6 +1060,64 @@
       if (typeof initializeAuthNavigation === 'function') {
         initializeAuthNavigation();
       }
+      
+      // Debug: Verify sidebar controls when sidebar opens
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebarMenu = document.getElementById('sidebar-menu');
+        const hamburgerBtn = document.getElementById('hamburger-menu-btn');
+        
+        if (sidebarMenu && hamburgerBtn) {
+          // Use MutationObserver to watch for sidebar opening
+          const observer = new MutationObserver(function(mutations) {
+            if (sidebarMenu.classList.contains('open')) {
+              // Sidebar is open, verify controls
+              const controls = {
+                sort: document.getElementById('tank-sort-sidebar'),
+                refresh: document.getElementById('refresh-tank-sidebar'),
+                share: document.getElementById('tank-share-btn-sidebar'),
+                chat: document.getElementById('toggle-chat-btn-sidebar'),
+                chatSwitch: document.getElementById('chat-box-switch'),
+                fishCount: document.getElementById('fish-count-selector-sidebar')
+              };
+              
+              console.log('🔍 Sidebar opened - Controls check:');
+              for (const [name, element] of Object.entries(controls)) {
+                if (element) {
+                  const rect = element.getBoundingClientRect();
+                  const isVisible = rect.width > 0 && rect.height > 0;
+                  console.log(`  ${name}: ✓ Found, visible: ${isVisible}, position: (${rect.left}, ${rect.top}), size: ${rect.width}x${rect.height}`);
+                  
+                   // Force visibility with correct styles
+                   if (element.id === 'tank-share-btn-sidebar' || element.id === 'refresh-tank-sidebar') {
+                     // Share and Refresh: flex with left alignment
+                     element.style.display = 'flex';
+                     element.style.justifyContent = 'flex-start';
+                     element.style.alignItems = 'center';
+                   } else if (element.id === 'toggle-chat-btn-sidebar') {
+                     // Chat Box: flex with space-between (like Fish Talk)
+                     element.style.display = 'flex';
+                     element.style.justifyContent = 'space-between';
+                     element.style.alignItems = 'center';
+                   } else if (element.tagName === 'SELECT') {
+                     element.style.display = 'block';
+                   } else {
+                     element.style.display = 'flex';
+                   }
+                   element.style.visibility = 'visible';
+                   element.style.opacity = '1';
+                } else {
+                  console.error(`  ${name}: ✗ Missing!`);
+                }
+              }
+            }
+          });
+          
+          observer.observe(sidebarMenu, {
+            attributes: true,
+            attributeFilter: ['class']
+          });
+        }
+      });
     </script>
 </body>
 </html>

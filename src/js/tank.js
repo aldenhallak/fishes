@@ -573,9 +573,14 @@ async function updateTankCapacity(newCapacity) {
     updateCurrentFishCount();
 
     // Update page title
-    const sortSelect = document.getElementById('tank-sort');
+    const sortSelect = document.getElementById('tank-sort') || document.getElementById('tank-sort-sidebar');
     if (sortSelect) {
         updatePageTitle(sortSelect.value);
+    } else {
+        // Fallback to URL parameter or default
+        const urlParams = new URLSearchParams(window.location.search);
+        const sortParam = urlParams.get('sort') || 'recent';
+        updatePageTitle(sortParam);
     }
 
     // Update URL parameter
@@ -634,6 +639,9 @@ async function updateTankCapacity(newCapacity) {
 
     isUpdatingCapacity = false;
 }
+
+// Export to window for external access
+window.updateTankCapacity = updateTankCapacity;
 
 // Load additional fish when capacity is increased
 async function loadAdditionalFish(sortType, count) {
@@ -1316,9 +1324,13 @@ async function loadFishIntoTank(sortType = 'recent') {
     }
 }
 
+// Export to window for external access
+window.loadFishIntoTank = loadFishIntoTank;
+
 window.addEventListener('DOMContentLoaded', async () => {
-    const sortSelect = document.getElementById('tank-sort');
-    const refreshButton = document.getElementById('refresh-tank');
+    // Try to get elements from bottom controls, fallback to sidebar
+    const sortSelect = document.getElementById('tank-sort') || document.getElementById('tank-sort-sidebar');
+    const refreshButton = document.getElementById('refresh-tank') || document.getElementById('refresh-tank-sidebar');
 
     // Check for URL parameters to set initial sort and capacity
     const urlParams = new URLSearchParams(window.location.search);
@@ -1329,7 +1341,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Validate sort parameter and set dropdown
     if (sortParam && ['recent', 'popular', 'random'].includes(sortParam)) {
         initialSort = sortParam;
-        sortSelect.value = sortParam;
+        if (sortSelect) {
+            sortSelect.value = sortParam;
+        }
     }
 
     // Initialize capacity from URL parameter (if present), otherwise use default (20)
@@ -1349,6 +1363,23 @@ window.addEventListener('DOMContentLoaded', async () => {
         fishCountSlider.value = maxTankCapacity;
     }
     
+    // Also sync with sidebar selector if it exists
+    const fishCountSelector = document.getElementById('fish-count-selector-sidebar');
+    if (fishCountSelector) {
+        // Find closest value to current capacity
+        const options = [10, 20, 30, 40, 50];
+        let closest = options[0];
+        let minDiff = Math.abs(maxTankCapacity - options[0]);
+        for (let i = 1; i < options.length; i++) {
+            const diff = Math.abs(maxTankCapacity - options[i]);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closest = options[i];
+            }
+        }
+        fishCountSelector.value = closest.toString();
+    }
+    
     const displayElement = document.getElementById('fish-count-display');
     if (displayElement) {
         displayElement.textContent = maxTankCapacity;
@@ -1360,32 +1391,36 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Update page title based on initial selection
     updatePageTitle(initialSort);
 
-    // Handle sort change
-    sortSelect.addEventListener('change', () => {
-        const selectedSort = sortSelect.value;
+    // Handle sort change (only if element exists)
+    if (sortSelect) {
+        sortSelect.addEventListener('change', () => {
+            const selectedSort = sortSelect.value;
 
-        // Clean up existing listener before switching modes
-        if (newFishListener) {
-            clearInterval(newFishListener);
-            newFishListener = null;
-        }
+            // Clean up existing listener before switching modes
+            if (newFishListener) {
+                clearInterval(newFishListener);
+                newFishListener = null;
+            }
 
-        loadFishIntoTank(selectedSort);
+            loadFishIntoTank(selectedSort);
 
-        // Update page title based on selection
-        updatePageTitle(selectedSort);
+            // Update page title based on selection
+            updatePageTitle(selectedSort);
 
-        // Update URL without reloading the page
-        const newUrl = new URL(window.location);
-        newUrl.searchParams.set('sort', selectedSort);
-        window.history.replaceState({}, '', newUrl);
-    });
+            // Update URL without reloading the page
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('sort', selectedSort);
+            window.history.replaceState({}, '', newUrl);
+        });
+    }
 
-    // Handle refresh button
-    refreshButton.addEventListener('click', () => {
-        const selectedSort = sortSelect.value;
-        loadFishIntoTank(selectedSort);
-    });
+    // Handle refresh button (only if element exists)
+    if (refreshButton) {
+        refreshButton.addEventListener('click', () => {
+            const selectedSort = sortSelect ? sortSelect.value : initialSort;
+            loadFishIntoTank(selectedSort);
+        });
+    }
 
     // Handle fish count slider (reuse the variable declared above)
     if (!fishCountSlider) {
@@ -2433,6 +2468,7 @@ async function initializeGroupChat() {
         // 设置群聊状态
         communityChatManager.setGroupChatEnabled(shouldEnable);
         updateGroupChatButton(shouldEnable);
+        updateFishTalkToggle(shouldEnable); // Also update hamburger menu toggle
         
         if (shouldEnable) {
             console.log('✅ Group chat initialized and enabled');
@@ -2444,6 +2480,7 @@ async function initializeGroupChat() {
         // 默认禁用
         communityChatManager.setGroupChatEnabled(false);
         updateGroupChatButton(false);
+        updateFishTalkToggle(false); // Also update hamburger menu toggle
     }
 }
 
@@ -2495,6 +2532,7 @@ function toggleGroupChat() {
     
     // 更新按钮显示
     updateGroupChatButton(newState);
+    updateFishTalkToggle(newState); // Also update hamburger menu toggle
     
     console.log(`Group chat ${newState ? 'enabled' : 'disabled'} by user`);
 }
@@ -2558,6 +2596,125 @@ if (closeChatBtn) {
 // 导出函数供全局使用
 window.toggleGroupChat = toggleGroupChat;
 window.updateGroupChatButton = updateGroupChatButton;
+
+// Setup Fish Talk toggle switch in hamburger menu (Global)
+function setupFishTalkToggle() {
+    const toggleSwitch = document.getElementById('fish-talk-switch');
+    const toggleContainer = document.getElementById('fish-talk-toggle');
+    
+    if (!toggleSwitch || !toggleContainer) {
+        console.warn('Fish Talk toggle elements not found');
+        return;
+    }
+
+    // Load saved preference (shared with my tank page)
+    const savedPreference = localStorage.getItem('groupChatEnabled');
+    if (savedPreference === 'true') {
+        toggleSwitch.checked = true;
+        updateToggleStyle(toggleSwitch, true);
+    }
+
+    // Handle toggle click
+    toggleContainer.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const newState = !toggleSwitch.checked;
+        toggleSwitch.checked = newState;
+        updateToggleStyle(toggleSwitch, newState);
+        
+        // Update chat manager
+        if (communityChatManager) {
+            communityChatManager.setGroupChatEnabled(newState);
+        }
+        
+        // Save preference (shared with my tank page)
+        localStorage.setItem('groupChatEnabled', newState ? 'true' : 'false');
+        
+        // Also update the control bar button if it exists
+        updateGroupChatButton(newState);
+        
+        // Trigger custom event for same-tab sync (storage event only works across tabs)
+        window.dispatchEvent(new CustomEvent('groupChatEnabledChanged', {
+            detail: { enabled: newState }
+        }));
+        
+        console.log(`Fish Talk ${newState ? 'enabled' : 'disabled'} (global)`);
+    });
+    
+    // Listen for changes from other tabs/pages (global sync)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'groupChatEnabled') {
+            const newState = e.newValue === 'true';
+            toggleSwitch.checked = newState;
+            updateToggleStyle(toggleSwitch, newState);
+            
+            // Update chat manager
+            if (communityChatManager) {
+                communityChatManager.setGroupChatEnabled(newState);
+            }
+            
+            // Also update the control bar button if it exists
+            updateGroupChatButton(newState);
+            
+            console.log(`Fish Talk ${newState ? 'enabled' : 'disabled'} (synced from other tab)`);
+        }
+    });
+    
+    // Listen for custom event for same-tab sync
+    window.addEventListener('groupChatEnabledChanged', function(e) {
+        const newState = e.detail.enabled;
+        toggleSwitch.checked = newState;
+        updateToggleStyle(toggleSwitch, newState);
+        
+        // Update chat manager
+        if (communityChatManager) {
+            communityChatManager.setGroupChatEnabled(newState);
+        }
+        
+        // Also update the control bar button if it exists
+        updateGroupChatButton(newState);
+    });
+}
+
+// Update Fish Talk toggle visual style
+function updateFishTalkToggle(enabled) {
+    const toggleSwitch = document.getElementById('fish-talk-switch');
+    if (toggleSwitch) {
+        toggleSwitch.checked = enabled;
+        updateToggleStyle(toggleSwitch, enabled);
+    }
+}
+
+// Update toggle switch visual style
+function updateToggleStyle(toggleSwitch, enabled) {
+    const slider = toggleSwitch.nextElementSibling;
+    const thumb = slider ? slider.nextElementSibling : null;
+    
+    if (slider && thumb) {
+        if (enabled) {
+            slider.style.backgroundColor = '#6366F1';
+            thumb.style.transform = 'translateX(24px)';
+        } else {
+            slider.style.backgroundColor = '#ccc';
+            thumb.style.transform = 'translateX(0)';
+        }
+    }
+}
+
+// Initialize Fish Talk toggle when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for DOM to be fully ready
+    setTimeout(() => {
+        setupFishTalkToggle();
+        
+        // Sync toggle with current state
+        if (communityChatManager) {
+            const currentState = communityChatManager.isGroupChatEnabled();
+            updateFishTalkToggle(currentState);
+        }
+    }, 500);
+});
 
 // 立即触发聊天按钮
 const triggerChatBtn = document.getElementById('trigger-chat-btn');

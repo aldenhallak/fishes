@@ -219,21 +219,356 @@ function showModal(html, onClose) {
     modal.style.top = '0';
     modal.style.width = '100vw';
     modal.style.height = '100vh';
-    modal.style.background = 'rgba(192,192,192,0.8)';
+    modal.style.background = 'rgba(0, 0, 0, 0.7)';
+    modal.style.backdropFilter = 'blur(8px)';
     modal.style.display = 'flex';
     modal.style.alignItems = 'center';
     modal.style.justifyContent = 'center';
     modal.style.zIndex = '9999';
-    modal.innerHTML = `<div style="background:#c0c0c0;padding:15px;border: 2px outset #808080;min-width:300px;max-width:90vw;max-height:90vh;overflow:auto;font-family:'MS Sans Serif',sans-serif;font-size:11px;">${html}</div>`;
+    modal.style.animation = 'fadeIn 0.3s ease';
+    
+    // 3D游戏风格的弹窗容器
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+        padding: 32px;
+        border-radius: 24px;
+        min-width: 400px;
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 
+            0 8px 0 rgba(0, 0, 0, 0.2),
+            0 16px 40px rgba(0, 0, 0, 0.4);
+        border: 3px solid rgba(255, 255, 255, 0.9);
+        position: relative;
+        animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
+        font-size: 14px;
+    `;
+    
+    // 顶部彩色条
+    const colorBar = document.createElement('div');
+    colorBar.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, 
+            #FF9500 0%, 
+            #FFD700 25%, 
+            #4CD964 50%, 
+            #4A90E2 75%, 
+            #9B59B6 100%);
+        border-radius: 24px 24px 0 0;
+    `;
+    modalContent.appendChild(colorBar);
+    
+    // 顶部光泽效果
+    const shine = document.createElement('div');
+    shine.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+        border-radius: 24px 24px 0 0;
+        pointer-events: none;
+    `;
+    modalContent.appendChild(shine);
+    
+    // 内容区域
+    const contentDiv = document.createElement('div');
+    contentDiv.style.cssText = 'position: relative; z-index: 1;';
+    contentDiv.innerHTML = html;
+    modalContent.appendChild(contentDiv);
+    
+    modal.appendChild(modalContent);
+    
     function close() {
-        document.body.removeChild(modal);
-        if (onClose) onClose();
+        modal.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            if (modal.parentNode) {
+                document.body.removeChild(modal);
+            }
+            if (onClose) onClose();
+        }, 300);
     }
     modal.addEventListener('click', (e) => {
         if (e.target === modal) close();
     });
     document.body.appendChild(modal);
     return { close, modal };
+}
+
+// 通用用户提示弹窗（符合项目风格）
+function showUserAlert(options) {
+    const {
+        type = 'info', // 'error', 'warning', 'info', 'success'
+        title = '',
+        message = '',
+        details = null, // 额外的详细信息对象
+        buttons = [{ text: '确定', action: 'close' }],
+        onClose = null
+    } = options;
+    
+    // 根据类型设置颜色和图标
+    const typeConfig = {
+        error: {
+            icon: '❌',
+            color: '#FF3B30',
+            bgGradient: 'linear-gradient(180deg, #FFE5E5 0%, #FFCCCC 100%)',
+            borderColor: '#FF3B30',
+            titleColor: '#FF3B30'
+        },
+        warning: {
+            icon: '⚠️',
+            color: '#FF9500',
+            bgGradient: 'linear-gradient(180deg, #FFF4E5 0%, #FFE5CC 100%)',
+            borderColor: '#FF9500',
+            titleColor: '#FF9500'
+        },
+        info: {
+            icon: 'ℹ️',
+            color: '#4A90E2',
+            bgGradient: 'linear-gradient(180deg, #E5F0FF 0%, #CCE0FF 100%)',
+            borderColor: '#4A90E2',
+            titleColor: '#4A90E2'
+        },
+        success: {
+            icon: '✅',
+            color: '#4CD964',
+            bgGradient: 'linear-gradient(180deg, #E5FFE5 0%, #CCFFCC 100%)',
+            borderColor: '#4CD964',
+            titleColor: '#4CD964'
+        }
+    };
+    
+    const config = typeConfig[type] || typeConfig.info;
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'user-alert-modal';
+    overlay.style.cssText = `
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: ${config.bgGradient};
+        padding: 32px;
+        border-radius: 24px;
+        min-width: 400px;
+        max-width: 500px;
+        width: 90vw;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 
+            0 8px 0 rgba(0, 0, 0, 0.2),
+            0 15px 50px ${config.color}40;
+        border: 3px solid ${config.borderColor};
+        border-bottom: 5px solid ${config.color};
+        font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
+        position: relative;
+        animation: fadeInScale 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    `;
+    
+    // 顶部彩色条
+    const colorBar = document.createElement('div');
+    colorBar.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: ${config.color};
+        border-radius: 24px 24px 0 0;
+    `;
+    modalContent.appendChild(colorBar);
+    
+    // 顶部光泽效果
+    const shine = document.createElement('div');
+    shine.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+        border-radius: 24px 24px 0 0;
+        pointer-events: none;
+    `;
+    modalContent.appendChild(shine);
+    
+    // 构建内容HTML
+    let contentHTML = `
+        <div style="position: relative; z-index: 1;">
+            ${title ? `<h2 style="color: ${config.titleColor}; margin: 0 0 16px 0; font-size: 24px; text-align: center; font-weight: bold;">
+                ${config.icon} ${title}
+            </h2>` : ''}
+            
+            <p style="font-size: 16px; margin: 0 0 20px 0; text-align: center; color: #333; line-height: 1.6;">
+                ${message}
+            </p>
+    `;
+    
+    // 如果有详细信息，显示详细信息
+    if (details) {
+        if (details.tier && details.currentCount !== undefined) {
+            // 会员限制信息
+            contentHTML += `
+                <div style="background: rgba(255, 255, 255, 0.6); padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 2px solid ${config.borderColor}40;">
+                    <div style="font-size: 14px; color: #666; margin-bottom: 8px;">
+                        <strong>当前状态：</strong>
+                    </div>
+                    <div style="font-size: 14px; color: #333;">
+                        • 会员等级: <strong>${details.tier}</strong><br>
+                        • 当前鱼数量: <strong>${details.currentCount}</strong> 条<br>
+                        • 上限: <strong>${details.limit || 1}</strong> 条
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    // 按钮区域
+    contentHTML += `
+            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap;">
+    `;
+    
+    buttons.forEach((btn, index) => {
+        const isPrimary = index === 0;
+        const btnStyle = isPrimary ? `
+            background: linear-gradient(180deg, ${config.color} 0%, ${config.color}dd 50%, ${config.color}bb 100%);
+            color: white;
+            font-weight: 900;
+            box-shadow: 0 4px 0 ${config.color}80, 0 6px 20px ${config.color}40;
+        ` : `
+            background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+            color: ${config.color};
+            font-weight: 700;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+        `;
+        
+        contentHTML += `
+            <button id="alert-btn-${index}" 
+                    style="padding: 12px 32px; font-size: 16px; border: none; border-radius: 16px; cursor: pointer;
+                           ${btnStyle}
+                           transition: all 0.15s; position: relative; overflow: hidden; min-width: 100px;">
+                ${btn.text}
+            </button>
+        `;
+    });
+    
+    contentHTML += `
+            </div>
+        </div>
+    `;
+    
+    modalContent.innerHTML = contentHTML;
+    overlay.appendChild(modalContent);
+    document.body.appendChild(overlay);
+    
+    // 添加按钮光泽效果和事件
+    buttons.forEach((btn, index) => {
+        const button = overlay.querySelector(`#alert-btn-${index}`);
+        if (!button) return;
+        
+        const isPrimary = index === 0;
+        if (isPrimary) {
+            const shine = document.createElement('div');
+            shine.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 50%;
+                background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+                border-radius: 16px 16px 0 0;
+                pointer-events: none;
+            `;
+            button.appendChild(shine);
+        }
+        
+        // 按钮交互效果
+        button.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            if (isPrimary) {
+                this.style.boxShadow = `0 6px 0 ${config.color}80, 0 8px 25px ${config.color}50`;
+            } else {
+                this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.15)';
+            }
+        });
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            if (isPrimary) {
+                this.style.boxShadow = `0 4px 0 ${config.color}80, 0 6px 20px ${config.color}40`;
+            } else {
+                this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.15)';
+            }
+        });
+        button.addEventListener('mousedown', function() {
+            this.style.transform = 'translateY(2px)';
+            if (isPrimary) {
+                this.style.boxShadow = `0 2px 0 ${config.color}80, 0 4px 15px ${config.color}40`;
+            } else {
+                this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.15)';
+            }
+        });
+        button.addEventListener('mouseup', function() {
+            this.style.transform = 'translateY(-2px)';
+            if (isPrimary) {
+                this.style.boxShadow = `0 6px 0 ${config.color}80, 0 8px 25px ${config.color}50`;
+            } else {
+                this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.15)';
+            }
+        });
+        
+        // 按钮点击事件
+        button.addEventListener('click', () => {
+            if (btn.action === 'close') {
+                close();
+            } else if (typeof btn.action === 'function') {
+                btn.action();
+                if (btn.closeAfterAction !== false) {
+                    close();
+                }
+            } else if (btn.action === 'link' && btn.link) {
+                window.location.href = btn.link;
+            }
+        });
+    });
+    
+    function close() {
+        overlay.style.animation = 'fadeIn 0.3s ease reverse';
+        setTimeout(() => {
+            if (overlay.parentNode) {
+                document.body.removeChild(overlay);
+            }
+            if (onClose) onClose();
+        }, 300);
+    }
+    
+    // 点击外部关闭
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            close();
+        }
+    });
+    
+    return { close, overlay };
 }
 
 // Enhanced success modal with social sharing
@@ -364,7 +699,7 @@ function showSuccessModal(fishImageUrl, needsModeration) {
 }
 
 // --- Fish submission modal handler ---
-async function submitFish(artist, needsModeration = false, fishName = null, personality = null) {
+async function submitFish(artist, needsModeration = false, fishName = null, personality = null, userInfo = null) {
     function dataURLtoBlob(dataurl) {
         const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
             bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -480,15 +815,75 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
             showSuccessModal(uploadResult.imageUrl, needsModeration);
         } else {
             console.error('❌ 提交失败:', submitResult);
-            throw new Error(submitResult.error || '提交失败');
+            
+            // 恢复按钮状态
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+            }
+            
+            // 根据错误类型显示不同的提示
+            if (submitResult.error === 'Membership limit reached') {
+                // 会员限制错误 - 显示详细信息
+                showUserAlert({
+                    type: 'warning',
+                    title: '会员限制',
+                    message: submitResult.message || '您已达到当前会员等级的鱼数量上限。',
+                    details: {
+                        tier: submitResult.tier,
+                        currentCount: submitResult.currentCount,
+                        limit: submitResult.limit
+                    },
+                    buttons: [
+                        {
+                            text: '查看设置',
+                            action: 'link',
+                            link: 'fish-settings.html'
+                        },
+                        {
+                            text: '确定',
+                            action: 'close'
+                        }
+                    ]
+                });
+            } else {
+                // 其他错误
+                showUserAlert({
+                    type: 'error',
+                    title: '提交失败',
+                    message: submitResult.message || submitResult.error || '提交失败，请稍后重试。',
+                    buttons: [{ text: '确定', action: 'close' }]
+                });
+            }
+            return; // 不抛出错误，因为已经显示了友好的提示
         }
     } catch (err) {
         console.error('❌ Submit error:', err);
-        alert('上传失败: ' + err.message);
+        
+        // 恢复按钮状态
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Submit';
         }
+        
+        // 显示错误提示
+        let errorMessage = err.message || '上传失败，请稍后重试。';
+        
+        // 处理网络错误
+        if (err.message && err.message.includes('Failed to fetch')) {
+            errorMessage = '网络连接失败，请检查您的网络连接后重试。';
+        } else if (err.message && err.message.includes('403')) {
+            errorMessage = '权限不足，请检查您的登录状态。';
+        } else if (err.message && err.message.includes('401')) {
+            errorMessage = '未授权，请重新登录。';
+        }
+        
+        showUserAlert({
+            type: 'error',
+            title: '上传失败',
+            message: errorMessage,
+            buttons: [{ text: '确定', action: 'close' }]
+        });
     }
 }
 
@@ -506,7 +901,12 @@ swimBtn.addEventListener('click', async () => {
         if (window.authUI && window.authUI.showLoginModal) {
             window.authUI.showLoginModal();
         } else {
-            alert('Please refresh the page and try again.');
+            showUserAlert({
+                type: 'warning',
+                title: '需要登录',
+                message: '请刷新页面后重试，或检查登录功能是否正常加载。',
+                buttons: [{ text: '确定', action: 'close' }]
+            });
         }
         return; // 中断流程
     }
@@ -549,99 +949,284 @@ swimBtn.addEventListener('click', async () => {
         return; // 不继续执行提交流程
     } else {
         // Show normal submission modal for good fish with fish name and personality
-        showModal(`<div style='text-align:center; padding: 20px; max-width: 450px;'>
-            <div style='color:#27ae60; font-weight:bold; font-size: 20px; margin-bottom:16px;'>🐟 Name Your Fish!</div>
+        showModal(`<div style='text-align:center; padding: 0; max-width: 500px;'>
+            <h2 style='color: #4A90E2; font-weight: 900; font-size: 28px; margin: 0 0 24px 0; text-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);'>
+                🐟 Name Your Fish!
+            </h2>
             
-            <div style='text-align: left; margin: 15px 0;'>
-                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Fish Name *</label>
+            <div style='text-align: left; margin: 20px 0;'>
+                <label style='display: block; margin-bottom: 8px; font-weight: 700; color: #333; font-size: 15px;'>
+                    Fish Name <span style='color: #FF3B30;'>*</span>
+                </label>
                 <input type='text' id='fish-name' placeholder='e.g., Bubbles, Nemo, Goldie' 
-                    style='width: 100%; padding: 12px; border: 2px solid #27ae60; border-radius: 8px; font-size: 14px; box-sizing: border-box;' 
+                    style='width: 100%; padding: 14px 16px; border: 3px solid #4A90E2; border-radius: 12px; font-size: 15px; box-sizing: border-box; 
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
+                    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+                    transition: all 0.2s; color: #000000;' 
                     maxlength='30' required />
-                <small style='color: #999; font-size: 12px;'>Give your fish a unique name!</small>
+                <small style='color: #64748b; font-size: 12px; margin-top: 6px; display: block;'>Give your fish a unique name!</small>
             </div>
             
-            <div style='text-align: left; margin: 15px 0;'>
-                <label style='display: block; margin-bottom: 8px; font-weight: bold; color: #333; font-size: 14px;'>Personality</label>
-                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;'>
-                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #667eea; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px; background: #f0f4ff;' class='personality-option' data-personality='random'>
+            <div style='text-align: left; margin: 20px 0;'>
+                <label style='display: block; margin-bottom: 10px; font-weight: 700; color: #333; font-size: 15px;'>Personality</label>
+                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;'>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #4A90E2; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700; 
+                    background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+                    color: white; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='random'>
                         <input type='radio' name='personality' value='random' checked style='display: none;'>
                         🎲 Random
                     </label>
-                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='funny'>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='funny'>
                         <input type='radio' name='personality' value='funny' style='display: none;'>
                         😂 Funny
                     </label>
-                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='cheerful'>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='cheerful'>
                         <input type='radio' name='personality' value='cheerful' style='display: none;'>
                         😊 Cheerful
                     </label>
-                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='brave'>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='brave'>
                         <input type='radio' name='personality' value='brave' style='display: none;'>
                         💪 Brave
                     </label>
-                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='playful'>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='playful'>
                         <input type='radio' name='personality' value='playful' style='display: none;'>
                         🎮 Playful
                     </label>
-                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='curious'>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='curious'>
                         <input type='radio' name='personality' value='curious' style='display: none;'>
                         🔍 Curious
                     </label>
-                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='energetic'>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='energetic'>
                         <input type='radio' name='personality' value='energetic' style='display: none;'>
                         ⚡ Energetic
                     </label>
-                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='calm'>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='calm'>
                         <input type='radio' name='personality' value='calm' style='display: none;'>
                         😌 Calm
                     </label>
-                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='gentle'>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='gentle'>
                         <input type='radio' name='personality' value='gentle' style='display: none;'>
                         🌸 Gentle
                     </label>
                 </div>
             </div>
             
-            <div style='text-align: left; margin: 15px 0;'>
-                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Your Name</label>
+            <div style='text-align: left; margin: 20px 0;'>
+                <label style='display: block; margin-bottom: 8px; font-weight: 700; color: #333; font-size: 15px;'>Your Name</label>
                 <input type='text' id='artist-name' value='${escapeHtml(defaultName)}' 
                     placeholder='Your artist name' 
-                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' />
+                    style='width: 100%; padding: 14px 16px; border: 3px solid #e2e8f0; border-radius: 12px; font-size: 15px; box-sizing: border-box;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
+                    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+                    transition: all 0.2s; color: #000000;' />
             </div>
             
-            <div style='text-align: left; margin: 15px 0;'>
-                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>
+            <div style='text-align: left; margin: 20px 0;'>
+                <label style='display: block; margin-bottom: 8px; font-weight: 700; color: #333; font-size: 15px;'>
                     About You
-                    <span style='color: #6366F1; font-size: 12px; font-weight: normal; margin-left: 8px;'>💬 Your fish will mention you in chat!</span>
+                    <span style='color: #4A90E2; font-size: 12px; font-weight: 600; margin-left: 8px;'>💬 Your fish will mention you in chat!</span>
                 </label>
                 <input type='text' id='user-info' 
                     placeholder='e.g., My owner loves pizza' 
-                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' 
+                    style='width: 100%; padding: 14px 16px; border: 3px solid #e2e8f0; border-radius: 12px; font-size: 15px; box-sizing: border-box;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
+                    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+                    transition: all 0.2s; color: #000000;' 
                     maxlength='50' />
-                <small style='color: #999; font-size: 12px;'>Your fish may mention this information in chat to get to know you better!</small>
+                <small style='color: #64748b; font-size: 12px; margin-top: 6px; display: block;'>Your fish may mention this information in chat to get to know you better!</small>
             </div>
             
-            <div style='margin-top: 20px; display: flex; gap: 10px; justify-content: center;'>
-                <button id='submit-fish' class='cute-button cute-button-primary' style='padding: 12px 28px; background:#27ae60; font-weight: bold; font-size: 14px;'>Submit Fish</button>
-                <button id='cancel-fish' class='cute-button' style='padding: 12px 28px; background: #e0e0e0; font-size: 14px;'>Cancel</button>
+            <div style='margin-top: 28px; display: flex; gap: 12px; justify-content: center;'>
+                <button id='submit-fish' style='padding: 14px 32px; background: linear-gradient(180deg, #4CD964 0%, #4CD964 50%, #3CB54A 100%);
+                border: none; border-bottom: 3px solid #2E8B3A; border-radius: 16px; font-weight: 900; font-size: 16px; color: white;
+                cursor: pointer; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                transition: all 0.15s; position: relative; overflow: hidden;'>
+                    Submit Fish
+                </button>
+                <button id='cancel-fish' style='padding: 14px 32px; background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                border: none; border-bottom: 3px solid #A0A0A0; border-radius: 16px; font-weight: 700; font-size: 16px; color: #4A90E2;
+                cursor: pointer; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s; position: relative; overflow: hidden;'>
+                    Cancel
+                </button>
             </div>
         </div>`, () => { });
     }
     
-    // Add personality selection highlight effect
+    // Add personality selection highlight effect with 3D style
     setTimeout(() => {
         document.querySelectorAll('.personality-option').forEach(option => {
+            // 添加光泽效果
+            const shine = document.createElement('div');
+            shine.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 50%;
+                background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+                border-radius: 12px 12px 0 0;
+                pointer-events: none;
+            `;
+            option.appendChild(shine);
+            
             option.addEventListener('click', function() {
                 document.querySelectorAll('.personality-option').forEach(o => {
-                    o.style.borderColor = '#ddd';
-                    o.style.background = 'white';
+                    o.style.borderColor = '#e2e8f0';
+                    o.style.background = 'linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%)';
+                    o.style.color = '#4A90E2';
+                    o.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.15)';
                     o.querySelector('input').checked = false;
                 });
-                this.style.borderColor = '#667eea';
-                this.style.background = '#f0f4ff';
+                this.style.borderColor = '#4A90E2';
+                this.style.background = 'linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%)';
+                this.style.color = 'white';
+                this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                this.style.textShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
                 this.querySelector('input').checked = true;
             });
+            
+            // 悬停效果
+            option.addEventListener('mouseenter', function() {
+                if (!this.querySelector('input').checked) {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.15)';
+                }
+            });
+            option.addEventListener('mouseleave', function() {
+                if (!this.querySelector('input').checked) {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.15)';
+                }
+            });
         });
+        
+        // 输入框聚焦效果
+        const inputs = document.querySelectorAll('#fish-name, #artist-name, #user-info');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#4A90E2';
+                this.style.boxShadow = '0 4px 0 rgba(74, 144, 226, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.5)';
+            });
+            input.addEventListener('blur', function() {
+                if (this.id === 'fish-name') {
+                    this.style.borderColor = '#4A90E2';
+                } else {
+                    this.style.borderColor = '#e2e8f0';
+                }
+                this.style.boxShadow = '0 3px 0 rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.5)';
+            });
+        });
+        
+        // 按钮悬停效果
+        const submitBtn = document.getElementById('submit-fish');
+        const cancelBtn = document.getElementById('cancel-fish');
+        
+        if (submitBtn) {
+            const submitShine = document.createElement('div');
+            submitShine.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 50%;
+                background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+                border-radius: 16px 16px 0 0;
+                pointer-events: none;
+            `;
+            submitBtn.appendChild(submitShine);
+            
+            submitBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+            });
+            submitBtn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+            });
+            submitBtn.addEventListener('mousedown', function() {
+                this.style.transform = 'translateY(2px)';
+                this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+            });
+            submitBtn.addEventListener('mouseup', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+            });
+        }
+        
+        if (cancelBtn) {
+            const cancelShine = document.createElement('div');
+            cancelShine.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 50%;
+                background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+                border-radius: 16px 16px 0 0;
+                pointer-events: none;
+            `;
+            cancelBtn.appendChild(cancelShine);
+            
+            cancelBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+            });
+            cancelBtn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+            });
+            cancelBtn.addEventListener('mousedown', function() {
+                this.style.transform = 'translateY(2px)';
+                this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+            });
+            cancelBtn.addEventListener('mouseup', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+            });
+        }
     }, 100);
     
     document.getElementById('submit-fish').onclick = async () => {
@@ -659,8 +1244,18 @@ swimBtn.addEventListener('click', async () => {
         
         // Validate fish name
         if (!fishName) {
-            alert('Please give your fish a name!');
-            document.getElementById('fish-name').focus();
+            showUserAlert({
+                type: 'warning',
+                title: '请输入鱼名',
+                message: '请为您的鱼起一个名字！',
+                buttons: [{
+                    text: '确定',
+                    action: () => {
+                        document.getElementById('fish-name')?.focus();
+                    },
+                    closeAfterAction: true
+                }]
+            });
             return;
         }
         
@@ -675,7 +1270,7 @@ swimBtn.addEventListener('click', async () => {
         console.log('  个性:', personality);
         console.log('  艺术家:', artist);
         
-        await submitFish(artist, !isFish, fishName, personality); // Pass name and personality
+        await submitFish(artist, !isFish, fishName, personality, userInfo); // Pass name, personality, and userInfo
         console.log('✅ submitFish 完成');
         
         // 关闭modal
@@ -1317,98 +1912,283 @@ if (window.supabaseAuth) {
                         };
                     } else {
                         // 显示命名modal（好鱼）
-                        showModal(`<div style='text-align:center; padding: 20px; max-width: 450px;'>
-                            <div style='color:#27ae60; font-weight:bold; font-size: 20px; margin-bottom:16px;'>🐟 Name Your Fish!</div>
+                        showModal(`<div style='text-align:center; padding: 0; max-width: 500px;'>
+                            <h2 style='color: #4A90E2; font-weight: 900; font-size: 28px; margin: 0 0 24px 0; text-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);'>
+                                🐟 Name Your Fish!
+                            </h2>
                             
-                            <div style='text-align: left; margin: 15px 0;'>
-                                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Fish Name *</label>
+                            <div style='text-align: left; margin: 20px 0;'>
+                                <label style='display: block; margin-bottom: 8px; font-weight: 700; color: #333; font-size: 15px;'>
+                                    Fish Name <span style='color: #FF3B30;'>*</span>
+                                </label>
                                 <input type='text' id='fish-name' placeholder='e.g., Bubbles, Nemo, Goldie' 
-                                    style='width: 100%; padding: 12px; border: 2px solid #27ae60; border-radius: 8px; font-size: 14px; box-sizing: border-box;' 
+                                    style='width: 100%; padding: 14px 16px; border: 3px solid #4A90E2; border-radius: 12px; font-size: 15px; box-sizing: border-box; 
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
+                                    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+                                    transition: all 0.2s; color: #000000;' 
                                     maxlength='30' required />
-                                <small style='color: #999; font-size: 12px;'>Give your fish a unique name!</small>
+                                <small style='color: #64748b; font-size: 12px; margin-top: 6px; display: block;'>Give your fish a unique name!</small>
                             </div>
                             
-                            <div style='text-align: left; margin: 15px 0;'>
-                                <label style='display: block; margin-bottom: 8px; font-weight: bold; color: #333; font-size: 14px;'>Personality</label>
-                                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;'>
-                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #667eea; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px; background: #f0f4ff;' class='personality-option' data-personality='random'>
+                            <div style='text-align: left; margin: 20px 0;'>
+                                <label style='display: block; margin-bottom: 10px; font-weight: 700; color: #333; font-size: 15px;'>Personality</label>
+                                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;'>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #4A90E2; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700; 
+                                    background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+                                    color: white; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+                                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='random'>
                                         <input type='radio' name='personality' value='random' checked style='display: none;'>
                                         🎲 Random
                                     </label>
-                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='funny'>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='funny'>
                                         <input type='radio' name='personality' value='funny' style='display: none;'>
                                         😂 Funny
                                     </label>
-                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='cheerful'>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='cheerful'>
                                         <input type='radio' name='personality' value='cheerful' style='display: none;'>
                                         😊 Cheerful
                                     </label>
-                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='brave'>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='brave'>
                                         <input type='radio' name='personality' value='brave' style='display: none;'>
                                         💪 Brave
                                     </label>
-                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='playful'>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='playful'>
                                         <input type='radio' name='personality' value='playful' style='display: none;'>
                                         🎮 Playful
                                     </label>
-                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='curious'>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='curious'>
                                         <input type='radio' name='personality' value='curious' style='display: none;'>
                                         🔍 Curious
                                     </label>
-                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='energetic'>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='energetic'>
                                         <input type='radio' name='personality' value='energetic' style='display: none;'>
                                         ⚡ Energetic
                                     </label>
-                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='calm'>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='calm'>
                                         <input type='radio' name='personality' value='calm' style='display: none;'>
                                         😌 Calm
                                     </label>
-                                    <label style='cursor: pointer; padding: 8px 6px; border: 2px solid #ddd; border-radius: 8px; text-align: center; transition: all 0.3s; font-size: 12px;' class='personality-option' data-personality='gentle'>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='gentle'>
                                         <input type='radio' name='personality' value='gentle' style='display: none;'>
                                         🌸 Gentle
                                     </label>
                                 </div>
                             </div>
                             
-                            <div style='text-align: left; margin: 15px 0;'>
-                                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>Your Name</label>
+                            <div style='text-align: left; margin: 20px 0;'>
+                                <label style='display: block; margin-bottom: 8px; font-weight: 700; color: #333; font-size: 15px;'>Your Name</label>
                                 <input type='text' id='artist-name' value='${escapeHtml(defaultName)}' 
                                     placeholder='Your artist name' 
-                                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' />
+                                    style='width: 100%; padding: 14px 16px; border: 3px solid #e2e8f0; border-radius: 12px; font-size: 15px; box-sizing: border-box;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
+                                    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+                                    transition: all 0.2s; color: #000000;' />
                             </div>
                             
-                            <div style='text-align: left; margin: 15px 0;'>
-                                <label style='display: block; margin-bottom: 6px; font-weight: bold; color: #333; font-size: 14px;'>
+                            <div style='text-align: left; margin: 20px 0;'>
+                                <label style='display: block; margin-bottom: 8px; font-weight: 700; color: #333; font-size: 15px;'>
                                     About You
-                                    <span style='color: #6366F1; font-size: 12px; font-weight: normal; margin-left: 8px;'>💬 Your fish will mention you in chat!</span>
+                                    <span style='color: #4A90E2; font-size: 12px; font-weight: 600; margin-left: 8px;'>💬 Your fish will mention you in chat!</span>
                                 </label>
                                 <input type='text' id='user-info' 
                                     placeholder='e.g., My owner loves pizza' 
-                                    style='width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box;' 
+                                    style='width: 100%; padding: 14px 16px; border: 3px solid #e2e8f0; border-radius: 12px; font-size: 15px; box-sizing: border-box;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
+                                    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+                                    transition: all 0.2s; color: #000000;' 
                                     maxlength='50' />
-                                <small style='color: #999; font-size: 12px;'>Your fish may mention this information in chat to get to know you better!</small>
-                            </div>
+                                <small style='color: #64748b; font-size: 12px; margin-top: 6px; display: block;'>Your fish may mention this information in chat to get to know you better!</small>
+            </div>
                             
-                            <div style='margin-top: 20px; display: flex; gap: 10px; justify-content: center;'>
-                                <button id='submit-fish' class='cute-button cute-button-primary' style='padding: 12px 28px; background:#27ae60; font-weight: bold; font-size: 14px;'>Submit Fish</button>
-                                <button id='cancel-fish' class='cute-button' style='padding: 12px 28px; background: #e0e0e0; font-size: 14px;'>Cancel</button>
+                            <div style='margin-top: 28px; display: flex; gap: 12px; justify-content: center;'>
+                                <button id='submit-fish' style='padding: 14px 32px; background: linear-gradient(180deg, #4CD964 0%, #4CD964 50%, #3CB54A 100%);
+                                border: none; border-bottom: 3px solid #2E8B3A; border-radius: 16px; font-weight: 900; font-size: 16px; color: white;
+                                cursor: pointer; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                                transition: all 0.15s; position: relative; overflow: hidden;'>
+                                    Submit Fish
+                                </button>
+                                <button id='cancel-fish' style='padding: 14px 32px; background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                border: none; border-bottom: 3px solid #A0A0A0; border-radius: 16px; font-weight: 700; font-size: 16px; color: #4A90E2;
+                                cursor: pointer; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s; position: relative; overflow: hidden;'>
+                                    Cancel
+                                </button>
                             </div>
                         </div>`, () => { });
                         
-                        // Add personality selection highlight effect
+                        // Add personality selection highlight effect with 3D style
                         setTimeout(() => {
                             document.querySelectorAll('.personality-option').forEach(option => {
+                                // 添加光泽效果
+                                const shine = document.createElement('div');
+                                shine.style.cssText = `
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    right: 0;
+                                    height: 50%;
+                                    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+                                    border-radius: 12px 12px 0 0;
+                                    pointer-events: none;
+                                `;
+                                option.appendChild(shine);
+                                
                                 option.addEventListener('click', function() {
                                     document.querySelectorAll('.personality-option').forEach(o => {
-                                        o.style.borderColor = '#ddd';
-                                        o.style.background = 'white';
+                                        o.style.borderColor = '#e2e8f0';
+                                        o.style.background = 'linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%)';
+                                        o.style.color = '#4A90E2';
+                                        o.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.15)';
                                         o.querySelector('input').checked = false;
                                     });
-                                    this.style.borderColor = '#667eea';
-                                    this.style.background = '#f0f4ff';
+                                    this.style.borderColor = '#4A90E2';
+                                    this.style.background = 'linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%)';
+                                    this.style.color = 'white';
+                                    this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                                    this.style.textShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
                                     this.querySelector('input').checked = true;
                                 });
+                                
+                                // 悬停效果
+                                option.addEventListener('mouseenter', function() {
+                                    if (!this.querySelector('input').checked) {
+                                        this.style.transform = 'translateY(-2px)';
+                                        this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.15)';
+                                    }
+                                });
+                                option.addEventListener('mouseleave', function() {
+                                    if (!this.querySelector('input').checked) {
+                                        this.style.transform = 'translateY(0)';
+                                        this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.15)';
+                                    }
+                                });
                             });
+                            
+                            // 输入框聚焦效果
+                            const inputs = document.querySelectorAll('#fish-name, #artist-name, #user-info');
+                            inputs.forEach(input => {
+                                input.addEventListener('focus', function() {
+                                    this.style.borderColor = '#4A90E2';
+                                    this.style.boxShadow = '0 4px 0 rgba(74, 144, 226, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.5)';
+                                });
+                                input.addEventListener('blur', function() {
+                                    if (this.id === 'fish-name') {
+                                        this.style.borderColor = '#4A90E2';
+                                    } else {
+                                        this.style.borderColor = '#e2e8f0';
+                                    }
+                                    this.style.boxShadow = '0 3px 0 rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.5)';
+                                });
+                            });
+                            
+                            // 按钮悬停效果
+                            const submitBtn = document.getElementById('submit-fish');
+                            const cancelBtn = document.getElementById('cancel-fish');
+                            
+                            if (submitBtn) {
+                                const submitShine = document.createElement('div');
+                                submitShine.style.cssText = `
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    right: 0;
+                                    height: 50%;
+                                    background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+                                    border-radius: 16px 16px 0 0;
+                                    pointer-events: none;
+                                `;
+                                submitBtn.appendChild(submitShine);
+                                
+                                submitBtn.addEventListener('mouseenter', function() {
+                                    this.style.transform = 'translateY(-2px)';
+                                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                submitBtn.addEventListener('mouseleave', function() {
+                                    this.style.transform = 'translateY(0)';
+                                    this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                submitBtn.addEventListener('mousedown', function() {
+                                    this.style.transform = 'translateY(2px)';
+                                    this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                submitBtn.addEventListener('mouseup', function() {
+                                    this.style.transform = 'translateY(-2px)';
+                                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                            }
+                            
+                            if (cancelBtn) {
+                                const cancelShine = document.createElement('div');
+                                cancelShine.style.cssText = `
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    right: 0;
+                                    height: 50%;
+                                    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+                                    border-radius: 16px 16px 0 0;
+                                    pointer-events: none;
+                                `;
+                                cancelBtn.appendChild(cancelShine);
+                                
+                                cancelBtn.addEventListener('mouseenter', function() {
+                                    this.style.transform = 'translateY(-2px)';
+                                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                cancelBtn.addEventListener('mouseleave', function() {
+                                    this.style.transform = 'translateY(0)';
+                                    this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                cancelBtn.addEventListener('mousedown', function() {
+                                    this.style.transform = 'translateY(2px)';
+                                    this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                cancelBtn.addEventListener('mouseup', function() {
+                                    this.style.transform = 'translateY(-2px)';
+                                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                            }
                         }, 100);
                         
                         // 绑定提交按钮事件
@@ -1427,8 +2207,18 @@ if (window.supabaseAuth) {
                             
                             // Validate fish name
                             if (!fishName) {
-                                alert('Please give your fish a name!');
-                                document.getElementById('fish-name').focus();
+                                showUserAlert({
+                                    type: 'warning',
+                                    title: '请输入鱼名',
+                                    message: '请为您的鱼起一个名字！',
+                                    buttons: [{
+                                        text: '确定',
+                                        action: () => {
+                                            document.getElementById('fish-name')?.focus();
+                                        },
+                                        closeAfterAction: true
+                                    }]
+                                });
                                 return;
                             }
                             
@@ -1443,7 +2233,7 @@ if (window.supabaseAuth) {
                             console.log('  个性:', personality);
                             console.log('  艺术家:', artist);
                             
-                            await submitFish(artist, !isFish, fishName, personality);
+                            await submitFish(artist, !isFish, fishName, personality, userInfo);
                             console.log('✅ submitFish 完成');
                             
                             // 关闭modal
