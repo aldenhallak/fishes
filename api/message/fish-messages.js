@@ -67,11 +67,6 @@ module.exports = async function handler(req, res) {
           content
           visibility
           created_at
-          sender {
-            id
-            display_name
-            avatar_url
-          }
         }
       }
     `;
@@ -79,12 +74,40 @@ module.exports = async function handler(req, res) {
     const allMessagesData = await hasura.query(allMessagesQuery, { fishId });
     
     // 在API层过滤：如果是主人，显示所有；否则只显示公开留言
-    const messages = allMessagesData.messages.filter(msg => {
+    let messages = allMessagesData.messages.filter(msg => {
       if (isOwner) {
         return true; // 主人可以看到所有留言
       }
       return msg.visibility === 'public'; // 其他人只能看公开留言
     });
+    
+    // 获取发送者信息
+    if (messages.length > 0) {
+      const senderIds = [...new Set(messages.map(m => m.sender_id))];
+      const usersQuery = `
+        query GetUsers($userIds: [String!]!) {
+          users(where: { id: { _in: $userIds } }) {
+            id
+            display_name
+            avatar_url
+          }
+        }
+      `;
+      
+      const usersData = await hasura.query(usersQuery, { userIds: senderIds });
+      const usersMap = {};
+      if (usersData.users) {
+        usersData.users.forEach(user => {
+          usersMap[user.id] = user;
+        });
+      }
+      
+      // 为每条留言添加发送者信息
+      messages = messages.map(msg => ({
+        ...msg,
+        sender: usersMap[msg.sender_id] || { id: msg.sender_id, display_name: 'Anonymous', avatar_url: null }
+      }));
+    }
     
     const messagesData = {
       messages: messages,

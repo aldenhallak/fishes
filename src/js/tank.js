@@ -1159,17 +1159,30 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 function showFishInfoModal(fish) {
+    // Create higher resolution canvas for better image quality
+    const canvasScaleFactor = 2; // Scale up canvas for better quality
     const fishImgCanvas = document.createElement('canvas');
-    fishImgCanvas.width = fish.width;
-    fishImgCanvas.height = fish.height;
-    fishImgCanvas.getContext('2d').drawImage(fish.fishCanvas, 0, 0);
-    const imgDataUrl = fishImgCanvas.toDataURL();
+    fishImgCanvas.width = fish.width * canvasScaleFactor;
+    fishImgCanvas.height = fish.height * canvasScaleFactor;
+    const ctx = fishImgCanvas.getContext('2d');
+    
+    // Enable image smoothing for better quality
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    
+    // Scale up the drawing
+    ctx.scale(canvasScaleFactor, canvasScaleFactor);
+    ctx.drawImage(fish.fishCanvas, 0, 0);
+    
+    // Use PNG format with higher quality
+    const imgDataUrl = fishImgCanvas.toDataURL('image/png');
 
-    // Scale display size for modal (2x size, max 400x300, maintain aspect ratio)
+    // Scale display size for modal (higher quality, maintain aspect ratio)
+    const displayScaleFactor = 3; // Display scale factor
     const baseWidth = Math.min(200, fish.width);
     const baseHeight = Math.min(150, fish.height);
-    const modalWidth = baseWidth * 2;
-    const modalHeight = baseHeight * 2;
+    const modalWidth = baseWidth * displayScaleFactor;
+    const modalHeight = baseHeight * displayScaleFactor;
 
     // Check if this is the user's fish
     const isCurrentUserFish = isUserFish(fish);
@@ -1190,15 +1203,13 @@ function showFishInfoModal(fish) {
         info += `<div style='margin-bottom: 16px; padding: 10px; background: linear-gradient(135deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border: 3px solid #BFA000; border-radius: 12px; color: #5D4E00; font-weight: 900; font-size: 13px; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2); text-align: center; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⭐ Your Fish</div>`;
     }
 
-    // Fish image
+    // Fish image (no frame, direct display)
     info += `<div style="text-align: center; margin-bottom: 20px;">`;
-    info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto;border:3px solid rgba(74, 144, 226, 0.3);background:#ffffff;border-radius:12px;box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);' alt='Fish'>`;
+    info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto;image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;' alt='Fish'>`;
     info += `</div>`;
 
-    // Fish info section
-    info += `<div style='background: rgba(255, 255, 255, 0.8); padding: 16px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);'>`;
-    info += `<div style='margin-bottom: 8px; font-size: 14px; color: #666;'><strong style='color: #333;'>Artist:</strong> ${artistLink}</div>`;
-    info += `</div>`;
+    // Fish info section (simplified, no background box)
+    info += `<div style='margin-bottom: 12px; font-size: 13px; color: #666;'><strong style='color: #333;'>Artist:</strong> ${artistLink}</div>`;
 
     // Action buttons: Like, Favorite, Report (并列，样式一致)
     info += `<div class="voting-controls modal-controls" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 20px;">`;
@@ -1252,7 +1263,7 @@ function showFishInfoModal(fish) {
                 showForm: true,
                 showFishInfo: false,
                 showDeleteBtn: true,
-                title: '💬 留言板'
+                title: '💬 Messages'
             });
         }
     }, 100);

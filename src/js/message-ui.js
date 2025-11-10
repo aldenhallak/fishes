@@ -16,7 +16,7 @@ const MessageUI = {
     if (!messages || messages.length === 0) {
       return `
         <div class="messages-empty">
-          暂无留言
+          No messages yet
         </div>
       `;
     }
@@ -41,12 +41,12 @@ const MessageUI = {
   renderMessageCard(message, options = {}) {
     const { showFishInfo = false, showDeleteBtn = false } = options;
     
-    const senderName = message.sender?.display_name || '匿名用户';
+    const senderName = message.sender?.display_name || 'Anonymous';
     const senderInitial = senderName.charAt(0).toUpperCase();
     const content = MessageClient.escapeHtml(message.content);
     const time = MessageClient.formatTime(message.created_at);
     const visibility = message.visibility || 'public';
-    const visibilityText = visibility === 'public' ? '公开' : '私密';
+    const visibilityText = visibility === 'public' ? 'Public' : 'Private';
     const currentUserId = MessageClient.getCurrentUserId();
     const canDelete = showDeleteBtn && currentUserId && 
                       (message.sender_id === currentUserId || message.receiver_id === currentUserId);
@@ -82,7 +82,7 @@ const MessageUI = {
           ${canDelete ? `
             <div class="message-actions">
               <button class="message-delete-btn" onclick="MessageUI.handleDelete('${message.id}')">
-                删除
+                Delete
               </button>
             </div>
           ` : ''}
@@ -105,54 +105,39 @@ const MessageUI = {
     return `
       <div class="message-form" id="${formId}">
         <div class="message-form-group">
-          <label class="message-form-label">留言内容</label>
+          <div class="message-form-header">
+            <label class="message-form-label">Message</label>
+            <div class="message-char-count">
+              <span id="${formId}-count">0</span>/50
+            </div>
+          </div>
           <textarea 
             class="message-form-textarea" 
             id="${formId}-content"
-            placeholder="说点什么吧...（最多50字）"
+            placeholder="Say something..."
             maxlength="50"
             rows="3"
           ></textarea>
-          <div class="message-char-count">
-            <span id="${formId}-count">0</span>/50
-          </div>
-        </div>
-
-        <div class="message-form-group">
-          <label class="message-form-label">可见性</label>
-          <div class="message-visibility-options">
-            <div class="message-visibility-option">
-              <input 
-                type="radio" 
-                id="${formId}-public" 
-                name="${formId}-visibility" 
-                value="public" 
-                checked
-              >
-              <label for="${formId}-public">🌍 公开</label>
-            </div>
-            <div class="message-visibility-option">
-              <input 
-                type="radio" 
-                id="${formId}-private" 
-                name="${formId}-visibility" 
-                value="private"
-              >
-              <label for="${formId}-private">🔒 私密</label>
-            </div>
-          </div>
         </div>
 
         <div id="${formId}-error" class="message-error" style="display: none;"></div>
         <div id="${formId}-success" class="message-success" style="display: none;"></div>
 
-        <div class="message-form-actions">
+        <div class="message-form-footer">
+          <div class="message-visibility-option">
+            <input 
+              type="checkbox" 
+              id="${formId}-private" 
+              name="${formId}-visibility"
+            >
+            <label for="${formId}-private">🔒 Private (only for owner)</label>
+          </div>
           <button 
             type="button" 
             class="message-submit-btn" 
             id="${formId}-submit"
           >
-            发送留言
+            Send Message
           </button>
         </div>
       </div>
@@ -200,29 +185,29 @@ const MessageUI = {
 
           // 获取表单数据
           const content = contentTextarea.value.trim();
-          const visibilityRadio = document.querySelector(`input[name="${formId}-visibility"]:checked`);
-          const visibility = visibilityRadio ? visibilityRadio.value : 'public';
+          const privateCheckbox = document.getElementById(`${formId}-private`);
+          const visibility = privateCheckbox && privateCheckbox.checked ? 'private' : 'public';
 
           // 验证
           if (!content) {
-            this.showError(errorDiv, '请输入留言内容');
+            this.showError(errorDiv, 'Please enter a message');
             return;
           }
 
           if (content.length > 50) {
-            this.showError(errorDiv, '留言内容不能超过50字');
+            this.showError(errorDiv, 'Message cannot exceed 50 characters');
             return;
           }
 
           // 禁用按钮
           submitBtn.disabled = true;
-          submitBtn.textContent = '发送中...';
+          submitBtn.textContent = 'Sending...';
 
           // 发送留言
           await MessageClient.sendMessage(messageType, targetId, content, visibility);
 
           // 成功
-          this.showSuccess(successDiv, '留言发送成功！');
+          this.showSuccess(successDiv, 'Message sent successfully!');
           
           // 清空表单
           contentTextarea.value = '';
@@ -237,11 +222,11 @@ const MessageUI = {
 
         } catch (error) {
           console.error('Send message error:', error);
-          this.showError(errorDiv, error.message || '发送失败，请稍后重试');
+          this.showError(errorDiv, error.message || 'Failed to send message, please try again');
         } finally {
           // 恢复按钮
           submitBtn.disabled = false;
-          submitBtn.textContent = '发送留言';
+          submitBtn.textContent = 'Send Message';
         }
       });
     }
@@ -279,9 +264,9 @@ const MessageUI = {
    * @param {string} messageId - 留言ID
    */
   async handleDelete(messageId) {
-    if (!confirm('确定要删除这条留言吗？')) {
-      return;
-    }
+      if (!confirm('Are you sure you want to delete this message?')) {
+        return;
+      }
 
     try {
       await MessageClient.deleteMessage(messageId);
@@ -306,10 +291,10 @@ const MessageUI = {
         }, 300);
       }
       
-      alert('留言已删除');
+      alert('Message deleted');
     } catch (error) {
       console.error('Delete message error:', error);
-      alert(error.message || '删除失败，请稍后重试');
+      alert(error.message || 'Failed to delete message, please try again');
     }
   },
 
@@ -324,19 +309,19 @@ const MessageUI = {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    const { 
+      const { 
       showForm = true, 
       showFishInfo = false,
       showDeleteBtn = false,
-      title = '💬 留言'
+      title = '💬 Messages'
     } = options;
 
     try {
       // 显示加载状态
       container.innerHTML = `
         <div class="messages-section">
-          <div class="messages-section-title">${title}</div>
-          <div class="messages-loading">加载中...</div>
+          <div class="messages-section-title">${title.replace('💬 ', '')}</div>
+          <div class="messages-loading">Loading...</div>
         </div>
       `;
 
@@ -365,10 +350,10 @@ const MessageUI = {
       // 更新容器
       container.innerHTML = `
         <div class="messages-section">
-          <div class="messages-section-title">${title} (${messages.length})</div>
+          <div class="messages-section-title">${title.replace('💬 ', '')} (${messages.length})</div>
           ${messageListHtml}
           ${currentUserId && showForm ? messageFormHtml : ''}
-          ${!currentUserId && showForm ? '<div class="messages-empty">请登录后发送留言</div>' : ''}
+          ${!currentUserId && showForm ? '<div class="messages-empty">Please log in to send messages</div>' : ''}
         </div>
       `;
 
@@ -388,9 +373,9 @@ const MessageUI = {
       console.error('Render messages section error:', error);
       container.innerHTML = `
         <div class="messages-section">
-          <div class="messages-section-title">${title}</div>
+          <div class="messages-section-title">${title.replace('💬 ', '')}</div>
           <div class="message-error">
-            ${error.message || '加载失败，请刷新页面重试'}
+            ${error.message || 'Failed to load, please refresh the page'}
           </div>
         </div>
       `;

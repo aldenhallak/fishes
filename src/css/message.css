@@ -25,7 +25,7 @@
 
 .messages-section-title::before {
   content: '💬';
-  font-size: 18px;
+  font-size: 16px;
 }
 
 /* ============================================
@@ -40,16 +40,16 @@
 
 .messages-empty {
   text-align: center;
-  padding: 30px;
+  padding: 10px;
   color: #999;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .messages-empty::before {
   content: '📭';
   display: block;
-  font-size: 40px;
-  margin-bottom: 10px;
+  font-size: 24px;
+  margin-bottom: 4px;
 }
 
 /* ============================================
@@ -59,9 +59,9 @@
 .message-card {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 10px;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 6px;
   transition: all 0.3s ease;
   position: relative;
 }
@@ -75,58 +75,59 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .message-sender {
   font-weight: 600;
   color: #4F46E5;
-  font-size: 13px;
+  font-size: 12px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .message-sender-avatar {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: linear-gradient(135deg, #6366F1, #4F46E5);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: bold;
 }
 
 .message-time {
-  font-size: 11px;
+  font-size: 10px;
   color: #94a3b8;
 }
 
 .message-content {
   color: #334155;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.4;
   word-wrap: break-word;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .message-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 2px;
 }
 
 .message-visibility {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
+  gap: 3px;
+  font-size: 10px;
   color: #64748b;
-  padding: 2px 8px;
-  border-radius: 12px;
+  padding: 1px 6px;
+  border-radius: 10px;
   background: white;
 }
 
@@ -147,10 +148,10 @@
   background: none;
   border: none;
   color: #ef4444;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
   transition: all 0.2s;
 }
 
@@ -164,30 +165,36 @@
 
 .message-form {
   background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
 }
 
 .message-form-group {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+}
+
+.message-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
 }
 
 .message-form-label {
-  display: block;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #475569;
-  margin-bottom: 6px;
+  margin: 0;
 }
 
 .message-form-textarea {
   width: 100%;
-  min-height: 60px;
-  padding: 10px;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
+  min-height: 50px;
+  padding: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
   font-family: inherit;
   resize: vertical;
   transition: border-color 0.3s;
@@ -200,10 +207,9 @@
 }
 
 .message-char-count {
-  font-size: 11px;
+  font-size: 10px;
   color: #94a3b8;
-  text-align: right;
-  margin-top: 4px;
+  margin: 0;
 }
 
 .message-char-count.warning {
@@ -216,13 +222,22 @@
 
 .message-visibility-options {
   display: flex;
-  gap: 15px;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.message-form-footer .message-visibility-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  margin: 0;
 }
 
 .message-visibility-option {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   cursor: pointer;
 }
 
@@ -231,25 +246,26 @@
 }
 
 .message-visibility-option label {
-  font-size: 13px;
+  font-size: 12px;
   color: #475569;
   cursor: pointer;
 }
 
-.message-form-actions {
+.message-form-footer {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 12px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .message-submit-btn {
   background: #6366F1;
   color: white;
   border: none;
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;

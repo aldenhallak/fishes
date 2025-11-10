@@ -824,7 +824,7 @@ async function loadUserMessages(userId) {
                 showForm: false,
                 showFishInfo: true,
                 showDeleteBtn: true,
-                title: '收到的留言'
+                title: 'Received Messages'
             });
 
             // 更新留言数量
@@ -833,7 +833,7 @@ async function loadUserMessages(userId) {
                 messagesCount.textContent = messages.length;
             }
         } else {
-            messagesContainer.innerHTML = '<div class="messages-empty">留言功能加载中...</div>';
+            messagesContainer.innerHTML = '<div class="messages-empty">Loading messages...</div>';
         }
     } catch (error) {
         console.error('Load user messages error:', error);
@@ -841,7 +841,7 @@ async function loadUserMessages(userId) {
         if (messagesContainer) {
             messagesContainer.innerHTML = `
                 <div class="message-error">
-                    加载留言失败：${error.message || '未知错误'}
+                    Failed to load messages: ${error.message || 'Unknown error'}
                 </div>
             `;
         }

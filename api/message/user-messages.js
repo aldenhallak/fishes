@@ -67,16 +67,6 @@ module.exports = async function handler(req, res) {
           content
           visibility
           created_at
-          sender {
-            id
-            display_name
-            avatar_url
-          }
-          fish {
-            id
-            fish_name
-            image_url
-          }
         }
       }
     `;
@@ -84,12 +74,65 @@ module.exports = async function handler(req, res) {
     const allMessagesData = await hasura.query(allMessagesQuery, { receiverId: userId });
     
     // 在API层过滤：如果是本人，显示所有；否则只显示公开留言
-    const messages = allMessagesData.messages.filter(msg => {
+    let messages = allMessagesData.messages.filter(msg => {
       if (isOwner) {
         return true; // 本人可以看到所有留言
       }
       return msg.visibility === 'public'; // 其他人只能看公开留言
     });
+    
+    // 获取发送者和鱼的信息
+    if (messages.length > 0) {
+      const senderIds = [...new Set(messages.map(m => m.sender_id))];
+      const fishIds = [...new Set(messages.filter(m => m.fish_id).map(m => m.fish_id))];
+      
+      // 获取用户信息
+      const usersQuery = `
+        query GetUsers($userIds: [String!]!) {
+          users(where: { id: { _in: $userIds } }) {
+            id
+            display_name
+            avatar_url
+          }
+        }
+      `;
+      
+      const usersData = await hasura.query(usersQuery, { userIds: senderIds });
+      const usersMap = {};
+      if (usersData.users) {
+        usersData.users.forEach(user => {
+          usersMap[user.id] = user;
+        });
+      }
+      
+      // 获取鱼信息
+      let fishMap = {};
+      if (fishIds.length > 0) {
+        const fishQuery = `
+          query GetFishes($fishIds: [uuid!]!) {
+            fish(where: { id: { _in: $fishIds } }) {
+              id
+              fish_name
+              image_url
+            }
+          }
+        `;
+        
+        const fishData = await hasura.query(fishQuery, { fishIds });
+        if (fishData.fish) {
+          fishData.fish.forEach(f => {
+            fishMap[f.id] = f;
+          });
+        }
+      }
+      
+      // 为每条留言添加发送者和鱼信息
+      messages = messages.map(msg => ({
+        ...msg,
+        sender: usersMap[msg.sender_id] || { id: msg.sender_id, display_name: 'Anonymous', avatar_url: null },
+        fish: msg.fish_id ? (fishMap[msg.fish_id] || null) : null
+      }));
+    }
     
     const messagesData = {
       messages: messages,
