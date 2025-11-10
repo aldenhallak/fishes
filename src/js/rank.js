@@ -10,6 +10,13 @@ let lastDoc = null; // For pagination with Firestore
 let loadedCount = 0; // Track total loaded fish count
 let currentUserId = null; // Track user filter for showing specific user's fish
 
+// Pagination variables
+let currentPage = 1;
+let pageSize = 20; // Number of fish per page
+let totalPages = 1; // Will be updated based on data
+let totalFishCount = 0; // Total count of fish (set once on initial load)
+let pageHistory = []; // Track page history for "back" navigation
+
 // Cache for image validation results to avoid testing the same image multiple times
 const imageValidationCache = new Map(); // url -> {isValid: boolean, timestamp: number}
 
@@ -219,7 +226,7 @@ function createFishCard(fish) {
                 </button>
                 ${showFavoriteButton ? `
                 <button class="favorite-btn" id="fav-btn-${fish.docId}" onclick="handleFavoriteClick('${fish.docId}', event)" title="Add to favorites">
-                    🤍
+                    <span class="star-icon">☆</span>
                 </button>
                 ` : ''}
                 <button class="report-btn" onclick="handleReport('${fish.docId}', this)" title="Report inappropriate content">
@@ -338,6 +345,9 @@ async function handleSortChange(sortType) {
     hasMoreFish = true;
     loadedCount = 0;
     allFishData = [];
+    currentPage = 1; // Reset to first page when sort changes
+    totalFishCount = 0; // Reset total count (will be recalculated on next load)
+    totalPages = 1; // Reset total pages
 
     // Update active button
     document.querySelectorAll('.sort-btn').forEach(btn => {
@@ -399,37 +409,39 @@ async function filterValidFish(fishArray) {
 }
 
 // Load fish data with efficient querying and pagination
-async function loadFishData(sortType = currentSort, isInitialLoad = true) {
-    if (isLoading || (!hasMoreFish && !isInitialLoad)) {
+async function loadFishData(sortType = currentSort, isInitialLoad = true, page = currentPage) {
+    if (isLoading) {
         return;
     }
 
     isLoading = true;
+    currentPage = page;
 
     try {
         const loadingElement = document.getElementById('loading');
         const gridElement = document.getElementById('fish-grid');
+        const paginationControls = document.getElementById('pagination-controls');
 
-        if (isInitialLoad) {
-            loadingElement.textContent = `Loading fish... 🐠`;
-            loadingElement.style.display = 'block';
-            gridElement.style.display = 'none';
-        } else {
-            // Show inline loading for pagination
-            loadingElement.textContent = `Loading more fish... 🐠`;
-            loadingElement.style.display = 'block';
-        }
+        // Calculate offset based on page number
+        // For Hasura, startAfter is used as offset
+        const offset = (page - 1) * pageSize;
 
-        const fishDocs = await getFishBySort(sortType, 25, lastDoc, sortDirection, currentUserId); // Reduced from 50 to 25
+        loadingElement.textContent = `Loading fish... 🐠`;
+        loadingElement.style.display = 'block';
+        gridElement.style.display = 'none';
+        paginationControls.style.display = 'none';
 
-        // Check if we got fewer docs than requested (indicates end of data)
-        if (fishDocs.length < 25 && sortType !== 'random') {
-            hasMoreFish = false;
-        }
+        // Load one page worth of fish (we'll load a bit more to account for invalid images)
+        const loadCount = pageSize + 10; // Load a bit more to account for filtering
 
-        // For random sorting, disable infinite scroll after first load
-        if (sortType === 'random' && !isInitialLoad) {
-            hasMoreFish = false;
+        // Use offset for pagination (getFishBySort uses startAfter as offset for Hasura)
+        const fishDocs = await getFishBySort(sortType, loadCount, offset, sortDirection, currentUserId);
+
+        // Get total count from the response (stored in _totalCount property)
+        // Set it once and keep it consistent throughout pagination
+        if (fishDocs._totalCount !== undefined && totalFishCount === 0) {
+            totalFishCount = fishDocs._totalCount;
+            totalPages = Math.ceil(totalFishCount / pageSize);
         }
 
         // Map fish documents to objects
@@ -445,39 +457,35 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
         // Filter to only fish with working images
         const validFish = await filterValidFish(newFish);
 
-        // Update lastDoc for pagination (except for random sorting)
-        if (fishDocs.length > 0 && sortType !== 'random') {
-            lastDoc = fishDocs[fishDocs.length - 1];
+        // Take only the first pageSize fish for this page
+        const pageFish = validFish.slice(0, pageSize);
+
+        // Check if there are more pages based on total count
+        if (totalFishCount > 0) {
+            // Use total count to determine if there are more pages
+            const currentPageEndIndex = currentPage * pageSize;
+            hasMoreFish = currentPageEndIndex < totalFishCount;
+        } else {
+            // Fallback: check based on loaded data
+            hasMoreFish = validFish.length > pageSize || fishDocs.length >= loadCount;
         }
 
-        // Note: Client-side sorting for score removed (now only using upvotes)
+        // Update allFishData for the current page
+        allFishData = pageFish;
+        loadedCount = allFishData.length;
 
-        if (isInitialLoad) {
-            allFishData = validFish;
-            loadedCount = allFishData.length;
+        // Hide loading and show grid
+        loadingElement.style.display = 'none';
+        gridElement.style.display = 'grid';
+        paginationControls.style.display = 'flex';
+        
+        displayFish(allFishData, false);
+        updatePaginationControls();
+        updateStatusMessage();
 
-            // Hide loading and show grid
-            loadingElement.style.display = 'none';
-            gridElement.style.display = 'grid';
-            displayFish(allFishData, false);
-            updateStatusMessage();
-        } else {
-            // Filter out duplicates when appending
-            const existingIds = new Set(allFishData.map(fish => fish.docId));
-            const newValidFish = validFish.filter(fish => !existingIds.has(fish.docId));
-
-            if (newValidFish.length > 0) {
-                allFishData = [...allFishData, ...newValidFish];
-                loadedCount = allFishData.length;
-                displayFish(newValidFish, true);
-            } else {
-                // No new fish found, might have reached the end
-                hasMoreFish = false;
-            }
-
-            // Hide loading and show status if needed
-            loadingElement.style.display = 'none';
-            updateStatusMessage();
+        // Scroll to top when page changes
+        if (!isInitialLoad) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
     } catch (error) {
@@ -498,6 +506,47 @@ function updateStatusMessage() {
         loadingElement.style.color = '#666';
         loadingElement.style.fontSize = '0.9em';
         loadingElement.style.padding = '20px';
+    }
+}
+
+// Update pagination controls
+function updatePaginationControls() {
+    const prevBtn = document.getElementById('prev-page-btn');
+    const nextBtn = document.getElementById('next-page-btn');
+    const currentPageSpan = document.getElementById('current-page');
+    const totalPagesSpan = document.getElementById('total-pages');
+
+    // Update page numbers
+    if (currentPageSpan) {
+        currentPageSpan.textContent = currentPage;
+    }
+    
+    // Use calculated total pages (set once on initial load)
+    if (totalPagesSpan) {
+        totalPagesSpan.textContent = totalPages;
+    }
+
+    // Update button states
+    if (prevBtn) {
+        prevBtn.disabled = currentPage <= 1;
+    }
+    
+    if (nextBtn) {
+        nextBtn.disabled = !hasMoreFish || currentPage >= totalPages;
+    }
+}
+
+// Go to next page
+function goToNextPage() {
+    if (!isLoading && hasMoreFish) {
+        loadFishData(currentSort, false, currentPage + 1);
+    }
+}
+
+// Go to previous page
+function goToPrevPage() {
+    if (!isLoading && currentPage > 1) {
+        loadFishData(currentSort, false, currentPage - 1);
     }
 }
 
@@ -593,8 +642,21 @@ window.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // Set up infinite scroll
-    window.addEventListener('scroll', throttledScroll);
+    // Set up pagination button event listeners
+    const prevBtn = document.getElementById('prev-page-btn');
+    const nextBtn = document.getElementById('next-page-btn');
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', goToPrevPage);
+    }
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', goToNextPage);
+    }
+
+    // Disable infinite scroll (we're using pagination buttons now)
+    // Commented out to use pagination instead of infinite scroll
+    // window.addEventListener('scroll', throttledScroll);
 
     // Initialize button text with arrows
     updateSortButtonText();
@@ -639,13 +701,14 @@ async function handleFavoriteClick(fishId, event) {
         if (isFav) {
             // Remove from favorites
             await FishTankFavorites.removeFromFavorites(fishId);
-            button.innerHTML = '🤍';
+            button.innerHTML = '<span class="star-icon">☆</span>';
             button.title = 'Add to favorites';
+            button.classList.remove('favorited');
             FishTankFavorites.showToast('Removed from favorites');
         } else {
             // Add to favorites
             await FishTankFavorites.addToFavorites(fishId);
-            button.innerHTML = '❤️';
+            button.innerHTML = '<span class="star-icon filled">⭐</span>';
             button.title = 'Remove from favorites';
             button.classList.add('favorited');
             FishTankFavorites.showToast('Added to favorites!');
@@ -674,11 +737,11 @@ async function initializeFavoriteButtons() {
             if (button) {
                 const isFav = await FishTankFavorites.isFavorite(fish.docId);
                 if (isFav) {
-                    button.innerHTML = '❤️';
+                    button.innerHTML = '<span class="star-icon filled">⭐</span>';
                     button.title = 'Remove from favorites';
                     button.classList.add('favorited');
                 } else {
-                    button.innerHTML = '🤍';
+                    button.innerHTML = '<span class="star-icon">☆</span>';
                     button.title = 'Add to favorites';
                     button.classList.remove('favorited');
                 }

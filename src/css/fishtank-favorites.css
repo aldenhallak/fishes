@@ -6,7 +6,7 @@
 .favorite-btn {
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
   padding: 5px 10px;
   transition: all 0.3s ease;
@@ -14,11 +14,29 @@
   position: relative;
 }
 
-.favorite-btn:hover {
-  transform: scale(1.2);
+.favorite-btn .star-icon {
+  display: inline-block;
+  color: #FFD700; /* 金色 */
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+  font-size: 1.2em; /* 增大默认状态下的五角星 */
 }
 
-.favorite-btn:active {
+.favorite-btn .star-icon.filled {
+  color: #FFD700; /* 金色实心星 */
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+.favorite-btn:hover .star-icon {
+  transform: scale(1.2);
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.5));
+}
+
+.favorite-btn:hover .star-icon.filled {
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+}
+
+.favorite-btn:active .star-icon {
   transform: scale(0.9);
 }
 
@@ -27,11 +45,16 @@
   cursor: not-allowed;
 }
 
-.favorite-btn.favorited {
-  animation: heartBeat 0.5s ease;
+.favorite-btn:disabled .star-icon {
+  color: #999;
+  filter: none;
 }
 
-@keyframes heartBeat {
+.favorite-btn.favorited {
+  animation: starPulse 0.5s ease;
+}
+
+@keyframes starPulse {
   0%, 100% { transform: scale(1); }
   25% { transform: scale(1.3); }
   50% { transform: scale(1.1); }

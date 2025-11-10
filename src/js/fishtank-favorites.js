@@ -314,7 +314,7 @@
     const button = document.createElement('button');
     button.className = 'favorite-btn' + (isFavorited ? ' favorited' : '');
     button.setAttribute('data-fish-id', fishId);
-    button.innerHTML = isFavorited ? '❤️' : '🤍';
+    button.innerHTML = isFavorited ? '<span class="star-icon filled">⭐</span>' : '<span class="star-icon">☆</span>';
     button.title = isFavorited ? 'Remove from favorites' : 'Add to favorites';
     
     button.onclick = async (e) => {
@@ -327,7 +327,7 @@
         
         // Update button appearance
         button.classList.toggle('favorited', result.isFavorited);
-        button.innerHTML = result.isFavorited ? '❤️' : '🤍';
+        button.innerHTML = result.isFavorited ? '<span class="star-icon filled">⭐</span>' : '<span class="star-icon">☆</span>';
         button.title = result.isFavorited ? 'Remove from favorites' : 'Add to favorites';
         
         // Call callback if provided

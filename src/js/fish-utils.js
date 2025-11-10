@@ -375,6 +375,7 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
 
     // 构建GraphQL查询 - 直接在查询字符串中插入 order_by
     // 添加 upvotes 不为 null 的条件，避免 GraphQL 非空类型错误
+    // 同时获取总数用于分页
     const query = `
         query GetFish($limit: Int!, $offset: Int!, $userId: String) {
             fish(
@@ -395,6 +396,17 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
                 upvotes
                 fish_name
                 personality
+            }
+            fish_aggregate(
+                where: {
+                    is_approved: { _eq: true }
+                    upvotes: { _is_null: false }
+                    ${userId ? ', user_id: { _eq: $userId }' : ''}
+                }
+            ) {
+                aggregate {
+                    count
+                }
             }
         }
     `;
@@ -433,8 +445,11 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
             throw new Error(result.errors[0].message);
         }
 
-        // 转换为Firestore-like格式
-        return result.data.fish.map(fish => ({
+        // 获取总数
+        const totalCount = result.data.fish_aggregate?.aggregate?.count || 0;
+        
+        // 转换为Firestore-like格式，并附加总数信息
+        const fishDocs = result.data.fish.map(fish => ({
             id: fish.id,
             data: () => ({
                 ...fish,
@@ -444,6 +459,13 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
                 CreatedAt: { _seconds: new Date(fish.created_at).getTime() / 1000 }
             })
         }));
+        
+        // 将总数附加到第一个文档上（用于传递总数信息）
+        if (fishDocs.length > 0 && totalCount > 0) {
+            fishDocs._totalCount = totalCount;
+        }
+        
+        return fishDocs;
     } catch (error) {
         console.error('Error fetching fish from Hasura:', error);
         throw error;

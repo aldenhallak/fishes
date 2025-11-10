@@ -95,7 +95,7 @@
             font-weight: 700;
         }
         
-        /* Sort controls */
+        /* Sort controls - Game Style */
         .sort-controls {
             display: flex;
             justify-content: center;
@@ -105,33 +105,71 @@
         }
         
         .sort-btn {
-            padding: 10px 20px;
-            border: 2px solid #E0E0E0;
-            background: white;
-            border-radius: 15px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-lg);
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: #6366F1;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow-btn);
+            transform: translateY(0);
+            transition: all 0.15s ease;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: linear-gradient(180deg, var(--game-blue-light) 0%, var(--game-blue) 50%, var(--game-blue-dark) 100%);
+            border-bottom: 3px solid #2C5F8F;
+        }
+        
+        /* 顶部光泽效果 */
+        .sort-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            pointer-events: none;
+        }
+        
+        /* 底部加深效果 */
+        .sort-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            pointer-events: none;
         }
         
         .sort-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
-            border-color: #6366F1;
-            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-btn-hover);
+        }
+        
+        .sort-btn:active {
+            transform: translateY(2px);
+            box-shadow: var(--shadow-btn-active);
         }
         
         .sort-btn.active {
-            background: linear-gradient(135deg, #6366F1, #4F46E5);
-            color: white;
-            border-color: #6366F1;
+            background: linear-gradient(180deg, var(--game-orange-light) 0%, var(--game-orange) 50%, #E67E00 100%);
+            border-bottom: 3px solid #CC6E00;
         }
         
         .sort-btn.active:hover {
-            background: linear-gradient(135deg, #4F46E5, #4338CA);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-btn-hover);
         }
         
         /* Loading state */
@@ -365,6 +403,56 @@
             transform: rotate(90deg) scale(1.1);
         }
         
+        /* Pagination Controls - Game Style */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 40px 0;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .pagination-btn {
+            min-width: 120px;
+            font-size: 15px;
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: linear-gradient(180deg, #CCCCCC 0%, #999999 50%, #666666 100%) !important;
+            border-bottom: 3px solid #555555 !important;
+            transform: translateY(0) !important;
+        }
+        
+        .pagination-btn:disabled:hover {
+            transform: translateY(0) !important;
+            box-shadow: var(--shadow-btn) !important;
+        }
+        
+        .page-info {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFFFFF;
+            padding: 0 20px;
+            background: none;
+            border: none;
+            box-shadow: none;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .page-info::before {
+            display: none;
+        }
+        
+        .page-info span {
+            color: #FFD700;
+            font-weight: 700;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .ranking-header h1 {
@@ -387,6 +475,23 @@
             .nav-links a {
                 padding: 8px 16px;
                 font-size: 13px;
+            }
+            
+            .pagination-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .pagination-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+            
+            .page-info {
+                padding: 10px 0;
+                font-size: 14px;
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -476,6 +581,19 @@
         
         <div id="fish-grid" class="fish-grid" style="display: none;">
             <!-- Fish cards will be populated here -->
+        </div>
+        
+        <!-- Pagination Controls -->
+        <div id="pagination-controls" class="pagination-controls" style="display: none;">
+            <button id="prev-page-btn" class="game-btn game-btn-primary pagination-btn" disabled>
+                ← Previous
+            </button>
+            <span id="page-info" class="page-info">
+                Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+            </span>
+            <button id="next-page-btn" class="game-btn game-btn-primary pagination-btn">
+                Next →
+            </button>
         </div>
     </div>
     
