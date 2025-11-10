@@ -988,6 +988,11 @@ function makeDisplayFishCanvas(img, width = 80, height = 48) {
     displayCanvas.width = width;
     displayCanvas.height = height;
     const displayCtx = displayCanvas.getContext('2d');
+    
+    // Enable high-quality image smoothing
+    displayCtx.imageSmoothingEnabled = true;
+    displayCtx.imageSmoothingQuality = 'high';
+    
     // Draw image to temp canvas at its natural size
     const temp = document.createElement('canvas');
     temp.width = img.width;

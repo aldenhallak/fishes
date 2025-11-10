@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="src/css/style.css?v=2.0">
     <link rel="stylesheet" href="src/css/animations.css?v=2.0">
     <link rel="stylesheet" href="src/css/cute-theme.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
     <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
     <link rel="icon" type="image/png" href="/fish_logo.png">
     
@@ -40,6 +41,33 @@
             overflow: hidden;
         }
         
+        /* Hide navigation bar background, keep only button */
+        .game-nav {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            box-shadow: none !important;
+            border-bottom: none !important;
+            padding: 10px 15px !important;
+            height: auto !important;
+            min-height: auto !important;
+        }
+        
+        /* Position hamburger button in top left */
+        .hamburger-menu-btn {
+            position: fixed !important;
+            top: 15px !important;
+            left: 15px !important;
+            z-index: 1001 !important;
+            background: rgba(0, 0, 0, 0.3) !important;
+            border-radius: 8px !important;
+            padding: 8px !important;
+            backdrop-filter: blur(5px) !important;
+        }
+        
+        .hamburger-menu-btn:hover {
+            background: rgba(0, 0, 0, 0.5) !important;
+        }
+        
         .tank-wrapper {
             position: relative;
             width: 100vw;
@@ -48,12 +76,14 @@
         
         #swim-canvas {
             width: 100vw !important;
-            height: calc(100vh - 220px) !important;
+            height: calc(100vh - 200px) !important;
             max-width: 100vw !important;
             border: none !important;
             display: block !important;
             margin: 0 !important;
-            margin-top: 60px !important;
+            margin-top: 0 !important;
+            position: relative;
+            z-index: 1;
         }
         
         /* Controls Container */
@@ -94,7 +124,7 @@
             #swim-canvas {
                 width: 100vw !important;
                 height: calc(100vh - 220px) !important;
-                margin-top: 60px !important;
+                margin-top: 0 !important;
             }
             
             .cute-controls-container {
@@ -118,14 +148,14 @@
             #swim-canvas {
                 width: 100vw !important;
                 height: calc(100vh - 140px) !important;
-                margin-top: 60px !important;
+                margin-top: 0 !important;
             }
         }
     </style>
 </head>
 <body>
   <!-- Top Navigation Bar -->
-  <nav class="game-nav" style="position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: linear-gradient(180deg, rgba(99, 102, 241, 0.95) 0%, rgba(79, 70, 229, 0.95) 100%); padding: 10px 15px; display: flex; align-items: center; justify-content: flex-end; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); height: 60px;">
+  <nav class="game-nav">
     <!-- 汉堡菜单按钮 -->
     <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="打开菜单">
       <span></span>
@@ -243,12 +273,11 @@
       </div>
     </div>
     
-    <!-- 加载指示器 -->
-    <div id="loading-indicator" class="cute-loader" style="display: none;">
-      <div class="cute-loader-dot"></div>
-      <div class="cute-loader-dot"></div>
-      <div class="cute-loader-dot"></div>
-    </div>
+  </div>
+  
+  <!-- 加载指示器 (移到容器外，确保显示在最上层) -->
+  <div id="loading-indicator" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 10000; background: rgba(255, 255, 255, 0.95); padding: 20px 40px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
+    <div style="text-align: center; color: #6366F1; font-weight: 600;">Loading...</div>
   </div>
 
   <script src="src/js/footer-utils.js"></script>

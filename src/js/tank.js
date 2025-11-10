@@ -347,6 +347,11 @@ function makeDisplayFishCanvas(img, width = 80, height = 48) {
     displayCanvas.width = width;
     displayCanvas.height = height;
     const displayCtx = displayCanvas.getContext('2d');
+    
+    // Enable high-quality image smoothing
+    displayCtx.imageSmoothingEnabled = true;
+    displayCtx.imageSmoothingQuality = 'high';
+    
     const temp = document.createElement('canvas');
     temp.width = img.width;
     temp.height = img.height;
@@ -380,6 +385,7 @@ function createFishObject({
     peduncle = .4,
     upvotes = 0,
     userId = null,
+    imageUrl = null, // 添加原始图片 URL
     // Community Chat System properties
     id = null,
     fishName = null,
@@ -409,6 +415,7 @@ function createFishObject({
         peduncle,
         upvotes,
         userId,
+        imageUrl, // 保存原始图片 URL
         // Community Chat System properties
         id,
         fishName,
@@ -460,6 +467,7 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
                 height: fishSize.height,
                 upvotes: fishData.upvotes || 0,
                 userId: fishData.userId || fishData.UserId || fishData.user_id || null,
+                imageUrl: imgUrl, // 保存原始图片 URL
                 // Community Chat System properties
                 id: fishData.id || fishData.docId || null,
                 fishName: fishData.fish_name || null,
@@ -1434,30 +1442,36 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 function showFishInfoModal(fish) {
-    // Create higher resolution canvas for better image quality
-    const canvasScaleFactor = 2; // Scale up canvas for better quality
-    const fishImgCanvas = document.createElement('canvas');
-    fishImgCanvas.width = fish.width * canvasScaleFactor;
-    fishImgCanvas.height = fish.height * canvasScaleFactor;
-    const ctx = fishImgCanvas.getContext('2d');
+    let imgDataUrl;
+    let modalWidth = 400; // 默认显示宽度
+    let modalHeight = 240; // 默认显示高度
     
-    // Enable image smoothing for better quality
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    
-    // Scale up the drawing
-    ctx.scale(canvasScaleFactor, canvasScaleFactor);
-    ctx.drawImage(fish.fishCanvas, 0, 0);
-    
-    // Use PNG format with higher quality
-    const imgDataUrl = fishImgCanvas.toDataURL('image/png');
-
-    // Scale display size for modal (higher quality, maintain aspect ratio)
-    const displayScaleFactor = 3; // Display scale factor
-    const baseWidth = Math.min(200, fish.width);
-    const baseHeight = Math.min(150, fish.height);
-    const modalWidth = baseWidth * displayScaleFactor;
-    const modalHeight = baseHeight * displayScaleFactor;
+    // 如果有原始图片 URL，直接使用原始图片以获得最佳清晰度
+    if (fish.imageUrl) {
+        imgDataUrl = fish.imageUrl;
+        // 使用更大的显示尺寸以充分利用原始图片质量
+        modalWidth = 500;
+        modalHeight = 300;
+    } else {
+        // 备用方案：从 fishCanvas 生成（保持向后兼容）
+        const canvasScaleFactor = 6;
+        const fishImgCanvas = document.createElement('canvas');
+        fishImgCanvas.width = fish.width * canvasScaleFactor;
+        fishImgCanvas.height = fish.height * canvasScaleFactor;
+        const ctx = fishImgCanvas.getContext('2d');
+        
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.scale(canvasScaleFactor, canvasScaleFactor);
+        ctx.drawImage(fish.fishCanvas, 0, 0);
+        
+        imgDataUrl = fishImgCanvas.toDataURL('image/png');
+        const displayScaleFactor = 3;
+        const baseWidth = Math.min(200, fish.width);
+        const baseHeight = Math.min(150, fish.height);
+        modalWidth = baseWidth * displayScaleFactor;
+        modalHeight = baseHeight * displayScaleFactor;
+    }
 
     // Check if this is the user's fish
     const isCurrentUserFish = isUserFish(fish);
@@ -1480,7 +1494,7 @@ function showFishInfoModal(fish) {
 
     // Fish image (no frame, direct display)
     info += `<div style="text-align: center; margin-bottom: 20px;">`;
-    info += `<img src='${imgDataUrl}' width='${modalWidth}' height='${modalHeight}' style='display:block;margin:0 auto;image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;' alt='Fish'>`;
+    info += `<img src='${imgDataUrl}' style='display:block;margin:0 auto;max-width:${modalWidth}px;max-height:${modalHeight}px;width:auto;height:auto;image-rendering: auto;object-fit: contain;' alt='Fish'>`;
     info += `</div>`;
 
     // Fish info section (simplified, no background box)
