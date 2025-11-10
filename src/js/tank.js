@@ -1463,14 +1463,14 @@ function handleFishTap(e) {
             
             // 标记已点击鱼，防止后续事件触发移动
             const clickTimestamp = Date.now();
-            if (!window.lastFishClickTime) {
-                window.lastFishClickTime = 0;
-            }
             window.lastFishClickTime = clickTimestamp;
             
-            // 标记这条鱼被点击了，在动画循环中暂停移动
+            // 标记这条鱼被点击了，在动画循环中暂停移动和游泳动画
             fish.isClicked = true;
             fish.clickedAt = clickTimestamp;
+            // 保存点击时的位置，用于固定游泳动画的Y坐标
+            fish.clickedY = fish.y;
+            fish.clickedSwimY = fishY; // 保存点击时的 swimY
             
             // 清除鱼的速度，让它停止移动
             fish.vx = 0;
@@ -1678,7 +1678,7 @@ function animateFishes() {
         } else if (!fish.isEntering) {
             // Normal fish behavior (only if not entering)
             
-            // 如果鱼被点击了，暂停移动一段时间（3秒）
+            // 如果鱼被点击了，完全跳过所有移动逻辑（类似 fish.locked 的处理方式）
             if (fish.isClicked && fish.clickedAt) {
                 const timeSinceClick = Date.now() - fish.clickedAt;
                 if (timeSinceClick < 3000) {
@@ -1686,12 +1686,14 @@ function animateFishes() {
                     // 清除所有速度，防止任何移动
                     fish.vx = 0;
                     fish.vy = 0;
-                    // 跳过所有移动逻辑，但继续绘制
-                    // 不在这里使用 continue，而是用条件判断跳过移动逻辑
+                    // 直接跳过所有移动逻辑，不执行任何位置更新
+                    // 注意：这里不能使用 continue，因为后面还需要绘制鱼
                 } else {
                     // 3秒后恢复移动
                     fish.isClicked = false;
                     fish.clickedAt = null;
+                    fish.clickedY = null;
+                    fish.clickedSwimY = null;
                     // 恢复初始速度
                     if (Math.abs(fish.vx) < 0.01 && Math.abs(fish.vy) < 0.01) {
                         fish.vx = fish.speed * fish.direction * 0.1;
@@ -1699,15 +1701,18 @@ function animateFishes() {
                     }
                 }
             }
+            
+            // 如果鱼被点击了且在3秒内，完全跳过所有移动逻辑
+            const isClickedAndRecent = fish.isClicked && fish.clickedAt && (Date.now() - fish.clickedAt) < 3000;
+            if (!isClickedAndRecent) {
+                // Use cached food detection to improve performance
+                const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
+                let foodDetectionData = foodDetectionCache.get(fishId);
 
-            // Use cached food detection to improve performance
-            const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
-            let foodDetectionData = foodDetectionCache.get(fishId);
-
-            if (!foodDetectionData) {
-                // Calculate food detection data and cache it
-                const fishCenterX = fish.x + fish.width / 2;
-                const fishCenterY = fish.y + fish.height / 2;
+                if (!foodDetectionData) {
+                    // Calculate food detection data and cache it
+                    const fishCenterX = fish.x + fish.width / 2;
+                    const fishCenterY = fish.y + fish.height / 2;
 
                 let nearestFood = null;
                 let nearestDistance = FOOD_DETECTION_RADIUS;
@@ -1745,15 +1750,14 @@ function animateFishes() {
                     fishCenterY
                 };
 
-                foodDetectionCache.set(fishId, foodDetectionData);
-            }
+                    foodDetectionCache.set(fishId, foodDetectionData);
+                }
 
-            // Initialize velocity if not set
-            if (!fish.vx) fish.vx = 0;
-            if (!fish.vy) fish.vy = 0;
+                // Initialize velocity if not set
+                if (!fish.vx) fish.vx = 0;
+                if (!fish.vy) fish.vy = 0;
 
-            // Always apply base swimming movement (除非鱼被点击了)
-            if (!fish.isClicked) {
+                // Always apply base swimming movement
                 fish.vx += fish.speed * fish.direction * 0.1; // Continuous base movement
 
                 // Apply food attraction using cached data
@@ -1777,18 +1781,13 @@ function animateFishes() {
                         }
                     }
                 }
-            }
 
-            // Always move based on velocity (除非鱼被点击了)
-            if (!fish.isClicked) {
+                // Always move based on velocity
                 fish.x += fish.vx;
                 fish.y += fish.vy;
-            }
 
-            // Handle edge collisions BEFORE applying friction (除非鱼被点击了)
-            let hitEdge = false;
-            
-            if (!fish.isClicked) {
+                // Handle edge collisions BEFORE applying friction
+                let hitEdge = false;
                 // Left and right edges
                 if (fish.x <= 0) {
                     fish.x = 0;
@@ -1818,10 +1817,8 @@ function animateFishes() {
                     fish.vy = -Math.abs(fish.vy) * 0.5; // Bounce off bottom, but gently
                     hitEdge = true;
                 }
-            }
 
-            // Apply friction - less when attracted to food (除非鱼被点击了)
-            if (!fish.isClicked) {
+                // Apply friction - less when attracted to food
                 const frictionFactor = foodDetectionData.hasNearbyFood ? 0.88 : 0.85;
                 fish.vx *= frictionFactor;
                 fish.vy *= frictionFactor;
@@ -1845,26 +1842,17 @@ function animateFishes() {
                     // Add small random vertical component to avoid getting stuck
                     fish.vy += (Math.random() - 0.5) * 0.3;
                 }
-            }
+            } // 结束 if (!isClickedAndRecent) 块（移动逻辑）
         }
 
         // Calculate swim position - reduce sine wave when fish is attracted to food
         let swimY;
         if (fish.isDying) {
             swimY = fish.y;
-        } else if (fish.isClicked && fish.clickedAt) {
-            // 如果鱼被点击了，完全停止游泳动画，保持静止
-            const timeSinceClick = Date.now() - fish.clickedAt;
-            if (timeSinceClick < 3000) {
-                swimY = fish.y; // 不使用 sine wave，完全静止
-            } else {
-                // 3秒后恢复游泳动画
-                const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
-                const foodDetectionData = foodDetectionCache.get(fishId);
-                const hasNearbyFood = foodDetectionData ? foodDetectionData.hasNearbyFood : false;
-                const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
-                swimY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
-            }
+        } else if (fish.isClicked && fish.clickedAt && (Date.now() - fish.clickedAt) < 3000) {
+            // 如果鱼被点击了且在3秒内，完全停止游泳动画，保持静止
+            // 使用点击时保存的 swimY，完全静止，不应用任何动画
+            swimY = fish.clickedSwimY !== undefined ? fish.clickedSwimY : fish.y;
         } else {
             // Use cached food detection data for swim animation
             const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;

@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../fish_art_2"
 		}
 	],
 	"settings": {}

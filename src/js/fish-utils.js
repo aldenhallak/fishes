@@ -374,11 +374,13 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
     }
 
     // 构建GraphQL查询 - 直接在查询字符串中插入 order_by
+    // 添加 upvotes 不为 null 的条件，避免 GraphQL 非空类型错误
     const query = `
         query GetFish($limit: Int!, $offset: Int!, $userId: String) {
             fish(
                 where: {
                     is_approved: { _eq: true }
+                    upvotes: { _is_null: false }
                     ${userId ? ', user_id: { _eq: $userId }' : ''}
                 }
                 limit: $limit
@@ -397,9 +399,17 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
         }
     `;
 
+    // 确保 limit 和 offset 是有效的数字
+    const limitNum = parseInt(limit) || 25;
+    const offsetNum = parseInt(offset) || 0;
+    
+    // 确保值不为 NaN 或负数
+    const safeLimit = isNaN(limitNum) || limitNum <= 0 ? 25 : limitNum;
+    const safeOffset = isNaN(offsetNum) || offsetNum < 0 ? 0 : offsetNum;
+
     const variables = {
-        limit: parseInt(limit),
-        offset: parseInt(offset)
+        limit: safeLimit,
+        offset: safeOffset
     };
 
     if (userId) {
@@ -430,6 +440,7 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
                 ...fish,
                 Artist: fish.artist,
                 Image: fish.image_url,
+                upvotes: fish.upvotes ?? 0, // 处理 null 值
                 CreatedAt: { _seconds: new Date(fish.created_at).getTime() / 1000 }
             })
         }));
