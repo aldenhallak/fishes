@@ -59,6 +59,8 @@
 /* ===== 全局样式 ===== */
 html {
   height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body.game-style {
@@ -69,12 +71,19 @@ body.game-style {
   line-height: 1.6;
   overflow-x: hidden;
   position: relative;
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  padding-top: 0 !important;
   /* Sticky Footer 布局 */
   min-height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+/* 为main元素添加顶部间距，避免被固定导航栏遮挡 */
+main {
+  padding-top: 70px !important; /* 导航栏高度 + 一些额外间距 */
+  flex: 1; /* 占据剩余空间 */
 }
 
 /* ===== 海洋背景装饰 ===== */
@@ -119,6 +128,31 @@ body.game-style {
 .game-bubble:nth-child(7) { width: 45px; height: 45px; left: 55%; animation-delay: 2.5s; animation-duration: 10s; }
 .game-bubble:nth-child(8) { width: 28px; height: 28px; left: 90%; animation-delay: 4.5s; animation-duration: 9s; }
 
+/* 背景气泡容器 - 用于JavaScript动态创建的气泡 */
+.background-bubbles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* 单个气泡样式 - 用于JavaScript动态创建的气泡 */
+.bubble {
+  position: absolute;
+  bottom: -60px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: float-up 7s ease-in infinite;
+  box-shadow: 
+    inset 0 0 10px rgba(255, 255, 255, 0.5),
+    0 0 20px rgba(99, 102, 241, 0.2);
+}
+
 /* ===== 顶部导航栏 - 游戏风格 ===== */
 .game-nav {
   background: linear-gradient(180deg, rgba(74, 144, 226, 0.95) 0%, rgba(53, 122, 189, 0.95) 100%);
@@ -126,14 +160,19 @@ body.game-style {
   padding: 12px 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
   animation: slideDown 0.5s ease;
   flex-shrink: 0; /* 防止导航栏被压缩 */
+  margin: 0 !important; /* 确保没有上边距 */
+  margin-top: 0 !important;
 }
 
 .game-logo {
@@ -550,7 +589,7 @@ body.game-style {
   gap: 24px;
   justify-content: center;
   flex-wrap: wrap;
-  margin: var(--game-space-md) 0;
+  margin: var(--game-space-md) 0 20px 0; /* 底部间距20px */
 }
 
 /* ===== 标题样式 - 游戏风格 ===== */
@@ -582,7 +621,7 @@ body.game-style {
 .game-footer {
   background: linear-gradient(180deg, rgba(74, 144, 226, 0.95) 0%, rgba(53, 122, 189, 0.95) 100%);
   backdrop-filter: blur(8px);
-  padding: 16px 24px; /* 压缩内边距 */
+  padding: 8px 16px; /* 进一步压缩内边距 */
   text-align: center;
   border-top: 2px solid rgba(255, 255, 255, 0.3);
   margin-top: auto; /* 自动推到底部 */
@@ -593,23 +632,24 @@ body.game-style {
 
 .game-footer-links {
   display: flex;
-  gap: 24px; /* 固定间隔，确保按钮之间有足够空间 */
+  gap: 16px; /* 减小间隔 */
   justify-content: center;
   flex-wrap: wrap;
-  margin: 8px 0; /* 进一步减小上下边距 */
+  margin: 4px 0; /* 进一步减小上下边距 */
 }
 
 .game-footer-link {
   color: white;
   text-decoration: none;
   font-weight: 400;
-  padding: 8px 16px; /* 添加内边距，让按钮更容易点击和识别 */
+  padding: 4px 12px; /* 减小内边距 */
   border-radius: 6px; /* 圆角让每个链接更独立 */
   transition: all 0.2s ease;
   background: rgba(255, 255, 255, 0.1); /* 半透明背景 */
   border: 1px solid rgba(255, 255, 255, 0.2); /* 边框增强分隔感 */
   box-shadow: none;
   white-space: nowrap; /* 防止文字换行 */
+  font-size: 13px; /* 减小字体 */
 }
 
 .game-footer-link:hover {
@@ -691,6 +731,25 @@ body.game-style {
   100% { 
     transform: translateY(-10vh) translateX(-20px) scale(0.8); 
     opacity: 0; 
+  }
+}
+
+/* 气泡上浮动画 - 用于JavaScript动态创建的气泡 */
+@keyframes float-up {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-50vh) translateX(20px) scale(1.1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(-20px) scale(0.8);
+    opacity: 0;
   }
 }
 
