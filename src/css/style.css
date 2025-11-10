@@ -154,6 +154,7 @@ body {
 
 /* 底部沙地 */
 .sand-layer {
+    display: none; /* 隐藏底部沙地黄色条 */
     position: absolute;
     bottom: 0;
     left: 0;

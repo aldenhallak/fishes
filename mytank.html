@@ -86,31 +86,9 @@
             z-index: 1;
         }
         
-        /* Controls Container */
+        /* Controls Container - Hidden */
         .cute-controls-container {
-            position: static;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 10px 15px;
-            border-top: 1px solid #ddd;
-        }
-        
-        .control-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 8px;
-        }
-        
-        /* Show/hide for responsive */
-        .desktop-only {
-            display: inline;
-        }
-        
-        .mobile-only {
-            display: none;
+            display: none !important;
         }
         
         /* Mobile-specific */
@@ -123,33 +101,44 @@
             
             #swim-canvas {
                 width: 100vw !important;
-                height: calc(100vh - 220px) !important;
+                height: 100vh !important;
                 margin-top: 0 !important;
-            }
-            
-            .cute-controls-container {
-                padding: 6px 8px !important;
-            }
-            
-            .cute-controls-container h1 {
-                font-size: 14px !important;
-            }
-            
-            .desktop-only {
-                display: none;
-            }
-            
-            .mobile-only {
-                display: inline;
             }
         }
         
         @media (min-width: 769px) {
             #swim-canvas {
                 width: 100vw !important;
-                height: calc(100vh - 140px) !important;
+                height: 100vh !important;
                 margin-top: 0 !important;
             }
+        }
+        
+        /* Fish Talk Toggle Switch Styles */
+        #fish-talk-toggle {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 8px;
+            padding-top: 12px;
+        }
+        
+        #fish-talk-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        #fish-talk-switch:checked + span {
+            background-color: #6366F1 !important;
+        }
+        
+        #fish-talk-switch:checked + span + span {
+            transform: translateX(24px) !important;
+        }
+        
+        #fish-talk-switch + span {
+            transition: background-color 0.3s ease;
+        }
+        
+        #fish-talk-switch + span + span {
+            transition: transform 0.3s ease;
         }
     </style>
 </head>
@@ -191,6 +180,18 @@
         <span class="sidebar-icon">👤</span>
         <span>Profile</span>
       </a>
+      <!-- Fish Talk Toggle -->
+      <div class="sidebar-link" id="fish-talk-toggle" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="sidebar-icon">💬</span>
+          <span>Fish Talk</span>
+        </div>
+        <label style="position: relative; display: inline-block; width: 50px; height: 26px; margin: 0;">
+          <input type="checkbox" id="fish-talk-switch" style="opacity: 0; width: 0; height: 0;">
+          <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px;"></span>
+          <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+        </label>
+      </div>
     </nav>
   </div>
   
@@ -224,56 +225,6 @@
   </div>
   
   <!-- 控制栏 -->
-  <div class="cute-controls-container" style="padding: 10px 15px;">
-    <!-- 标题和主要控制 -->
-    <div class="control-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-        <h1 style="margin: 0; font-size: 20px; color: #6366F1; display: flex; align-items: center; gap: 6px;">
-          🐠 My Private Fish Tank
-        </h1>
-        <p style="margin: 4px 0 0 0; font-size: 13px; color: #666; font-weight: 500;" id="fish-count-display">
-          Loading...
-        </p>
-      </div>
-      
-      <!-- 鱼食余额 -->
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <div style="background: rgba(255, 255, 255, 0.8); padding: 6px 12px; border-radius: 12px; font-weight: 600; color: #007bff;">
-          🍖 Fish Food: <span id="fish-food-amount">--</span>
-        </div>
-      </div>
-      
-      <!-- 右侧按钮组 -->
-      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-        <a href="index.html" class="cute-button cute-button-primary" style="padding: 6px 14px; font-size: 13px; background: #27ae60;">
-          🎨 Draw Fish
-        </a>
-        <a href="tank.html" class="cute-button cute-button-primary" style="padding: 6px 14px; font-size: 13px;">
-          🌍 Global Tank
-        </a>
-        <a href="rank.html" class="cute-button cute-button-primary" style="padding: 6px 12px; font-size: 13px;">⭐</a>
-        <a href="profile.html" class="cute-button cute-button-primary" style="padding: 6px 12px; font-size: 13px;">👤</a>
-        <a href="myfish.html" id="my-fish-link" class="cute-button cute-button-primary" style="padding: 6px 12px; font-size: 13px; display: none;">🐟</a>
-      </div>
-    </div>
-    
-    <!-- 鱼缸统计和提示 -->
-    <div class="control-row" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-      <div style="display: flex; align-items: center; gap: 15px; font-size: 13px; color: #666;">
-        <span>🐟 Own Fish: <strong id="own-fish-count">0</strong></span>
-        <span>❤️ Favorited: <strong id="favorited-fish-count">0</strong></span>
-        <span>📊 Avg Level: <strong id="avg-fish-level">0</strong></span>
-      </div>
-      
-      <div class="feed-hint" style="font-size: 12px; margin: 0;">
-        <strong>🍔 Feed the fish:</strong> 
-        <span class="desktop-only">Hold Shift + Click or Right-click</span>
-        <span class="mobile-only">Double-tap or Long-press</span>
-        to drop food pellets
-      </div>
-    </div>
-    
-  </div>
   
   <!-- 加载指示器 (移到容器外，确保显示在最上层) -->
   <div id="loading-indicator" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 10000; background: rgba(255, 255, 255, 0.95); padding: 20px 40px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
@@ -291,6 +242,12 @@
   <script src="src/js/modal-utils.js"></script>
   <!-- Hamburger Menu Script -->
   <script src="src/js/hamburger-menu.js"></script>
+  <!-- Fish Dialogue System (Phase 0) -->
+  <script src="src/js/fish-preset-dialogues.js"></script>
+  <script src="src/js/fish-dialogue-simple.js"></script>
+  <!-- Community Chat System (New) -->
+  <script src="src/js/tank-layout-manager.js?v=1.3"></script>
+  <script src="src/js/community-chat-manager.js?v=2.0"></script>
   <!-- Private Fish Tank Script (modified to use swimming animation) -->
   <script src="src/js/private-fishtank-swim.js"></script>
   <script>
