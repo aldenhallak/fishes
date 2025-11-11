@@ -23,12 +23,17 @@ module.exports = async function handler(req, res) {
     const groupChatMode = process.env.GROUP_CHAT || 'OFF';
     const isEnabled = groupChatMode.toUpperCase() === 'ON';
 
+    // 从环境变量读取群聊时间间隔（单位：分钟，默认 5 分钟）
+    const intervalTimeMinutes = parseInt(process.env.GROUP_CHAT_INTERVAL_TIME || '5', 10);
+
     console.log('💬 Group chat config requested');
     console.log(`   Mode: ${groupChatMode} (enabled: ${isEnabled})`);
+    console.log(`   Interval: ${intervalTimeMinutes} minutes`);
 
     return res.status(200).json({
       groupChatMode: groupChatMode,
-      enabled: isEnabled
+      enabled: isEnabled,
+      intervalTimeMinutes: intervalTimeMinutes
     });
   } catch (error) {
     console.error('获取群聊配置失败:', error);

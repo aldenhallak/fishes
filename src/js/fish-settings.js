@@ -11,19 +11,19 @@ let userFishes = [];
 // Initialize page
 async function initSettingsPage() {
     try {
-        console.log('🔧 初始化设置页面...');
+        console.log('🔧 Initializing settings page...');
         
         // Get current user
         if (window.supabaseAuth && window.supabaseAuth.getCurrentUser) {
             currentUser = await window.supabaseAuth.getCurrentUser();
             if (!currentUser) {
-                showError('请先登录');
+                showError('Please login first');
                 setTimeout(() => window.location.href = 'index.html', 2000);
                 return;
             }
-            console.log('✅ 当前用户:', currentUser.id);
+            console.log('✅ Current user:', currentUser.id);
         } else {
-            showError('认证系统未加载');
+            showError('Authentication system not loaded');
             return;
         }
 
@@ -37,21 +37,37 @@ async function initSettingsPage() {
         renderUI();
         
     } catch (error) {
-        console.error('初始化失败:', error);
-        showError('加载失败: ' + error.message);
+        console.error('Initialization failed:', error);
+        showError('Failed to load: ' + error.message);
     }
 }
 
 // Load membership information
 async function loadMembershipInfo() {
     try {
-        const query = `
+        // Try to use relation query first (if foreign key is established)
+        // Query latest active subscription (supports multiple subscriptions)
+        let query = `
             query GetUserMembership($userId: String!) {
                 users_by_pk(id: $userId) {
                     id
-                    user_subscription {
+                    user_subscriptions(
+                        where: { is_active: { _eq: true } }
+                        order_by: { created_at: desc }
+                        limit: 1
+                    ) {
                         plan
                         is_active
+                        member_type {
+                            id
+                            name
+                            max_fish_count
+                            can_self_talk
+                            can_group_chat
+                            can_promote_owner
+                            promote_owner_frequency
+                            lead_topic_frequency
+                        }
                     }
                     fishes_aggregate {
                         aggregate {
@@ -59,7 +75,7 @@ async function loadMembershipInfo() {
                         }
                     }
                 }
-                global_params(where: {key: {_in: ["free_max_fish", "plus_max_fish", "premium_max_fish", "default_chat_frequency", "premium_chat_frequency_min", "premium_chat_frequency_max"]}}) {
+                global_params(where: {key: {_in: ["default_chat_frequency", "premium_chat_frequency_min", "premium_chat_frequency_max"]}}) {
                     key
                     value
                 }
@@ -78,52 +94,119 @@ async function loadMembershipInfo() {
             })
         });
 
-        const result = await response.json();
+        let result = await response.json();
+        
+        // If relation query failed, try manual matching
+        const activeSubscription = result.data?.users_by_pk?.user_subscriptions?.[0];
+        if (result.errors || !activeSubscription?.member_type) {
+            console.log('Relation query not available, using manual matching');
+            query = `
+                query GetUserMembership($userId: String!) {
+                    users_by_pk(id: $userId) {
+                        id
+                        user_subscriptions(
+                            where: { is_active: { _eq: true } }
+                            order_by: { created_at: desc }
+                            limit: 1
+                        ) {
+                            plan
+                            is_active
+                        }
+                        fishes_aggregate {
+                            aggregate {
+                                count
+                            }
+                        }
+                    }
+                    member_types {
+                        id
+                        name
+                        max_fish_count
+                        can_self_talk
+                        can_group_chat
+                        can_promote_owner
+                        promote_owner_frequency
+                        lead_topic_frequency
+                    }
+                    global_params(where: {key: {_in: ["default_chat_frequency", "premium_chat_frequency_min", "premium_chat_frequency_max"]}}) {
+                        key
+                        value
+                    }
+                }
+            `;
+            
+            const response2 = await fetch(HASURA_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-hasura-admin-secret': HASURA_SECRET
+                },
+                body: JSON.stringify({
+                    query,
+                    variables: { userId: currentUser.id }
+                })
+            });
+            
+            result = await response2.json();
+        }
+        
         if (result.errors) {
             throw new Error(result.errors[0].message);
         }
 
         const user = result.data.users_by_pk;
-        const globalParams = result.data.global_params;
+        const globalParams = result.data.global_params || [];
+        
+        // Get latest active subscription (array first element)
+        const activeSubscription = user?.user_subscriptions?.[0] || null;
+        
+        let memberType = null;
+        let tier = 'free';
+        
+        // Check if we got member_type from relation query
+        if (activeSubscription?.member_type) {
+            memberType = activeSubscription.member_type;
+            tier = memberType.id;
+        } else if (activeSubscription?.plan) {
+            // Use manual matching
+            const memberTypes = result.data.member_types || [];
+            const memberTypesMap = {};
+            memberTypes.forEach(mt => {
+                memberTypesMap[mt.id] = mt;
+            });
+            
+            tier = activeSubscription.plan;
+            memberType = memberTypesMap[tier] || memberTypesMap['free'] || null;
+        }
 
+        const currentFishCount = user ? user.fishes_aggregate.aggregate.count : 0;
+
+        // Get chat frequency params from global_params
         const params = globalParams.reduce((acc, param) => {
             acc[param.key] = parseInt(param.value, 10);
             return acc;
         }, {});
 
-        let tier = 'free';
-        if (user && user.user_subscription && user.user_subscription.plan) {
-            tier = user.user_subscription.plan;
-        }
-
-        const currentFishCount = user ? user.fishes_aggregate.aggregate.count : 0;
-        let maxFishCount = params.free_max_fish || 1;
-        let canSpeak = false;
-        let canAdjustFrequency = false;
-
-        if (tier === 'plus') {
-            maxFishCount = params.plus_max_fish || 5;
-            canSpeak = true;
-        } else if (tier === 'premium') {
-            maxFishCount = params.premium_max_fish || 20;
-            canSpeak = true;
-            canAdjustFrequency = true;
-        }
-
         userMembership = {
             tier,
             currentFishCount,
-            maxFishCount,
-            canSpeak,
-            canAdjustFrequency,
+            maxFishCount: memberType ? memberType.max_fish_count : 1,
+            canSpeak: memberType ? memberType.can_self_talk : false,
+            canSelfTalk: memberType ? memberType.can_self_talk : false,
+            canGroupChat: memberType ? memberType.can_group_chat : false,
+            canPromoteOwner: memberType ? memberType.can_promote_owner : false,
+            promoteOwnerFrequency: memberType ? memberType.promote_owner_frequency : 0,
+            leadTopicFrequency: memberType ? memberType.lead_topic_frequency : 0,
+            canAdjustFrequency: tier === 'premium', // Premium 专属功能
             defaultChatFrequency: params.default_chat_frequency || 5,
             chatFrequencyMin: params.premium_chat_frequency_min || 1,
-            chatFrequencyMax: params.premium_chat_frequency_max || 10
+            chatFrequencyMax: params.premium_chat_frequency_max || 10,
+            memberTypeName: memberType ? memberType.name : 'Free'
         };
 
-        console.log('✅ 会员信息:', userMembership);
+        console.log('✅ Membership info:', userMembership);
     } catch (error) {
-        console.error('加载会员信息失败:', error);
+        console.error('Failed to load membership info:', error);
         throw error;
     }
 }
@@ -162,9 +245,9 @@ async function loadUserFish() {
         }
 
         userFishes = result.data.fish || [];
-        console.log(`✅ 加载了 ${userFishes.length} 条鱼`);
+        console.log(`✅ Loaded ${userFishes.length} fish`);
     } catch (error) {
-        console.error('加载鱼列表失败:', error);
+        console.error('Failed to load fish list:', error);
         throw error;
     }
 }
@@ -184,15 +267,26 @@ function renderUI() {
         premium: 'Premium'
     };
 
+    // Build upgrade suggestion
+    let upgradeSuggestion = '';
+    if (userMembership.tier === 'free') {
+        upgradeSuggestion = '<p style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px; color: #856404;">💡 Upgrade to Plus or Premium membership to unlock more features!</p>';
+    } else if (userMembership.tier === 'plus') {
+        upgradeSuggestion = '<p style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 4px; color: #856404;">💡 Upgrade to Premium membership to unlock frequency adjustment!</p>';
+    }
+
     membershipInfo.innerHTML = `
         <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
             <div style="font-size: 32px; font-weight: bold; color: ${tierColors[userMembership.tier]};">
-                ${tierNames[userMembership.tier]}
+                ${userMembership.memberTypeName || tierNames[userMembership.tier]}
             </div>
-            <div>
-                <p style="margin: 5px 0;">🐟 鱼数量: <strong>${userMembership.currentFishCount} / ${userMembership.maxFishCount}</strong></p>
-                <p style="margin: 5px 0;">💬 AI聊天: <strong>${userMembership.canSpeak ? '✅ 已开启' : '❌ 未开启'}</strong></p>
-                <p style="margin: 5px 0;">🗣️ 频率调节: <strong>${userMembership.canAdjustFrequency ? '✅ 已开启' : '❌ 未开启'}</strong></p>
+            <div style="flex: 1;">
+                <p style="margin: 5px 0;">🐟 Fish Count: <strong>${userMembership.currentFishCount} / ${userMembership.maxFishCount}</strong></p>
+                <p style="margin: 5px 0;">💬 Self-Talk: <strong>${userMembership.canSelfTalk ? '✅ Enabled' : '❌ Disabled'}</strong></p>
+                <p style="margin: 5px 0;">👥 Group Chat: <strong>${userMembership.canGroupChat ? '✅ Enabled' : '❌ Disabled'}</strong></p>
+                <p style="margin: 5px 0;">📢 Owner Promotion: <strong>${userMembership.canPromoteOwner ? `✅ Enabled (${userMembership.promoteOwnerFrequency}/hour)` : '❌ Disabled'}</strong></p>
+                <p style="margin: 5px 0;">🗣️ Frequency Adjustment: <strong>${userMembership.canAdjustFrequency ? '✅ Enabled' : '❌ Disabled'}</strong></p>
+                ${upgradeSuggestion}
             </div>
         </div>
     `;
@@ -204,19 +298,19 @@ function renderUI() {
     // Render fish list
     const fishList = document.getElementById('fish-list');
     if (userFishes.length === 0) {
-        fishList.innerHTML = '<p style="text-align: center; color: #999;">您还没有创建任何鱼</p>';
+        fishList.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t created any fish yet</p>';
     } else {
         fishList.innerHTML = userFishes.map(fish => `
             <div class="fish-card" style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 15px;">
                 <img src="${fish.image_url}" alt="${fish.fish_name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
                 <div style="flex: 1;">
-                    <h3 style="margin: 0 0 5px 0;">${fish.fish_name || '未命名'}</h3>
-                    <p style="margin: 0; color: #666; font-size: 14px;">性格: ${fish.personality || '未知'}</p>
-                    <p style="margin: 5px 0 0 0; color: #999; font-size: 12px;">创建于: ${new Date(fish.created_at).toLocaleDateString()}</p>
+                    <h3 style="margin: 0 0 5px 0;">${fish.fish_name || 'Unnamed'}</h3>
+                    <p style="margin: 0; color: #666; font-size: 14px;">Personality: ${fish.personality || 'Unknown'}</p>
+                    <p style="margin: 5px 0 0 0; color: #999; font-size: 12px;">Created: ${new Date(fish.created_at).toLocaleDateString()}</p>
                 </div>
                 ${userMembership.canAdjustFrequency ? `
                     <div style="text-align: right;">
-                        <label style="display: block; font-size: 12px; color: #666; margin-bottom: 5px;">说话频率</label>
+                        <label style="display: block; font-size: 12px; color: #666; margin-bottom: 5px;">Chat Frequency</label>
                         <select 
                             data-fish-id="${fish.id}" 
                             class="chat-frequency-selector" 
@@ -224,7 +318,7 @@ function renderUI() {
                             onchange="updateChatFrequency('${fish.id}', this.value)"
                         >
                             ${Array.from({length: 10}, (_, i) => i + 1).map(val => `
-                                <option value="${val}" ${(fish.chat_frequency || 5) === val ? 'selected' : ''}>${val}次/小时</option>
+                                <option value="${val}" ${(fish.chat_frequency || 5) === val ? 'selected' : ''}>${val}/hour</option>
                             `).join('')}
                         </select>
                     </div>
@@ -246,7 +340,7 @@ function renderUI() {
 // Update chat frequency
 async function updateChatFrequency(fishId, frequency) {
     try {
-        console.log(`🔧 更新鱼 ${fishId} 的说话频率为 ${frequency}`);
+        console.log(`🔧 Updating fish ${fishId} chat frequency to ${frequency}`);
         
         const response = await fetch(`${BACKEND_URL}/api/fish/update-chat-settings`, {
             method: 'POST',
@@ -263,15 +357,15 @@ async function updateChatFrequency(fishId, frequency) {
         const result = await response.json();
         
         if (result.success) {
-            console.log('✅ 更新成功');
-            showSuccess('说话频率已更新！');
+            console.log('✅ Update successful');
+            showSuccess('Chat frequency updated!');
         } else {
-            console.error('更新失败:', result.error);
-            showError('更新失败: ' + result.message);
+            console.error('Update failed:', result.error);
+            showError('Update failed: ' + result.message);
         }
     } catch (error) {
-        console.error('更新频率失败:', error);
-        showError('更新失败: ' + error.message);
+        console.error('Failed to update frequency:', error);
+        showError('Update failed: ' + error.message);
     }
 }
 

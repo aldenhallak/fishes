@@ -2435,53 +2435,177 @@ async function initializeGroupChat() {
     }
     
     try {
-        // 从API获取环境变量配置
-        const response = await fetch('/api/config/group-chat');
-        if (!response.ok) {
-            console.log('Could not fetch group chat config, using default (OFF)');
-            // 检查用户本地设置
+        // 从API获取环境变量配置（群聊、独白和费用节省）
+        const [groupChatResponse, monoChatResponse, costSavingResponse] = await Promise.all([
+            fetch('/api/config/group-chat').catch(() => null),
+            fetch('/api/config/mono-chat').catch(() => null),
+            fetch('/api/config/chat-cost-saving').catch(() => null)
+        ]);
+        
+        // 处理群聊配置
+        let groupChatEnabled = false;
+        let groupChatIntervalMinutes = 5; // Default 5 minutes
+        if (groupChatResponse && groupChatResponse.ok) {
+            const groupChatConfig = await groupChatResponse.json();
+            const defaultGroupChatEnabled = groupChatConfig.enabled || false;
+            
+            // 读取群聊时间间隔配置（单位：分钟）
+            if (groupChatConfig.intervalTimeMinutes !== undefined) {
+                groupChatIntervalMinutes = parseInt(groupChatConfig.intervalTimeMinutes, 10) || 5;
+            }
+            
+            // 检查用户是否手动设置过（用户设置优先）
+            const userPreference = localStorage.getItem('groupChatEnabled');
+            if (userPreference !== null) {
+                groupChatEnabled = userPreference === 'true';
+                console.log(`Group chat: Using user preference: ${groupChatEnabled ? 'ON' : 'OFF'}`);
+            } else {
+                groupChatEnabled = defaultGroupChatEnabled;
+                console.log(`Group chat: Using environment default: ${groupChatEnabled ? 'ON' : 'OFF'}`);
+            }
+            
+            console.log(`  Group chat interval: ${groupChatIntervalMinutes} minutes`);
+        } else {
+            // 如果API失败，检查用户本地设置
             const userPreference = localStorage.getItem('groupChatEnabled');
             if (userPreference === 'true') {
-                communityChatManager.setGroupChatEnabled(true);
-                updateGroupChatButton(true);
+                groupChatEnabled = true;
             }
-            return;
         }
         
-        const config = await response.json();
-        const defaultEnabled = config.enabled || false;
-        
-        // 检查用户是否手动设置过（用户设置优先）
-        const userPreference = localStorage.getItem('groupChatEnabled');
-        let shouldEnable = defaultEnabled;
-        
-        if (userPreference !== null) {
-            // 用户有手动设置，使用用户设置
-            shouldEnable = userPreference === 'true';
-            console.log(`Using user preference: ${shouldEnable ? 'ON' : 'OFF'}`);
-        } else {
-            // 用户没有设置，使用环境变量默认值
-            shouldEnable = defaultEnabled;
-            console.log(`Using environment default: ${shouldEnable ? 'ON' : 'OFF'}`);
+        // 处理独白配置
+        let monologueEnabled = false;
+        if (monoChatResponse && monoChatResponse.ok) {
+            const monoChatConfig = await monoChatResponse.json();
+            const defaultMonologueEnabled = monoChatConfig.enabled || false;
+            
+            // 检查用户是否手动设置过（用户设置优先）
+            const userPreference = localStorage.getItem('monologueEnabled');
+            if (userPreference !== null) {
+                monologueEnabled = userPreference === 'true';
+                console.log(`Monologue: Using user preference: ${monologueEnabled ? 'ON' : 'OFF'}`);
+            } else {
+                monologueEnabled = defaultMonologueEnabled;
+                console.log(`Monologue: Using environment default: ${monologueEnabled ? 'ON' : 'OFF'}`);
+            }
         }
         
-        // 设置群聊状态
-        communityChatManager.setGroupChatEnabled(shouldEnable);
-        updateGroupChatButton(shouldEnable);
-        updateFishTalkToggle(shouldEnable); // Also update hamburger menu toggle
+        // 设置群聊间隔时间（先设置间隔，再启用，确保使用正确的间隔）
+        communityChatManager.setGroupChatInterval(groupChatIntervalMinutes);
         
-        if (shouldEnable) {
-            console.log('✅ Group chat initialized and enabled');
+        // 设置群聊状态（启用时会使用已设置的间隔）
+        communityChatManager.setGroupChatEnabled(groupChatEnabled);
+        updateGroupChatButton(groupChatEnabled);
+        updateFishTalkToggle(groupChatEnabled); // Also update hamburger menu toggle
+        
+        // 设置独白状态
+        communityChatManager.setMonologueEnabled(monologueEnabled);
+        
+        // 处理费用节省配置
+        let costSavingEnabled = true; // Default to enabled for safety
+        let maxInactiveTimeMinutes = 15; // Default 15 minutes
+        let maxRunTimeMinutes = 60; // Default 60 minutes
+        
+        if (costSavingResponse && costSavingResponse.ok) {
+            const costSavingConfig = await costSavingResponse.json();
+            costSavingEnabled = costSavingConfig.enabled !== false; // Default to true if not specified
+            
+            // 读取时间配置（单位：分钟）
+            if (costSavingConfig.maxInactiveTimeMinutes !== undefined) {
+                maxInactiveTimeMinutes = parseInt(costSavingConfig.maxInactiveTimeMinutes, 10) || 15;
+            }
+            if (costSavingConfig.maxRunTimeMinutes !== undefined) {
+                maxRunTimeMinutes = parseInt(costSavingConfig.maxRunTimeMinutes, 10) || 60;
+            }
+            
+            console.log(`Cost saving: ${costSavingEnabled ? 'ON' : 'OFF'}`);
+            console.log(`  Max inactive time: ${maxInactiveTimeMinutes} minutes`);
+            console.log(`  Max run time: ${maxRunTimeMinutes} minutes`);
+        }
+        
+        // 设置费用节省状态和时间配置
+        communityChatManager.setCostSavingEnabled(costSavingEnabled);
+        communityChatManager.updateCostControlTimes(maxInactiveTimeMinutes, maxRunTimeMinutes);
+        
+        if (groupChatEnabled || monologueEnabled) {
+            console.log(`✅ Chat features initialized: Group Chat ${groupChatEnabled ? 'ON' : 'OFF'}, Monologue ${monologueEnabled ? 'ON' : 'OFF'}, Cost Saving ${costSavingEnabled ? 'ON' : 'OFF'}`);
+            // Setup event listeners for cost control (only if cost saving is enabled)
+            if (costSavingEnabled) {
+                setupChatCostControlListeners();
+            }
         } else {
-            console.log('ℹ️ Group chat initialized but disabled');
+            console.log('ℹ️ Chat features initialized but disabled');
         }
     } catch (error) {
-        console.error('Failed to initialize group chat:', error);
+        console.error('Failed to initialize chat features:', error);
         // 默认禁用
         communityChatManager.setGroupChatEnabled(false);
+        communityChatManager.setMonologueEnabled(false);
         updateGroupChatButton(false);
         updateFishTalkToggle(false); // Also update hamburger menu toggle
     }
+}
+
+// Setup event listeners for cost control (page visibility, user activity)
+let costControlListenersSetup = false;
+let activityThrottle = null;
+
+function setupChatCostControlListeners() {
+    if (!communityChatManager) {
+        return;
+    }
+    
+    // Only setup listeners if cost saving is enabled
+    if (!communityChatManager.isCostSavingEnabled()) {
+        console.log('💰 Cost saving disabled, skipping event listeners setup');
+        return;
+    }
+    
+    // Prevent duplicate listener setup
+    if (costControlListenersSetup) {
+        return;
+    }
+    
+    // Page visibility change (tab switch, minimize window)
+    document.addEventListener('visibilitychange', () => {
+        if (communityChatManager) {
+            const isVisible = !document.hidden;
+            communityChatManager.setPageVisible(isVisible);
+        }
+    });
+    
+    // Window blur/focus (tab loses/gains focus)
+    window.addEventListener('blur', () => {
+        if (communityChatManager) {
+            communityChatManager.setPageVisible(false);
+        }
+    });
+    
+    window.addEventListener('focus', () => {
+        if (communityChatManager) {
+            communityChatManager.setPageVisible(true);
+        }
+    });
+    
+    // User activity detection (mouse movement, clicks, keyboard)
+    const activityEvents = ['mousemove', 'mousedown', 'click', 'keydown', 'scroll', 'touchstart'];
+    
+    activityEvents.forEach(eventType => {
+        document.addEventListener(eventType, () => {
+            if (communityChatManager) {
+                // Throttle activity updates to avoid excessive calls
+                if (activityThrottle) {
+                    clearTimeout(activityThrottle);
+                }
+                activityThrottle = setTimeout(() => {
+                    communityChatManager.updateUserActivity();
+                }, 1000); // Update at most once per second
+            }
+        }, { passive: true });
+    });
+    
+    costControlListenersSetup = true;
+    console.log('✅ Cost control event listeners setup complete');
 }
 
 // 更新群聊开关按钮状态
@@ -2526,6 +2650,11 @@ function toggleGroupChat() {
     
     // 更新管理器状态
     communityChatManager.setGroupChatEnabled(newState);
+    
+    // 如果启用，设置事件监听器
+    if (newState) {
+        setupChatCostControlListeners();
+    }
     
     // 保存用户偏好到 localStorage
     localStorage.setItem('groupChatEnabled', newState ? 'true' : 'false');

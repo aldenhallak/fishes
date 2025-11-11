@@ -141,7 +141,14 @@ async function getUserMembershipTier(userId) {
     const HASURA_ENDPOINT = 'https://fishtalk.hasura.app/v1/graphql';
     const query = `
         query GetUserSubscription($userId: String!) {
-            user_subscriptions(where: {user_id: {_eq: $userId}}) {
+            user_subscriptions(
+                where: {
+                    user_id: {_eq: $userId}
+                    is_active: {_eq: true}
+                }
+                order_by: {created_at: desc}
+                limit: 1
+            ) {
                 plan
                 is_active
             }
@@ -169,7 +176,7 @@ async function getUserMembershipTier(userId) {
 
         const subscriptions = result.data.user_subscriptions;
         
-        if (!subscriptions || subscriptions.length === 0 || !subscriptions[0].is_active) {
+        if (!subscriptions || subscriptions.length === 0) {
             return 'free';
         }
 

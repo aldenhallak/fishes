@@ -123,445 +123,17 @@ enum cursor_ordering {
 }
 
 """
-columns and relationships of "economy_log"
-"""
-type economy_log {
-  action: String!
-  amount: Int!
-  balance_after: Int!
-  created_at: timestamp
-
-  """An object relationship"""
-  fish: fish
-  fish_id: uuid
-  id: uuid!
-
-  """An object relationship"""
-  user: users!
-  user_id: String!
-}
-
-"""
-aggregated selection of "economy_log"
-"""
-type economy_log_aggregate {
-  aggregate: economy_log_aggregate_fields
-  nodes: [economy_log!]!
-}
-
-input economy_log_aggregate_bool_exp {
-  count: economy_log_aggregate_bool_exp_count
-}
-
-input economy_log_aggregate_bool_exp_count {
-  arguments: [economy_log_select_column!]
-  distinct: Boolean
-  filter: economy_log_bool_exp
-  predicate: Int_comparison_exp!
-}
-
-"""
-aggregate fields of "economy_log"
-"""
-type economy_log_aggregate_fields {
-  avg: economy_log_avg_fields
-  count(columns: [economy_log_select_column!], distinct: Boolean): Int!
-  max: economy_log_max_fields
-  min: economy_log_min_fields
-  stddev: economy_log_stddev_fields
-  stddev_pop: economy_log_stddev_pop_fields
-  stddev_samp: economy_log_stddev_samp_fields
-  sum: economy_log_sum_fields
-  var_pop: economy_log_var_pop_fields
-  var_samp: economy_log_var_samp_fields
-  variance: economy_log_variance_fields
-}
-
-"""
-order by aggregate values of table "economy_log"
-"""
-input economy_log_aggregate_order_by {
-  avg: economy_log_avg_order_by
-  count: order_by
-  max: economy_log_max_order_by
-  min: economy_log_min_order_by
-  stddev: economy_log_stddev_order_by
-  stddev_pop: economy_log_stddev_pop_order_by
-  stddev_samp: economy_log_stddev_samp_order_by
-  sum: economy_log_sum_order_by
-  var_pop: economy_log_var_pop_order_by
-  var_samp: economy_log_var_samp_order_by
-  variance: economy_log_variance_order_by
-}
-
-"""
-input type for inserting array relation for remote table "economy_log"
-"""
-input economy_log_arr_rel_insert_input {
-  data: [economy_log_insert_input!]!
-
-  """upsert condition"""
-  on_conflict: economy_log_on_conflict
-}
-
-"""aggregate avg on columns"""
-type economy_log_avg_fields {
-  amount: Float
-  balance_after: Float
-}
-
-"""
-order by avg() on columns of table "economy_log"
-"""
-input economy_log_avg_order_by {
-  amount: order_by
-  balance_after: order_by
-}
-
-"""
-Boolean expression to filter rows from the table "economy_log". All fields are combined with a logical 'AND'.
-"""
-input economy_log_bool_exp {
-  _and: [economy_log_bool_exp!]
-  _not: economy_log_bool_exp
-  _or: [economy_log_bool_exp!]
-  action: String_comparison_exp
-  amount: Int_comparison_exp
-  balance_after: Int_comparison_exp
-  created_at: timestamp_comparison_exp
-  fish: fish_bool_exp
-  fish_id: uuid_comparison_exp
-  id: uuid_comparison_exp
-  user: users_bool_exp
-  user_id: String_comparison_exp
-}
-
-"""
-unique or primary key constraints on table "economy_log"
-"""
-enum economy_log_constraint {
-  """
-  unique or primary key constraint on columns "id"
-  """
-  economy_log_pkey
-}
-
-"""
-input type for incrementing numeric columns in table "economy_log"
-"""
-input economy_log_inc_input {
-  amount: Int
-  balance_after: Int
-}
-
-"""
-input type for inserting data into table "economy_log"
-"""
-input economy_log_insert_input {
-  action: String
-  amount: Int
-  balance_after: Int
-  created_at: timestamp
-  fish: fish_obj_rel_insert_input
-  fish_id: uuid
-  id: uuid
-  user: users_obj_rel_insert_input
-  user_id: String
-}
-
-"""aggregate max on columns"""
-type economy_log_max_fields {
-  action: String
-  amount: Int
-  balance_after: Int
-  created_at: timestamp
-  fish_id: uuid
-  id: uuid
-  user_id: String
-}
-
-"""
-order by max() on columns of table "economy_log"
-"""
-input economy_log_max_order_by {
-  action: order_by
-  amount: order_by
-  balance_after: order_by
-  created_at: order_by
-  fish_id: order_by
-  id: order_by
-  user_id: order_by
-}
-
-"""aggregate min on columns"""
-type economy_log_min_fields {
-  action: String
-  amount: Int
-  balance_after: Int
-  created_at: timestamp
-  fish_id: uuid
-  id: uuid
-  user_id: String
-}
-
-"""
-order by min() on columns of table "economy_log"
-"""
-input economy_log_min_order_by {
-  action: order_by
-  amount: order_by
-  balance_after: order_by
-  created_at: order_by
-  fish_id: order_by
-  id: order_by
-  user_id: order_by
-}
-
-"""
-response of any mutation on the table "economy_log"
-"""
-type economy_log_mutation_response {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [economy_log!]!
-}
-
-"""
-on_conflict condition type for table "economy_log"
-"""
-input economy_log_on_conflict {
-  constraint: economy_log_constraint!
-  update_columns: [economy_log_update_column!]! = []
-  where: economy_log_bool_exp
-}
-
-"""Ordering options when selecting data from "economy_log"."""
-input economy_log_order_by {
-  action: order_by
-  amount: order_by
-  balance_after: order_by
-  created_at: order_by
-  fish: fish_order_by
-  fish_id: order_by
-  id: order_by
-  user: users_order_by
-  user_id: order_by
-}
-
-"""primary key columns input for table: economy_log"""
-input economy_log_pk_columns_input {
-  id: uuid!
-}
-
-"""
-select columns of table "economy_log"
-"""
-enum economy_log_select_column {
-  """column name"""
-  action
-
-  """column name"""
-  amount
-
-  """column name"""
-  balance_after
-
-  """column name"""
-  created_at
-
-  """column name"""
-  fish_id
-
-  """column name"""
-  id
-
-  """column name"""
-  user_id
-}
-
-"""
-input type for updating data in table "economy_log"
-"""
-input economy_log_set_input {
-  action: String
-  amount: Int
-  balance_after: Int
-  created_at: timestamp
-  fish_id: uuid
-  id: uuid
-  user_id: String
-}
-
-"""aggregate stddev on columns"""
-type economy_log_stddev_fields {
-  amount: Float
-  balance_after: Float
-}
-
-"""
-order by stddev() on columns of table "economy_log"
-"""
-input economy_log_stddev_order_by {
-  amount: order_by
-  balance_after: order_by
-}
-
-"""aggregate stddev_pop on columns"""
-type economy_log_stddev_pop_fields {
-  amount: Float
-  balance_after: Float
-}
-
-"""
-order by stddev_pop() on columns of table "economy_log"
-"""
-input economy_log_stddev_pop_order_by {
-  amount: order_by
-  balance_after: order_by
-}
-
-"""aggregate stddev_samp on columns"""
-type economy_log_stddev_samp_fields {
-  amount: Float
-  balance_after: Float
-}
-
-"""
-order by stddev_samp() on columns of table "economy_log"
-"""
-input economy_log_stddev_samp_order_by {
-  amount: order_by
-  balance_after: order_by
-}
-
-"""
-Streaming cursor of the table "economy_log"
-"""
-input economy_log_stream_cursor_input {
-  """Stream column input with initial value"""
-  initial_value: economy_log_stream_cursor_value_input!
-
-  """cursor ordering"""
-  ordering: cursor_ordering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input economy_log_stream_cursor_value_input {
-  action: String
-  amount: Int
-  balance_after: Int
-  created_at: timestamp
-  fish_id: uuid
-  id: uuid
-  user_id: String
-}
-
-"""aggregate sum on columns"""
-type economy_log_sum_fields {
-  amount: Int
-  balance_after: Int
-}
-
-"""
-order by sum() on columns of table "economy_log"
-"""
-input economy_log_sum_order_by {
-  amount: order_by
-  balance_after: order_by
-}
-
-"""
-update columns of table "economy_log"
-"""
-enum economy_log_update_column {
-  """column name"""
-  action
-
-  """column name"""
-  amount
-
-  """column name"""
-  balance_after
-
-  """column name"""
-  created_at
-
-  """column name"""
-  fish_id
-
-  """column name"""
-  id
-
-  """column name"""
-  user_id
-}
-
-input economy_log_updates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: economy_log_inc_input
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: economy_log_set_input
-
-  """filter the rows which have to be updated"""
-  where: economy_log_bool_exp!
-}
-
-"""aggregate var_pop on columns"""
-type economy_log_var_pop_fields {
-  amount: Float
-  balance_after: Float
-}
-
-"""
-order by var_pop() on columns of table "economy_log"
-"""
-input economy_log_var_pop_order_by {
-  amount: order_by
-  balance_after: order_by
-}
-
-"""aggregate var_samp on columns"""
-type economy_log_var_samp_fields {
-  amount: Float
-  balance_after: Float
-}
-
-"""
-order by var_samp() on columns of table "economy_log"
-"""
-input economy_log_var_samp_order_by {
-  amount: order_by
-  balance_after: order_by
-}
-
-"""aggregate variance on columns"""
-type economy_log_variance_fields {
-  amount: Float
-  balance_after: Float
-}
-
-"""
-order by variance() on columns of table "economy_log"
-"""
-input economy_log_variance_order_by {
-  amount: order_by
-  balance_after: order_by
-}
-
-"""
 columns and relationships of "fish"
 """
 type fish {
   artist: String
+  chat_frequency: Int
   created_at: timestamp
 
   """An array relationship"""
-  economy_logs(
+  fish_favorites(
     """distinct select on columns"""
-    distinct_on: [economy_log_select_column!]
+    distinct_on: [fish_favorites_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -570,16 +142,16 @@ type fish {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [economy_log_order_by!]
+    order_by: [fish_favorites_order_by!]
 
     """filter the rows returned"""
-    where: economy_log_bool_exp
-  ): [economy_log!]!
+    where: fish_favorites_bool_exp
+  ): [fish_favorites!]!
 
   """An aggregate relationship"""
-  economy_logs_aggregate(
+  fish_favorites_aggregate(
     """distinct select on columns"""
-    distinct_on: [economy_log_select_column!]
+    distinct_on: [fish_favorites_select_column!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -588,11 +160,11 @@ type fish {
     offset: Int
 
     """sort the rows by one or more columns"""
-    order_by: [economy_log_order_by!]
+    order_by: [fish_favorites_order_by!]
 
     """filter the rows returned"""
-    where: economy_log_bool_exp
-  ): economy_log_aggregate!
+    where: fish_favorites_bool_exp
+  ): fish_favorites_aggregate!
   fish_name: String
 
   """An object relationship"""
@@ -600,6 +172,42 @@ type fish {
   id: uuid!
   image_url: String!
   is_approved: Boolean
+
+  """An array relationship"""
+  messages(
+    """distinct select on columns"""
+    distinct_on: [messages_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [messages_order_by!]
+
+    """filter the rows returned"""
+    where: messages_bool_exp
+  ): [messages!]!
+
+  """An aggregate relationship"""
+  messages_aggregate(
+    """distinct select on columns"""
+    distinct_on: [messages_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [messages_order_by!]
+
+    """filter the rows returned"""
+    where: messages_bool_exp
+  ): messages_aggregate!
 
   """鱼的个性描述 - 支持自定义输入（如cheerful, shy, brave, lazy或其他）"""
   personality: String
@@ -765,6 +373,7 @@ input fish_arr_rel_insert_input {
 
 """aggregate avg on columns"""
 type fish_avg_fields {
+  chat_frequency: Float
   report_count: Float
   upvotes: Float
 }
@@ -773,6 +382,7 @@ type fish_avg_fields {
 order by avg() on columns of table "fish"
 """
 input fish_avg_order_by {
+  chat_frequency: order_by
   report_count: order_by
   upvotes: order_by
 }
@@ -785,14 +395,17 @@ input fish_bool_exp {
   _not: fish_bool_exp
   _or: [fish_bool_exp!]
   artist: String_comparison_exp
+  chat_frequency: Int_comparison_exp
   created_at: timestamp_comparison_exp
-  economy_logs: economy_log_bool_exp
-  economy_logs_aggregate: economy_log_aggregate_bool_exp
+  fish_favorites: fish_favorites_bool_exp
+  fish_favorites_aggregate: fish_favorites_aggregate_bool_exp
   fish_name: String_comparison_exp
   fish_personality: fish_personalities_bool_exp
   id: uuid_comparison_exp
   image_url: String_comparison_exp
   is_approved: Boolean_comparison_exp
+  messages: messages_bool_exp
+  messages_aggregate: messages_aggregate_bool_exp
   personality: String_comparison_exp
   report_count: Int_comparison_exp
   reported: Boolean_comparison_exp
@@ -815,10 +428,290 @@ enum fish_constraint {
   fish_pkey
 }
 
+"""Stores users favorite fish for their private tank"""
+type fish_favorites {
+  """When the fish was favorited"""
+  created_at: timestamp
+
+  """An object relationship"""
+  fish: fish!
+
+  """Reference to fish table"""
+  fish_id: uuid!
+  id: uuid!
+
+  """Supabase Auth user ID"""
+  user_id: String!
+}
+
+"""
+aggregated selection of "fish_favorites"
+"""
+type fish_favorites_aggregate {
+  aggregate: fish_favorites_aggregate_fields
+  nodes: [fish_favorites!]!
+}
+
+input fish_favorites_aggregate_bool_exp {
+  count: fish_favorites_aggregate_bool_exp_count
+}
+
+input fish_favorites_aggregate_bool_exp_count {
+  arguments: [fish_favorites_select_column!]
+  distinct: Boolean
+  filter: fish_favorites_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+aggregate fields of "fish_favorites"
+"""
+type fish_favorites_aggregate_fields {
+  count(columns: [fish_favorites_select_column!], distinct: Boolean): Int!
+  max: fish_favorites_max_fields
+  min: fish_favorites_min_fields
+}
+
+"""
+order by aggregate values of table "fish_favorites"
+"""
+input fish_favorites_aggregate_order_by {
+  count: order_by
+  max: fish_favorites_max_order_by
+  min: fish_favorites_min_order_by
+}
+
+"""
+input type for inserting array relation for remote table "fish_favorites"
+"""
+input fish_favorites_arr_rel_insert_input {
+  data: [fish_favorites_insert_input!]!
+
+  """upsert condition"""
+  on_conflict: fish_favorites_on_conflict
+}
+
+"""
+Boolean expression to filter rows from the table "fish_favorites". All fields are combined with a logical 'AND'.
+"""
+input fish_favorites_bool_exp {
+  _and: [fish_favorites_bool_exp!]
+  _not: fish_favorites_bool_exp
+  _or: [fish_favorites_bool_exp!]
+  created_at: timestamp_comparison_exp
+  fish: fish_bool_exp
+  fish_id: uuid_comparison_exp
+  id: uuid_comparison_exp
+  user_id: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "fish_favorites"
+"""
+enum fish_favorites_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  fish_favorites_pkey
+
+  """
+  unique or primary key constraint on columns "user_id", "fish_id"
+  """
+  unique_user_fish_favorite
+}
+
+"""
+input type for inserting data into table "fish_favorites"
+"""
+input fish_favorites_insert_input {
+  """When the fish was favorited"""
+  created_at: timestamp
+  fish: fish_obj_rel_insert_input
+
+  """Reference to fish table"""
+  fish_id: uuid
+  id: uuid
+
+  """Supabase Auth user ID"""
+  user_id: String
+}
+
+"""aggregate max on columns"""
+type fish_favorites_max_fields {
+  """When the fish was favorited"""
+  created_at: timestamp
+
+  """Reference to fish table"""
+  fish_id: uuid
+  id: uuid
+
+  """Supabase Auth user ID"""
+  user_id: String
+}
+
+"""
+order by max() on columns of table "fish_favorites"
+"""
+input fish_favorites_max_order_by {
+  """When the fish was favorited"""
+  created_at: order_by
+
+  """Reference to fish table"""
+  fish_id: order_by
+  id: order_by
+
+  """Supabase Auth user ID"""
+  user_id: order_by
+}
+
+"""aggregate min on columns"""
+type fish_favorites_min_fields {
+  """When the fish was favorited"""
+  created_at: timestamp
+
+  """Reference to fish table"""
+  fish_id: uuid
+  id: uuid
+
+  """Supabase Auth user ID"""
+  user_id: String
+}
+
+"""
+order by min() on columns of table "fish_favorites"
+"""
+input fish_favorites_min_order_by {
+  """When the fish was favorited"""
+  created_at: order_by
+
+  """Reference to fish table"""
+  fish_id: order_by
+  id: order_by
+
+  """Supabase Auth user ID"""
+  user_id: order_by
+}
+
+"""
+response of any mutation on the table "fish_favorites"
+"""
+type fish_favorites_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [fish_favorites!]!
+}
+
+"""
+on_conflict condition type for table "fish_favorites"
+"""
+input fish_favorites_on_conflict {
+  constraint: fish_favorites_constraint!
+  update_columns: [fish_favorites_update_column!]! = []
+  where: fish_favorites_bool_exp
+}
+
+"""Ordering options when selecting data from "fish_favorites"."""
+input fish_favorites_order_by {
+  created_at: order_by
+  fish: fish_order_by
+  fish_id: order_by
+  id: order_by
+  user_id: order_by
+}
+
+"""primary key columns input for table: fish_favorites"""
+input fish_favorites_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "fish_favorites"
+"""
+enum fish_favorites_select_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  user_id
+}
+
+"""
+input type for updating data in table "fish_favorites"
+"""
+input fish_favorites_set_input {
+  """When the fish was favorited"""
+  created_at: timestamp
+
+  """Reference to fish table"""
+  fish_id: uuid
+  id: uuid
+
+  """Supabase Auth user ID"""
+  user_id: String
+}
+
+"""
+Streaming cursor of the table "fish_favorites"
+"""
+input fish_favorites_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: fish_favorites_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input fish_favorites_stream_cursor_value_input {
+  """When the fish was favorited"""
+  created_at: timestamp
+
+  """Reference to fish table"""
+  fish_id: uuid
+  id: uuid
+
+  """Supabase Auth user ID"""
+  user_id: String
+}
+
+"""
+update columns of table "fish_favorites"
+"""
+enum fish_favorites_update_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  user_id
+}
+
+input fish_favorites_updates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: fish_favorites_set_input
+
+  """filter the rows which have to be updated"""
+  where: fish_favorites_bool_exp!
+}
+
 """
 input type for incrementing numeric columns in table "fish"
 """
 input fish_inc_input {
+  chat_frequency: Int
   report_count: Int
   upvotes: Int
 }
@@ -828,13 +721,15 @@ input type for inserting data into table "fish"
 """
 input fish_insert_input {
   artist: String
+  chat_frequency: Int
   created_at: timestamp
-  economy_logs: economy_log_arr_rel_insert_input
+  fish_favorites: fish_favorites_arr_rel_insert_input
   fish_name: String
   fish_personality: fish_personalities_obj_rel_insert_input
   id: uuid
   image_url: String
   is_approved: Boolean
+  messages: messages_arr_rel_insert_input
 
   """鱼的个性描述 - 支持自定义输入（如cheerful, shy, brave, lazy或其他）"""
   personality: String
@@ -850,6 +745,7 @@ input fish_insert_input {
 """aggregate max on columns"""
 type fish_max_fields {
   artist: String
+  chat_frequency: Int
   created_at: timestamp
   fish_name: String
   id: uuid
@@ -867,6 +763,7 @@ order by max() on columns of table "fish"
 """
 input fish_max_order_by {
   artist: order_by
+  chat_frequency: order_by
   created_at: order_by
   fish_name: order_by
   id: order_by
@@ -882,6 +779,7 @@ input fish_max_order_by {
 """aggregate min on columns"""
 type fish_min_fields {
   artist: String
+  chat_frequency: Int
   created_at: timestamp
   fish_name: String
   id: uuid
@@ -899,6 +797,7 @@ order by min() on columns of table "fish"
 """
 input fish_min_order_by {
   artist: order_by
+  chat_frequency: order_by
   created_at: order_by
   fish_name: order_by
   id: order_by
@@ -916,7 +815,13 @@ type fish_monologues {
   """自语内容（英文）"""
   content: String!
   created_at: timestamp
+
+  """An object relationship"""
+  fish_personality: fish_personalities
   id: uuid!
+
+  """个性类型（关联 fish_personalities.name）- NULL表示通用自语"""
+  personality: String
 }
 
 """
@@ -925,6 +830,17 @@ aggregated selection of "fish_monologues"
 type fish_monologues_aggregate {
   aggregate: fish_monologues_aggregate_fields
   nodes: [fish_monologues!]!
+}
+
+input fish_monologues_aggregate_bool_exp {
+  count: fish_monologues_aggregate_bool_exp_count
+}
+
+input fish_monologues_aggregate_bool_exp_count {
+  arguments: [fish_monologues_select_column!]
+  distinct: Boolean
+  filter: fish_monologues_bool_exp
+  predicate: Int_comparison_exp!
 }
 
 """
@@ -937,6 +853,25 @@ type fish_monologues_aggregate_fields {
 }
 
 """
+order by aggregate values of table "fish_monologues"
+"""
+input fish_monologues_aggregate_order_by {
+  count: order_by
+  max: fish_monologues_max_order_by
+  min: fish_monologues_min_order_by
+}
+
+"""
+input type for inserting array relation for remote table "fish_monologues"
+"""
+input fish_monologues_arr_rel_insert_input {
+  data: [fish_monologues_insert_input!]!
+
+  """upsert condition"""
+  on_conflict: fish_monologues_on_conflict
+}
+
+"""
 Boolean expression to filter rows from the table "fish_monologues". All fields are combined with a logical 'AND'.
 """
 input fish_monologues_bool_exp {
@@ -945,7 +880,9 @@ input fish_monologues_bool_exp {
   _or: [fish_monologues_bool_exp!]
   content: String_comparison_exp
   created_at: timestamp_comparison_exp
+  fish_personality: fish_personalities_bool_exp
   id: uuid_comparison_exp
+  personality: String_comparison_exp
 }
 
 """
@@ -965,7 +902,11 @@ input fish_monologues_insert_input {
   """自语内容（英文）"""
   content: String
   created_at: timestamp
+  fish_personality: fish_personalities_obj_rel_insert_input
   id: uuid
+
+  """个性类型（关联 fish_personalities.name）- NULL表示通用自语"""
+  personality: String
 }
 
 """aggregate max on columns"""
@@ -974,6 +915,22 @@ type fish_monologues_max_fields {
   content: String
   created_at: timestamp
   id: uuid
+
+  """个性类型（关联 fish_personalities.name）- NULL表示通用自语"""
+  personality: String
+}
+
+"""
+order by max() on columns of table "fish_monologues"
+"""
+input fish_monologues_max_order_by {
+  """自语内容（英文）"""
+  content: order_by
+  created_at: order_by
+  id: order_by
+
+  """个性类型（关联 fish_personalities.name）- NULL表示通用自语"""
+  personality: order_by
 }
 
 """aggregate min on columns"""
@@ -982,6 +939,22 @@ type fish_monologues_min_fields {
   content: String
   created_at: timestamp
   id: uuid
+
+  """个性类型（关联 fish_personalities.name）- NULL表示通用自语"""
+  personality: String
+}
+
+"""
+order by min() on columns of table "fish_monologues"
+"""
+input fish_monologues_min_order_by {
+  """自语内容（英文）"""
+  content: order_by
+  created_at: order_by
+  id: order_by
+
+  """个性类型（关联 fish_personalities.name）- NULL表示通用自语"""
+  personality: order_by
 }
 
 """
@@ -1008,7 +981,9 @@ input fish_monologues_on_conflict {
 input fish_monologues_order_by {
   content: order_by
   created_at: order_by
+  fish_personality: fish_personalities_order_by
   id: order_by
+  personality: order_by
 }
 
 """primary key columns input for table: fish_monologues"""
@@ -1028,6 +1003,9 @@ enum fish_monologues_select_column {
 
   """column name"""
   id
+
+  """column name"""
+  personality
 }
 
 """
@@ -1038,6 +1016,9 @@ input fish_monologues_set_input {
   content: String
   created_at: timestamp
   id: uuid
+
+  """个性类型（关联 fish_personalities.name）- NULL表示通用自语"""
+  personality: String
 }
 
 """
@@ -1057,6 +1038,9 @@ input fish_monologues_stream_cursor_value_input {
   content: String
   created_at: timestamp
   id: uuid
+
+  """个性类型（关联 fish_personalities.name）- NULL表示通用自语"""
+  personality: String
 }
 
 """
@@ -1071,6 +1055,9 @@ enum fish_monologues_update_column {
 
   """column name"""
   id
+
+  """column name"""
+  personality
 }
 
 input fish_monologues_updates {
@@ -1114,13 +1101,15 @@ input fish_on_conflict {
 """Ordering options when selecting data from "fish"."""
 input fish_order_by {
   artist: order_by
+  chat_frequency: order_by
   created_at: order_by
-  economy_logs_aggregate: economy_log_aggregate_order_by
+  fish_favorites_aggregate: fish_favorites_aggregate_order_by
   fish_name: order_by
   fish_personality: fish_personalities_order_by
   id: order_by
   image_url: order_by
   is_approved: order_by
+  messages_aggregate: messages_aggregate_order_by
   personality: order_by
   report_count: order_by
   reported: order_by
@@ -1137,6 +1126,42 @@ type fish_personalities {
 
   """个性细节描述 - 详细说明该个性的特征和行为模式"""
   description: String!
+
+  """An array relationship"""
+  fish_monologues(
+    """distinct select on columns"""
+    distinct_on: [fish_monologues_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_monologues_order_by!]
+
+    """filter the rows returned"""
+    where: fish_monologues_bool_exp
+  ): [fish_monologues!]!
+
+  """An aggregate relationship"""
+  fish_monologues_aggregate(
+    """distinct select on columns"""
+    distinct_on: [fish_monologues_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_monologues_order_by!]
+
+    """filter the rows returned"""
+    where: fish_monologues_bool_exp
+  ): fish_monologues_aggregate!
 
   """An array relationship"""
   fishes(
@@ -1219,6 +1244,8 @@ input fish_personalities_bool_exp {
   _or: [fish_personalities_bool_exp!]
   created_at: timestamptz_comparison_exp
   description: String_comparison_exp
+  fish_monologues: fish_monologues_bool_exp
+  fish_monologues_aggregate: fish_monologues_aggregate_bool_exp
   fishes: fish_bool_exp
   fishes_aggregate: fish_aggregate_bool_exp
   id: uuid_comparison_exp
@@ -1256,6 +1283,7 @@ input fish_personalities_insert_input {
 
   """个性细节描述 - 详细说明该个性的特征和行为模式"""
   description: String
+  fish_monologues: fish_monologues_arr_rel_insert_input
   fishes: fish_arr_rel_insert_input
   id: uuid
 
@@ -1324,6 +1352,7 @@ input fish_personalities_on_conflict {
 input fish_personalities_order_by {
   created_at: order_by
   description: order_by
+  fish_monologues_aggregate: fish_monologues_aggregate_order_by
   fishes_aggregate: fish_aggregate_order_by
   id: order_by
   name: order_by
@@ -1473,6 +1502,9 @@ enum fish_select_column {
   artist
 
   """column name"""
+  chat_frequency
+
+  """column name"""
   created_at
 
   """column name"""
@@ -1530,6 +1562,7 @@ input type for updating data in table "fish"
 """
 input fish_set_input {
   artist: String
+  chat_frequency: Int
   created_at: timestamp
   fish_name: String
   id: uuid
@@ -1546,6 +1579,7 @@ input fish_set_input {
 
 """aggregate stddev on columns"""
 type fish_stddev_fields {
+  chat_frequency: Float
   report_count: Float
   upvotes: Float
 }
@@ -1554,12 +1588,14 @@ type fish_stddev_fields {
 order by stddev() on columns of table "fish"
 """
 input fish_stddev_order_by {
+  chat_frequency: order_by
   report_count: order_by
   upvotes: order_by
 }
 
 """aggregate stddev_pop on columns"""
 type fish_stddev_pop_fields {
+  chat_frequency: Float
   report_count: Float
   upvotes: Float
 }
@@ -1568,12 +1604,14 @@ type fish_stddev_pop_fields {
 order by stddev_pop() on columns of table "fish"
 """
 input fish_stddev_pop_order_by {
+  chat_frequency: order_by
   report_count: order_by
   upvotes: order_by
 }
 
 """aggregate stddev_samp on columns"""
 type fish_stddev_samp_fields {
+  chat_frequency: Float
   report_count: Float
   upvotes: Float
 }
@@ -1582,6 +1620,7 @@ type fish_stddev_samp_fields {
 order by stddev_samp() on columns of table "fish"
 """
 input fish_stddev_samp_order_by {
+  chat_frequency: order_by
   report_count: order_by
   upvotes: order_by
 }
@@ -1600,6 +1639,7 @@ input fish_stream_cursor_input {
 """Initial value of the column from where the streaming should start"""
 input fish_stream_cursor_value_input {
   artist: String
+  chat_frequency: Int
   created_at: timestamp
   fish_name: String
   id: uuid
@@ -1616,6 +1656,7 @@ input fish_stream_cursor_value_input {
 
 """aggregate sum on columns"""
 type fish_sum_fields {
+  chat_frequency: Int
   report_count: Int
   upvotes: Int
 }
@@ -1624,695 +1665,9 @@ type fish_sum_fields {
 order by sum() on columns of table "fish"
 """
 input fish_sum_order_by {
+  chat_frequency: order_by
   report_count: order_by
   upvotes: order_by
-}
-
-"""测试鱼数据表，用于存储从原作者后端下载的鱼数据"""
-type fish_test {
-  """作者名称"""
-  artist: String
-
-  """计算后的战斗力"""
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int!
-  experience: Int!
-  health: Int!
-
-  """鱼的唯一标识符 (UUID)"""
-  id: uuid!
-
-  """鱼的图片URL（七牛云存储）"""
-  image_url: String!
-  is_alive: Boolean
-  is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int!
-  max_health: Int!
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  reported: Boolean
-
-  """天赋值，影响战斗力"""
-  talent: Int!
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int!
-
-  """创建该鱼的用户ID"""
-  user_id: String!
-}
-
-"""
-aggregated selection of "fish_test"
-"""
-type fish_test_aggregate {
-  aggregate: fish_test_aggregate_fields
-  nodes: [fish_test!]!
-}
-
-"""
-aggregate fields of "fish_test"
-"""
-type fish_test_aggregate_fields {
-  avg: fish_test_avg_fields
-  count(columns: [fish_test_select_column!], distinct: Boolean): Int!
-  max: fish_test_max_fields
-  min: fish_test_min_fields
-  stddev: fish_test_stddev_fields
-  stddev_pop: fish_test_stddev_pop_fields
-  stddev_samp: fish_test_stddev_samp_fields
-  sum: fish_test_sum_fields
-  var_pop: fish_test_var_pop_fields
-  var_samp: fish_test_var_samp_fields
-  variance: fish_test_variance_fields
-}
-
-"""aggregate avg on columns"""
-type fish_test_avg_fields {
-  """计算后的战斗力"""
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-
-  """天赋值，影响战斗力"""
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""
-Boolean expression to filter rows from the table "fish_test". All fields are combined with a logical 'AND'.
-"""
-input fish_test_bool_exp {
-  _and: [fish_test_bool_exp!]
-  _not: fish_test_bool_exp
-  _or: [fish_test_bool_exp!]
-  artist: String_comparison_exp
-  battle_power: numeric_comparison_exp
-  created_at: timestamp_comparison_exp
-  downvotes: Int_comparison_exp
-  experience: Int_comparison_exp
-  health: Int_comparison_exp
-  id: uuid_comparison_exp
-  image_url: String_comparison_exp
-  is_alive: Boolean_comparison_exp
-  is_approved: Boolean_comparison_exp
-  is_in_battle_mode: Boolean_comparison_exp
-  last_exp_update: timestamp_comparison_exp
-  level: Int_comparison_exp
-  max_health: Int_comparison_exp
-  moderator_notes: String_comparison_exp
-  position_row: Int_comparison_exp
-  report_count: Int_comparison_exp
-  reported: Boolean_comparison_exp
-  talent: Int_comparison_exp
-  total_losses: Int_comparison_exp
-  total_wins: Int_comparison_exp
-  upvotes: Int_comparison_exp
-  user_id: String_comparison_exp
-}
-
-"""
-unique or primary key constraints on table "fish_test"
-"""
-enum fish_test_constraint {
-  """
-  unique or primary key constraint on columns "id"
-  """
-  fish_test_pkey
-}
-
-"""
-input type for incrementing numeric columns in table "fish_test"
-"""
-input fish_test_inc_input {
-  """计算后的战斗力"""
-  battle_power: numeric
-  downvotes: Int
-  experience: Int
-  health: Int
-  level: Int
-  max_health: Int
-  position_row: Int
-  report_count: Int
-
-  """天赋值，影响战斗力"""
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-}
-
-"""
-input type for inserting data into table "fish_test"
-"""
-input fish_test_insert_input {
-  """作者名称"""
-  artist: String
-
-  """计算后的战斗力"""
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-
-  """鱼的唯一标识符 (UUID)"""
-  id: uuid
-
-  """鱼的图片URL（七牛云存储）"""
-  image_url: String
-  is_alive: Boolean
-  is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  reported: Boolean
-
-  """天赋值，影响战斗力"""
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-
-  """创建该鱼的用户ID"""
-  user_id: String
-}
-
-"""aggregate max on columns"""
-type fish_test_max_fields {
-  """作者名称"""
-  artist: String
-
-  """计算后的战斗力"""
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-
-  """鱼的唯一标识符 (UUID)"""
-  id: uuid
-
-  """鱼的图片URL（七牛云存储）"""
-  image_url: String
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-
-  """天赋值，影响战斗力"""
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-
-  """创建该鱼的用户ID"""
-  user_id: String
-}
-
-"""aggregate min on columns"""
-type fish_test_min_fields {
-  """作者名称"""
-  artist: String
-
-  """计算后的战斗力"""
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-
-  """鱼的唯一标识符 (UUID)"""
-  id: uuid
-
-  """鱼的图片URL（七牛云存储）"""
-  image_url: String
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-
-  """天赋值，影响战斗力"""
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-
-  """创建该鱼的用户ID"""
-  user_id: String
-}
-
-"""
-response of any mutation on the table "fish_test"
-"""
-type fish_test_mutation_response {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [fish_test!]!
-}
-
-"""
-on_conflict condition type for table "fish_test"
-"""
-input fish_test_on_conflict {
-  constraint: fish_test_constraint!
-  update_columns: [fish_test_update_column!]! = []
-  where: fish_test_bool_exp
-}
-
-"""Ordering options when selecting data from "fish_test"."""
-input fish_test_order_by {
-  artist: order_by
-  battle_power: order_by
-  created_at: order_by
-  downvotes: order_by
-  experience: order_by
-  health: order_by
-  id: order_by
-  image_url: order_by
-  is_alive: order_by
-  is_approved: order_by
-  is_in_battle_mode: order_by
-  last_exp_update: order_by
-  level: order_by
-  max_health: order_by
-  moderator_notes: order_by
-  position_row: order_by
-  report_count: order_by
-  reported: order_by
-  talent: order_by
-  total_losses: order_by
-  total_wins: order_by
-  upvotes: order_by
-  user_id: order_by
-}
-
-"""primary key columns input for table: fish_test"""
-input fish_test_pk_columns_input {
-  """鱼的唯一标识符 (UUID)"""
-  id: uuid!
-}
-
-"""
-select columns of table "fish_test"
-"""
-enum fish_test_select_column {
-  """column name"""
-  artist
-
-  """column name"""
-  battle_power
-
-  """column name"""
-  created_at
-
-  """column name"""
-  downvotes
-
-  """column name"""
-  experience
-
-  """column name"""
-  health
-
-  """column name"""
-  id
-
-  """column name"""
-  image_url
-
-  """column name"""
-  is_alive
-
-  """column name"""
-  is_approved
-
-  """column name"""
-  is_in_battle_mode
-
-  """column name"""
-  last_exp_update
-
-  """column name"""
-  level
-
-  """column name"""
-  max_health
-
-  """column name"""
-  moderator_notes
-
-  """column name"""
-  position_row
-
-  """column name"""
-  report_count
-
-  """column name"""
-  reported
-
-  """column name"""
-  talent
-
-  """column name"""
-  total_losses
-
-  """column name"""
-  total_wins
-
-  """column name"""
-  upvotes
-
-  """column name"""
-  user_id
-}
-
-"""
-input type for updating data in table "fish_test"
-"""
-input fish_test_set_input {
-  """作者名称"""
-  artist: String
-
-  """计算后的战斗力"""
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-
-  """鱼的唯一标识符 (UUID)"""
-  id: uuid
-
-  """鱼的图片URL（七牛云存储）"""
-  image_url: String
-  is_alive: Boolean
-  is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  reported: Boolean
-
-  """天赋值，影响战斗力"""
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-
-  """创建该鱼的用户ID"""
-  user_id: String
-}
-
-"""aggregate stddev on columns"""
-type fish_test_stddev_fields {
-  """计算后的战斗力"""
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-
-  """天赋值，影响战斗力"""
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""aggregate stddev_pop on columns"""
-type fish_test_stddev_pop_fields {
-  """计算后的战斗力"""
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-
-  """天赋值，影响战斗力"""
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""aggregate stddev_samp on columns"""
-type fish_test_stddev_samp_fields {
-  """计算后的战斗力"""
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-
-  """天赋值，影响战斗力"""
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""
-Streaming cursor of the table "fish_test"
-"""
-input fish_test_stream_cursor_input {
-  """Stream column input with initial value"""
-  initial_value: fish_test_stream_cursor_value_input!
-
-  """cursor ordering"""
-  ordering: cursor_ordering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input fish_test_stream_cursor_value_input {
-  """作者名称"""
-  artist: String
-
-  """计算后的战斗力"""
-  battle_power: numeric
-  created_at: timestamp
-  downvotes: Int
-  experience: Int
-  health: Int
-
-  """鱼的唯一标识符 (UUID)"""
-  id: uuid
-
-  """鱼的图片URL（七牛云存储）"""
-  image_url: String
-  is_alive: Boolean
-  is_approved: Boolean
-  is_in_battle_mode: Boolean
-  last_exp_update: timestamp
-  level: Int
-  max_health: Int
-  moderator_notes: String
-  position_row: Int
-  report_count: Int
-  reported: Boolean
-
-  """天赋值，影响战斗力"""
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-
-  """创建该鱼的用户ID"""
-  user_id: String
-}
-
-"""aggregate sum on columns"""
-type fish_test_sum_fields {
-  """计算后的战斗力"""
-  battle_power: numeric
-  downvotes: Int
-  experience: Int
-  health: Int
-  level: Int
-  max_health: Int
-  position_row: Int
-  report_count: Int
-
-  """天赋值，影响战斗力"""
-  talent: Int
-  total_losses: Int
-  total_wins: Int
-  upvotes: Int
-}
-
-"""
-update columns of table "fish_test"
-"""
-enum fish_test_update_column {
-  """column name"""
-  artist
-
-  """column name"""
-  battle_power
-
-  """column name"""
-  created_at
-
-  """column name"""
-  downvotes
-
-  """column name"""
-  experience
-
-  """column name"""
-  health
-
-  """column name"""
-  id
-
-  """column name"""
-  image_url
-
-  """column name"""
-  is_alive
-
-  """column name"""
-  is_approved
-
-  """column name"""
-  is_in_battle_mode
-
-  """column name"""
-  last_exp_update
-
-  """column name"""
-  level
-
-  """column name"""
-  max_health
-
-  """column name"""
-  moderator_notes
-
-  """column name"""
-  position_row
-
-  """column name"""
-  report_count
-
-  """column name"""
-  reported
-
-  """column name"""
-  talent
-
-  """column name"""
-  total_losses
-
-  """column name"""
-  total_wins
-
-  """column name"""
-  upvotes
-
-  """column name"""
-  user_id
-}
-
-input fish_test_updates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: fish_test_inc_input
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: fish_test_set_input
-
-  """filter the rows which have to be updated"""
-  where: fish_test_bool_exp!
-}
-
-"""aggregate var_pop on columns"""
-type fish_test_var_pop_fields {
-  """计算后的战斗力"""
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-
-  """天赋值，影响战斗力"""
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""aggregate var_samp on columns"""
-type fish_test_var_samp_fields {
-  """计算后的战斗力"""
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-
-  """天赋值，影响战斗力"""
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
-}
-
-"""aggregate variance on columns"""
-type fish_test_variance_fields {
-  """计算后的战斗力"""
-  battle_power: Float
-  downvotes: Float
-  experience: Float
-  health: Float
-  level: Float
-  max_health: Float
-  position_row: Float
-  report_count: Float
-
-  """天赋值，影响战斗力"""
-  talent: Float
-  total_losses: Float
-  total_wins: Float
-  upvotes: Float
 }
 
 """
@@ -2321,6 +1676,9 @@ update columns of table "fish"
 enum fish_update_column {
   """column name"""
   artist
+
+  """column name"""
+  chat_frequency
 
   """column name"""
   created_at
@@ -2366,6 +1724,7 @@ input fish_updates {
 
 """aggregate var_pop on columns"""
 type fish_var_pop_fields {
+  chat_frequency: Float
   report_count: Float
   upvotes: Float
 }
@@ -2374,12 +1733,14 @@ type fish_var_pop_fields {
 order by var_pop() on columns of table "fish"
 """
 input fish_var_pop_order_by {
+  chat_frequency: order_by
   report_count: order_by
   upvotes: order_by
 }
 
 """aggregate var_samp on columns"""
 type fish_var_samp_fields {
+  chat_frequency: Float
   report_count: Float
   upvotes: Float
 }
@@ -2388,12 +1749,14 @@ type fish_var_samp_fields {
 order by var_samp() on columns of table "fish"
 """
 input fish_var_samp_order_by {
+  chat_frequency: order_by
   report_count: order_by
   upvotes: order_by
 }
 
 """aggregate variance on columns"""
 type fish_variance_fields {
+  chat_frequency: Float
   report_count: Float
   upvotes: Float
 }
@@ -2402,6 +1765,7 @@ type fish_variance_fields {
 order by variance() on columns of table "fish"
 """
 input fish_variance_order_by {
+  chat_frequency: order_by
   report_count: order_by
   upvotes: order_by
 }
@@ -3109,21 +2473,919 @@ input jsonb_comparison_exp {
   _nin: [jsonb!]
 }
 
+"""会员类型表，定义不同会员类型的权益配置"""
+type member_types {
+  """该会员类型的鱼是否可以参与群聊"""
+  can_group_chat: Boolean!
+
+  """该会员类型的鱼是否可以宣传主人"""
+  can_promote_owner: Boolean!
+
+  """该会员类型的鱼是否可以自语"""
+  can_self_talk: Boolean!
+  created_at: timestamp
+
+  """会员类型标识：free, plus, premium"""
+  id: String!
+
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Int!
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Int!
+
+  """会员类型名称（显示用）"""
+  name: String!
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Int!
+  updated_at: timestamp
+
+  """An array relationship"""
+  user_subscriptions(
+    """distinct select on columns"""
+    distinct_on: [user_subscriptions_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_subscriptions_order_by!]
+
+    """filter the rows returned"""
+    where: user_subscriptions_bool_exp
+  ): [user_subscriptions!]!
+
+  """An aggregate relationship"""
+  user_subscriptions_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_subscriptions_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_subscriptions_order_by!]
+
+    """filter the rows returned"""
+    where: user_subscriptions_bool_exp
+  ): user_subscriptions_aggregate!
+}
+
+"""
+aggregated selection of "member_types"
+"""
+type member_types_aggregate {
+  aggregate: member_types_aggregate_fields
+  nodes: [member_types!]!
+}
+
+"""
+aggregate fields of "member_types"
+"""
+type member_types_aggregate_fields {
+  avg: member_types_avg_fields
+  count(columns: [member_types_select_column!], distinct: Boolean): Int!
+  max: member_types_max_fields
+  min: member_types_min_fields
+  stddev: member_types_stddev_fields
+  stddev_pop: member_types_stddev_pop_fields
+  stddev_samp: member_types_stddev_samp_fields
+  sum: member_types_sum_fields
+  var_pop: member_types_var_pop_fields
+  var_samp: member_types_var_samp_fields
+  variance: member_types_variance_fields
+}
+
+"""aggregate avg on columns"""
+type member_types_avg_fields {
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Float
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Float
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Float
+}
+
+"""
+Boolean expression to filter rows from the table "member_types". All fields are combined with a logical 'AND'.
+"""
+input member_types_bool_exp {
+  _and: [member_types_bool_exp!]
+  _not: member_types_bool_exp
+  _or: [member_types_bool_exp!]
+  can_group_chat: Boolean_comparison_exp
+  can_promote_owner: Boolean_comparison_exp
+  can_self_talk: Boolean_comparison_exp
+  created_at: timestamp_comparison_exp
+  id: String_comparison_exp
+  lead_topic_frequency: Int_comparison_exp
+  max_fish_count: Int_comparison_exp
+  name: String_comparison_exp
+  promote_owner_frequency: Int_comparison_exp
+  updated_at: timestamp_comparison_exp
+  user_subscriptions: user_subscriptions_bool_exp
+  user_subscriptions_aggregate: user_subscriptions_aggregate_bool_exp
+}
+
+"""
+unique or primary key constraints on table "member_types"
+"""
+enum member_types_constraint {
+  """
+  unique or primary key constraint on columns "name"
+  """
+  member_types_name_key
+
+  """
+  unique or primary key constraint on columns "id"
+  """
+  member_types_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "member_types"
+"""
+input member_types_inc_input {
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Int
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Int
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Int
+}
+
+"""
+input type for inserting data into table "member_types"
+"""
+input member_types_insert_input {
+  """该会员类型的鱼是否可以参与群聊"""
+  can_group_chat: Boolean
+
+  """该会员类型的鱼是否可以宣传主人"""
+  can_promote_owner: Boolean
+
+  """该会员类型的鱼是否可以自语"""
+  can_self_talk: Boolean
+  created_at: timestamp
+
+  """会员类型标识：free, plus, premium"""
+  id: String
+
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Int
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Int
+
+  """会员类型名称（显示用）"""
+  name: String
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Int
+  updated_at: timestamp
+  user_subscriptions: user_subscriptions_arr_rel_insert_input
+}
+
+"""aggregate max on columns"""
+type member_types_max_fields {
+  created_at: timestamp
+
+  """会员类型标识：free, plus, premium"""
+  id: String
+
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Int
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Int
+
+  """会员类型名称（显示用）"""
+  name: String
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Int
+  updated_at: timestamp
+}
+
+"""aggregate min on columns"""
+type member_types_min_fields {
+  created_at: timestamp
+
+  """会员类型标识：free, plus, premium"""
+  id: String
+
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Int
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Int
+
+  """会员类型名称（显示用）"""
+  name: String
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Int
+  updated_at: timestamp
+}
+
+"""
+response of any mutation on the table "member_types"
+"""
+type member_types_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [member_types!]!
+}
+
+"""
+input type for inserting object relation for remote table "member_types"
+"""
+input member_types_obj_rel_insert_input {
+  data: member_types_insert_input!
+
+  """upsert condition"""
+  on_conflict: member_types_on_conflict
+}
+
+"""
+on_conflict condition type for table "member_types"
+"""
+input member_types_on_conflict {
+  constraint: member_types_constraint!
+  update_columns: [member_types_update_column!]! = []
+  where: member_types_bool_exp
+}
+
+"""Ordering options when selecting data from "member_types"."""
+input member_types_order_by {
+  can_group_chat: order_by
+  can_promote_owner: order_by
+  can_self_talk: order_by
+  created_at: order_by
+  id: order_by
+  lead_topic_frequency: order_by
+  max_fish_count: order_by
+  name: order_by
+  promote_owner_frequency: order_by
+  updated_at: order_by
+  user_subscriptions_aggregate: user_subscriptions_aggregate_order_by
+}
+
+"""primary key columns input for table: member_types"""
+input member_types_pk_columns_input {
+  """会员类型标识：free, plus, premium"""
+  id: String!
+}
+
+"""
+select columns of table "member_types"
+"""
+enum member_types_select_column {
+  """column name"""
+  can_group_chat
+
+  """column name"""
+  can_promote_owner
+
+  """column name"""
+  can_self_talk
+
+  """column name"""
+  created_at
+
+  """column name"""
+  id
+
+  """column name"""
+  lead_topic_frequency
+
+  """column name"""
+  max_fish_count
+
+  """column name"""
+  name
+
+  """column name"""
+  promote_owner_frequency
+
+  """column name"""
+  updated_at
+}
+
+"""
+input type for updating data in table "member_types"
+"""
+input member_types_set_input {
+  """该会员类型的鱼是否可以参与群聊"""
+  can_group_chat: Boolean
+
+  """该会员类型的鱼是否可以宣传主人"""
+  can_promote_owner: Boolean
+
+  """该会员类型的鱼是否可以自语"""
+  can_self_talk: Boolean
+  created_at: timestamp
+
+  """会员类型标识：free, plus, premium"""
+  id: String
+
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Int
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Int
+
+  """会员类型名称（显示用）"""
+  name: String
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Int
+  updated_at: timestamp
+}
+
+"""aggregate stddev on columns"""
+type member_types_stddev_fields {
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Float
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Float
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type member_types_stddev_pop_fields {
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Float
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Float
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type member_types_stddev_samp_fields {
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Float
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Float
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Float
+}
+
+"""
+Streaming cursor of the table "member_types"
+"""
+input member_types_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: member_types_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input member_types_stream_cursor_value_input {
+  """该会员类型的鱼是否可以参与群聊"""
+  can_group_chat: Boolean
+
+  """该会员类型的鱼是否可以宣传主人"""
+  can_promote_owner: Boolean
+
+  """该会员类型的鱼是否可以自语"""
+  can_self_talk: Boolean
+  created_at: timestamp
+
+  """会员类型标识：free, plus, premium"""
+  id: String
+
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Int
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Int
+
+  """会员类型名称（显示用）"""
+  name: String
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Int
+  updated_at: timestamp
+}
+
+"""aggregate sum on columns"""
+type member_types_sum_fields {
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Int
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Int
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Int
+}
+
+"""
+update columns of table "member_types"
+"""
+enum member_types_update_column {
+  """column name"""
+  can_group_chat
+
+  """column name"""
+  can_promote_owner
+
+  """column name"""
+  can_self_talk
+
+  """column name"""
+  created_at
+
+  """column name"""
+  id
+
+  """column name"""
+  lead_topic_frequency
+
+  """column name"""
+  max_fish_count
+
+  """column name"""
+  name
+
+  """column name"""
+  promote_owner_frequency
+
+  """column name"""
+  updated_at
+}
+
+input member_types_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: member_types_inc_input
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: member_types_set_input
+
+  """filter the rows which have to be updated"""
+  where: member_types_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type member_types_var_pop_fields {
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Float
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Float
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Float
+}
+
+"""aggregate var_samp on columns"""
+type member_types_var_samp_fields {
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Float
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Float
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Float
+}
+
+"""aggregate variance on columns"""
+type member_types_variance_fields {
+  """该会员类型的鱼主导话题的频率（每小时次数）"""
+  lead_topic_frequency: Float
+
+  """该会员类型可创建的最大鱼数量"""
+  max_fish_count: Float
+
+  """该会员类型的鱼宣传主人的频率（每小时次数）"""
+  promote_owner_frequency: Float
+}
+
+"""用户留言表，支持给鱼和鱼主人留言"""
+type messages {
+  """留言内容（1-50字符）"""
+  content: String!
+  created_at: timestamp
+
+  """An object relationship"""
+  fish: fish
+
+  """目标鱼ID（留言给鱼时使用）"""
+  fish_id: uuid
+  id: uuid!
+
+  """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
+  message_type: String!
+
+  """接收者用户ID（留言给主人时使用）"""
+  receiver_id: String
+
+  """发送者用户ID（外键关联users表）"""
+  sender_id: String!
+
+  """An object relationship"""
+  user: users
+
+  """An object relationship"""
+  userBySenderId: users!
+
+  """可见性：public=公开，private=私密"""
+  visibility: String
+}
+
+"""
+aggregated selection of "messages"
+"""
+type messages_aggregate {
+  aggregate: messages_aggregate_fields
+  nodes: [messages!]!
+}
+
+input messages_aggregate_bool_exp {
+  count: messages_aggregate_bool_exp_count
+}
+
+input messages_aggregate_bool_exp_count {
+  arguments: [messages_select_column!]
+  distinct: Boolean
+  filter: messages_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+aggregate fields of "messages"
+"""
+type messages_aggregate_fields {
+  count(columns: [messages_select_column!], distinct: Boolean): Int!
+  max: messages_max_fields
+  min: messages_min_fields
+}
+
+"""
+order by aggregate values of table "messages"
+"""
+input messages_aggregate_order_by {
+  count: order_by
+  max: messages_max_order_by
+  min: messages_min_order_by
+}
+
+"""
+input type for inserting array relation for remote table "messages"
+"""
+input messages_arr_rel_insert_input {
+  data: [messages_insert_input!]!
+
+  """upsert condition"""
+  on_conflict: messages_on_conflict
+}
+
+"""
+Boolean expression to filter rows from the table "messages". All fields are combined with a logical 'AND'.
+"""
+input messages_bool_exp {
+  _and: [messages_bool_exp!]
+  _not: messages_bool_exp
+  _or: [messages_bool_exp!]
+  content: String_comparison_exp
+  created_at: timestamp_comparison_exp
+  fish: fish_bool_exp
+  fish_id: uuid_comparison_exp
+  id: uuid_comparison_exp
+  message_type: String_comparison_exp
+  receiver_id: String_comparison_exp
+  sender_id: String_comparison_exp
+  user: users_bool_exp
+  userBySenderId: users_bool_exp
+  visibility: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "messages"
+"""
+enum messages_constraint {
+  """
+  unique or primary key constraint on columns "id"
+  """
+  messages_pkey
+}
+
+"""
+input type for inserting data into table "messages"
+"""
+input messages_insert_input {
+  """留言内容（1-50字符）"""
+  content: String
+  created_at: timestamp
+  fish: fish_obj_rel_insert_input
+
+  """目标鱼ID（留言给鱼时使用）"""
+  fish_id: uuid
+  id: uuid
+
+  """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
+  message_type: String
+
+  """接收者用户ID（留言给主人时使用）"""
+  receiver_id: String
+
+  """发送者用户ID（外键关联users表）"""
+  sender_id: String
+  user: users_obj_rel_insert_input
+  userBySenderId: users_obj_rel_insert_input
+
+  """可见性：public=公开，private=私密"""
+  visibility: String
+}
+
+"""aggregate max on columns"""
+type messages_max_fields {
+  """留言内容（1-50字符）"""
+  content: String
+  created_at: timestamp
+
+  """目标鱼ID（留言给鱼时使用）"""
+  fish_id: uuid
+  id: uuid
+
+  """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
+  message_type: String
+
+  """接收者用户ID（留言给主人时使用）"""
+  receiver_id: String
+
+  """发送者用户ID（外键关联users表）"""
+  sender_id: String
+
+  """可见性：public=公开，private=私密"""
+  visibility: String
+}
+
+"""
+order by max() on columns of table "messages"
+"""
+input messages_max_order_by {
+  """留言内容（1-50字符）"""
+  content: order_by
+  created_at: order_by
+
+  """目标鱼ID（留言给鱼时使用）"""
+  fish_id: order_by
+  id: order_by
+
+  """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
+  message_type: order_by
+
+  """接收者用户ID（留言给主人时使用）"""
+  receiver_id: order_by
+
+  """发送者用户ID（外键关联users表）"""
+  sender_id: order_by
+
+  """可见性：public=公开，private=私密"""
+  visibility: order_by
+}
+
+"""aggregate min on columns"""
+type messages_min_fields {
+  """留言内容（1-50字符）"""
+  content: String
+  created_at: timestamp
+
+  """目标鱼ID（留言给鱼时使用）"""
+  fish_id: uuid
+  id: uuid
+
+  """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
+  message_type: String
+
+  """接收者用户ID（留言给主人时使用）"""
+  receiver_id: String
+
+  """发送者用户ID（外键关联users表）"""
+  sender_id: String
+
+  """可见性：public=公开，private=私密"""
+  visibility: String
+}
+
+"""
+order by min() on columns of table "messages"
+"""
+input messages_min_order_by {
+  """留言内容（1-50字符）"""
+  content: order_by
+  created_at: order_by
+
+  """目标鱼ID（留言给鱼时使用）"""
+  fish_id: order_by
+  id: order_by
+
+  """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
+  message_type: order_by
+
+  """接收者用户ID（留言给主人时使用）"""
+  receiver_id: order_by
+
+  """发送者用户ID（外键关联users表）"""
+  sender_id: order_by
+
+  """可见性：public=公开，private=私密"""
+  visibility: order_by
+}
+
+"""
+response of any mutation on the table "messages"
+"""
+type messages_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [messages!]!
+}
+
+"""
+on_conflict condition type for table "messages"
+"""
+input messages_on_conflict {
+  constraint: messages_constraint!
+  update_columns: [messages_update_column!]! = []
+  where: messages_bool_exp
+}
+
+"""Ordering options when selecting data from "messages"."""
+input messages_order_by {
+  content: order_by
+  created_at: order_by
+  fish: fish_order_by
+  fish_id: order_by
+  id: order_by
+  message_type: order_by
+  receiver_id: order_by
+  sender_id: order_by
+  user: users_order_by
+  userBySenderId: users_order_by
+  visibility: order_by
+}
+
+"""primary key columns input for table: messages"""
+input messages_pk_columns_input {
+  id: uuid!
+}
+
+"""
+select columns of table "messages"
+"""
+enum messages_select_column {
+  """column name"""
+  content
+
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  message_type
+
+  """column name"""
+  receiver_id
+
+  """column name"""
+  sender_id
+
+  """column name"""
+  visibility
+}
+
+"""
+input type for updating data in table "messages"
+"""
+input messages_set_input {
+  """留言内容（1-50字符）"""
+  content: String
+  created_at: timestamp
+
+  """目标鱼ID（留言给鱼时使用）"""
+  fish_id: uuid
+  id: uuid
+
+  """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
+  message_type: String
+
+  """接收者用户ID（留言给主人时使用）"""
+  receiver_id: String
+
+  """发送者用户ID（外键关联users表）"""
+  sender_id: String
+
+  """可见性：public=公开，private=私密"""
+  visibility: String
+}
+
+"""
+Streaming cursor of the table "messages"
+"""
+input messages_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: messages_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input messages_stream_cursor_value_input {
+  """留言内容（1-50字符）"""
+  content: String
+  created_at: timestamp
+
+  """目标鱼ID（留言给鱼时使用）"""
+  fish_id: uuid
+  id: uuid
+
+  """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
+  message_type: String
+
+  """接收者用户ID（留言给主人时使用）"""
+  receiver_id: String
+
+  """发送者用户ID（外键关联users表）"""
+  sender_id: String
+
+  """可见性：public=公开，private=私密"""
+  visibility: String
+}
+
+"""
+update columns of table "messages"
+"""
+enum messages_update_column {
+  """column name"""
+  content
+
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  message_type
+
+  """column name"""
+  receiver_id
+
+  """column name"""
+  sender_id
+
+  """column name"""
+  visibility
+}
+
+input messages_updates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: messages_set_input
+
+  """filter the rows which have to be updated"""
+  where: messages_bool_exp!
+}
+
 """mutation root"""
 type mutation_root {
-  """
-  delete data from the table: "economy_log"
-  """
-  delete_economy_log(
-    """filter the rows which have to be deleted"""
-    where: economy_log_bool_exp!
-  ): economy_log_mutation_response
-
-  """
-  delete single row from the table: "economy_log"
-  """
-  delete_economy_log_by_pk(id: uuid!): economy_log
-
   """
   delete data from the table: "fish"
   """
@@ -3136,6 +3398,19 @@ type mutation_root {
   delete single row from the table: "fish"
   """
   delete_fish_by_pk(id: uuid!): fish
+
+  """
+  delete data from the table: "fish_favorites"
+  """
+  delete_fish_favorites(
+    """filter the rows which have to be deleted"""
+    where: fish_favorites_bool_exp!
+  ): fish_favorites_mutation_response
+
+  """
+  delete single row from the table: "fish_favorites"
+  """
+  delete_fish_favorites_by_pk(id: uuid!): fish_favorites
 
   """
   delete data from the table: "fish_monologues"
@@ -3162,22 +3437,6 @@ type mutation_root {
   delete single row from the table: "fish_personalities"
   """
   delete_fish_personalities_by_pk(id: uuid!): fish_personalities
-
-  """
-  delete data from the table: "fish_test"
-  """
-  delete_fish_test(
-    """filter the rows which have to be deleted"""
-    where: fish_test_bool_exp!
-  ): fish_test_mutation_response
-
-  """
-  delete single row from the table: "fish_test"
-  """
-  delete_fish_test_by_pk(
-    """鱼的唯一标识符 (UUID)"""
-    id: uuid!
-  ): fish_test
 
   """
   delete data from the table: "global_params"
@@ -3209,6 +3468,43 @@ type mutation_root {
   delete_group_chat_by_pk(id: uuid!): group_chat
 
   """
+  delete data from the table: "member_types"
+  """
+  delete_member_types(
+    """filter the rows which have to be deleted"""
+    where: member_types_bool_exp!
+  ): member_types_mutation_response
+
+  """
+  delete single row from the table: "member_types"
+  """
+  delete_member_types_by_pk(
+    """会员类型标识：free, plus, premium"""
+    id: String!
+  ): member_types
+
+  """
+  delete data from the table: "messages"
+  """
+  delete_messages(
+    """filter the rows which have to be deleted"""
+    where: messages_bool_exp!
+  ): messages_mutation_response
+
+  """
+  delete single row from the table: "messages"
+  """
+  delete_messages_by_pk(id: uuid!): messages
+
+  """
+  delete data from the table: "public_messages_view"
+  """
+  delete_public_messages_view(
+    """filter the rows which have to be deleted"""
+    where: public_messages_view_bool_exp!
+  ): public_messages_view_mutation_response
+
+  """
   delete data from the table: "recent_chat_sessions"
   """
   delete_recent_chat_sessions(
@@ -3230,19 +3526,6 @@ type mutation_root {
   delete_reports_by_pk(id: uuid!): reports
 
   """
-  delete data from the table: "user_economy"
-  """
-  delete_user_economy(
-    """filter the rows which have to be deleted"""
-    where: user_economy_bool_exp!
-  ): user_economy_mutation_response
-
-  """
-  delete single row from the table: "user_economy"
-  """
-  delete_user_economy_by_pk(user_id: String!): user_economy
-
-  """
   delete data from the table: "user_subscriptions"
   """
   delete_user_subscriptions(
@@ -3253,7 +3536,15 @@ type mutation_root {
   """
   delete single row from the table: "user_subscriptions"
   """
-  delete_user_subscriptions_by_pk(user_id: String!): user_subscriptions
+  delete_user_subscriptions_by_pk(id: Int!): user_subscriptions
+
+  """
+  delete data from the table: "user_visible_messages_view"
+  """
+  delete_user_visible_messages_view(
+    """filter the rows which have to be deleted"""
+    where: user_visible_messages_view_bool_exp!
+  ): user_visible_messages_view_mutation_response
 
   """
   delete data from the table: "users"
@@ -3282,28 +3573,6 @@ type mutation_root {
   delete_votes_by_pk(id: uuid!): votes
 
   """
-  insert data into the table: "economy_log"
-  """
-  insert_economy_log(
-    """the rows to be inserted"""
-    objects: [economy_log_insert_input!]!
-
-    """upsert condition"""
-    on_conflict: economy_log_on_conflict
-  ): economy_log_mutation_response
-
-  """
-  insert a single row into the table: "economy_log"
-  """
-  insert_economy_log_one(
-    """the row to be inserted"""
-    object: economy_log_insert_input!
-
-    """upsert condition"""
-    on_conflict: economy_log_on_conflict
-  ): economy_log
-
-  """
   insert data into the table: "fish"
   """
   insert_fish(
@@ -3313,6 +3582,28 @@ type mutation_root {
     """upsert condition"""
     on_conflict: fish_on_conflict
   ): fish_mutation_response
+
+  """
+  insert data into the table: "fish_favorites"
+  """
+  insert_fish_favorites(
+    """the rows to be inserted"""
+    objects: [fish_favorites_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: fish_favorites_on_conflict
+  ): fish_favorites_mutation_response
+
+  """
+  insert a single row into the table: "fish_favorites"
+  """
+  insert_fish_favorites_one(
+    """the row to be inserted"""
+    object: fish_favorites_insert_input!
+
+    """upsert condition"""
+    on_conflict: fish_favorites_on_conflict
+  ): fish_favorites
 
   """
   insert data into the table: "fish_monologues"
@@ -3370,28 +3661,6 @@ type mutation_root {
   ): fish_personalities
 
   """
-  insert data into the table: "fish_test"
-  """
-  insert_fish_test(
-    """the rows to be inserted"""
-    objects: [fish_test_insert_input!]!
-
-    """upsert condition"""
-    on_conflict: fish_test_on_conflict
-  ): fish_test_mutation_response
-
-  """
-  insert a single row into the table: "fish_test"
-  """
-  insert_fish_test_one(
-    """the row to be inserted"""
-    object: fish_test_insert_input!
-
-    """upsert condition"""
-    on_conflict: fish_test_on_conflict
-  ): fish_test
-
-  """
   insert data into the table: "global_params"
   """
   insert_global_params(
@@ -3436,6 +3705,66 @@ type mutation_root {
   ): group_chat
 
   """
+  insert data into the table: "member_types"
+  """
+  insert_member_types(
+    """the rows to be inserted"""
+    objects: [member_types_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: member_types_on_conflict
+  ): member_types_mutation_response
+
+  """
+  insert a single row into the table: "member_types"
+  """
+  insert_member_types_one(
+    """the row to be inserted"""
+    object: member_types_insert_input!
+
+    """upsert condition"""
+    on_conflict: member_types_on_conflict
+  ): member_types
+
+  """
+  insert data into the table: "messages"
+  """
+  insert_messages(
+    """the rows to be inserted"""
+    objects: [messages_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: messages_on_conflict
+  ): messages_mutation_response
+
+  """
+  insert a single row into the table: "messages"
+  """
+  insert_messages_one(
+    """the row to be inserted"""
+    object: messages_insert_input!
+
+    """upsert condition"""
+    on_conflict: messages_on_conflict
+  ): messages
+
+  """
+  insert data into the table: "public_messages_view"
+  """
+  insert_public_messages_view(
+    """the rows to be inserted"""
+    objects: [public_messages_view_insert_input!]!
+  ): public_messages_view_mutation_response
+
+  """
+  insert a single row into the table: "public_messages_view"
+  """
+  insert_public_messages_view_one(
+    """the row to be inserted"""
+    object: public_messages_view_insert_input!
+  ): public_messages_view
+
+  """
   insert data into the table: "recent_chat_sessions"
   """
   insert_recent_chat_sessions(
@@ -3474,28 +3803,6 @@ type mutation_root {
   ): reports
 
   """
-  insert data into the table: "user_economy"
-  """
-  insert_user_economy(
-    """the rows to be inserted"""
-    objects: [user_economy_insert_input!]!
-
-    """upsert condition"""
-    on_conflict: user_economy_on_conflict
-  ): user_economy_mutation_response
-
-  """
-  insert a single row into the table: "user_economy"
-  """
-  insert_user_economy_one(
-    """the row to be inserted"""
-    object: user_economy_insert_input!
-
-    """upsert condition"""
-    on_conflict: user_economy_on_conflict
-  ): user_economy
-
-  """
   insert data into the table: "user_subscriptions"
   """
   insert_user_subscriptions(
@@ -3516,6 +3823,22 @@ type mutation_root {
     """upsert condition"""
     on_conflict: user_subscriptions_on_conflict
   ): user_subscriptions
+
+  """
+  insert data into the table: "user_visible_messages_view"
+  """
+  insert_user_visible_messages_view(
+    """the rows to be inserted"""
+    objects: [user_visible_messages_view_insert_input!]!
+  ): user_visible_messages_view_mutation_response
+
+  """
+  insert a single row into the table: "user_visible_messages_view"
+  """
+  insert_user_visible_messages_view_one(
+    """the row to be inserted"""
+    object: user_visible_messages_view_insert_input!
+  ): user_visible_messages_view
 
   """
   insert data into the table: "users"
@@ -3562,40 +3885,6 @@ type mutation_root {
   ): votes
 
   """
-  update data of the table: "economy_log"
-  """
-  update_economy_log(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: economy_log_inc_input
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: economy_log_set_input
-
-    """filter the rows which have to be updated"""
-    where: economy_log_bool_exp!
-  ): economy_log_mutation_response
-
-  """
-  update single row of the table: "economy_log"
-  """
-  update_economy_log_by_pk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: economy_log_inc_input
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: economy_log_set_input
-    pk_columns: economy_log_pk_columns_input!
-  ): economy_log
-
-  """
-  update multiples rows of table: "economy_log"
-  """
-  update_economy_log_many(
-    """updates to execute, in order"""
-    updates: [economy_log_updates!]!
-  ): [economy_log_mutation_response]
-
-  """
   update data of the table: "fish"
   """
   update_fish(
@@ -3620,6 +3909,34 @@ type mutation_root {
     _set: fish_set_input
     pk_columns: fish_pk_columns_input!
   ): fish
+
+  """
+  update data of the table: "fish_favorites"
+  """
+  update_fish_favorites(
+    """sets the columns of the filtered rows to the given values"""
+    _set: fish_favorites_set_input
+
+    """filter the rows which have to be updated"""
+    where: fish_favorites_bool_exp!
+  ): fish_favorites_mutation_response
+
+  """
+  update single row of the table: "fish_favorites"
+  """
+  update_fish_favorites_by_pk(
+    """sets the columns of the filtered rows to the given values"""
+    _set: fish_favorites_set_input
+    pk_columns: fish_favorites_pk_columns_input!
+  ): fish_favorites
+
+  """
+  update multiples rows of table: "fish_favorites"
+  """
+  update_fish_favorites_many(
+    """updates to execute, in order"""
+    updates: [fish_favorites_updates!]!
+  ): [fish_favorites_mutation_response]
 
   """
   update multiples rows of table: "fish"
@@ -3690,40 +4007,6 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [fish_personalities_updates!]!
   ): [fish_personalities_mutation_response]
-
-  """
-  update data of the table: "fish_test"
-  """
-  update_fish_test(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: fish_test_inc_input
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: fish_test_set_input
-
-    """filter the rows which have to be updated"""
-    where: fish_test_bool_exp!
-  ): fish_test_mutation_response
-
-  """
-  update single row of the table: "fish_test"
-  """
-  update_fish_test_by_pk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: fish_test_inc_input
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: fish_test_set_input
-    pk_columns: fish_test_pk_columns_input!
-  ): fish_test
-
-  """
-  update multiples rows of table: "fish_test"
-  """
-  update_fish_test_many(
-    """updates to execute, in order"""
-    updates: [fish_test_updates!]!
-  ): [fish_test_mutation_response]
 
   """
   update data of the table: "global_params"
@@ -3830,6 +4113,87 @@ type mutation_root {
   ): [group_chat_mutation_response]
 
   """
+  update data of the table: "member_types"
+  """
+  update_member_types(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: member_types_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: member_types_set_input
+
+    """filter the rows which have to be updated"""
+    where: member_types_bool_exp!
+  ): member_types_mutation_response
+
+  """
+  update single row of the table: "member_types"
+  """
+  update_member_types_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: member_types_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: member_types_set_input
+    pk_columns: member_types_pk_columns_input!
+  ): member_types
+
+  """
+  update multiples rows of table: "member_types"
+  """
+  update_member_types_many(
+    """updates to execute, in order"""
+    updates: [member_types_updates!]!
+  ): [member_types_mutation_response]
+
+  """
+  update data of the table: "messages"
+  """
+  update_messages(
+    """sets the columns of the filtered rows to the given values"""
+    _set: messages_set_input
+
+    """filter the rows which have to be updated"""
+    where: messages_bool_exp!
+  ): messages_mutation_response
+
+  """
+  update single row of the table: "messages"
+  """
+  update_messages_by_pk(
+    """sets the columns of the filtered rows to the given values"""
+    _set: messages_set_input
+    pk_columns: messages_pk_columns_input!
+  ): messages
+
+  """
+  update multiples rows of table: "messages"
+  """
+  update_messages_many(
+    """updates to execute, in order"""
+    updates: [messages_updates!]!
+  ): [messages_mutation_response]
+
+  """
+  update data of the table: "public_messages_view"
+  """
+  update_public_messages_view(
+    """sets the columns of the filtered rows to the given values"""
+    _set: public_messages_view_set_input
+
+    """filter the rows which have to be updated"""
+    where: public_messages_view_bool_exp!
+  ): public_messages_view_mutation_response
+
+  """
+  update multiples rows of table: "public_messages_view"
+  """
+  update_public_messages_view_many(
+    """updates to execute, in order"""
+    updates: [public_messages_view_updates!]!
+  ): [public_messages_view_mutation_response]
+
+  """
   update data of the table: "recent_chat_sessions"
   """
   update_recent_chat_sessions(
@@ -3880,43 +4244,12 @@ type mutation_root {
   ): [reports_mutation_response]
 
   """
-  update data of the table: "user_economy"
-  """
-  update_user_economy(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: user_economy_inc_input
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: user_economy_set_input
-
-    """filter the rows which have to be updated"""
-    where: user_economy_bool_exp!
-  ): user_economy_mutation_response
-
-  """
-  update single row of the table: "user_economy"
-  """
-  update_user_economy_by_pk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: user_economy_inc_input
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: user_economy_set_input
-    pk_columns: user_economy_pk_columns_input!
-  ): user_economy
-
-  """
-  update multiples rows of table: "user_economy"
-  """
-  update_user_economy_many(
-    """updates to execute, in order"""
-    updates: [user_economy_updates!]!
-  ): [user_economy_mutation_response]
-
-  """
   update data of the table: "user_subscriptions"
   """
   update_user_subscriptions(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: user_subscriptions_inc_input
+
     """sets the columns of the filtered rows to the given values"""
     _set: user_subscriptions_set_input
 
@@ -3928,6 +4261,9 @@ type mutation_root {
   update single row of the table: "user_subscriptions"
   """
   update_user_subscriptions_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: user_subscriptions_inc_input
+
     """sets the columns of the filtered rows to the given values"""
     _set: user_subscriptions_set_input
     pk_columns: user_subscriptions_pk_columns_input!
@@ -3940,6 +4276,25 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [user_subscriptions_updates!]!
   ): [user_subscriptions_mutation_response]
+
+  """
+  update data of the table: "user_visible_messages_view"
+  """
+  update_user_visible_messages_view(
+    """sets the columns of the filtered rows to the given values"""
+    _set: user_visible_messages_view_set_input
+
+    """filter the rows which have to be updated"""
+    where: user_visible_messages_view_bool_exp!
+  ): user_visible_messages_view_mutation_response
+
+  """
+  update multiples rows of table: "user_visible_messages_view"
+  """
+  update_user_visible_messages_view_many(
+    """updates to execute, in order"""
+    updates: [user_visible_messages_view_updates!]!
+  ): [user_visible_messages_view_mutation_response]
 
   """
   update data of the table: "users"
@@ -4004,23 +4359,6 @@ type mutation_root {
   ): [votes_mutation_response]
 }
 
-scalar numeric
-
-"""
-Boolean expression to compare columns of type "numeric". All fields are combined with logical 'AND'.
-"""
-input numeric_comparison_exp {
-  _eq: numeric
-  _gt: numeric
-  _gte: numeric
-  _in: [numeric!]
-  _is_null: Boolean
-  _lt: numeric
-  _lte: numeric
-  _neq: numeric
-  _nin: [numeric!]
-}
-
 """column ordering options"""
 enum order_by {
   """in ascending order, nulls last"""
@@ -4042,50 +4380,190 @@ enum order_by {
   desc_nulls_last
 }
 
+"""
+columns and relationships of "public_messages_view"
+"""
+type public_messages_view {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+"""
+aggregated selection of "public_messages_view"
+"""
+type public_messages_view_aggregate {
+  aggregate: public_messages_view_aggregate_fields
+  nodes: [public_messages_view!]!
+}
+
+"""
+aggregate fields of "public_messages_view"
+"""
+type public_messages_view_aggregate_fields {
+  count(columns: [public_messages_view_select_column!], distinct: Boolean): Int!
+  max: public_messages_view_max_fields
+  min: public_messages_view_min_fields
+}
+
+"""
+Boolean expression to filter rows from the table "public_messages_view". All fields are combined with a logical 'AND'.
+"""
+input public_messages_view_bool_exp {
+  _and: [public_messages_view_bool_exp!]
+  _not: public_messages_view_bool_exp
+  _or: [public_messages_view_bool_exp!]
+  content: String_comparison_exp
+  created_at: timestamp_comparison_exp
+  fish_id: uuid_comparison_exp
+  id: uuid_comparison_exp
+  message_type: String_comparison_exp
+  receiver_id: String_comparison_exp
+  sender_id: String_comparison_exp
+  visibility: String_comparison_exp
+}
+
+"""
+input type for inserting data into table "public_messages_view"
+"""
+input public_messages_view_insert_input {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+"""aggregate max on columns"""
+type public_messages_view_max_fields {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+"""aggregate min on columns"""
+type public_messages_view_min_fields {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+"""
+response of any mutation on the table "public_messages_view"
+"""
+type public_messages_view_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [public_messages_view!]!
+}
+
+"""Ordering options when selecting data from "public_messages_view"."""
+input public_messages_view_order_by {
+  content: order_by
+  created_at: order_by
+  fish_id: order_by
+  id: order_by
+  message_type: order_by
+  receiver_id: order_by
+  sender_id: order_by
+  visibility: order_by
+}
+
+"""
+select columns of table "public_messages_view"
+"""
+enum public_messages_view_select_column {
+  """column name"""
+  content
+
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  message_type
+
+  """column name"""
+  receiver_id
+
+  """column name"""
+  sender_id
+
+  """column name"""
+  visibility
+}
+
+"""
+input type for updating data in table "public_messages_view"
+"""
+input public_messages_view_set_input {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+"""
+Streaming cursor of the table "public_messages_view"
+"""
+input public_messages_view_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: public_messages_view_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input public_messages_view_stream_cursor_value_input {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+input public_messages_view_updates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: public_messages_view_set_input
+
+  """filter the rows which have to be updated"""
+  where: public_messages_view_bool_exp!
+}
+
 type query_root {
-  """
-  fetch data from the table: "economy_log"
-  """
-  economy_log(
-    """distinct select on columns"""
-    distinct_on: [economy_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [economy_log_order_by!]
-
-    """filter the rows returned"""
-    where: economy_log_bool_exp
-  ): [economy_log!]!
-
-  """
-  fetch aggregated fields from the table: "economy_log"
-  """
-  economy_log_aggregate(
-    """distinct select on columns"""
-    distinct_on: [economy_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [economy_log_order_by!]
-
-    """filter the rows returned"""
-    where: economy_log_bool_exp
-  ): economy_log_aggregate!
-
-  """fetch data from the table: "economy_log" using primary key columns"""
-  economy_log_by_pk(id: uuid!): economy_log
-
   """
   fetch data from the table: "fish"
   """
@@ -4129,9 +4607,46 @@ type query_root {
   """fetch data from the table: "fish" using primary key columns"""
   fish_by_pk(id: uuid!): fish
 
-  """
-  fetch data from the table: "fish_monologues"
-  """
+  """An array relationship"""
+  fish_favorites(
+    """distinct select on columns"""
+    distinct_on: [fish_favorites_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_favorites_order_by!]
+
+    """filter the rows returned"""
+    where: fish_favorites_bool_exp
+  ): [fish_favorites!]!
+
+  """An aggregate relationship"""
+  fish_favorites_aggregate(
+    """distinct select on columns"""
+    distinct_on: [fish_favorites_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_favorites_order_by!]
+
+    """filter the rows returned"""
+    where: fish_favorites_bool_exp
+  ): fish_favorites_aggregate!
+
+  """fetch data from the table: "fish_favorites" using primary key columns"""
+  fish_favorites_by_pk(id: uuid!): fish_favorites
+
+  """An array relationship"""
   fish_monologues(
     """distinct select on columns"""
     distinct_on: [fish_monologues_select_column!]
@@ -4149,9 +4664,7 @@ type query_root {
     where: fish_monologues_bool_exp
   ): [fish_monologues!]!
 
-  """
-  fetch aggregated fields from the table: "fish_monologues"
-  """
+  """An aggregate relationship"""
   fish_monologues_aggregate(
     """distinct select on columns"""
     distinct_on: [fish_monologues_select_column!]
@@ -4216,52 +4729,6 @@ type query_root {
   fetch data from the table: "fish_personalities" using primary key columns
   """
   fish_personalities_by_pk(id: uuid!): fish_personalities
-
-  """
-  fetch data from the table: "fish_test"
-  """
-  fish_test(
-    """distinct select on columns"""
-    distinct_on: [fish_test_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [fish_test_order_by!]
-
-    """filter the rows returned"""
-    where: fish_test_bool_exp
-  ): [fish_test!]!
-
-  """
-  fetch aggregated fields from the table: "fish_test"
-  """
-  fish_test_aggregate(
-    """distinct select on columns"""
-    distinct_on: [fish_test_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [fish_test_order_by!]
-
-    """filter the rows returned"""
-    where: fish_test_bool_exp
-  ): fish_test_aggregate!
-
-  """fetch data from the table: "fish_test" using primary key columns"""
-  fish_test_by_pk(
-    """鱼的唯一标识符 (UUID)"""
-    id: uuid!
-  ): fish_test
 
   """
   fetch data from the table: "global_params"
@@ -4353,6 +4820,131 @@ type query_root {
   group_chat_by_pk(id: uuid!): group_chat
 
   """
+  fetch data from the table: "member_types"
+  """
+  member_types(
+    """distinct select on columns"""
+    distinct_on: [member_types_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [member_types_order_by!]
+
+    """filter the rows returned"""
+    where: member_types_bool_exp
+  ): [member_types!]!
+
+  """
+  fetch aggregated fields from the table: "member_types"
+  """
+  member_types_aggregate(
+    """distinct select on columns"""
+    distinct_on: [member_types_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [member_types_order_by!]
+
+    """filter the rows returned"""
+    where: member_types_bool_exp
+  ): member_types_aggregate!
+
+  """fetch data from the table: "member_types" using primary key columns"""
+  member_types_by_pk(
+    """会员类型标识：free, plus, premium"""
+    id: String!
+  ): member_types
+
+  """An array relationship"""
+  messages(
+    """distinct select on columns"""
+    distinct_on: [messages_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [messages_order_by!]
+
+    """filter the rows returned"""
+    where: messages_bool_exp
+  ): [messages!]!
+
+  """An aggregate relationship"""
+  messages_aggregate(
+    """distinct select on columns"""
+    distinct_on: [messages_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [messages_order_by!]
+
+    """filter the rows returned"""
+    where: messages_bool_exp
+  ): messages_aggregate!
+
+  """fetch data from the table: "messages" using primary key columns"""
+  messages_by_pk(id: uuid!): messages
+
+  """
+  fetch data from the table: "public_messages_view"
+  """
+  public_messages_view(
+    """distinct select on columns"""
+    distinct_on: [public_messages_view_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [public_messages_view_order_by!]
+
+    """filter the rows returned"""
+    where: public_messages_view_bool_exp
+  ): [public_messages_view!]!
+
+  """
+  fetch aggregated fields from the table: "public_messages_view"
+  """
+  public_messages_view_aggregate(
+    """distinct select on columns"""
+    distinct_on: [public_messages_view_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [public_messages_view_order_by!]
+
+    """filter the rows returned"""
+    where: public_messages_view_bool_exp
+  ): public_messages_view_aggregate!
+
+  """
   fetch data from the table: "recent_chat_sessions"
   """
   recent_chat_sessions(
@@ -4431,52 +5023,7 @@ type query_root {
   """fetch data from the table: "reports" using primary key columns"""
   reports_by_pk(id: uuid!): reports
 
-  """
-  fetch data from the table: "user_economy"
-  """
-  user_economy(
-    """distinct select on columns"""
-    distinct_on: [user_economy_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [user_economy_order_by!]
-
-    """filter the rows returned"""
-    where: user_economy_bool_exp
-  ): [user_economy!]!
-
-  """
-  fetch aggregated fields from the table: "user_economy"
-  """
-  user_economy_aggregate(
-    """distinct select on columns"""
-    distinct_on: [user_economy_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [user_economy_order_by!]
-
-    """filter the rows returned"""
-    where: user_economy_bool_exp
-  ): user_economy_aggregate!
-
-  """fetch data from the table: "user_economy" using primary key columns"""
-  user_economy_by_pk(user_id: String!): user_economy
-
-  """
-  fetch data from the table: "user_subscriptions"
-  """
+  """An array relationship"""
   user_subscriptions(
     """distinct select on columns"""
     distinct_on: [user_subscriptions_select_column!]
@@ -4494,9 +5041,7 @@ type query_root {
     where: user_subscriptions_bool_exp
   ): [user_subscriptions!]!
 
-  """
-  fetch aggregated fields from the table: "user_subscriptions"
-  """
+  """An aggregate relationship"""
   user_subscriptions_aggregate(
     """distinct select on columns"""
     distinct_on: [user_subscriptions_select_column!]
@@ -4517,7 +5062,47 @@ type query_root {
   """
   fetch data from the table: "user_subscriptions" using primary key columns
   """
-  user_subscriptions_by_pk(user_id: String!): user_subscriptions
+  user_subscriptions_by_pk(id: Int!): user_subscriptions
+
+  """
+  fetch data from the table: "user_visible_messages_view"
+  """
+  user_visible_messages_view(
+    """distinct select on columns"""
+    distinct_on: [user_visible_messages_view_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_visible_messages_view_order_by!]
+
+    """filter the rows returned"""
+    where: user_visible_messages_view_bool_exp
+  ): [user_visible_messages_view!]!
+
+  """
+  fetch aggregated fields from the table: "user_visible_messages_view"
+  """
+  user_visible_messages_view_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_visible_messages_view_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_visible_messages_view_order_by!]
+
+    """filter the rows returned"""
+    where: user_visible_messages_view_bool_exp
+  ): user_visible_messages_view_aggregate!
 
   """
   fetch data from the table: "users"
@@ -5195,63 +5780,6 @@ input reports_updates {
 
 type subscription_root {
   """
-  fetch data from the table: "economy_log"
-  """
-  economy_log(
-    """distinct select on columns"""
-    distinct_on: [economy_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [economy_log_order_by!]
-
-    """filter the rows returned"""
-    where: economy_log_bool_exp
-  ): [economy_log!]!
-
-  """
-  fetch aggregated fields from the table: "economy_log"
-  """
-  economy_log_aggregate(
-    """distinct select on columns"""
-    distinct_on: [economy_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [economy_log_order_by!]
-
-    """filter the rows returned"""
-    where: economy_log_bool_exp
-  ): economy_log_aggregate!
-
-  """fetch data from the table: "economy_log" using primary key columns"""
-  economy_log_by_pk(id: uuid!): economy_log
-
-  """
-  fetch data from the table in a streaming manner: "economy_log"
-  """
-  economy_log_stream(
-    """maximum number of rows returned in a single batch"""
-    batch_size: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [economy_log_stream_cursor_input]!
-
-    """filter the rows returned"""
-    where: economy_log_bool_exp
-  ): [economy_log!]!
-
-  """
   fetch data from the table: "fish"
   """
   fish(
@@ -5294,9 +5822,60 @@ type subscription_root {
   """fetch data from the table: "fish" using primary key columns"""
   fish_by_pk(id: uuid!): fish
 
+  """An array relationship"""
+  fish_favorites(
+    """distinct select on columns"""
+    distinct_on: [fish_favorites_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_favorites_order_by!]
+
+    """filter the rows returned"""
+    where: fish_favorites_bool_exp
+  ): [fish_favorites!]!
+
+  """An aggregate relationship"""
+  fish_favorites_aggregate(
+    """distinct select on columns"""
+    distinct_on: [fish_favorites_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [fish_favorites_order_by!]
+
+    """filter the rows returned"""
+    where: fish_favorites_bool_exp
+  ): fish_favorites_aggregate!
+
+  """fetch data from the table: "fish_favorites" using primary key columns"""
+  fish_favorites_by_pk(id: uuid!): fish_favorites
+
   """
-  fetch data from the table: "fish_monologues"
+  fetch data from the table in a streaming manner: "fish_favorites"
   """
+  fish_favorites_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [fish_favorites_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: fish_favorites_bool_exp
+  ): [fish_favorites!]!
+
+  """An array relationship"""
   fish_monologues(
     """distinct select on columns"""
     distinct_on: [fish_monologues_select_column!]
@@ -5314,9 +5893,7 @@ type subscription_root {
     where: fish_monologues_bool_exp
   ): [fish_monologues!]!
 
-  """
-  fetch aggregated fields from the table: "fish_monologues"
-  """
+  """An aggregate relationship"""
   fish_monologues_aggregate(
     """distinct select on columns"""
     distinct_on: [fish_monologues_select_column!]
@@ -5423,66 +6000,6 @@ type subscription_root {
     """filter the rows returned"""
     where: fish_bool_exp
   ): [fish!]!
-
-  """
-  fetch data from the table: "fish_test"
-  """
-  fish_test(
-    """distinct select on columns"""
-    distinct_on: [fish_test_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [fish_test_order_by!]
-
-    """filter the rows returned"""
-    where: fish_test_bool_exp
-  ): [fish_test!]!
-
-  """
-  fetch aggregated fields from the table: "fish_test"
-  """
-  fish_test_aggregate(
-    """distinct select on columns"""
-    distinct_on: [fish_test_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [fish_test_order_by!]
-
-    """filter the rows returned"""
-    where: fish_test_bool_exp
-  ): fish_test_aggregate!
-
-  """fetch data from the table: "fish_test" using primary key columns"""
-  fish_test_by_pk(
-    """鱼的唯一标识符 (UUID)"""
-    id: uuid!
-  ): fish_test
-
-  """
-  fetch data from the table in a streaming manner: "fish_test"
-  """
-  fish_test_stream(
-    """maximum number of rows returned in a single batch"""
-    batch_size: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [fish_test_stream_cursor_input]!
-
-    """filter the rows returned"""
-    where: fish_test_bool_exp
-  ): [fish_test!]!
 
   """
   fetch data from the table: "global_params"
@@ -5602,6 +6119,173 @@ type subscription_root {
   ): [group_chat!]!
 
   """
+  fetch data from the table: "member_types"
+  """
+  member_types(
+    """distinct select on columns"""
+    distinct_on: [member_types_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [member_types_order_by!]
+
+    """filter the rows returned"""
+    where: member_types_bool_exp
+  ): [member_types!]!
+
+  """
+  fetch aggregated fields from the table: "member_types"
+  """
+  member_types_aggregate(
+    """distinct select on columns"""
+    distinct_on: [member_types_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [member_types_order_by!]
+
+    """filter the rows returned"""
+    where: member_types_bool_exp
+  ): member_types_aggregate!
+
+  """fetch data from the table: "member_types" using primary key columns"""
+  member_types_by_pk(
+    """会员类型标识：free, plus, premium"""
+    id: String!
+  ): member_types
+
+  """
+  fetch data from the table in a streaming manner: "member_types"
+  """
+  member_types_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [member_types_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: member_types_bool_exp
+  ): [member_types!]!
+
+  """An array relationship"""
+  messages(
+    """distinct select on columns"""
+    distinct_on: [messages_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [messages_order_by!]
+
+    """filter the rows returned"""
+    where: messages_bool_exp
+  ): [messages!]!
+
+  """An aggregate relationship"""
+  messages_aggregate(
+    """distinct select on columns"""
+    distinct_on: [messages_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [messages_order_by!]
+
+    """filter the rows returned"""
+    where: messages_bool_exp
+  ): messages_aggregate!
+
+  """fetch data from the table: "messages" using primary key columns"""
+  messages_by_pk(id: uuid!): messages
+
+  """
+  fetch data from the table in a streaming manner: "messages"
+  """
+  messages_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [messages_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: messages_bool_exp
+  ): [messages!]!
+
+  """
+  fetch data from the table: "public_messages_view"
+  """
+  public_messages_view(
+    """distinct select on columns"""
+    distinct_on: [public_messages_view_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [public_messages_view_order_by!]
+
+    """filter the rows returned"""
+    where: public_messages_view_bool_exp
+  ): [public_messages_view!]!
+
+  """
+  fetch aggregated fields from the table: "public_messages_view"
+  """
+  public_messages_view_aggregate(
+    """distinct select on columns"""
+    distinct_on: [public_messages_view_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [public_messages_view_order_by!]
+
+    """filter the rows returned"""
+    where: public_messages_view_bool_exp
+  ): public_messages_view_aggregate!
+
+  """
+  fetch data from the table in a streaming manner: "public_messages_view"
+  """
+  public_messages_view_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [public_messages_view_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: public_messages_view_bool_exp
+  ): [public_messages_view!]!
+
+  """
   fetch data from the table: "recent_chat_sessions"
   """
   recent_chat_sessions(
@@ -5708,66 +6392,7 @@ type subscription_root {
     where: reports_bool_exp
   ): [reports!]!
 
-  """
-  fetch data from the table: "user_economy"
-  """
-  user_economy(
-    """distinct select on columns"""
-    distinct_on: [user_economy_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [user_economy_order_by!]
-
-    """filter the rows returned"""
-    where: user_economy_bool_exp
-  ): [user_economy!]!
-
-  """
-  fetch aggregated fields from the table: "user_economy"
-  """
-  user_economy_aggregate(
-    """distinct select on columns"""
-    distinct_on: [user_economy_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [user_economy_order_by!]
-
-    """filter the rows returned"""
-    where: user_economy_bool_exp
-  ): user_economy_aggregate!
-
-  """fetch data from the table: "user_economy" using primary key columns"""
-  user_economy_by_pk(user_id: String!): user_economy
-
-  """
-  fetch data from the table in a streaming manner: "user_economy"
-  """
-  user_economy_stream(
-    """maximum number of rows returned in a single batch"""
-    batch_size: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [user_economy_stream_cursor_input]!
-
-    """filter the rows returned"""
-    where: user_economy_bool_exp
-  ): [user_economy!]!
-
-  """
-  fetch data from the table: "user_subscriptions"
-  """
+  """An array relationship"""
   user_subscriptions(
     """distinct select on columns"""
     distinct_on: [user_subscriptions_select_column!]
@@ -5785,9 +6410,7 @@ type subscription_root {
     where: user_subscriptions_bool_exp
   ): [user_subscriptions!]!
 
-  """
-  fetch aggregated fields from the table: "user_subscriptions"
-  """
+  """An aggregate relationship"""
   user_subscriptions_aggregate(
     """distinct select on columns"""
     distinct_on: [user_subscriptions_select_column!]
@@ -5808,7 +6431,7 @@ type subscription_root {
   """
   fetch data from the table: "user_subscriptions" using primary key columns
   """
-  user_subscriptions_by_pk(user_id: String!): user_subscriptions
+  user_subscriptions_by_pk(id: Int!): user_subscriptions
 
   """
   fetch data from the table in a streaming manner: "user_subscriptions"
@@ -5823,6 +6446,60 @@ type subscription_root {
     """filter the rows returned"""
     where: user_subscriptions_bool_exp
   ): [user_subscriptions!]!
+
+  """
+  fetch data from the table: "user_visible_messages_view"
+  """
+  user_visible_messages_view(
+    """distinct select on columns"""
+    distinct_on: [user_visible_messages_view_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_visible_messages_view_order_by!]
+
+    """filter the rows returned"""
+    where: user_visible_messages_view_bool_exp
+  ): [user_visible_messages_view!]!
+
+  """
+  fetch aggregated fields from the table: "user_visible_messages_view"
+  """
+  user_visible_messages_view_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_visible_messages_view_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_visible_messages_view_order_by!]
+
+    """filter the rows returned"""
+    where: user_visible_messages_view_bool_exp
+  ): user_visible_messages_view_aggregate!
+
+  """
+  fetch data from the table in a streaming manner: "user_visible_messages_view"
+  """
+  user_visible_messages_view_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [user_visible_messages_view_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: user_visible_messages_view_bool_exp
+  ): [user_visible_messages_view!]!
 
   """
   fetch data from the table: "users"
@@ -5970,306 +6647,6 @@ input timestamptz_comparison_exp {
 }
 
 """
-columns and relationships of "user_economy"
-"""
-type user_economy {
-  created_at: timestamp
-  fish_food: Int!
-  last_daily_bonus: timestamp
-  total_earned: Int
-  total_spent: Int
-
-  """An object relationship"""
-  user: users!
-  user_id: String!
-}
-
-"""
-aggregated selection of "user_economy"
-"""
-type user_economy_aggregate {
-  aggregate: user_economy_aggregate_fields
-  nodes: [user_economy!]!
-}
-
-"""
-aggregate fields of "user_economy"
-"""
-type user_economy_aggregate_fields {
-  avg: user_economy_avg_fields
-  count(columns: [user_economy_select_column!], distinct: Boolean): Int!
-  max: user_economy_max_fields
-  min: user_economy_min_fields
-  stddev: user_economy_stddev_fields
-  stddev_pop: user_economy_stddev_pop_fields
-  stddev_samp: user_economy_stddev_samp_fields
-  sum: user_economy_sum_fields
-  var_pop: user_economy_var_pop_fields
-  var_samp: user_economy_var_samp_fields
-  variance: user_economy_variance_fields
-}
-
-"""aggregate avg on columns"""
-type user_economy_avg_fields {
-  fish_food: Float
-  total_earned: Float
-  total_spent: Float
-}
-
-"""
-Boolean expression to filter rows from the table "user_economy". All fields are combined with a logical 'AND'.
-"""
-input user_economy_bool_exp {
-  _and: [user_economy_bool_exp!]
-  _not: user_economy_bool_exp
-  _or: [user_economy_bool_exp!]
-  created_at: timestamp_comparison_exp
-  fish_food: Int_comparison_exp
-  last_daily_bonus: timestamp_comparison_exp
-  total_earned: Int_comparison_exp
-  total_spent: Int_comparison_exp
-  user: users_bool_exp
-  user_id: String_comparison_exp
-}
-
-"""
-unique or primary key constraints on table "user_economy"
-"""
-enum user_economy_constraint {
-  """
-  unique or primary key constraint on columns "user_id"
-  """
-  user_economy_pkey
-}
-
-"""
-input type for incrementing numeric columns in table "user_economy"
-"""
-input user_economy_inc_input {
-  fish_food: Int
-  total_earned: Int
-  total_spent: Int
-}
-
-"""
-input type for inserting data into table "user_economy"
-"""
-input user_economy_insert_input {
-  created_at: timestamp
-  fish_food: Int
-  last_daily_bonus: timestamp
-  total_earned: Int
-  total_spent: Int
-  user: users_obj_rel_insert_input
-  user_id: String
-}
-
-"""aggregate max on columns"""
-type user_economy_max_fields {
-  created_at: timestamp
-  fish_food: Int
-  last_daily_bonus: timestamp
-  total_earned: Int
-  total_spent: Int
-  user_id: String
-}
-
-"""aggregate min on columns"""
-type user_economy_min_fields {
-  created_at: timestamp
-  fish_food: Int
-  last_daily_bonus: timestamp
-  total_earned: Int
-  total_spent: Int
-  user_id: String
-}
-
-"""
-response of any mutation on the table "user_economy"
-"""
-type user_economy_mutation_response {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [user_economy!]!
-}
-
-"""
-input type for inserting object relation for remote table "user_economy"
-"""
-input user_economy_obj_rel_insert_input {
-  data: user_economy_insert_input!
-
-  """upsert condition"""
-  on_conflict: user_economy_on_conflict
-}
-
-"""
-on_conflict condition type for table "user_economy"
-"""
-input user_economy_on_conflict {
-  constraint: user_economy_constraint!
-  update_columns: [user_economy_update_column!]! = []
-  where: user_economy_bool_exp
-}
-
-"""Ordering options when selecting data from "user_economy"."""
-input user_economy_order_by {
-  created_at: order_by
-  fish_food: order_by
-  last_daily_bonus: order_by
-  total_earned: order_by
-  total_spent: order_by
-  user: users_order_by
-  user_id: order_by
-}
-
-"""primary key columns input for table: user_economy"""
-input user_economy_pk_columns_input {
-  user_id: String!
-}
-
-"""
-select columns of table "user_economy"
-"""
-enum user_economy_select_column {
-  """column name"""
-  created_at
-
-  """column name"""
-  fish_food
-
-  """column name"""
-  last_daily_bonus
-
-  """column name"""
-  total_earned
-
-  """column name"""
-  total_spent
-
-  """column name"""
-  user_id
-}
-
-"""
-input type for updating data in table "user_economy"
-"""
-input user_economy_set_input {
-  created_at: timestamp
-  fish_food: Int
-  last_daily_bonus: timestamp
-  total_earned: Int
-  total_spent: Int
-  user_id: String
-}
-
-"""aggregate stddev on columns"""
-type user_economy_stddev_fields {
-  fish_food: Float
-  total_earned: Float
-  total_spent: Float
-}
-
-"""aggregate stddev_pop on columns"""
-type user_economy_stddev_pop_fields {
-  fish_food: Float
-  total_earned: Float
-  total_spent: Float
-}
-
-"""aggregate stddev_samp on columns"""
-type user_economy_stddev_samp_fields {
-  fish_food: Float
-  total_earned: Float
-  total_spent: Float
-}
-
-"""
-Streaming cursor of the table "user_economy"
-"""
-input user_economy_stream_cursor_input {
-  """Stream column input with initial value"""
-  initial_value: user_economy_stream_cursor_value_input!
-
-  """cursor ordering"""
-  ordering: cursor_ordering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input user_economy_stream_cursor_value_input {
-  created_at: timestamp
-  fish_food: Int
-  last_daily_bonus: timestamp
-  total_earned: Int
-  total_spent: Int
-  user_id: String
-}
-
-"""aggregate sum on columns"""
-type user_economy_sum_fields {
-  fish_food: Int
-  total_earned: Int
-  total_spent: Int
-}
-
-"""
-update columns of table "user_economy"
-"""
-enum user_economy_update_column {
-  """column name"""
-  created_at
-
-  """column name"""
-  fish_food
-
-  """column name"""
-  last_daily_bonus
-
-  """column name"""
-  total_earned
-
-  """column name"""
-  total_spent
-
-  """column name"""
-  user_id
-}
-
-input user_economy_updates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: user_economy_inc_input
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: user_economy_set_input
-
-  """filter the rows which have to be updated"""
-  where: user_economy_bool_exp!
-}
-
-"""aggregate var_pop on columns"""
-type user_economy_var_pop_fields {
-  fish_food: Float
-  total_earned: Float
-  total_spent: Float
-}
-
-"""aggregate var_samp on columns"""
-type user_economy_var_samp_fields {
-  fish_food: Float
-  total_earned: Float
-  total_spent: Float
-}
-
-"""aggregate variance on columns"""
-type user_economy_variance_fields {
-  fish_food: Float
-  total_earned: Float
-  total_spent: Float
-}
-
-"""
 columns and relationships of "user_subscriptions"
 """
 type user_subscriptions {
@@ -6277,7 +6654,11 @@ type user_subscriptions {
   created_at: timestamp
   current_period_end: timestamp
   current_period_start: timestamp
+  id: Int!
   is_active: Boolean
+
+  """An object relationship"""
+  member_type: member_types!
   plan: String!
   stripe_customer_id: String
   stripe_subscription_id: String
@@ -6296,13 +6677,87 @@ type user_subscriptions_aggregate {
   nodes: [user_subscriptions!]!
 }
 
+input user_subscriptions_aggregate_bool_exp {
+  bool_and: user_subscriptions_aggregate_bool_exp_bool_and
+  bool_or: user_subscriptions_aggregate_bool_exp_bool_or
+  count: user_subscriptions_aggregate_bool_exp_count
+}
+
+input user_subscriptions_aggregate_bool_exp_bool_and {
+  arguments: user_subscriptions_select_column_user_subscriptions_aggregate_bool_exp_bool_and_arguments_columns!
+  distinct: Boolean
+  filter: user_subscriptions_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input user_subscriptions_aggregate_bool_exp_bool_or {
+  arguments: user_subscriptions_select_column_user_subscriptions_aggregate_bool_exp_bool_or_arguments_columns!
+  distinct: Boolean
+  filter: user_subscriptions_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input user_subscriptions_aggregate_bool_exp_count {
+  arguments: [user_subscriptions_select_column!]
+  distinct: Boolean
+  filter: user_subscriptions_bool_exp
+  predicate: Int_comparison_exp!
+}
+
 """
 aggregate fields of "user_subscriptions"
 """
 type user_subscriptions_aggregate_fields {
+  avg: user_subscriptions_avg_fields
   count(columns: [user_subscriptions_select_column!], distinct: Boolean): Int!
   max: user_subscriptions_max_fields
   min: user_subscriptions_min_fields
+  stddev: user_subscriptions_stddev_fields
+  stddev_pop: user_subscriptions_stddev_pop_fields
+  stddev_samp: user_subscriptions_stddev_samp_fields
+  sum: user_subscriptions_sum_fields
+  var_pop: user_subscriptions_var_pop_fields
+  var_samp: user_subscriptions_var_samp_fields
+  variance: user_subscriptions_variance_fields
+}
+
+"""
+order by aggregate values of table "user_subscriptions"
+"""
+input user_subscriptions_aggregate_order_by {
+  avg: user_subscriptions_avg_order_by
+  count: order_by
+  max: user_subscriptions_max_order_by
+  min: user_subscriptions_min_order_by
+  stddev: user_subscriptions_stddev_order_by
+  stddev_pop: user_subscriptions_stddev_pop_order_by
+  stddev_samp: user_subscriptions_stddev_samp_order_by
+  sum: user_subscriptions_sum_order_by
+  var_pop: user_subscriptions_var_pop_order_by
+  var_samp: user_subscriptions_var_samp_order_by
+  variance: user_subscriptions_variance_order_by
+}
+
+"""
+input type for inserting array relation for remote table "user_subscriptions"
+"""
+input user_subscriptions_arr_rel_insert_input {
+  data: [user_subscriptions_insert_input!]!
+
+  """upsert condition"""
+  on_conflict: user_subscriptions_on_conflict
+}
+
+"""aggregate avg on columns"""
+type user_subscriptions_avg_fields {
+  id: Float
+}
+
+"""
+order by avg() on columns of table "user_subscriptions"
+"""
+input user_subscriptions_avg_order_by {
+  id: order_by
 }
 
 """
@@ -6316,7 +6771,9 @@ input user_subscriptions_bool_exp {
   created_at: timestamp_comparison_exp
   current_period_end: timestamp_comparison_exp
   current_period_start: timestamp_comparison_exp
+  id: Int_comparison_exp
   is_active: Boolean_comparison_exp
+  member_type: member_types_bool_exp
   plan: String_comparison_exp
   stripe_customer_id: String_comparison_exp
   stripe_subscription_id: String_comparison_exp
@@ -6330,9 +6787,16 @@ unique or primary key constraints on table "user_subscriptions"
 """
 enum user_subscriptions_constraint {
   """
-  unique or primary key constraint on columns "user_id"
+  unique or primary key constraint on columns "id"
   """
   user_subscriptions_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "user_subscriptions"
+"""
+input user_subscriptions_inc_input {
+  id: Int
 }
 
 """
@@ -6343,7 +6807,9 @@ input user_subscriptions_insert_input {
   created_at: timestamp
   current_period_end: timestamp
   current_period_start: timestamp
+  id: Int
   is_active: Boolean
+  member_type: member_types_obj_rel_insert_input
   plan: String
   stripe_customer_id: String
   stripe_subscription_id: String
@@ -6357,6 +6823,7 @@ type user_subscriptions_max_fields {
   created_at: timestamp
   current_period_end: timestamp
   current_period_start: timestamp
+  id: Int
   plan: String
   stripe_customer_id: String
   stripe_subscription_id: String
@@ -6364,16 +6831,47 @@ type user_subscriptions_max_fields {
   user_id: String
 }
 
+"""
+order by max() on columns of table "user_subscriptions"
+"""
+input user_subscriptions_max_order_by {
+  created_at: order_by
+  current_period_end: order_by
+  current_period_start: order_by
+  id: order_by
+  plan: order_by
+  stripe_customer_id: order_by
+  stripe_subscription_id: order_by
+  updated_at: order_by
+  user_id: order_by
+}
+
 """aggregate min on columns"""
 type user_subscriptions_min_fields {
   created_at: timestamp
   current_period_end: timestamp
   current_period_start: timestamp
+  id: Int
   plan: String
   stripe_customer_id: String
   stripe_subscription_id: String
   updated_at: timestamp
   user_id: String
+}
+
+"""
+order by min() on columns of table "user_subscriptions"
+"""
+input user_subscriptions_min_order_by {
+  created_at: order_by
+  current_period_end: order_by
+  current_period_start: order_by
+  id: order_by
+  plan: order_by
+  stripe_customer_id: order_by
+  stripe_subscription_id: order_by
+  updated_at: order_by
+  user_id: order_by
 }
 
 """
@@ -6412,7 +6910,9 @@ input user_subscriptions_order_by {
   created_at: order_by
   current_period_end: order_by
   current_period_start: order_by
+  id: order_by
   is_active: order_by
+  member_type: member_types_order_by
   plan: order_by
   stripe_customer_id: order_by
   stripe_subscription_id: order_by
@@ -6423,7 +6923,7 @@ input user_subscriptions_order_by {
 
 """primary key columns input for table: user_subscriptions"""
 input user_subscriptions_pk_columns_input {
-  user_id: String!
+  id: Int!
 }
 
 """
@@ -6441,6 +6941,9 @@ enum user_subscriptions_select_column {
 
   """column name"""
   current_period_start
+
+  """column name"""
+  id
 
   """column name"""
   is_active
@@ -6462,6 +6965,28 @@ enum user_subscriptions_select_column {
 }
 
 """
+select "user_subscriptions_aggregate_bool_exp_bool_and_arguments_columns" columns of table "user_subscriptions"
+"""
+enum user_subscriptions_select_column_user_subscriptions_aggregate_bool_exp_bool_and_arguments_columns {
+  """column name"""
+  cancel_at_period_end
+
+  """column name"""
+  is_active
+}
+
+"""
+select "user_subscriptions_aggregate_bool_exp_bool_or_arguments_columns" columns of table "user_subscriptions"
+"""
+enum user_subscriptions_select_column_user_subscriptions_aggregate_bool_exp_bool_or_arguments_columns {
+  """column name"""
+  cancel_at_period_end
+
+  """column name"""
+  is_active
+}
+
+"""
 input type for updating data in table "user_subscriptions"
 """
 input user_subscriptions_set_input {
@@ -6469,12 +6994,49 @@ input user_subscriptions_set_input {
   created_at: timestamp
   current_period_end: timestamp
   current_period_start: timestamp
+  id: Int
   is_active: Boolean
   plan: String
   stripe_customer_id: String
   stripe_subscription_id: String
   updated_at: timestamp
   user_id: String
+}
+
+"""aggregate stddev on columns"""
+type user_subscriptions_stddev_fields {
+  id: Float
+}
+
+"""
+order by stddev() on columns of table "user_subscriptions"
+"""
+input user_subscriptions_stddev_order_by {
+  id: order_by
+}
+
+"""aggregate stddev_pop on columns"""
+type user_subscriptions_stddev_pop_fields {
+  id: Float
+}
+
+"""
+order by stddev_pop() on columns of table "user_subscriptions"
+"""
+input user_subscriptions_stddev_pop_order_by {
+  id: order_by
+}
+
+"""aggregate stddev_samp on columns"""
+type user_subscriptions_stddev_samp_fields {
+  id: Float
+}
+
+"""
+order by stddev_samp() on columns of table "user_subscriptions"
+"""
+input user_subscriptions_stddev_samp_order_by {
+  id: order_by
 }
 
 """
@@ -6494,12 +7056,25 @@ input user_subscriptions_stream_cursor_value_input {
   created_at: timestamp
   current_period_end: timestamp
   current_period_start: timestamp
+  id: Int
   is_active: Boolean
   plan: String
   stripe_customer_id: String
   stripe_subscription_id: String
   updated_at: timestamp
   user_id: String
+}
+
+"""aggregate sum on columns"""
+type user_subscriptions_sum_fields {
+  id: Int
+}
+
+"""
+order by sum() on columns of table "user_subscriptions"
+"""
+input user_subscriptions_sum_order_by {
+  id: order_by
 }
 
 """
@@ -6517,6 +7092,9 @@ enum user_subscriptions_update_column {
 
   """column name"""
   current_period_start
+
+  """column name"""
+  id
 
   """column name"""
   is_active
@@ -6538,11 +7116,235 @@ enum user_subscriptions_update_column {
 }
 
 input user_subscriptions_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: user_subscriptions_inc_input
+
   """sets the columns of the filtered rows to the given values"""
   _set: user_subscriptions_set_input
 
   """filter the rows which have to be updated"""
   where: user_subscriptions_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type user_subscriptions_var_pop_fields {
+  id: Float
+}
+
+"""
+order by var_pop() on columns of table "user_subscriptions"
+"""
+input user_subscriptions_var_pop_order_by {
+  id: order_by
+}
+
+"""aggregate var_samp on columns"""
+type user_subscriptions_var_samp_fields {
+  id: Float
+}
+
+"""
+order by var_samp() on columns of table "user_subscriptions"
+"""
+input user_subscriptions_var_samp_order_by {
+  id: order_by
+}
+
+"""aggregate variance on columns"""
+type user_subscriptions_variance_fields {
+  id: Float
+}
+
+"""
+order by variance() on columns of table "user_subscriptions"
+"""
+input user_subscriptions_variance_order_by {
+  id: order_by
+}
+
+"""
+columns and relationships of "user_visible_messages_view"
+"""
+type user_visible_messages_view {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+"""
+aggregated selection of "user_visible_messages_view"
+"""
+type user_visible_messages_view_aggregate {
+  aggregate: user_visible_messages_view_aggregate_fields
+  nodes: [user_visible_messages_view!]!
+}
+
+"""
+aggregate fields of "user_visible_messages_view"
+"""
+type user_visible_messages_view_aggregate_fields {
+  count(columns: [user_visible_messages_view_select_column!], distinct: Boolean): Int!
+  max: user_visible_messages_view_max_fields
+  min: user_visible_messages_view_min_fields
+}
+
+"""
+Boolean expression to filter rows from the table "user_visible_messages_view". All fields are combined with a logical 'AND'.
+"""
+input user_visible_messages_view_bool_exp {
+  _and: [user_visible_messages_view_bool_exp!]
+  _not: user_visible_messages_view_bool_exp
+  _or: [user_visible_messages_view_bool_exp!]
+  content: String_comparison_exp
+  created_at: timestamp_comparison_exp
+  fish_id: uuid_comparison_exp
+  id: uuid_comparison_exp
+  message_type: String_comparison_exp
+  receiver_id: String_comparison_exp
+  sender_id: String_comparison_exp
+  visibility: String_comparison_exp
+}
+
+"""
+input type for inserting data into table "user_visible_messages_view"
+"""
+input user_visible_messages_view_insert_input {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+"""aggregate max on columns"""
+type user_visible_messages_view_max_fields {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+"""aggregate min on columns"""
+type user_visible_messages_view_min_fields {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+"""
+response of any mutation on the table "user_visible_messages_view"
+"""
+type user_visible_messages_view_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [user_visible_messages_view!]!
+}
+
+"""
+Ordering options when selecting data from "user_visible_messages_view".
+"""
+input user_visible_messages_view_order_by {
+  content: order_by
+  created_at: order_by
+  fish_id: order_by
+  id: order_by
+  message_type: order_by
+  receiver_id: order_by
+  sender_id: order_by
+  visibility: order_by
+}
+
+"""
+select columns of table "user_visible_messages_view"
+"""
+enum user_visible_messages_view_select_column {
+  """column name"""
+  content
+
+  """column name"""
+  created_at
+
+  """column name"""
+  fish_id
+
+  """column name"""
+  id
+
+  """column name"""
+  message_type
+
+  """column name"""
+  receiver_id
+
+  """column name"""
+  sender_id
+
+  """column name"""
+  visibility
+}
+
+"""
+input type for updating data in table "user_visible_messages_view"
+"""
+input user_visible_messages_view_set_input {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+"""
+Streaming cursor of the table "user_visible_messages_view"
+"""
+input user_visible_messages_view_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: user_visible_messages_view_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input user_visible_messages_view_stream_cursor_value_input {
+  content: String
+  created_at: timestamp
+  fish_id: uuid
+  id: uuid
+  message_type: String
+  receiver_id: String
+  sender_id: String
+  visibility: String
+}
+
+input user_visible_messages_view_updates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: user_visible_messages_view_set_input
+
+  """filter the rows which have to be updated"""
+  where: user_visible_messages_view_bool_exp!
 }
 
 """
@@ -6554,42 +7356,6 @@ type users {
   banned_until: timestamp
   created_at: timestamp
   display_name: String
-
-  """An array relationship"""
-  economy_logs(
-    """distinct select on columns"""
-    distinct_on: [economy_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [economy_log_order_by!]
-
-    """filter the rows returned"""
-    where: economy_log_bool_exp
-  ): [economy_log!]!
-
-  """An aggregate relationship"""
-  economy_logs_aggregate(
-    """distinct select on columns"""
-    distinct_on: [economy_log_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [economy_log_order_by!]
-
-    """filter the rows returned"""
-    where: economy_log_bool_exp
-  ): economy_log_aggregate!
   email: String!
 
   """主人信息描述 - 用于鱼聊天时了解主人背景"""
@@ -6638,6 +7404,78 @@ type users {
   last_active: timestamp
 
   """An array relationship"""
+  messages(
+    """distinct select on columns"""
+    distinct_on: [messages_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [messages_order_by!]
+
+    """filter the rows returned"""
+    where: messages_bool_exp
+  ): [messages!]!
+
+  """An array relationship"""
+  messagesBySenderId(
+    """distinct select on columns"""
+    distinct_on: [messages_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [messages_order_by!]
+
+    """filter the rows returned"""
+    where: messages_bool_exp
+  ): [messages!]!
+
+  """An aggregate relationship"""
+  messagesBySenderId_aggregate(
+    """distinct select on columns"""
+    distinct_on: [messages_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [messages_order_by!]
+
+    """filter the rows returned"""
+    where: messages_bool_exp
+  ): messages_aggregate!
+
+  """An aggregate relationship"""
+  messages_aggregate(
+    """distinct select on columns"""
+    distinct_on: [messages_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [messages_order_by!]
+
+    """filter the rows returned"""
+    where: messages_bool_exp
+  ): messages_aggregate!
+
+  """An array relationship"""
   reports(
     """distinct select on columns"""
     distinct_on: [reports_select_column!]
@@ -6676,9 +7514,6 @@ type users {
   total_fish_created: Int
   total_votes_received: Int
   updated_at: timestamp
-
-  """An object relationship"""
-  user_economy: user_economy
   user_level: Int
 
   """An object relationship"""
@@ -6766,8 +7601,6 @@ input users_bool_exp {
   banned_until: timestamp_comparison_exp
   created_at: timestamp_comparison_exp
   display_name: String_comparison_exp
-  economy_logs: economy_log_bool_exp
-  economy_logs_aggregate: economy_log_aggregate_bool_exp
   email: String_comparison_exp
   feeder_info: String_comparison_exp
   feeder_name: String_comparison_exp
@@ -6776,13 +7609,16 @@ input users_bool_exp {
   id: String_comparison_exp
   is_banned: Boolean_comparison_exp
   last_active: timestamp_comparison_exp
+  messages: messages_bool_exp
+  messagesBySenderId: messages_bool_exp
+  messagesBySenderId_aggregate: messages_aggregate_bool_exp
+  messages_aggregate: messages_aggregate_bool_exp
   reports: reports_bool_exp
   reports_aggregate: reports_aggregate_bool_exp
   reputation_score: Int_comparison_exp
   total_fish_created: Int_comparison_exp
   total_votes_received: Int_comparison_exp
   updated_at: timestamp_comparison_exp
-  user_economy: user_economy_bool_exp
   user_level: Int_comparison_exp
   user_subscription: user_subscriptions_bool_exp
   votes: votes_bool_exp
@@ -6823,7 +7659,6 @@ input users_insert_input {
   banned_until: timestamp
   created_at: timestamp
   display_name: String
-  economy_logs: economy_log_arr_rel_insert_input
   email: String
 
   """主人信息描述 - 用于鱼聊天时了解主人背景"""
@@ -6835,12 +7670,13 @@ input users_insert_input {
   id: String
   is_banned: Boolean
   last_active: timestamp
+  messages: messages_arr_rel_insert_input
+  messagesBySenderId: messages_arr_rel_insert_input
   reports: reports_arr_rel_insert_input
   reputation_score: Int
   total_fish_created: Int
   total_votes_received: Int
   updated_at: timestamp
-  user_economy: user_economy_obj_rel_insert_input
   user_level: Int
   user_subscription: user_subscriptions_obj_rel_insert_input
   votes: votes_arr_rel_insert_input
@@ -6929,7 +7765,6 @@ input users_order_by {
   banned_until: order_by
   created_at: order_by
   display_name: order_by
-  economy_logs_aggregate: economy_log_aggregate_order_by
   email: order_by
   feeder_info: order_by
   feeder_name: order_by
@@ -6937,12 +7772,13 @@ input users_order_by {
   id: order_by
   is_banned: order_by
   last_active: order_by
+  messagesBySenderId_aggregate: messages_aggregate_order_by
+  messages_aggregate: messages_aggregate_order_by
   reports_aggregate: reports_aggregate_order_by
   reputation_score: order_by
   total_fish_created: order_by
   total_votes_received: order_by
   updated_at: order_by
-  user_economy: user_economy_order_by
   user_level: order_by
   user_subscription: user_subscriptions_order_by
   votes_aggregate: votes_aggregate_order_by

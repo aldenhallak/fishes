@@ -38,11 +38,11 @@ module.exports = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取表信息失败:', error);
+    console.error('Failed to get table info:', error);
     return res.status(500).json({
       success: false,
-      error: '获取表信息失败',
-      details: error.message || '未知错误'
+      error: 'Failed to get table info',
+      details: error.message || 'Unknown error'
     });
   }
 };

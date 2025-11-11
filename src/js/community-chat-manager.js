@@ -30,6 +30,12 @@ class CommunityChatManager {
     // Group chat enabled state (can be overridden by user)
     this.groupChatEnabled = false;
     
+    // Monologue (self-talk) enabled state (can be overridden by user)
+    this.monologueEnabled = false;
+    
+    // Group chat interval time in minutes (will be updated from API)
+    this.groupChatIntervalMinutes = 5; // Default 5 minutes
+    
     // Statistics
     this.stats = {
       sessionsPlayed: 0,
@@ -44,10 +50,13 @@ class CommunityChatManager {
     this.isPaused = false;
     this.checkInterval = null;
     
-    // Configuration for cost control
-    this.maxInactiveTime = 15 * 60 * 1000; // 15 minutes in milliseconds
-    this.maxRunTime = 60 * 60 * 1000; // 1 hour in milliseconds
+    // Configuration for cost control (will be updated from API)
+    this.maxInactiveTime = 15 * 60 * 1000; // 15 minutes in milliseconds (default)
+    this.maxRunTime = 60 * 60 * 1000; // 60 minutes in milliseconds (default)
     this.checkIntervalMs = 60 * 1000; // 60 seconds
+    
+    // Cost saving feature enabled state (controlled by CHAT_COST_SAVING env var)
+    this.costSavingEnabled = true; // Default to enabled for safety
     
     console.log('CommunityChatManager initialized');
   }
@@ -114,6 +123,17 @@ class CommunityChatManager {
    */
   async generateChatSession() {
     try {
+      // Get current tank fish IDs (only fish that are actually in the tank)
+      const currentTankFishIds = this.fishes
+        .filter(f => f.id || f.docId)
+        .map(f => f.id || f.docId)
+        .filter(id => id !== null);
+      
+      if (currentTankFishIds.length < 2) {
+        console.error('Not enough fish in tank for chat (need at least 2)');
+        return null;
+      }
+      
       const participants = this.selectParticipants();
       
       if (participants.length < 2) {
@@ -124,15 +144,19 @@ class CommunityChatManager {
       const topic = this.selectTopic();
       
       console.log(`Generating chat session: "${topic}" with ${participants.length} fish`);
+      console.log('Participants:', participants.map(p => ({ id: p.id, name: p.fishName })));
+      console.log('Current tank fish IDs:', currentTankFishIds.length);
       
       // Call backend API for group chat (using Coze AI)
+      // Pass current tank fish IDs to ensure only fish in the tank are selected
       const response = await fetch('/api/fish/chat/group', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prompt: `Generate a "${topic}" conversation`
+          prompt: `Generate a "${topic}" conversation`,
+          tankFishIds: currentTankFishIds // Pass current tank fish IDs
         })
       });
       
@@ -151,13 +175,31 @@ class CommunityChatManager {
         topic: data.topic
       });
       
-      // Map dialogues to expected format
-      const dialogues = (data.dialogues || []).map((d, index) => ({
-        fishId: d.fishId,
-        fishName: d.fishName,
-        message: d.message,
-        sequence: d.sequence || index + 1
-      }));
+      // Map dialogues to expected format and verify fish exist
+      const dialogues = (data.dialogues || []).map((d, index) => {
+        // Try to find the fish in current tank to verify it exists
+        const fishInTank = this.fishes.find(f => {
+          const fishName1 = (f.fishName || '').trim().toLowerCase();
+          const fishName2 = (f.fish_name || '').trim().toLowerCase();
+          const searchName = (d.fishName || '').trim().toLowerCase();
+          return fishName1 === searchName || fishName2 === searchName ||
+                 f.id === d.fishId || f.docId === d.fishId;
+        });
+        
+        if (!fishInTank) {
+          console.warn(`⚠️ Dialogue fish not in current tank: ${d.fishName || d.fishId}`, {
+            dialogue: d,
+            availableFishes: this.fishes.length
+          });
+        }
+        
+        return {
+          fishId: d.fishId,
+          fishName: d.fishName,
+          message: d.message,
+          sequence: d.sequence || index + 1
+        };
+      });
       
       return {
         sessionId: data.sessionId,
@@ -248,17 +290,57 @@ class CommunityChatManager {
     const dialogue = this.messageQueue[this.playbackIndex];
     this.playbackIndex++;
     
-    // Find the fish by name (fallback) or ID
-    const fish = dialogue.fishId 
-      ? this.fishes.find(f => f.id === dialogue.fishId)
-      : this.fishes.find(f => f.fishName === dialogue.fishName);
+    // Find the fish by ID (try multiple ID fields) or name
+    let fish = null;
+    if (dialogue.fishId) {
+      // Try multiple ID field names
+      fish = this.fishes.find(f => 
+        f.id === dialogue.fishId || 
+        f.docId === dialogue.fishId ||
+        f.fish_id === dialogue.fishId
+      );
+    }
+    
+    // Fallback to name matching (case-insensitive, trim whitespace)
+    if (!fish && dialogue.fishName) {
+      const searchName = dialogue.fishName.trim();
+      fish = this.fishes.find(f => {
+        const fishName1 = (f.fishName || '').trim();
+        const fishName2 = (f.fish_name || '').trim();
+        return fishName1.toLowerCase() === searchName.toLowerCase() || 
+               fishName2.toLowerCase() === searchName.toLowerCase();
+      });
+    }
     
     if (!fish) {
-      console.warn(`Fish not found for dialogue: ${dialogue.fishName}`);
+      // Enhanced debugging: show available fish names
+      const availableNames = this.fishes
+        .map(f => f.fishName || f.fish_name || f.id || 'unnamed')
+        .filter(name => name !== 'unnamed' && name !== null)
+        .slice(0, 10); // Show first 10 for debugging
+      
+      console.warn(`Fish not found for dialogue: ${dialogue.fishName || dialogue.fishId}`, {
+        searchName: dialogue.fishName,
+        searchId: dialogue.fishId,
+        totalFishes: this.fishes.length,
+        availableNames: availableNames,
+        dialogue: dialogue
+      });
       return;
     }
     
-    console.log(`[${this.playbackIndex}/${this.messageQueue.length}] ${fish.fishName}: ${dialogue.message}`);
+    // Ensure fish has row assigned
+    if (fish.rowIndex === undefined && this.layoutManager && this.layoutManager.assignFishToRows) {
+      this.layoutManager.assignFishToRows([fish]);
+    }
+    
+    // Check if fish has row assigned
+    if (fish.rowIndex === undefined) {
+      console.warn(`Fish has no assigned row: ${fish.fishName || fish.id}`);
+      return;
+    }
+    
+    console.log(`[${this.playbackIndex}/${this.messageQueue.length}] ${fish.fishName || 'Unknown'}: ${dialogue.message}`);
     
     // Display dialogue through layout manager
     const success = this.layoutManager.showDialogue(fish, dialogue.message, this.timeBetweenMessages - 1000);
@@ -335,7 +417,7 @@ class CommunityChatManager {
    * Schedule periodic auto-chats
    * @param {number} intervalMinutes - Interval between chats in minutes
    */
-  scheduleAutoChats(intervalMinutes = 5) {
+  scheduleAutoChats(intervalMinutes = null) {
     // Clear existing interval if any
     if (this.autoChatInterval) {
       clearInterval(this.autoChatInterval);
@@ -347,21 +429,24 @@ class CommunityChatManager {
       return;
     }
     
-    console.log(`Scheduling auto-chats every ${intervalMinutes} minutes`);
+    // Use provided interval or fall back to configured interval
+    const actualInterval = intervalMinutes !== null ? intervalMinutes : this.groupChatIntervalMinutes;
+    
+    console.log(`Scheduling auto-chats every ${actualInterval} minutes`);
     
     // Start first chat after 10 seconds
     setTimeout(() => {
-      if (this.groupChatEnabled && !this.isPlaying) {
+      if (this.groupChatEnabled && !this.isPlaying && !this.shouldPauseGeneration()) {
         this.startAutoChatSession();
       }
     }, 10000);
     
     // Schedule periodic chats
     this.autoChatInterval = setInterval(() => {
-      if (this.groupChatEnabled && !this.isPlaying) {
+      if (this.groupChatEnabled && !this.isPlaying && !this.shouldPauseGeneration()) {
         this.startAutoChatSession();
       }
-    }, intervalMinutes * 60 * 1000);
+    }, actualInterval * 60 * 1000);
   }
   
   /**
@@ -400,10 +485,12 @@ class CommunityChatManager {
         throw new Error(data.error || 'Failed to generate monologue');
       }
       
-      console.log(`✅ Monologue generated for ${data.fish?.fishName}: ${data.message?.substring(0, 50)}...`);
+      // Use selectedFish from frontend, not data.fish from API (which may not match)
+      const fishName = selectedFish.fishName || data.fish?.fishName || 'Unknown';
+      console.log(`✅ Monologue generated for ${fishName}: ${data.message?.substring(0, 50)}...`);
       
       return {
-        fish: selectedFish,
+        fish: selectedFish, // Use the fish we selected, not API response
         message: data.message,
         logId: data.logId
       };
@@ -418,26 +505,45 @@ class CommunityChatManager {
    * Display a monologue for a fish
    */
   async displayMonologue() {
-    // Check if group chat is enabled before displaying
-    if (!this.groupChatEnabled) {
+    // Check if monologue is enabled before displaying
+    if (!this.monologueEnabled) {
+      return;
+    }
+    
+    // Check if generation should be paused
+    if (this.shouldPauseGeneration()) {
+      console.log('⏸️ Skipping monologue (generation paused)');
       return;
     }
     
     const monologue = await this.generateMonologue();
     
-    if (!monologue) {
+    if (!monologue || !monologue.fish) {
+      return;
+    }
+    
+    const fish = monologue.fish;
+    
+    // Ensure fish has row assigned
+    if (fish.rowIndex === undefined && this.layoutManager && this.layoutManager.assignFishToRows) {
+      this.layoutManager.assignFishToRows([fish]);
+    }
+    
+    // Check if fish has row assigned
+    if (fish.rowIndex === undefined) {
+      console.warn(`Fish has no assigned row for monologue: ${fish.fishName || fish.id}`);
       return;
     }
     
     // Display the monologue
     const success = this.layoutManager.showDialogue(
-      monologue.fish, 
+      fish, 
       monologue.message, 
       8000 // 8 seconds display time for monologue
     );
     
     if (success) {
-      console.log(`💬 [Monologue] ${monologue.fish.fishName}: ${monologue.message}`);
+      console.log(`💬 [Monologue] ${fish.fishName || 'Unknown'}: ${monologue.message}`);
     }
   }
   
@@ -452,8 +558,8 @@ class CommunityChatManager {
       this.monologueInterval = null;
     }
     
-    if (!this.groupChatEnabled) {
-      console.log('Group chat is disabled, skipping monologue scheduling');
+    if (!this.monologueEnabled) {
+      console.log('Monologue is disabled, skipping monologue scheduling');
       return;
     }
     
@@ -461,21 +567,21 @@ class CommunityChatManager {
     
     // Start first monologue after 20 seconds
     setTimeout(() => {
-      if (this.groupChatEnabled) {
+      if (this.monologueEnabled && !this.shouldPauseGeneration()) {
         this.displayMonologue();
       }
     }, 20000);
     
     // Schedule periodic monologues
     this.monologueInterval = setInterval(() => {
-      if (this.groupChatEnabled) {
+      if (this.monologueEnabled && !this.shouldPauseGeneration()) {
         this.displayMonologue();
       }
     }, intervalSeconds * 1000);
   }
   
   /**
-   * Enable group chat functionality (including monologues)
+   * Enable group chat functionality
    */
   enableGroupChat() {
     if (this.groupChatEnabled) {
@@ -483,17 +589,37 @@ class CommunityChatManager {
     }
     
     this.groupChatEnabled = true;
-    console.log('✅ Group chat and monologues enabled');
+    this.resetStartTime(); // Reset timer when enabled
+    console.log('✅ Group chat enabled');
     
     // Restart scheduling if manager was initialized
     if (this.layoutManager) {
-      this.scheduleAutoChats(5);
-      this.scheduleMonologues(15);
+      this.scheduleAutoChats(this.groupChatIntervalMinutes);
+      this.startPeriodicCheck(); // Start periodic check
     }
   }
   
   /**
-   * Disable group chat functionality (including monologues)
+   * Enable monologue functionality
+   */
+  enableMonologue() {
+    if (this.monologueEnabled) {
+      return; // Already enabled
+    }
+    
+    this.monologueEnabled = true;
+    this.resetStartTime(); // Reset timer when enabled
+    console.log('✅ Monologue enabled');
+    
+    // Restart scheduling if manager was initialized
+    if (this.layoutManager) {
+      this.scheduleMonologues(15);
+      this.startPeriodicCheck(); // Start periodic check
+    }
+  }
+  
+  /**
+   * Disable group chat functionality
    */
   disableGroupChat() {
     if (!this.groupChatEnabled) {
@@ -501,7 +627,7 @@ class CommunityChatManager {
     }
     
     this.groupChatEnabled = false;
-    console.log('❌ Group chat and monologues disabled');
+    console.log('❌ Group chat disabled');
     
     // Stop current session
     this.stopSession();
@@ -517,10 +643,53 @@ class CommunityChatManager {
       this.autoChatInterval = null;
     }
     
+    // Stop periodic check if both are disabled
+    if (!this.monologueEnabled) {
+      this.stopPeriodicCheck();
+    }
+  }
+  
+  /**
+   * Disable monologue functionality
+   */
+  disableMonologue() {
+    if (!this.monologueEnabled) {
+      return; // Already disabled
+    }
+    
+    this.monologueEnabled = false;
+    console.log('❌ Monologue disabled');
+    
+    // Clear monologue interval
     if (this.monologueInterval) {
       clearInterval(this.monologueInterval);
       this.monologueInterval = null;
     }
+    
+    // Stop periodic check if both are disabled
+    if (!this.groupChatEnabled) {
+      this.stopPeriodicCheck();
+    }
+  }
+  
+  /**
+   * Set monologue enabled state
+   * @param {boolean} enabled - Whether to enable monologue
+   */
+  setMonologueEnabled(enabled) {
+    if (enabled) {
+      this.enableMonologue();
+    } else {
+      this.disableMonologue();
+    }
+  }
+  
+  /**
+   * Check if monologue is enabled
+   * @returns {boolean} - Whether monologue is enabled
+   */
+  isMonologueEnabled() {
+    return this.monologueEnabled;
   }
   
   /**
@@ -547,8 +716,8 @@ class CommunityChatManager {
    * Check if page is currently visible
    * @returns {boolean} - Whether page is visible
    */
-  isPageVisible() {
-    return !document.hidden && this.isPageVisible === true;
+  checkPageVisible() {
+    return !document.hidden && this.isPageVisible;
   }
   
   /**
@@ -576,13 +745,18 @@ class CommunityChatManager {
    * @returns {boolean} - Whether generation should be paused
    */
   shouldPauseGeneration() {
-    // If group chat is disabled, always pause
-    if (!this.groupChatEnabled) {
+    // If cost saving is disabled, never pause (allow continuous generation)
+    if (!this.costSavingEnabled) {
+      return false;
+    }
+    
+    // If both group chat and monologue are disabled, always pause
+    if (!this.groupChatEnabled && !this.monologueEnabled) {
       return true;
     }
     
     // Pause if page is not visible
-    if (!this.isPageVisible()) {
+    if (!this.checkPageVisible()) {
       return true;
     }
     
@@ -603,6 +777,11 @@ class CommunityChatManager {
    * Pause generation to prevent cost
    */
   pauseGeneration() {
+    // If cost saving is disabled, don't pause
+    if (!this.costSavingEnabled) {
+      return;
+    }
+    
     if (this.isPaused) {
       return; // Already paused
     }
@@ -638,9 +817,11 @@ class CommunityChatManager {
     this.isPaused = false;
     console.log('▶️ Resuming chat generation');
     
-    // Restart scheduling if group chat is enabled
+    // Restart scheduling based on enabled features
     if (this.groupChatEnabled) {
-      this.scheduleAutoChats(5);
+      this.scheduleAutoChats(this.groupChatIntervalMinutes);
+    }
+    if (this.monologueEnabled) {
       this.scheduleMonologues(15);
     }
   }
@@ -650,7 +831,12 @@ class CommunityChatManager {
    * @param {boolean} visible - Whether page is visible
    */
   setPageVisible(visible) {
-    const wasVisible = this.isPageVisible;
+    // Only track visibility if cost saving is enabled
+    if (!this.costSavingEnabled) {
+      return;
+    }
+    
+    const wasVisible = this.checkPageVisible();
     this.isPageVisible = visible;
     
     if (wasVisible !== visible) {
@@ -668,6 +854,11 @@ class CommunityChatManager {
    * Update user activity timestamp
    */
   updateUserActivity() {
+    // Only track activity if cost saving is enabled
+    if (!this.costSavingEnabled) {
+      return;
+    }
+    
     const wasActive = this.isUserActive();
     this.lastActivityTime = Date.now();
     
@@ -683,6 +874,108 @@ class CommunityChatManager {
   resetStartTime() {
     this.startTime = Date.now();
     console.log('🔄 Reset run time counter');
+  }
+  
+  /**
+   * Start periodic check for pause/resume conditions
+   */
+  startPeriodicCheck() {
+    // Clear existing check interval if any
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval);
+      this.checkInterval = null;
+    }
+    
+    // Only start periodic check if cost saving is enabled
+    if (!this.costSavingEnabled) {
+      return;
+    }
+    
+    // Check every 60 seconds
+    this.checkInterval = setInterval(() => {
+      if (this.shouldPauseGeneration()) {
+        if (!this.isPaused) {
+          this.pauseGeneration();
+        }
+      } else {
+        if (this.isPaused) {
+          this.resumeGeneration();
+        }
+      }
+    }, this.checkIntervalMs);
+  }
+  
+  /**
+   * Set cost saving enabled state
+   * @param {boolean} enabled - Whether to enable cost saving
+   */
+  setCostSavingEnabled(enabled) {
+    this.costSavingEnabled = enabled;
+    console.log(`💰 Cost saving ${enabled ? 'enabled' : 'disabled'}`);
+    
+    // If disabling, resume any paused generation
+    if (!enabled && this.isPaused) {
+      this.isPaused = false;
+      console.log('▶️ Resuming generation (cost saving disabled)');
+      
+      // Restart scheduling based on enabled features
+      if (this.groupChatEnabled) {
+        this.scheduleAutoChats(this.groupChatIntervalMinutes);
+      }
+      if (this.monologueEnabled) {
+        this.scheduleMonologues(15);
+      }
+    }
+    
+    // If enabling, start periodic check
+    if (enabled && (this.groupChatEnabled || this.monologueEnabled)) {
+      this.startPeriodicCheck();
+    } else {
+      this.stopPeriodicCheck();
+    }
+  }
+  
+  /**
+   * Check if cost saving is enabled
+   * @returns {boolean} - Whether cost saving is enabled
+   */
+  isCostSavingEnabled() {
+    return this.costSavingEnabled;
+  }
+  
+  /**
+   * Update cost control time settings
+   * @param {number} maxInactiveTimeMinutes - Maximum inactive time in minutes
+   * @param {number} maxRunTimeMinutes - Maximum run time in minutes
+   */
+  updateCostControlTimes(maxInactiveTimeMinutes, maxRunTimeMinutes) {
+    this.maxInactiveTime = maxInactiveTimeMinutes * 60 * 1000; // Convert minutes to milliseconds
+    this.maxRunTime = maxRunTimeMinutes * 60 * 1000; // Convert minutes to milliseconds
+    console.log(`💰 Cost control times updated: inactive=${maxInactiveTimeMinutes}min, run=${maxRunTimeMinutes}min`);
+  }
+  
+  /**
+   * Set group chat interval time
+   * @param {number} intervalMinutes - Interval between group chats in minutes
+   */
+  setGroupChatInterval(intervalMinutes) {
+    this.groupChatIntervalMinutes = intervalMinutes;
+    console.log(`💬 Group chat interval set to ${intervalMinutes} minutes`);
+    
+    // If group chat is already enabled, restart scheduling with new interval
+    if (this.groupChatEnabled && this.layoutManager) {
+      this.scheduleAutoChats(intervalMinutes);
+    }
+  }
+  
+  /**
+   * Stop periodic check
+   */
+  stopPeriodicCheck() {
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval);
+      this.checkInterval = null;
+    }
   }
   
   /**

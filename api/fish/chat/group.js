@@ -13,11 +13,52 @@ const { getGlobalParamInt } = require('../../../lib/global-params');
 
 /**
  * Select random fish from tank with their information
+ * Only selects fish from users whose membership allows group chat
  * @param {number} count - Number of fish to select
+ * @param {Array} tankFishIds - Optional array of fish IDs that are currently in the tank
  * @returns {Promise<Array>} - Array of fish with owner info
  */
-async function selectRandomFish(count) {
-    const query = `
+async function selectRandomFish(count, tankFishIds = null) {
+    // If tankFishIds provided, only select from those fish
+    const useTankFilter = tankFishIds && Array.isArray(tankFishIds) && tankFishIds.length > 0;
+    
+    if (useTankFilter) {
+        console.log(`[Group Chat] Selecting from ${tankFishIds.length} fish in current tank`);
+    }
+    
+    const query = useTankFilter ? `
+        query GetRandomFish($limit: Int!, $fishIds: [uuid!]!) {
+            fish(
+                where: { 
+                    is_approved: { _eq: true },
+                    personality: { _is_null: false },
+                    id: { _in: $fishIds }
+                },
+                order_by: { created_at: desc },
+                limit: $limit
+            ) {
+                id
+                fish_name
+                personality
+                user {
+                    id
+                    feeder_name
+                    feeder_info
+                    user_subscriptions(
+                        where: { is_active: { _eq: true } }
+                        order_by: { created_at: desc }
+                        limit: 1
+                    ) {
+                        plan
+                    }
+                }
+            }
+            member_types {
+                id
+                can_group_chat
+            }
+        }
+    ` : `
         query GetRandomFish($limit: Int!) {
             fish(
                 where: { 
@@ -34,26 +75,77 @@ async function selectRandomFish(count) {
                     id
                     feeder_name
                     feeder_info
+                    user_subscriptions(
+                        where: { is_active: { _eq: true } }
+                        order_by: { created_at: desc }
+                        limit: 1
+                    ) {
+                        plan
+                    }
                 }
+            }
+            member_types {
+                id
+                can_group_chat
             }
         }
     `;
 
-    const result = await executeGraphQL(query, { limit: count * 3 }); // Get more than needed for randomization
+    const variables = { limit: count * 5 }; // Get more fish to account for filtering
+    if (useTankFilter) {
+        variables.fishIds = tankFishIds;
+    }
+
+    const result = await executeGraphQL(query, variables);
 
     if (result.errors) {
         throw new Error(`GraphQL Error: ${JSON.stringify(result.errors)}`);
     }
 
-    const fishes = result.data.fish || [];
+    const allFishes = result.data.fish || [];
+    const memberTypes = result.data.member_types || [];
 
-    if (fishes.length === 0) {
+    // Create member types map
+    const memberTypesMap = {};
+    memberTypes.forEach(mt => {
+        memberTypesMap[mt.id] = mt;
+    });
+
+    if (allFishes.length === 0) {
         throw new Error('No approved fish found in the tank');
     }
 
-    // Randomly select 'count' fish
-    const shuffled = fishes.sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, Math.min(count, fishes.length));
+    // Filter fish: only include fish from users whose membership allows group chat
+    const eligibleFishes = allFishes.filter(fish => {
+        // Get latest active subscription
+        const activeSubscription = fish.user && fish.user.user_subscriptions && fish.user.user_subscriptions.length > 0
+            ? fish.user.user_subscriptions[0]
+            : null;
+        
+        if (!activeSubscription) {
+            // No subscription = free tier
+            const freeType = memberTypesMap['free'];
+            return freeType ? freeType.can_group_chat : false;
+        }
+        
+        const plan = activeSubscription.plan || 'free';
+        const memberType = memberTypesMap[plan] || memberTypesMap['free'];
+        return memberType ? memberType.can_group_chat : false;
+    });
+
+    if (eligibleFishes.length === 0) {
+        throw new Error('NO_ELIGIBLE_FISH');
+    }
+
+    if (eligibleFishes.length < count) {
+        console.warn(`[Group Chat] Only ${eligibleFishes.length} eligible fish found, requested ${count}`);
+    }
+
+    // Randomly select 'count' fish from eligible ones
+    const shuffled = eligibleFishes.sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, Math.min(count, eligibleFishes.length));
+
+    console.log(`[Group Chat] Selected ${selected.length} eligible fish from ${eligibleFishes.length} eligible (${allFishes.length} total)`);
 
     // Transform to fish_array format
     return selected.map(fish => ({
@@ -366,9 +458,41 @@ module.exports = async (req, res) => {
         const participantCount = await getGlobalParamInt('fish_chat_participant_count', 5);
         console.log('[Group Chat] Participant count:', participantCount);
 
-        // Select random fish
-        const fishArray = await selectRandomFish(participantCount);
-        console.log('[Group Chat] Selected fish:', fishArray.map(f => f.fish_name));
+        // Get tank fish IDs from request body (if provided)
+        let tankFishIds = null;
+        if (req.method === 'POST') {
+            // Parse request body if it's a string (Vercel may not auto-parse)
+            let body = req.body;
+            if (typeof body === 'string') {
+                try {
+                    body = JSON.parse(body);
+                } catch (e) {
+                    console.warn('[Group Chat] Failed to parse request body:', e);
+                }
+            }
+            
+            if (body && body.tankFishIds && Array.isArray(body.tankFishIds) && body.tankFishIds.length > 0) {
+                tankFishIds = body.tankFishIds;
+                console.log('[Group Chat] Using provided tank fish IDs:', tankFishIds.length);
+            }
+        }
+
+        // Select random fish (only from current tank if tankFishIds provided)
+        let fishArray;
+        try {
+            fishArray = await selectRandomFish(participantCount, tankFishIds);
+            console.log('[Group Chat] Selected fish:', fishArray.map(f => f.fish_name));
+        } catch (error) {
+            if (error.message === 'NO_ELIGIBLE_FISH') {
+                return res.status(403).json({
+                    success: false,
+                    error: 'No eligible fish for group chat',
+                    message: 'No eligible fish found for group chat. Only Plus or Premium members\' fish can participate in group chat.',
+                    upgradeSuggestion: 'Upgrade to Plus or Premium membership to enable fish group chat'
+                });
+            }
+            throw error; // Re-throw other errors
+        }
 
         // Generate chat using Coze
         const chatResult = await generateGroupChat(fishArray);

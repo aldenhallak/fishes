@@ -56,26 +56,27 @@
       });
     });
 
-    // 处理分享按钮
+    // 处理分享按钮 - 调用和鱼缸页一样的分享弹窗
     if (sidebarShareBtn) {
       sidebarShareBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        // 触发分享功能（如果存在）
-        if (typeof window.sharePage === 'function') {
-          window.sharePage();
-        } else if (typeof window.openShareModal === 'function') {
-          window.openShareModal();
+        // 关闭侧边栏
+        closeSidebar();
+        // 调用分享弹窗（和鱼缸页一样）
+        if (window.socialShare && typeof window.socialShare.showShareModal === 'function') {
+          window.socialShare.showShareModal();
         } else {
-          // 尝试使用 navigator.share API
+          // 如果socialShare未加载，尝试使用原生分享API
           if (navigator.share) {
             navigator.share({
               title: document.title,
               text: 'Check out FishTalk.app!',
               url: window.location.href
             }).catch(err => console.log('Error sharing', err));
+          } else {
+            console.warn('Share functionality not available');
           }
         }
-        closeSidebar();
       });
     }
 

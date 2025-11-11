@@ -15,6 +15,7 @@ const tableDisplayNames = {
   'fishtanks': '鱼缸表',
   'fishtank_fish': '鱼缸-鱼关联表',
   'fishtank_views': '鱼缸浏览记录',
+  'member_types': '会员类型表',
 };
 
 // 字段名到中文名的映射
@@ -52,6 +53,13 @@ const fieldDisplayNames = {
   'added_at': '添加时间',
   'viewed_at': '浏览时间',
   'viewer_ip': '浏览者IP',
+  // member_types 表字段
+  'can_group_chat': '可参与群聊',
+  'can_promote_owner': '可宣传主人',
+  'can_self_talk': '可自语',
+  'lead_topic_frequency': '主导话题频率',
+  'max_fish_count': '最大鱼数量',
+  'promote_owner_frequency': '宣传主人频率',
 };
 
 // 危险表列表
@@ -90,6 +98,7 @@ const tablePermissionsConfig = {
   'economy_log': { update: false, delete: false },
   'battle_log': { update: false, delete: false },
   'battle_config': { update: true, delete: false },
+  'member_types': { update: true, delete: false },
 };
 
 function getTableDisplayName(tableName) {
