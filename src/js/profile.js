@@ -17,10 +17,11 @@ async function getUserProfileFromHasura(userId) {
                     user_language
                     user_subscriptions(
                         order_by: { created_at: desc }
-                        limit: 1
+                        limit: 5
                     ) {
                         plan
                         is_active
+                        created_at
                         member_type {
                             id
                             name
@@ -75,28 +76,50 @@ async function getUserProfileFromHasura(userId) {
         const favoriteCount = result.data.fish_favorites_aggregate?.aggregate?.count || 0;
         
         // Get membership info
-        // First try to get active subscription, if not found, get the latest one
+        // Get all subscriptions and find the active one or latest one
         const subscriptions = user.user_subscriptions || [];
         
+        // Debug: 输出所有订阅信息
+        console.log('🔍 All subscriptions:', subscriptions.map(sub => ({
+            plan: sub.plan,
+            is_active: sub.is_active,
+            created_at: sub.created_at,
+            member_type_id: sub.member_type?.id,
+            member_type_name: sub.member_type?.name
+        })));
+        
         // Find active subscription (is_active = true or null)
+        // Also check if plan is not 'free'
         let activeSubscription = subscriptions.find(sub => 
-            sub.is_active === true || sub.is_active === null
+            (sub.is_active === true || sub.is_active === null) && 
+            sub.plan && 
+            sub.plan.toLowerCase() !== 'free'
         );
         
-        // If no active subscription found, use the latest one (already sorted by created_at desc)
+        // If no active non-free subscription, try to find any active subscription
+        if (!activeSubscription) {
+            activeSubscription = subscriptions.find(sub => 
+                sub.is_active === true || sub.is_active === null
+            );
+        }
+        
+        // If still no active subscription found, use the latest one (already sorted by created_at desc)
         const latestSubscription = activeSubscription || (subscriptions.length > 0 ? subscriptions[0] : null);
         
         // Debug logging for subscription data
-        console.log('🔍 Subscription debug:', {
+        console.log('🔍 Subscription selection:', {
             userId: user.id,
             subscriptionsCount: subscriptions.length,
-            activeSubscription: activeSubscription,
-            latestSubscription: latestSubscription,
-            allSubscriptions: subscriptions.map(sub => ({
-                plan: sub.plan,
-                is_active: sub.is_active,
-                member_type_id: sub.member_type?.id
-            }))
+            activeSubscription: activeSubscription ? {
+                plan: activeSubscription.plan,
+                is_active: activeSubscription.is_active,
+                member_type_id: activeSubscription.member_type?.id
+            } : null,
+            latestSubscription: latestSubscription ? {
+                plan: latestSubscription.plan,
+                is_active: latestSubscription.is_active,
+                member_type_id: latestSubscription.member_type?.id
+            } : null
         });
         
         // Determine membership tier
@@ -105,13 +128,15 @@ async function getUserProfileFromHasura(userId) {
         let membershipName = 'Free';
         
         if (latestSubscription) {
-            // Use plan field if available
+            // Use plan field if available (most reliable)
             if (latestSubscription.plan) {
-                membershipTier = latestSubscription.plan.toLowerCase();
+                membershipTier = latestSubscription.plan.toLowerCase().trim();
+                console.log('✅ Using plan field for tier:', membershipTier);
             } 
             // Fallback to member_type.id
             else if (latestSubscription.member_type?.id) {
-                membershipTier = latestSubscription.member_type.id.toLowerCase();
+                membershipTier = latestSubscription.member_type.id.toLowerCase().trim();
+                console.log('✅ Using member_type.id for tier:', membershipTier);
             }
             
             // Get membership name
@@ -126,6 +151,8 @@ async function getUserProfileFromHasura(userId) {
                 };
                 membershipName = tierNames[membershipTier] || 'Free';
             }
+        } else {
+            console.log('⚠️ No subscription found, defaulting to free');
         }
         
         // Debug logging
@@ -263,20 +290,44 @@ function displayProfile(profile, searchedUserId = null) {
     const membershipTier = profile.membershipTier || 'free';
     const membershipName = profile.membershipName || (membershipTier === 'free' ? 'Free' : membershipTier === 'plus' ? 'Plus' : 'Premium');
     
+    // Debug: 输出会员等级信息
+    console.log('🎯 Displaying profile with membership:', {
+        membershipTier: membershipTier,
+        membershipName: membershipName,
+        profileData: profile
+    });
+    
     // Clear avatar and add membership icon
     const avatarElement = document.getElementById('profile-avatar');
+    if (!avatarElement) {
+        console.error('❌ profile-avatar element not found');
+        return;
+    }
+    
     avatarElement.innerHTML = '';
+    
     if (typeof createMembershipBadge === 'function') {
+        console.log('✅ Using createMembershipBadge for tier:', membershipTier);
         const membershipBadge = createMembershipBadge(membershipTier, { size: 'large' });
         avatarElement.appendChild(membershipBadge);
+        
+        // 验证图标是否正确创建
+        const img = membershipBadge.querySelector('img');
+        if (img) {
+            console.log('✅ Membership badge created with image:', img.src);
+        } else {
+            console.warn('⚠️ Membership badge created but no image found');
+        }
     } else {
         // Fallback to SVG icons if membership-icons.js is not loaded
+        console.log('⚠️ createMembershipBadge not available, using fallback for tier:', membershipTier);
         const svgMap = {
             'free': 'https://cdn.fishart.online/fishart_web/icon/free.svg',
             'plus': 'https://cdn.fishart.online/fishart_web/icon/plus.svg',
             'premium': 'https://cdn.fishart.online/fishart_web/icon/premium.svg'
         };
         const svgUrl = svgMap[membershipTier] || svgMap['free'];
+        console.log('📦 Using fallback SVG URL:', svgUrl);
         const img = document.createElement('img');
         img.src = svgUrl;
         img.alt = membershipName;

@@ -1,0 +1,30 @@
+-- ============================================
+-- 群聊功能 - 仅添加索引和关联（不添加外键约束）
+-- ============================================
+
+-- 步骤1: 添加索引以提高查询性能（可选，但推荐）
+CREATE INDEX IF NOT EXISTS idx_group_chat_initiator_user_id 
+ON group_chat(initiator_user_id);
+
+CREATE INDEX IF NOT EXISTS idx_group_chat_created_at 
+ON group_chat(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_group_chat_usage_query 
+ON group_chat(initiator_user_id, created_at);
+
+-- ============================================
+-- 验证索引是否创建成功
+-- ============================================
+
+-- 检查索引是否存在
+SELECT indexname, indexdef
+FROM pg_indexes
+WHERE tablename = 'group_chat'
+AND indexname LIKE '%initiator_user_id%';
+
+-- 统计当前群聊记录
+SELECT 
+    COUNT(*) as total_group_chats,
+    COUNT(initiator_user_id) as with_initiator_id,
+    COUNT(*) - COUNT(initiator_user_id) as without_initiator_id
+FROM group_chat;

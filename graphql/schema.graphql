@@ -1997,6 +1997,7 @@ type group_chat {
   """Auto-cleanup date (7 days from creation)"""
   expires_at: timestamp
   id: uuid!
+  initiator_user_id: String
 
   """Array of fish IDs that participated in this chat"""
   participant_fish_ids: [uuid!]!
@@ -2008,6 +2009,9 @@ type group_chat {
   Chat topic, e.g., "Morning Greetings", "Swimming Fun"
   """
   topic: String!
+
+  """An object relationship"""
+  user: users
 }
 
 """
@@ -2016,6 +2020,17 @@ aggregated selection of "group_chat"
 type group_chat_aggregate {
   aggregate: group_chat_aggregate_fields
   nodes: [group_chat!]!
+}
+
+input group_chat_aggregate_bool_exp {
+  count: group_chat_aggregate_bool_exp_count
+}
+
+input group_chat_aggregate_bool_exp_count {
+  arguments: [group_chat_select_column!]
+  distinct: Boolean
+  filter: group_chat_bool_exp
+  predicate: Int_comparison_exp!
 }
 
 """
@@ -2035,6 +2050,23 @@ type group_chat_aggregate_fields {
   variance: group_chat_variance_fields
 }
 
+"""
+order by aggregate values of table "group_chat"
+"""
+input group_chat_aggregate_order_by {
+  avg: group_chat_avg_order_by
+  count: order_by
+  max: group_chat_max_order_by
+  min: group_chat_min_order_by
+  stddev: group_chat_stddev_order_by
+  stddev_pop: group_chat_stddev_pop_order_by
+  stddev_samp: group_chat_stddev_samp_order_by
+  sum: group_chat_sum_order_by
+  var_pop: group_chat_var_pop_order_by
+  var_samp: group_chat_var_samp_order_by
+  variance: group_chat_variance_order_by
+}
+
 """append existing jsonb value of filtered columns with new jsonb value"""
 input group_chat_append_input {
   """
@@ -2043,10 +2075,28 @@ input group_chat_append_input {
   dialogues: jsonb
 }
 
+"""
+input type for inserting array relation for remote table "group_chat"
+"""
+input group_chat_arr_rel_insert_input {
+  data: [group_chat_insert_input!]!
+
+  """upsert condition"""
+  on_conflict: group_chat_on_conflict
+}
+
 """aggregate avg on columns"""
 type group_chat_avg_fields {
   """Total playback duration in seconds (messages × 6)"""
   display_duration: Float
+}
+
+"""
+order by avg() on columns of table "group_chat"
+"""
+input group_chat_avg_order_by {
+  """Total playback duration in seconds (messages × 6)"""
+  display_duration: order_by
 }
 
 """
@@ -2061,9 +2111,11 @@ input group_chat_bool_exp {
   display_duration: Int_comparison_exp
   expires_at: timestamp_comparison_exp
   id: uuid_comparison_exp
+  initiator_user_id: String_comparison_exp
   participant_fish_ids: uuid_array_comparison_exp
   time_of_day: String_comparison_exp
   topic: String_comparison_exp
+  user: users_bool_exp
 }
 
 """
@@ -2131,6 +2183,7 @@ input group_chat_insert_input {
   """Auto-cleanup date (7 days from creation)"""
   expires_at: timestamp
   id: uuid
+  initiator_user_id: String
 
   """Array of fish IDs that participated in this chat"""
   participant_fish_ids: [uuid!]
@@ -2142,6 +2195,7 @@ input group_chat_insert_input {
   Chat topic, e.g., "Morning Greetings", "Swimming Fun"
   """
   topic: String
+  user: users_obj_rel_insert_input
 }
 
 """aggregate max on columns"""
@@ -2154,6 +2208,7 @@ type group_chat_max_fields {
   """Auto-cleanup date (7 days from creation)"""
   expires_at: timestamp
   id: uuid
+  initiator_user_id: String
 
   """Array of fish IDs that participated in this chat"""
   participant_fish_ids: [uuid!]
@@ -2167,6 +2222,32 @@ type group_chat_max_fields {
   topic: String
 }
 
+"""
+order by max() on columns of table "group_chat"
+"""
+input group_chat_max_order_by {
+  created_at: order_by
+
+  """Total playback duration in seconds (messages × 6)"""
+  display_duration: order_by
+
+  """Auto-cleanup date (7 days from creation)"""
+  expires_at: order_by
+  id: order_by
+  initiator_user_id: order_by
+
+  """Array of fish IDs that participated in this chat"""
+  participant_fish_ids: order_by
+
+  """Time period: morning, afternoon, evening, night"""
+  time_of_day: order_by
+
+  """
+  Chat topic, e.g., "Morning Greetings", "Swimming Fun"
+  """
+  topic: order_by
+}
+
 """aggregate min on columns"""
 type group_chat_min_fields {
   created_at: timestamp
@@ -2177,6 +2258,7 @@ type group_chat_min_fields {
   """Auto-cleanup date (7 days from creation)"""
   expires_at: timestamp
   id: uuid
+  initiator_user_id: String
 
   """Array of fish IDs that participated in this chat"""
   participant_fish_ids: [uuid!]
@@ -2188,6 +2270,32 @@ type group_chat_min_fields {
   Chat topic, e.g., "Morning Greetings", "Swimming Fun"
   """
   topic: String
+}
+
+"""
+order by min() on columns of table "group_chat"
+"""
+input group_chat_min_order_by {
+  created_at: order_by
+
+  """Total playback duration in seconds (messages × 6)"""
+  display_duration: order_by
+
+  """Auto-cleanup date (7 days from creation)"""
+  expires_at: order_by
+  id: order_by
+  initiator_user_id: order_by
+
+  """Array of fish IDs that participated in this chat"""
+  participant_fish_ids: order_by
+
+  """Time period: morning, afternoon, evening, night"""
+  time_of_day: order_by
+
+  """
+  Chat topic, e.g., "Morning Greetings", "Swimming Fun"
+  """
+  topic: order_by
 }
 
 """
@@ -2217,9 +2325,11 @@ input group_chat_order_by {
   display_duration: order_by
   expires_at: order_by
   id: order_by
+  initiator_user_id: order_by
   participant_fish_ids: order_by
   time_of_day: order_by
   topic: order_by
+  user: users_order_by
 }
 
 """primary key columns input for table: group_chat"""
@@ -2255,6 +2365,9 @@ enum group_chat_select_column {
   id
 
   """column name"""
+  initiator_user_id
+
+  """column name"""
   participant_fish_ids
 
   """column name"""
@@ -2281,6 +2394,7 @@ input group_chat_set_input {
   """Auto-cleanup date (7 days from creation)"""
   expires_at: timestamp
   id: uuid
+  initiator_user_id: String
 
   """Array of fish IDs that participated in this chat"""
   participant_fish_ids: [uuid!]
@@ -2300,16 +2414,40 @@ type group_chat_stddev_fields {
   display_duration: Float
 }
 
+"""
+order by stddev() on columns of table "group_chat"
+"""
+input group_chat_stddev_order_by {
+  """Total playback duration in seconds (messages × 6)"""
+  display_duration: order_by
+}
+
 """aggregate stddev_pop on columns"""
 type group_chat_stddev_pop_fields {
   """Total playback duration in seconds (messages × 6)"""
   display_duration: Float
 }
 
+"""
+order by stddev_pop() on columns of table "group_chat"
+"""
+input group_chat_stddev_pop_order_by {
+  """Total playback duration in seconds (messages × 6)"""
+  display_duration: order_by
+}
+
 """aggregate stddev_samp on columns"""
 type group_chat_stddev_samp_fields {
   """Total playback duration in seconds (messages × 6)"""
   display_duration: Float
+}
+
+"""
+order by stddev_samp() on columns of table "group_chat"
+"""
+input group_chat_stddev_samp_order_by {
+  """Total playback duration in seconds (messages × 6)"""
+  display_duration: order_by
 }
 
 """
@@ -2338,6 +2476,7 @@ input group_chat_stream_cursor_value_input {
   """Auto-cleanup date (7 days from creation)"""
   expires_at: timestamp
   id: uuid
+  initiator_user_id: String
 
   """Array of fish IDs that participated in this chat"""
   participant_fish_ids: [uuid!]
@@ -2358,6 +2497,14 @@ type group_chat_sum_fields {
 }
 
 """
+order by sum() on columns of table "group_chat"
+"""
+input group_chat_sum_order_by {
+  """Total playback duration in seconds (messages × 6)"""
+  display_duration: order_by
+}
+
+"""
 update columns of table "group_chat"
 """
 enum group_chat_update_column {
@@ -2375,6 +2522,9 @@ enum group_chat_update_column {
 
   """column name"""
   id
+
+  """column name"""
+  initiator_user_id
 
   """column name"""
   participant_fish_ids
@@ -2424,16 +2574,40 @@ type group_chat_var_pop_fields {
   display_duration: Float
 }
 
+"""
+order by var_pop() on columns of table "group_chat"
+"""
+input group_chat_var_pop_order_by {
+  """Total playback duration in seconds (messages × 6)"""
+  display_duration: order_by
+}
+
 """aggregate var_samp on columns"""
 type group_chat_var_samp_fields {
   """Total playback duration in seconds (messages × 6)"""
   display_duration: Float
 }
 
+"""
+order by var_samp() on columns of table "group_chat"
+"""
+input group_chat_var_samp_order_by {
+  """Total playback duration in seconds (messages × 6)"""
+  display_duration: order_by
+}
+
 """aggregate variance on columns"""
 type group_chat_variance_fields {
   """Total playback duration in seconds (messages × 6)"""
   display_duration: Float
+}
+
+"""
+order by variance() on columns of table "group_chat"
+"""
+input group_chat_variance_order_by {
+  """Total playback duration in seconds (messages × 6)"""
+  display_duration: order_by
 }
 
 scalar jsonb
@@ -4860,9 +5034,7 @@ type query_root {
     key: String!
   ): global_params
 
-  """
-  fetch data from the table: "group_chat"
-  """
+  """An array relationship"""
   group_chat(
     """distinct select on columns"""
     distinct_on: [group_chat_select_column!]
@@ -4880,9 +5052,7 @@ type query_root {
     where: group_chat_bool_exp
   ): [group_chat!]!
 
-  """
-  fetch aggregated fields from the table: "group_chat"
-  """
+  """An aggregate relationship"""
   group_chat_aggregate(
     """distinct select on columns"""
     distinct_on: [group_chat_select_column!]
@@ -6145,9 +6315,7 @@ type subscription_root {
     where: global_params_bool_exp
   ): [global_params!]!
 
-  """
-  fetch data from the table: "group_chat"
-  """
+  """An array relationship"""
   group_chat(
     """distinct select on columns"""
     distinct_on: [group_chat_select_column!]
@@ -6165,9 +6333,7 @@ type subscription_root {
     where: group_chat_bool_exp
   ): [group_chat!]!
 
-  """
-  fetch aggregated fields from the table: "group_chat"
-  """
+  """An aggregate relationship"""
   group_chat_aggregate(
     """distinct select on columns"""
     distinct_on: [group_chat_select_column!]
@@ -7473,6 +7639,42 @@ type users {
     """filter the rows returned"""
     where: fish_bool_exp
   ): fish_aggregate!
+
+  """An array relationship"""
+  group_chat(
+    """distinct select on columns"""
+    distinct_on: [group_chat_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [group_chat_order_by!]
+
+    """filter the rows returned"""
+    where: group_chat_bool_exp
+  ): [group_chat!]!
+
+  """An aggregate relationship"""
+  group_chat_aggregate(
+    """distinct select on columns"""
+    distinct_on: [group_chat_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [group_chat_order_by!]
+
+    """filter the rows returned"""
+    where: group_chat_bool_exp
+  ): group_chat_aggregate!
   id: String!
   is_banned: Boolean
   last_active: timestamp
@@ -7716,6 +7918,8 @@ input users_bool_exp {
   feeder_name: String_comparison_exp
   fishes: fish_bool_exp
   fishes_aggregate: fish_aggregate_bool_exp
+  group_chat: group_chat_bool_exp
+  group_chat_aggregate: group_chat_aggregate_bool_exp
   id: String_comparison_exp
   is_banned: Boolean_comparison_exp
   last_active: timestamp_comparison_exp
@@ -7777,6 +7981,7 @@ input users_insert_input {
   """主人昵称 - 用于鱼聊天时提及主人"""
   feeder_name: String
   fishes: fish_arr_rel_insert_input
+  group_chat: group_chat_arr_rel_insert_input
   id: String
   is_banned: Boolean
   last_active: timestamp
@@ -7891,6 +8096,7 @@ input users_order_by {
   feeder_info: order_by
   feeder_name: order_by
   fishes_aggregate: fish_aggregate_order_by
+  group_chat_aggregate: group_chat_aggregate_order_by
   id: order_by
   is_banned: order_by
   last_active: order_by

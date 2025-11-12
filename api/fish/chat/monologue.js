@@ -14,11 +14,11 @@ const { canFishSelfTalk } = require('../../middleware/membership');
 
 /**
  * Select one random fish from the tank
- * Only selects fish from users whose membership allows self-talk
+ * All approved fish can participate in monologue (no membership restriction)
  * @returns {Promise<Object>} - Selected fish with user info
  */
 async function selectRandomFish() {
-    // First, get all fish with their user subscription info
+    // Get all approved fish with personality (no membership filtering)
     const query = `
         query GetRandomFish {
             fish(
@@ -33,20 +33,6 @@ async function selectRandomFish() {
                 fish_name
                 personality
                 user_id
-                user {
-                    id
-                    user_subscriptions(
-                        where: { is_active: { _eq: true } }
-                        order_by: { created_at: desc }
-                        limit: 1
-                    ) {
-                        plan
-                    }
-                }
-            }
-            member_types {
-                id
-                can_self_talk
             }
         }
     `;
@@ -58,46 +44,21 @@ async function selectRandomFish() {
     }
 
     const allFishes = result.data.fish || [];
-    const memberTypes = result.data.member_types || [];
-
-    // Create member types map
-    const memberTypesMap = {};
-    memberTypes.forEach(mt => {
-        memberTypesMap[mt.id] = mt;
-    });
 
     if (allFishes.length === 0) {
         throw new Error('No approved fish found in the tank');
     }
 
-    // Filter fish: only include fish from users whose membership allows self-talk
-    const eligibleFishes = allFishes.filter(fish => {
-        // Get latest active subscription
-        const activeSubscription = fish.user && fish.user.user_subscriptions && fish.user.user_subscriptions.length > 0
-            ? fish.user.user_subscriptions[0]
-            : null;
-        
-        if (!activeSubscription) {
-            // No subscription = free tier
-            const freeType = memberTypesMap['free'];
-            return freeType ? freeType.can_self_talk : false;
-        }
-        
-        const plan = activeSubscription.plan || 'free';
-        const memberType = memberTypesMap[plan] || memberTypesMap['free'];
-        return memberType ? memberType.can_self_talk : false;
-    });
+    // All fish are eligible for monologue (no membership filtering)
+    const eligibleFishes = allFishes;
 
-    if (eligibleFishes.length === 0) {
-        // No eligible fish found - this means no users have self-talk enabled
-        throw new Error('NO_ELIGIBLE_FISH');
-    }
+    console.log(`[Monologue] Found ${eligibleFishes.length} eligible fish for monologue (all approved fish)`);
 
-    // Randomly select one fish from eligible ones
+    // Randomly select one fish from all eligible ones
     const randomIndex = Math.floor(Math.random() * eligibleFishes.length);
     const selectedFish = eligibleFishes[randomIndex];
     
-    // Return in the expected format (without user info for backward compatibility)
+    // Return in the expected format
     return {
         id: selectedFish.id,
         fish_name: selectedFish.fish_name,
@@ -267,18 +228,6 @@ module.exports = async (req, res) => {
 
     } catch (error) {
         console.error('[Monologue] Error:', error);
-
-        // Special handling for no eligible fish
-        if (error.message === 'NO_ELIGIBLE_FISH') {
-            // Return a friendly response instead of 403, allowing frontend to handle gracefully
-            return res.status(200).json({
-                success: false,
-                error: 'No eligible fish for monologue',
-                message: 'No eligible fish found for monologue. Only Plus or Premium members\' fish can self-talk.',
-                upgradeSuggestion: 'Upgrade to Plus or Premium membership to enable fish self-talk',
-                useFallback: true
-            });
-        }
 
         return res.status(500).json({
             success: false,

@@ -2478,16 +2478,16 @@ async function initializeGroupChat() {
         if (monoChatResponse && monoChatResponse.ok) {
             const monoChatConfig = await monoChatResponse.json();
             const defaultMonologueEnabled = monoChatConfig.enabled || false;
-            
-            // 检查用户是否手动设置过（用户设置优先）
+        
+        // 检查用户是否手动设置过（用户设置优先）
             const userPreference = localStorage.getItem('monologueEnabled');
-            if (userPreference !== null) {
+        if (userPreference !== null) {
                 monologueEnabled = userPreference === 'true';
                 console.log(`Monologue: Using user preference: ${monologueEnabled ? 'ON' : 'OFF'}`);
-            } else {
+        } else {
                 monologueEnabled = defaultMonologueEnabled;
                 console.log(`Monologue: Using environment default: ${monologueEnabled ? 'ON' : 'OFF'}`);
-            }
+        }
         }
         
         // 设置群聊间隔时间（先设置间隔，再启用，确保使用正确的间隔）

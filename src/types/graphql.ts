@@ -1664,12 +1664,15 @@ export type Group_Chat = {
   /** Auto-cleanup date (7 days from creation) */
   expires_at?: Maybe<Scalars['timestamp']['output']>;
   id: Scalars['uuid']['output'];
+  initiator_user_id?: Maybe<Scalars['String']['output']>;
   /** Array of fish IDs that participated in this chat */
   participant_fish_ids: Array<Scalars['uuid']['output']>;
   /** Time period: morning, afternoon, evening, night */
   time_of_day?: Maybe<Scalars['String']['output']>;
   /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
   topic: Scalars['String']['output'];
+  /** An object relationship */
+  user?: Maybe<Users>;
 };
 
 
@@ -1683,6 +1686,17 @@ export type Group_Chat_Aggregate = {
   __typename?: 'group_chat_aggregate';
   aggregate?: Maybe<Group_Chat_Aggregate_Fields>;
   nodes: Array<Group_Chat>;
+};
+
+export type Group_Chat_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Group_Chat_Aggregate_Bool_Exp_Count>;
+};
+
+export type Group_Chat_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Group_Chat_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Group_Chat_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
 };
 
 /** aggregate fields of "group_chat" */
@@ -1708,10 +1722,32 @@ export type Group_Chat_Aggregate_FieldsCountArgs = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** order by aggregate values of table "group_chat" */
+export type Group_Chat_Aggregate_Order_By = {
+  avg?: InputMaybe<Group_Chat_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Group_Chat_Max_Order_By>;
+  min?: InputMaybe<Group_Chat_Min_Order_By>;
+  stddev?: InputMaybe<Group_Chat_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Group_Chat_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Group_Chat_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Group_Chat_Sum_Order_By>;
+  var_pop?: InputMaybe<Group_Chat_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Group_Chat_Var_Samp_Order_By>;
+  variance?: InputMaybe<Group_Chat_Variance_Order_By>;
+};
+
 /** append existing jsonb value of filtered columns with new jsonb value */
 export type Group_Chat_Append_Input = {
   /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
   dialogues?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** input type for inserting array relation for remote table "group_chat" */
+export type Group_Chat_Arr_Rel_Insert_Input = {
+  data: Array<Group_Chat_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Group_Chat_On_Conflict>;
 };
 
 /** aggregate avg on columns */
@@ -1719,6 +1755,12 @@ export type Group_Chat_Avg_Fields = {
   __typename?: 'group_chat_avg_fields';
   /** Total playback duration in seconds (messages × 6) */
   display_duration?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "group_chat" */
+export type Group_Chat_Avg_Order_By = {
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Order_By>;
 };
 
 /** Boolean expression to filter rows from the table "group_chat". All fields are combined with a logical 'AND'. */
@@ -1731,9 +1773,11 @@ export type Group_Chat_Bool_Exp = {
   display_duration?: InputMaybe<Int_Comparison_Exp>;
   expires_at?: InputMaybe<Timestamp_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
+  initiator_user_id?: InputMaybe<String_Comparison_Exp>;
   participant_fish_ids?: InputMaybe<Uuid_Array_Comparison_Exp>;
   time_of_day?: InputMaybe<String_Comparison_Exp>;
   topic?: InputMaybe<String_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
 };
 
 /** unique or primary key constraints on table "group_chat" */
@@ -1776,12 +1820,14 @@ export type Group_Chat_Insert_Input = {
   /** Auto-cleanup date (7 days from creation) */
   expires_at?: InputMaybe<Scalars['timestamp']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  initiator_user_id?: InputMaybe<Scalars['String']['input']>;
   /** Array of fish IDs that participated in this chat */
   participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
   /** Time period: morning, afternoon, evening, night */
   time_of_day?: InputMaybe<Scalars['String']['input']>;
   /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
   topic?: InputMaybe<Scalars['String']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
 };
 
 /** aggregate max on columns */
@@ -1793,12 +1839,30 @@ export type Group_Chat_Max_Fields = {
   /** Auto-cleanup date (7 days from creation) */
   expires_at?: Maybe<Scalars['timestamp']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
+  initiator_user_id?: Maybe<Scalars['String']['output']>;
   /** Array of fish IDs that participated in this chat */
   participant_fish_ids?: Maybe<Array<Scalars['uuid']['output']>>;
   /** Time period: morning, afternoon, evening, night */
   time_of_day?: Maybe<Scalars['String']['output']>;
   /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
   topic?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by max() on columns of table "group_chat" */
+export type Group_Chat_Max_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Order_By>;
+  /** Auto-cleanup date (7 days from creation) */
+  expires_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  initiator_user_id?: InputMaybe<Order_By>;
+  /** Array of fish IDs that participated in this chat */
+  participant_fish_ids?: InputMaybe<Order_By>;
+  /** Time period: morning, afternoon, evening, night */
+  time_of_day?: InputMaybe<Order_By>;
+  /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
+  topic?: InputMaybe<Order_By>;
 };
 
 /** aggregate min on columns */
@@ -1810,12 +1874,30 @@ export type Group_Chat_Min_Fields = {
   /** Auto-cleanup date (7 days from creation) */
   expires_at?: Maybe<Scalars['timestamp']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
+  initiator_user_id?: Maybe<Scalars['String']['output']>;
   /** Array of fish IDs that participated in this chat */
   participant_fish_ids?: Maybe<Array<Scalars['uuid']['output']>>;
   /** Time period: morning, afternoon, evening, night */
   time_of_day?: Maybe<Scalars['String']['output']>;
   /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
   topic?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by min() on columns of table "group_chat" */
+export type Group_Chat_Min_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Order_By>;
+  /** Auto-cleanup date (7 days from creation) */
+  expires_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  initiator_user_id?: InputMaybe<Order_By>;
+  /** Array of fish IDs that participated in this chat */
+  participant_fish_ids?: InputMaybe<Order_By>;
+  /** Time period: morning, afternoon, evening, night */
+  time_of_day?: InputMaybe<Order_By>;
+  /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
+  topic?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "group_chat" */
@@ -1841,9 +1923,11 @@ export type Group_Chat_Order_By = {
   display_duration?: InputMaybe<Order_By>;
   expires_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  initiator_user_id?: InputMaybe<Order_By>;
   participant_fish_ids?: InputMaybe<Order_By>;
   time_of_day?: InputMaybe<Order_By>;
   topic?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
 };
 
 /** primary key columns input for table: group_chat */
@@ -1870,6 +1954,8 @@ export enum Group_Chat_Select_Column {
   /** column name */
   Id = 'id',
   /** column name */
+  InitiatorUserId = 'initiator_user_id',
+  /** column name */
   ParticipantFishIds = 'participant_fish_ids',
   /** column name */
   TimeOfDay = 'time_of_day',
@@ -1887,6 +1973,7 @@ export type Group_Chat_Set_Input = {
   /** Auto-cleanup date (7 days from creation) */
   expires_at?: InputMaybe<Scalars['timestamp']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  initiator_user_id?: InputMaybe<Scalars['String']['input']>;
   /** Array of fish IDs that participated in this chat */
   participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
   /** Time period: morning, afternoon, evening, night */
@@ -1902,6 +1989,12 @@ export type Group_Chat_Stddev_Fields = {
   display_duration?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev() on columns of table "group_chat" */
+export type Group_Chat_Stddev_Order_By = {
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_pop on columns */
 export type Group_Chat_Stddev_Pop_Fields = {
   __typename?: 'group_chat_stddev_pop_fields';
@@ -1909,11 +2002,23 @@ export type Group_Chat_Stddev_Pop_Fields = {
   display_duration?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev_pop() on columns of table "group_chat" */
+export type Group_Chat_Stddev_Pop_Order_By = {
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_samp on columns */
 export type Group_Chat_Stddev_Samp_Fields = {
   __typename?: 'group_chat_stddev_samp_fields';
   /** Total playback duration in seconds (messages × 6) */
   display_duration?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "group_chat" */
+export type Group_Chat_Stddev_Samp_Order_By = {
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Order_By>;
 };
 
 /** Streaming cursor of the table "group_chat" */
@@ -1934,6 +2039,7 @@ export type Group_Chat_Stream_Cursor_Value_Input = {
   /** Auto-cleanup date (7 days from creation) */
   expires_at?: InputMaybe<Scalars['timestamp']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  initiator_user_id?: InputMaybe<Scalars['String']['input']>;
   /** Array of fish IDs that participated in this chat */
   participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
   /** Time period: morning, afternoon, evening, night */
@@ -1949,6 +2055,12 @@ export type Group_Chat_Sum_Fields = {
   display_duration?: Maybe<Scalars['Int']['output']>;
 };
 
+/** order by sum() on columns of table "group_chat" */
+export type Group_Chat_Sum_Order_By = {
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Order_By>;
+};
+
 /** update columns of table "group_chat" */
 export enum Group_Chat_Update_Column {
   /** column name */
@@ -1961,6 +2073,8 @@ export enum Group_Chat_Update_Column {
   ExpiresAt = 'expires_at',
   /** column name */
   Id = 'id',
+  /** column name */
+  InitiatorUserId = 'initiator_user_id',
   /** column name */
   ParticipantFishIds = 'participant_fish_ids',
   /** column name */
@@ -1995,6 +2109,12 @@ export type Group_Chat_Var_Pop_Fields = {
   display_duration?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_pop() on columns of table "group_chat" */
+export type Group_Chat_Var_Pop_Order_By = {
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Order_By>;
+};
+
 /** aggregate var_samp on columns */
 export type Group_Chat_Var_Samp_Fields = {
   __typename?: 'group_chat_var_samp_fields';
@@ -2002,11 +2122,23 @@ export type Group_Chat_Var_Samp_Fields = {
   display_duration?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_samp() on columns of table "group_chat" */
+export type Group_Chat_Var_Samp_Order_By = {
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Order_By>;
+};
+
 /** aggregate variance on columns */
 export type Group_Chat_Variance_Fields = {
   __typename?: 'group_chat_variance_fields';
   /** Total playback duration in seconds (messages × 6) */
   display_duration?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "group_chat" */
+export type Group_Chat_Variance_Order_By = {
+  /** Total playback duration in seconds (messages × 6) */
+  display_duration?: InputMaybe<Order_By>;
 };
 
 export type Jsonb_Cast_Exp = {
@@ -3918,9 +4050,9 @@ export type Query_Root = {
   global_params_aggregate: Global_Params_Aggregate;
   /** fetch data from the table: "global_params" using primary key columns */
   global_params_by_pk?: Maybe<Global_Params>;
-  /** fetch data from the table: "group_chat" */
+  /** An array relationship */
   group_chat: Array<Group_Chat>;
-  /** fetch aggregated fields from the table: "group_chat" */
+  /** An aggregate relationship */
   group_chat_aggregate: Group_Chat_Aggregate;
   /** fetch data from the table: "group_chat" using primary key columns */
   group_chat_by_pk?: Maybe<Group_Chat>;
@@ -4883,9 +5015,9 @@ export type Subscription_Root = {
   global_params_by_pk?: Maybe<Global_Params>;
   /** fetch data from the table in a streaming manner: "global_params" */
   global_params_stream: Array<Global_Params>;
-  /** fetch data from the table: "group_chat" */
+  /** An array relationship */
   group_chat: Array<Group_Chat>;
-  /** fetch aggregated fields from the table: "group_chat" */
+  /** An aggregate relationship */
   group_chat_aggregate: Group_Chat_Aggregate;
   /** fetch data from the table: "group_chat" using primary key columns */
   group_chat_by_pk?: Maybe<Group_Chat>;
@@ -6047,6 +6179,10 @@ export type Users = {
   fishes: Array<Fish>;
   /** An aggregate relationship */
   fishes_aggregate: Fish_Aggregate;
+  /** An array relationship */
+  group_chat: Array<Group_Chat>;
+  /** An aggregate relationship */
+  group_chat_aggregate: Group_Chat_Aggregate;
   id: Scalars['String']['output'];
   is_banned?: Maybe<Scalars['Boolean']['output']>;
   last_active?: Maybe<Scalars['timestamp']['output']>;
@@ -6096,6 +6232,26 @@ export type UsersFishes_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Fish_Order_By>>;
   where?: InputMaybe<Fish_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersGroup_ChatArgs = {
+  distinct_on?: InputMaybe<Array<Group_Chat_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Group_Chat_Order_By>>;
+  where?: InputMaybe<Group_Chat_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersGroup_Chat_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Group_Chat_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Group_Chat_Order_By>>;
+  where?: InputMaybe<Group_Chat_Bool_Exp>;
 };
 
 
@@ -6251,6 +6407,8 @@ export type Users_Bool_Exp = {
   feeder_name?: InputMaybe<String_Comparison_Exp>;
   fishes?: InputMaybe<Fish_Bool_Exp>;
   fishes_aggregate?: InputMaybe<Fish_Aggregate_Bool_Exp>;
+  group_chat?: InputMaybe<Group_Chat_Bool_Exp>;
+  group_chat_aggregate?: InputMaybe<Group_Chat_Aggregate_Bool_Exp>;
   id?: InputMaybe<String_Comparison_Exp>;
   is_banned?: InputMaybe<Boolean_Comparison_Exp>;
   last_active?: InputMaybe<Timestamp_Comparison_Exp>;
@@ -6299,6 +6457,7 @@ export type Users_Insert_Input = {
   /** 主人昵称 - 用于鱼聊天时提及主人 */
   feeder_name?: InputMaybe<Scalars['String']['input']>;
   fishes?: InputMaybe<Fish_Arr_Rel_Insert_Input>;
+  group_chat?: InputMaybe<Group_Chat_Arr_Rel_Insert_Input>;
   id?: InputMaybe<Scalars['String']['input']>;
   is_banned?: InputMaybe<Scalars['Boolean']['input']>;
   last_active?: InputMaybe<Scalars['timestamp']['input']>;
@@ -6395,6 +6554,7 @@ export type Users_Order_By = {
   feeder_info?: InputMaybe<Order_By>;
   feeder_name?: InputMaybe<Order_By>;
   fishes_aggregate?: InputMaybe<Fish_Aggregate_Order_By>;
+  group_chat_aggregate?: InputMaybe<Group_Chat_Aggregate_Order_By>;
   id?: InputMaybe<Order_By>;
   is_banned?: InputMaybe<Order_By>;
   last_active?: InputMaybe<Order_By>;

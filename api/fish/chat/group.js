@@ -14,7 +14,7 @@ const { getGlobalParamInt } = require('../../../lib/global-params');
 /**
  * Get user's daily AI Fish Group Chat usage count
  * @param {string} userId - User ID
- * @returns {Promise<number>} - Number of group chats today
+ * @returns {Promise<number>} - Number of group chats today initiated by this user
  */
 async function getUserDailyGroupChatUsage(userId) {
     // Get start of today (00:00:00) in UTC
@@ -22,18 +22,19 @@ async function getUserDailyGroupChatUsage(userId) {
     today.setHours(0, 0, 0, 0);
     const todayISO = today.toISOString();
     
+    // Query group_chat records created today by this user
+    // Use initiator_user_id if available, otherwise count all records
     const query = `
         query GetUserDailyUsage($userId: String!, $todayStart: timestamp!) {
-            fish(where: { user_id: { _eq: $userId } }) {
-                id
-            }
-            group_chat(
+            group_chat_aggregate(
                 where: {
-                    created_at: { _gte: $todayStart }
+                    created_at: { _gte: $todayStart },
+                    initiator_user_id: { _eq: $userId }
                 }
             ) {
-                id
-                participant_fish_ids
+                aggregate {
+                    count
+                }
             }
         }
     `;
@@ -45,17 +46,11 @@ async function getUserDailyGroupChatUsage(userId) {
         return 0; // Return 0 on error to allow usage
     }
     
-    const userFishIds = (result.data.fish || []).map(f => f.id);
-    const groupChats = result.data.group_chat || [];
+    const count = result.data.group_chat_aggregate?.aggregate?.count || 0;
     
-    // Count group chats where any of user's fish participated
-    const userChats = groupChats.filter(chat => {
-        const participantIds = chat.participant_fish_ids || [];
-        return participantIds.some(id => userFishIds.includes(id));
-    });
-    
-    console.log(`[AI Fish Group Chat] User ${userId} has ${userChats.length} group chats today`);
-    return userChats.length;
+    console.log(`[AI Fish Group Chat] User ${userId} has initiated ${count} group chats today (since ${todayISO})`);
+    console.log(`[AI Fish Group Chat] Query result:`, JSON.stringify(result.data, null, 2));
+    return count;
 }
 
 /**
@@ -457,9 +452,10 @@ function parseGroupChatResponse(content, fishArray) {
  * Save group chat session to database
  * @param {Object} chatResult - Chat result from Coze
  * @param {Array} fishArray - Array of participating fish
+ * @param {string} initiatorUserId - User ID who initiated this chat
  * @returns {Promise<string>} - Session ID
  */
-async function saveGroupChatSession(chatResult, fishArray) {
+async function saveGroupChatSession(chatResult, fishArray, initiatorUserId = null) {
     const mutation = `
         mutation SaveGroupChat(
             $topic: String!
@@ -468,6 +464,7 @@ async function saveGroupChatSession(chatResult, fishArray) {
             $dialogues: jsonb!
             $display_duration: Int!
             $expires_at: timestamp!
+            $initiator_user_id: String
         ) {
             insert_group_chat_one(
                 object: {
@@ -477,6 +474,7 @@ async function saveGroupChatSession(chatResult, fishArray) {
                     dialogues: $dialogues
                     display_duration: $display_duration
                     expires_at: $expires_at
+                    initiator_user_id: $initiator_user_id
                 }
             ) {
                 id
@@ -505,8 +503,11 @@ async function saveGroupChatSession(chatResult, fishArray) {
         participant_fish_ids: fishArray.map(f => f.fish_id),
         dialogues: { messages: chatResult.dialogues },
         display_duration: chatResult.dialogues ? chatResult.dialogues.length * 6 : 30,
-        expires_at: expiresAt.toISOString()
+        expires_at: expiresAt.toISOString(),
+        initiator_user_id: initiatorUserId
     };
+
+    console.log(`[AI Fish Group Chat] Saving session with initiator_user_id: ${initiatorUserId}`);
 
     try {
         const result = await executeGraphQL(mutation, variables);
@@ -571,14 +572,39 @@ module.exports = async (req, res) => {
         // For multi-user tanks, we use the first fish's owner as the requesting user
         const requestingUserId = fishArray[0]?.user_id;
         
+        // Check usage and display in starting log
+        if (requestingUserId) {
+            try {
+                const limitCheck = await checkUserGroupChatLimit(requestingUserId);
+                if (limitCheck.tier === 'free') {
+                    console.log(`[AI Fish Group Chat] 🎯 Starting generation for Free user ${requestingUserId}: ${limitCheck.usage}/${limitCheck.limit} used today`);
+                } else {
+                    console.log(`[AI Fish Group Chat] 🎯 Starting generation for ${limitCheck.tier.toUpperCase()} user ${requestingUserId}: unlimited usage`);
+                }
+            } catch (usageError) {
+                console.warn('[AI Fish Group Chat] Failed to check usage for starting log:', usageError);
+                console.log(`[AI Fish Group Chat] 🎯 Starting generation for user ${requestingUserId}: usage check failed`);
+            }
+        } else {
+            console.log('[AI Fish Group Chat] 🎯 Starting generation: no user ID found');
+        }
+        
         if (!requestingUserId) {
             console.warn('[AI Fish Group Chat] No user ID found for fish, allowing request');
         } else {
             // Check if user has reached daily limit (for free users)
             const limitCheck = await checkUserGroupChatLimit(requestingUserId);
             
+            // Log usage information for all users
+            if (limitCheck.tier === 'free') {
+                console.log(`[AI Fish Group Chat] Free user ${requestingUserId}: ${limitCheck.usage}/${limitCheck.limit} used today (${limitCheck.allowed ? 'ALLOWED' : 'BLOCKED'})`);
+            } else {
+                console.log(`[AI Fish Group Chat] ${limitCheck.tier.toUpperCase()} user ${requestingUserId}: unlimited usage (ALLOWED)`);
+            }
+            
             if (!limitCheck.allowed) {
                 // Free user has reached daily limit
+                console.log(`[AI Fish Group Chat] ❌ Daily limit reached for user ${requestingUserId}: ${limitCheck.usage}/${limitCheck.limit}`);
                 return res.status(200).json({
                     success: false,
                     error: 'Daily limit reached',
@@ -599,21 +625,41 @@ module.exports = async (req, res) => {
 
         console.log('[AI Fish Group Chat] Generation successful!');
 
-        // Save to database
+        // Save to database with initiator user ID
         let sessionId = null;
         try {
-            sessionId = await saveGroupChatSession(chatResult, fishArray);
+            sessionId = await saveGroupChatSession(chatResult, fishArray, requestingUserId);
             console.log('[AI Fish Group Chat] Session saved:', sessionId);
         } catch (saveError) {
             console.error('[AI Fish Group Chat] Failed to save session, continuing anyway:', saveError);
             // Continue even if save fails
         }
 
+        // Get usage info for response (to display in frontend)
+        // IMPORTANT: Get usage AFTER saving the session to show updated count
+        let usageInfo = null;
+        if (requestingUserId) {
+            try {
+                const limitCheck = await checkUserGroupChatLimit(requestingUserId);
+                usageInfo = {
+                    userId: requestingUserId,
+                    tier: limitCheck.tier,
+                    usage: limitCheck.usage, // This will now include the just-saved session
+                    limit: limitCheck.limit,
+                    unlimited: limitCheck.tier !== 'free'
+                };
+                console.log(`[AI Fish Group Chat] Updated usage info for response: ${limitCheck.usage}/${limitCheck.limit}`);
+            } catch (usageError) {
+                console.warn('[AI Fish Group Chat] Failed to get usage info for response:', usageError);
+            }
+        }
+
         return res.status(200).json({
             success: true,
             sessionId,
             ...chatResult,
-            participants: fishArray
+            participants: fishArray,
+            usageInfo // 添加使用量信息到响应中
         });
 
     } catch (error) {

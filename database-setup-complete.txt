@@ -1,0 +1,135 @@
+-- ============================================
+-- 群聊功能数据库完整设置 SQL 脚本
+-- 在 Hasura Console 的 Data -> SQL 页面中执行
+-- ============================================
+
+-- 步骤1: 确保 initiator_user_id 字段存在（如果已存在会报错，可忽略）
+ALTER TABLE group_chat ADD COLUMN initiator_user_id TEXT;
+
+-- 步骤2: 添加外键约束，确保数据完整性
+ALTER TABLE group_chat 
+ADD CONSTRAINT fk_group_chat_initiator_user 
+FOREIGN KEY (initiator_user_id) REFERENCES users(id);
+
+-- 步骤3: 添加索引以提高查询性能
+CREATE INDEX IF NOT EXISTS idx_group_chat_initiator_user_id 
+ON group_chat(initiator_user_id);
+
+CREATE INDEX IF NOT EXISTS idx_group_chat_created_at 
+ON group_chat(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_group_chat_usage_query 
+ON group_chat(initiator_user_id, created_at);
+
+-- ============================================
+-- 执行完上述SQL后，需要在 Hasura Console 中手动设置关联
+-- ============================================
+
+/*
+在 Hasura Console 的 Data 页面中设置以下关联：
+
+1. group_chat 表 -> 添加 Object Relationship:
+   - 关联名: initiator_user
+   - 类型: Object Relationship
+   - 引用表: users
+   - 字段映射: initiator_user_id -> id
+
+2. users 表 -> 添加 Array Relationship:
+   - 关联名: initiated_group_chats
+   - 类型: Array Relationship
+   - 引用表: group_chat
+   - 字段映射: id -> initiator_user_id
+
+设置完成后，可以使用以下GraphQL查询测试关联：
+
+query TestRelationships {
+  group_chat(limit: 5) {
+    id
+    topic
+    created_at
+    initiator_user_id
+    initiator_user {
+      id
+      feeder_name
+      email
+    }
+  }
+  
+  users(limit: 5) {
+    id
+    feeder_name
+    initiated_group_chats {
+      id
+      topic
+      created_at
+    }
+  }
+}
+*/
+
+-- ============================================
+-- 验证设置是否成功
+-- ============================================
+
+-- 测试查询1: 检查字段是否存在
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns 
+WHERE table_name = 'group_chat' 
+AND column_name = 'initiator_user_id';
+
+-- 测试查询2: 检查外键约束是否存在
+SELECT 
+    tc.constraint_name,
+    tc.table_name,
+    kcu.column_name,
+    ccu.table_name AS foreign_table_name,
+    ccu.column_name AS foreign_column_name
+FROM information_schema.table_constraints AS tc
+JOIN information_schema.key_column_usage AS kcu
+    ON tc.constraint_name = kcu.constraint_name
+    AND tc.table_schema = kcu.table_schema
+JOIN information_schema.constraint_column_usage AS ccu
+    ON ccu.constraint_name = tc.constraint_name
+    AND ccu.table_schema = tc.table_schema
+WHERE tc.constraint_type = 'FOREIGN KEY'
+    AND tc.table_name = 'group_chat'
+    AND kcu.column_name = 'initiator_user_id';
+
+-- 测试查询3: 检查索引是否存在
+SELECT indexname, indexdef
+FROM pg_indexes
+WHERE tablename = 'group_chat'
+AND indexname LIKE '%initiator_user_id%';
+
+-- 测试查询4: 统计当前群聊记录
+SELECT 
+    COUNT(*) as total_group_chats,
+    COUNT(initiator_user_id) as with_initiator_id,
+    COUNT(*) - COUNT(initiator_user_id) as without_initiator_id
+FROM group_chat;
+
+-- ============================================
+-- 清理和维护（可选）
+-- ============================================
+
+-- 如果需要清理没有 initiator_user_id 的旧记录：
+-- DELETE FROM group_chat WHERE initiator_user_id IS NULL;
+
+-- 如果需要为现有记录设置默认的 initiator_user_id：
+-- UPDATE group_chat 
+-- SET initiator_user_id = 'default-system-user'
+-- WHERE initiator_user_id IS NULL;
+
+-- ============================================
+-- 完成！
+-- ============================================
+
+/*
+执行完成后，你的群聊功能应该具备：
+✅ initiator_user_id 字段
+✅ 外键约束确保数据完整性
+✅ 索引优化查询性能
+✅ GraphQL 关联支持
+
+现在可以测试群聊使用量计算功能了！
+*/

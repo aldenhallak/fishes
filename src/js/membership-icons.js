@@ -60,7 +60,18 @@ function createMembershipBadge(tier, options = {}) {
         className = ''
     } = options;
     
+    // 确保tier是小写
+    tier = (tier || 'free').toLowerCase();
+    
     const iconData = getMembershipIcon(tier);
+    
+    // Debug: 验证图标数据
+    console.log('🎨 Creating membership badge:', {
+        tier: tier,
+        svgUrl: iconData.svgUrl,
+        iconData: iconData
+    });
+    
     const badge = document.createElement('div');
     badge.className = `membership-badge membership-${tier} ${className}`;
     badge.setAttribute('data-tier', tier);

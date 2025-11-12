@@ -316,6 +316,11 @@ function convertId(value, idType) {
     return String(value);
   }
   
+  // String类型保持字符串
+  if (idType === 'String') {
+    return String(value);
+  }
+  
   // bigint和其他数字类型转换为数字
   const num = Number(value);
   if (isNaN(num)) {

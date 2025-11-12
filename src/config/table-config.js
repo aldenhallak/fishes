@@ -16,6 +16,8 @@ const tableDisplayNames = {
   'fishtank_fish': '鱼缸-鱼关联表',
   'fishtank_views': '鱼缸浏览记录',
   'member_types': '会员类型表',
+  'group_chat': '群聊记录表',
+  'global_params': '全局参数表',
 };
 
 // 字段名到中文名的映射
@@ -99,6 +101,8 @@ const tablePermissionsConfig = {
   'battle_log': { update: false, delete: false },
   'battle_config': { update: true, delete: false },
   'member_types': { update: true, delete: false },
+  'group_chat': { update: true, delete: true },
+  'global_params': { update: true, delete: false },
 };
 
 function getTableDisplayName(tableName) {
@@ -138,7 +142,7 @@ function getTablePermissions(tableName) {
 const BATCH_DELETE_LIMITS = {
   'user_economy': 10,
   'battle_config': 5,
-  'default': 100,
+  'default': 101,
 };
 
 function getBatchDeleteLimit(tableName) {

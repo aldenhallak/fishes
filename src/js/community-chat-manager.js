@@ -177,9 +177,27 @@ class CommunityChatManager {
         // If API suggests using fallback, use it
         if (data.useFallback) {
           console.warn('API suggests using fallback:', data.message);
+          
+          // Show upgrade prompt if it's a daily limit issue
+          if (data.error === 'Daily limit reached' && data.limitInfo) {
+            this.showUpgradePrompt(data.message, data.upgradeSuggestion, data.limitInfo);
+          }
+          
           return this.generateFallbackSession();
         }
         throw new Error(data.error || 'Failed to generate chat');
+      }
+      
+      // Display usage info in browser console
+      if (data.usageInfo) {
+        const usage = data.usageInfo;
+        if (usage.unlimited) {
+          console.log(`🎯 启动群聊：${usage.tier.toUpperCase()} 用户 ${usage.userId} - 无限制使用`);
+        } else {
+          console.log(`🎯 启动群聊：当前用户今日已用群聊数 ${usage.usage}/${usage.limit}`);
+        }
+      } else {
+        console.log('🎯 启动群聊：未获取到使用量信息');
       }
       
       console.log(`✅ AI Fish Group Chat generated: ${data.dialogues?.length || 0} messages`, {
@@ -206,10 +224,10 @@ class CommunityChatManager {
         }
         
         return {
-          fishId: d.fishId,
-          fishName: d.fishName,
-          message: d.message,
-          sequence: d.sequence || index + 1
+        fishId: d.fishId,
+        fishName: d.fishName,
+        message: d.message,
+        sequence: d.sequence || index + 1
         };
       });
       
@@ -1116,6 +1134,165 @@ class CommunityChatManager {
     if (this.groupChatEnabled && this.layoutManager) {
       this.scheduleAutoChats(intervalMinutes);
     }
+  }
+  
+  /**
+   * Show upgrade prompt when free user reaches daily limit
+   * @param {string} message - Limit message
+   * @param {string} upgradeSuggestion - Upgrade suggestion text
+   * @param {Object} limitInfo - Limit information {usage, limit, tier}
+   */
+  showUpgradePrompt(message, upgradeSuggestion, limitInfo) {
+    // Avoid showing multiple dialogs
+    if (this._upgradePromptShown) {
+      return;
+    }
+    this._upgradePromptShown = true;
+    
+    // Reset flag after 5 minutes
+    setTimeout(() => {
+      this._upgradePromptShown = false;
+    }, 5 * 60 * 1000);
+    
+    // Create modal HTML
+    const modalHTML = `
+      <div id="upgradeLimitModal" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      ">
+        <div style="
+          background: white;
+          border-radius: 16px;
+          padding: 32px;
+          max-width: 480px;
+          width: 90%;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        ">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <div style="
+              width: 64px;
+              height: 64px;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              border-radius: 50%;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 32px;
+              margin-bottom: 16px;
+            ">
+              🎣
+            </div>
+            <h2 style="
+              font-size: 24px;
+              font-weight: 600;
+              color: #1a1a1a;
+              margin: 0 0 8px 0;
+            ">AI Fish Group Chat 次数已用完</h2>
+            <p style="
+              font-size: 16px;
+              color: #666;
+              margin: 0;
+              line-height: 1.5;
+            ">${message}</p>
+          </div>
+          
+          <div style="
+            background: #f7f7f7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+          ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <span style="color: #666; font-size: 14px;">今日已使用</span>
+              <span style="
+                color: #667eea;
+                font-size: 20px;
+                font-weight: 600;
+              ">${limitInfo.usage} / ${limitInfo.limit}</span>
+            </div>
+            <div style="
+              height: 8px;
+              background: #e0e0e0;
+              border-radius: 4px;
+              overflow: hidden;
+            ">
+              <div style="
+                height: 100%;
+                background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                width: ${Math.min(100, (limitInfo.usage / limitInfo.limit) * 100)}%;
+                transition: width 0.3s ease;
+              "></div>
+            </div>
+          </div>
+          
+          <div style="
+            background: #fff4e6;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 4px;
+          ">
+            <p style="
+              margin: 0;
+              color: #92400e;
+              font-size: 14px;
+              line-height: 1.5;
+            ">
+              💡 ${upgradeSuggestion}
+            </p>
+          </div>
+          
+          <div style="display: flex; gap: 12px;">
+            <button onclick="document.getElementById('upgradeLimitModal').remove()" style="
+              flex: 1;
+              padding: 12px 24px;
+              background: #f3f4f6;
+              border: none;
+              border-radius: 8px;
+              font-size: 16px;
+              font-weight: 500;
+              color: #4b5563;
+              cursor: pointer;
+              transition: background 0.2s;
+            " onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">
+              稍后再说
+            </button>
+            <button onclick="window.location.href='/membership.html'" style="
+              flex: 1;
+              padding: 12px 24px;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              border: none;
+              border-radius: 8px;
+              font-size: 16px;
+              font-weight: 500;
+              color: white;
+              cursor: pointer;
+              transition: transform 0.2s, box-shadow 0.2s;
+              box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.5)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'">
+              立即升级 ✨
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Add modal to DOM
+    const modalDiv = document.createElement('div');
+    modalDiv.innerHTML = modalHTML;
+    document.body.appendChild(modalDiv);
+    
+    // Log for debugging
+    console.log('📢 Upgrade prompt shown:', { message, limitInfo });
   }
   
   /**
