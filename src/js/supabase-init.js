@@ -18,11 +18,24 @@ async function initializeSupabaseClient() {
     });
   }
   
+  // 等待Supabase SDK加载（最多等待5秒）
+  let retries = 0;
+  const maxRetries = 50; // 5秒 (50 * 100ms)
+  while (!window.supabase?.createClient && retries < maxRetries) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    retries++;
+  }
+  
   const SUPABASE_URL = window.SUPABASE_URL || 'YOUR_SUPABASE_URL';
   const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
   
   if (!window.supabase?.createClient) {
-    console.error('⚠️ Supabase SDK not loaded, please ensure CDN script is included');
+    console.error('⚠️ Supabase SDK not loaded after 5 seconds');
+    console.error('💡 Possible solutions:');
+    console.error('   1. Check your internet connection');
+    console.error('   2. Disable browser tracking prevention (Edge/Safari)');
+    console.error('   3. Check browser console for CORS/CDN errors');
+    console.error('   4. Try refreshing the page');
     return null;
   }
   

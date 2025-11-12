@@ -12,7 +12,8 @@ const {
   generateInsertMutation, 
   generateUpdateMutation,
   generateDeleteMutation,
-  generateBatchDeleteMutation 
+  generateBatchDeleteMutation,
+  getPrimaryKeyFieldName
 } = require('../../../src/lib/query-generator');
 
 // 创建 Hasura 客户端（使用现有的 hasura.js）
@@ -212,40 +213,54 @@ async function handlePut(req, res, tableName) {
   }
 
   const results = [];
+  
+  // 获取主键字段名
+  const pkFieldName = getPrimaryKeyFieldName(tableName);
 
   // 逐个更新记录
   for (const update of updates) {
-    const { id, ...fields } = update;
+    // 从更新对象中提取主键值（可能是 id 或其他字段名）
+    const pkValue = update[pkFieldName] || update.id;
     
-    if (!id) {
+    if (!pkValue) {
+      results.push({
+        [pkFieldName]: null,
+        success: false,
+        error: `缺少主键字段 ${pkFieldName}`
+      });
       continue;
     }
+
+    // 提取需要更新的字段（排除主键字段）
+    const fields = { ...update };
+    delete fields[pkFieldName];
+    delete fields.id; // 也删除可能的 id 字段
 
     try {
       // 如果没有字段需要更新，跳过
       if (Object.keys(fields).length === 0) {
         results.push({
-          id,
+          [pkFieldName]: pkValue,
           success: true,
           result: { message: '没有需要更新的字段' }
         });
         continue;
       }
 
-      const { mutation, variables } = generateUpdateMutation(tableName, id, fields);
+      const { mutation, variables } = generateUpdateMutation(tableName, pkValue, fields);
       
       const result = await executeGraphQL(mutation, variables);
 
       const resultKey = `update_${tableName}_by_pk`;
       results.push({
-        id,
+        [pkFieldName]: pkValue,
         success: true,
         result: result[resultKey]
       });
     } catch (updateError) {
-      console.error(`更新记录 ${id} 失败:`, updateError);
+      console.error(`更新记录 ${pkValue} 失败:`, updateError);
       results.push({
-        id,
+        [pkFieldName]: pkValue,
         success: false,
         error: updateError.message || '更新失败'
       });
@@ -327,12 +342,15 @@ async function handleDelete(req, res, tableName) {
 
       const resultKey = `delete_${tableName}`;
       const deleteResult = result[resultKey];
+      
+      // 获取主键字段名
+      const pkFieldName = getPrimaryKeyFieldName(tableName);
 
       return res.status(200).json({
         success: true,
         data: {
           affectedRows: deleteResult.affected_rows,
-          deletedIds: deleteResult.returning.map((r) => r.id)
+          deletedIds: deleteResult.returning.map((r) => r[pkFieldName])
         }
       });
     } catch (deleteError) {

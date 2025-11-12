@@ -44,11 +44,13 @@ class CommunityChatManager {
     };
     
     // Page visibility and user activity tracking
-    this.isPageVisible = true;
+    // Initialize with actual page visibility state (may be false during page load)
+    this.isPageVisible = !document.hidden;
     this.lastActivityTime = Date.now();
     this.startTime = Date.now();
     this.isPaused = false;
     this.checkInterval = null;
+    this.isInitialized = false; // Flag to prevent pause during initialization
     
     // Configuration for cost control (will be updated from API)
     this.maxInactiveTime = 15 * 60 * 1000; // 15 minutes in milliseconds (default)
@@ -161,16 +163,26 @@ class CommunityChatManager {
       });
       
       if (!response.ok) {
+        // If 403 or other error, use fallback
+        if (response.status === 403) {
+          console.warn('API returned 403, using fallback chat');
+          return this.generateFallbackSession();
+        }
         throw new Error(`API error: ${response.statusText}`);
       }
       
       const data = await response.json();
       
       if (!data.success) {
+        // If API suggests using fallback, use it
+        if (data.useFallback) {
+          console.warn('API suggests using fallback:', data.message);
+          return this.generateFallbackSession();
+        }
         throw new Error(data.error || 'Failed to generate chat');
       }
       
-      console.log(`✅ Group chat generated: ${data.dialogues?.length || 0} messages`, {
+      console.log(`✅ AI Fish Group Chat generated: ${data.dialogues?.length || 0} messages`, {
         sessionId: data.sessionId,
         topic: data.topic
       });
@@ -234,7 +246,7 @@ class CommunityChatManager {
     
     return {
       sessionId: null,
-      topic: 'General Chat',
+      topic: 'AI Fish Group Chat',
       dialogues: fallbackMessages.map((d, i) => ({
         ...d,
         sequence: i + 1,
@@ -371,24 +383,33 @@ class CommunityChatManager {
    * @returns {Promise} - Resolves when session starts
    */
   async startAutoChatSession() {
+    console.log('🔍 [DEBUG] startAutoChatSession called', {
+      groupChatEnabled: this.groupChatEnabled,
+      isPlaying: this.isPlaying,
+      isInitialized: this.isInitialized,
+      costSavingEnabled: this.costSavingEnabled,
+      shouldPause: this.shouldPauseGeneration()
+    });
+    
     // Check if group chat is enabled before starting
     if (!this.groupChatEnabled) {
-      console.log('Group chat is disabled, skipping auto chat session');
+      console.log('❌ AI Fish Group Chat is disabled, skipping auto chat session');
       return;
     }
     
     // Check if generation should be paused
     if (this.shouldPauseGeneration()) {
-      console.log('⏸️ Skipping auto chat session (generation paused)');
+      const pauseReason = this.getPauseReason();
+      console.log('⏸️ Skipping auto chat session (generation paused)', pauseReason);
       return;
     }
     
     if (this.isPlaying) {
-      console.log('Chat session already in progress');
+      console.log('⏸️ Chat session already in progress');
       return;
     }
     
-    console.log('Starting automatic chat session...');
+    console.log('✅ Starting automatic chat session...');
     
     const session = await this.generateChatSession();
     
@@ -405,7 +426,7 @@ class CommunityChatManager {
    */
   async triggerChat() {
     if (!this.groupChatEnabled) {
-      console.log('❌ Group chat is disabled, cannot trigger chat');
+      console.log('❌ AI Fish Group Chat is disabled, cannot trigger chat');
       return;
     }
     
@@ -418,35 +439,71 @@ class CommunityChatManager {
    * @param {number} intervalMinutes - Interval between chats in minutes
    */
   scheduleAutoChats(intervalMinutes = null) {
+    console.log('🔍 [DEBUG] scheduleAutoChats called', {
+      intervalMinutes,
+      groupChatEnabled: this.groupChatEnabled,
+      currentInterval: this.groupChatIntervalMinutes,
+      hasExistingInterval: !!this.autoChatInterval
+    });
+    
     // Clear existing interval if any
     if (this.autoChatInterval) {
       clearInterval(this.autoChatInterval);
       this.autoChatInterval = null;
+      console.log('🔄 Cleared existing auto-chat interval');
     }
     
     if (!this.groupChatEnabled) {
-      console.log('Group chat is disabled, skipping auto-chat scheduling');
+      console.log('❌ AI Fish Group Chat is disabled, skipping auto-chat scheduling');
       return;
     }
     
     // Use provided interval or fall back to configured interval
     const actualInterval = intervalMinutes !== null ? intervalMinutes : this.groupChatIntervalMinutes;
     
-    console.log(`Scheduling auto-chats every ${actualInterval} minutes`);
+    console.log(`✅ Scheduling auto-chats every ${actualInterval} minutes`);
     
     // Start first chat after 10 seconds
     setTimeout(() => {
+      console.log('🔍 [DEBUG] First chat timeout fired', {
+        groupChatEnabled: this.groupChatEnabled,
+        isPlaying: this.isPlaying,
+        shouldPause: this.shouldPauseGeneration()
+      });
+      
       if (this.groupChatEnabled && !this.isPlaying && !this.shouldPauseGeneration()) {
+        console.log('✅ Conditions met, starting first chat');
         this.startAutoChatSession();
+      } else {
+        console.log('❌ Conditions not met for first chat', {
+          groupChatEnabled: this.groupChatEnabled,
+          isPlaying: this.isPlaying,
+          shouldPause: this.shouldPauseGeneration()
+        });
       }
     }, 10000);
     
     // Schedule periodic chats
     this.autoChatInterval = setInterval(() => {
+      console.log('🔍 [DEBUG] Periodic chat interval fired', {
+        groupChatEnabled: this.groupChatEnabled,
+        isPlaying: this.isPlaying,
+        shouldPause: this.shouldPauseGeneration()
+      });
+      
       if (this.groupChatEnabled && !this.isPlaying && !this.shouldPauseGeneration()) {
+        console.log('✅ Conditions met, starting periodic chat');
         this.startAutoChatSession();
+      } else {
+        console.log('❌ Conditions not met for periodic chat', {
+          groupChatEnabled: this.groupChatEnabled,
+          isPlaying: this.isPlaying,
+          shouldPause: this.shouldPauseGeneration()
+        });
       }
     }, actualInterval * 60 * 1000);
+    
+    console.log(`✅ Auto-chat interval set: ${actualInterval} minutes (${actualInterval * 60 * 1000}ms)`);
   }
   
   /**
@@ -476,12 +533,22 @@ class CommunityChatManager {
       });
       
       if (!response.ok) {
+        // If 403 or other error, skip this monologue
+        if (response.status === 403) {
+          console.warn('Monologue API returned 403, skipping');
+          return null;
+        }
         throw new Error(`API error: ${response.statusText}`);
       }
       
       const data = await response.json();
       
       if (!data.success) {
+        // If API suggests using fallback, skip this monologue
+        if (data.useFallback) {
+          console.warn('Monologue API suggests skipping:', data.message);
+          return null;
+        }
         throw new Error(data.error || 'Failed to generate monologue');
       }
       
@@ -585,17 +652,25 @@ class CommunityChatManager {
    */
   enableGroupChat() {
     if (this.groupChatEnabled) {
+      console.log('ℹ️ AI Fish Group Chat already enabled');
       return; // Already enabled
     }
     
     this.groupChatEnabled = true;
     this.resetStartTime(); // Reset timer when enabled
-    console.log('✅ Group chat enabled');
+    console.log('✅ AI Fish Group Chat enabled', {
+      intervalMinutes: this.groupChatIntervalMinutes,
+      hasLayoutManager: !!this.layoutManager,
+      isInitialized: this.isInitialized
+    });
     
     // Restart scheduling if manager was initialized
     if (this.layoutManager) {
+      console.log('🔄 Starting auto-chat scheduling...');
       this.scheduleAutoChats(this.groupChatIntervalMinutes);
       this.startPeriodicCheck(); // Start periodic check
+    } else {
+      console.warn('⚠️ Layout manager not available, cannot schedule auto-chats');
     }
   }
   
@@ -627,7 +702,7 @@ class CommunityChatManager {
     }
     
     this.groupChatEnabled = false;
-    console.log('❌ Group chat disabled');
+    console.log('❌ AI Fish Group Chat disabled');
     
     // Stop current session
     this.stopSession();
@@ -750,6 +825,11 @@ class CommunityChatManager {
       return false;
     }
     
+    // Don't pause during initialization (first 3 seconds after page load)
+    if (!this.isInitialized) {
+      return false;
+    }
+    
     // If both group chat and monologue are disabled, always pause
     if (!this.groupChatEnabled && !this.monologueEnabled) {
       return true;
@@ -771,6 +851,76 @@ class CommunityChatManager {
     }
     
     return false;
+  }
+  
+  /**
+   * Get the reason why generation is paused (for debugging)
+   * @returns {Object} - Pause reason details
+   */
+  getPauseReason() {
+    if (!this.costSavingEnabled) {
+      return { reason: 'cost_saving_disabled' };
+    }
+    
+    if (!this.isInitialized) {
+      return { reason: 'not_initialized' };
+    }
+    
+    if (!this.groupChatEnabled && !this.monologueEnabled) {
+      return { reason: 'both_disabled' };
+    }
+    
+    if (!this.checkPageVisible()) {
+      return { 
+        reason: 'page_not_visible',
+        documentHidden: document.hidden,
+        isPageVisible: this.isPageVisible
+      };
+    }
+    
+    if (!this.isUserActive()) {
+      const inactiveTime = Date.now() - this.lastActivityTime;
+      return { 
+        reason: 'user_inactive',
+        inactiveTimeMinutes: Math.round(inactiveTime / 60000),
+        maxInactiveTimeMinutes: this.maxInactiveTime / 60000
+      };
+    }
+    
+    if (this.hasExceededMaxRunTime()) {
+      const runTime = Date.now() - this.startTime;
+      return { 
+        reason: 'max_run_time_exceeded',
+        runTimeMinutes: Math.round(runTime / 60000),
+        maxRunTimeMinutes: this.maxRunTime / 60000
+      };
+    }
+    
+    return { reason: 'none' };
+  }
+  
+  /**
+   * Mark initialization as complete (called after page is fully loaded)
+   */
+  markInitialized() {
+    const wasInitialized = this.isInitialized;
+    this.isInitialized = true;
+    // Update page visibility state based on actual document state
+    this.isPageVisible = !document.hidden;
+    console.log(`✅ Chat manager initialized`, {
+      wasInitialized,
+      nowInitialized: this.isInitialized,
+      pageVisible: this.isPageVisible,
+      documentHidden: document.hidden,
+      groupChatEnabled: this.groupChatEnabled,
+      monologueEnabled: this.monologueEnabled
+    });
+    
+    // If group chat is enabled but not scheduled yet, schedule it now
+    if (this.groupChatEnabled && !this.autoChatInterval && this.layoutManager) {
+      console.log('🔄 AI Fish Group Chat was enabled but not scheduled, scheduling now...');
+      this.scheduleAutoChats(this.groupChatIntervalMinutes);
+    }
   }
   
   /**
@@ -960,7 +1110,7 @@ class CommunityChatManager {
    */
   setGroupChatInterval(intervalMinutes) {
     this.groupChatIntervalMinutes = intervalMinutes;
-    console.log(`💬 Group chat interval set to ${intervalMinutes} minutes`);
+    console.log(`💬 AI Fish Group Chat interval set to ${intervalMinutes} minutes`);
     
     // If group chat is already enabled, restart scheduling with new interval
     if (this.groupChatEnabled && this.layoutManager) {

@@ -270,11 +270,13 @@ module.exports = async (req, res) => {
 
         // Special handling for no eligible fish
         if (error.message === 'NO_ELIGIBLE_FISH') {
-            return res.status(403).json({
+            // Return a friendly response instead of 403, allowing frontend to handle gracefully
+            return res.status(200).json({
                 success: false,
                 error: 'No eligible fish for monologue',
                 message: 'No eligible fish found for monologue. Only Plus or Premium members\' fish can self-talk.',
-                upgradeSuggestion: 'Upgrade to Plus or Premium membership to enable fish self-talk'
+                upgradeSuggestion: 'Upgrade to Plus or Premium membership to enable fish self-talk',
+                useFallback: true
             });
         }
 

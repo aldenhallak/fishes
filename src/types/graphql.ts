@@ -2460,8 +2460,12 @@ export type Messages = {
   /** 目标鱼ID（留言给鱼时使用） */
   fish_id?: Maybe<Scalars['uuid']['output']>;
   id: Scalars['uuid']['output'];
+  /** 消息是否已读，默认false */
+  is_read: Scalars['Boolean']['output'];
   /** 留言类型：to_fish=给鱼留言，to_owner=给主人留言 */
   message_type: Scalars['String']['output'];
+  /** 消息被标记为已读的时间戳 */
+  read_at?: Maybe<Scalars['timestamp']['output']>;
   /** 接收者用户ID（留言给主人时使用） */
   receiver_id?: Maybe<Scalars['String']['output']>;
   /** 发送者用户ID（外键关联users表） */
@@ -2482,7 +2486,23 @@ export type Messages_Aggregate = {
 };
 
 export type Messages_Aggregate_Bool_Exp = {
+  bool_and?: InputMaybe<Messages_Aggregate_Bool_Exp_Bool_And>;
+  bool_or?: InputMaybe<Messages_Aggregate_Bool_Exp_Bool_Or>;
   count?: InputMaybe<Messages_Aggregate_Bool_Exp_Count>;
+};
+
+export type Messages_Aggregate_Bool_Exp_Bool_And = {
+  arguments: Messages_Select_Column_Messages_Aggregate_Bool_Exp_Bool_And_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Messages_Bool_Exp>;
+  predicate: Boolean_Comparison_Exp;
+};
+
+export type Messages_Aggregate_Bool_Exp_Bool_Or = {
+  arguments: Messages_Select_Column_Messages_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Messages_Bool_Exp>;
+  predicate: Boolean_Comparison_Exp;
 };
 
 export type Messages_Aggregate_Bool_Exp_Count = {
@@ -2531,7 +2551,9 @@ export type Messages_Bool_Exp = {
   fish?: InputMaybe<Fish_Bool_Exp>;
   fish_id?: InputMaybe<Uuid_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
+  is_read?: InputMaybe<Boolean_Comparison_Exp>;
   message_type?: InputMaybe<String_Comparison_Exp>;
+  read_at?: InputMaybe<Timestamp_Comparison_Exp>;
   receiver_id?: InputMaybe<String_Comparison_Exp>;
   sender_id?: InputMaybe<String_Comparison_Exp>;
   user?: InputMaybe<Users_Bool_Exp>;
@@ -2554,8 +2576,12 @@ export type Messages_Insert_Input = {
   /** 目标鱼ID（留言给鱼时使用） */
   fish_id?: InputMaybe<Scalars['uuid']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** 消息是否已读，默认false */
+  is_read?: InputMaybe<Scalars['Boolean']['input']>;
   /** 留言类型：to_fish=给鱼留言，to_owner=给主人留言 */
   message_type?: InputMaybe<Scalars['String']['input']>;
+  /** 消息被标记为已读的时间戳 */
+  read_at?: InputMaybe<Scalars['timestamp']['input']>;
   /** 接收者用户ID（留言给主人时使用） */
   receiver_id?: InputMaybe<Scalars['String']['input']>;
   /** 发送者用户ID（外键关联users表） */
@@ -2577,6 +2603,8 @@ export type Messages_Max_Fields = {
   id?: Maybe<Scalars['uuid']['output']>;
   /** 留言类型：to_fish=给鱼留言，to_owner=给主人留言 */
   message_type?: Maybe<Scalars['String']['output']>;
+  /** 消息被标记为已读的时间戳 */
+  read_at?: Maybe<Scalars['timestamp']['output']>;
   /** 接收者用户ID（留言给主人时使用） */
   receiver_id?: Maybe<Scalars['String']['output']>;
   /** 发送者用户ID（外键关联users表） */
@@ -2595,6 +2623,8 @@ export type Messages_Max_Order_By = {
   id?: InputMaybe<Order_By>;
   /** 留言类型：to_fish=给鱼留言，to_owner=给主人留言 */
   message_type?: InputMaybe<Order_By>;
+  /** 消息被标记为已读的时间戳 */
+  read_at?: InputMaybe<Order_By>;
   /** 接收者用户ID（留言给主人时使用） */
   receiver_id?: InputMaybe<Order_By>;
   /** 发送者用户ID（外键关联users表） */
@@ -2614,6 +2644,8 @@ export type Messages_Min_Fields = {
   id?: Maybe<Scalars['uuid']['output']>;
   /** 留言类型：to_fish=给鱼留言，to_owner=给主人留言 */
   message_type?: Maybe<Scalars['String']['output']>;
+  /** 消息被标记为已读的时间戳 */
+  read_at?: Maybe<Scalars['timestamp']['output']>;
   /** 接收者用户ID（留言给主人时使用） */
   receiver_id?: Maybe<Scalars['String']['output']>;
   /** 发送者用户ID（外键关联users表） */
@@ -2632,6 +2664,8 @@ export type Messages_Min_Order_By = {
   id?: InputMaybe<Order_By>;
   /** 留言类型：to_fish=给鱼留言，to_owner=给主人留言 */
   message_type?: InputMaybe<Order_By>;
+  /** 消息被标记为已读的时间戳 */
+  read_at?: InputMaybe<Order_By>;
   /** 接收者用户ID（留言给主人时使用） */
   receiver_id?: InputMaybe<Order_By>;
   /** 发送者用户ID（外键关联users表） */
@@ -2663,7 +2697,9 @@ export type Messages_Order_By = {
   fish?: InputMaybe<Fish_Order_By>;
   fish_id?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  is_read?: InputMaybe<Order_By>;
   message_type?: InputMaybe<Order_By>;
+  read_at?: InputMaybe<Order_By>;
   receiver_id?: InputMaybe<Order_By>;
   sender_id?: InputMaybe<Order_By>;
   user?: InputMaybe<Users_Order_By>;
@@ -2687,13 +2723,29 @@ export enum Messages_Select_Column {
   /** column name */
   Id = 'id',
   /** column name */
+  IsRead = 'is_read',
+  /** column name */
   MessageType = 'message_type',
+  /** column name */
+  ReadAt = 'read_at',
   /** column name */
   ReceiverId = 'receiver_id',
   /** column name */
   SenderId = 'sender_id',
   /** column name */
   Visibility = 'visibility'
+}
+
+/** select "messages_aggregate_bool_exp_bool_and_arguments_columns" columns of table "messages" */
+export enum Messages_Select_Column_Messages_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
+  /** column name */
+  IsRead = 'is_read'
+}
+
+/** select "messages_aggregate_bool_exp_bool_or_arguments_columns" columns of table "messages" */
+export enum Messages_Select_Column_Messages_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
+  /** column name */
+  IsRead = 'is_read'
 }
 
 /** input type for updating data in table "messages" */
@@ -2704,8 +2756,12 @@ export type Messages_Set_Input = {
   /** 目标鱼ID（留言给鱼时使用） */
   fish_id?: InputMaybe<Scalars['uuid']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** 消息是否已读，默认false */
+  is_read?: InputMaybe<Scalars['Boolean']['input']>;
   /** 留言类型：to_fish=给鱼留言，to_owner=给主人留言 */
   message_type?: InputMaybe<Scalars['String']['input']>;
+  /** 消息被标记为已读的时间戳 */
+  read_at?: InputMaybe<Scalars['timestamp']['input']>;
   /** 接收者用户ID（留言给主人时使用） */
   receiver_id?: InputMaybe<Scalars['String']['input']>;
   /** 发送者用户ID（外键关联users表） */
@@ -2730,8 +2786,12 @@ export type Messages_Stream_Cursor_Value_Input = {
   /** 目标鱼ID（留言给鱼时使用） */
   fish_id?: InputMaybe<Scalars['uuid']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** 消息是否已读，默认false */
+  is_read?: InputMaybe<Scalars['Boolean']['input']>;
   /** 留言类型：to_fish=给鱼留言，to_owner=给主人留言 */
   message_type?: InputMaybe<Scalars['String']['input']>;
+  /** 消息被标记为已读的时间戳 */
+  read_at?: InputMaybe<Scalars['timestamp']['input']>;
   /** 接收者用户ID（留言给主人时使用） */
   receiver_id?: InputMaybe<Scalars['String']['input']>;
   /** 发送者用户ID（外键关联users表） */
@@ -2751,7 +2811,11 @@ export enum Messages_Update_Column {
   /** column name */
   Id = 'id',
   /** column name */
+  IsRead = 'is_read',
+  /** column name */
   MessageType = 'message_type',
+  /** column name */
+  ReadAt = 'read_at',
   /** column name */
   ReceiverId = 'receiver_id',
   /** column name */
@@ -5577,13 +5641,6 @@ export type User_Subscriptions_Mutation_Response = {
   returning: Array<User_Subscriptions>;
 };
 
-/** input type for inserting object relation for remote table "user_subscriptions" */
-export type User_Subscriptions_Obj_Rel_Insert_Input = {
-  data: User_Subscriptions_Insert_Input;
-  /** upsert condition */
-  on_conflict?: InputMaybe<User_Subscriptions_On_Conflict>;
-};
-
 /** on_conflict condition type for table "user_subscriptions" */
 export type User_Subscriptions_On_Conflict = {
   constraint: User_Subscriptions_Constraint;
@@ -6009,9 +6066,12 @@ export type Users = {
   total_fish_created?: Maybe<Scalars['Int']['output']>;
   total_votes_received?: Maybe<Scalars['Int']['output']>;
   updated_at?: Maybe<Scalars['timestamp']['output']>;
-  user_level?: Maybe<Scalars['Int']['output']>;
-  /** An object relationship */
-  user_subscription?: Maybe<User_Subscriptions>;
+  /** 用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean */
+  user_language?: Maybe<Scalars['String']['output']>;
+  /** An array relationship */
+  user_subscriptions: Array<User_Subscriptions>;
+  /** An aggregate relationship */
+  user_subscriptions_aggregate: User_Subscriptions_Aggregate;
   /** An array relationship */
   votes: Array<Votes>;
   /** An aggregate relationship */
@@ -6100,6 +6160,26 @@ export type UsersReports_AggregateArgs = {
 
 
 /** columns and relationships of "users" */
+export type UsersUser_SubscriptionsArgs = {
+  distinct_on?: InputMaybe<Array<User_Subscriptions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<User_Subscriptions_Order_By>>;
+  where?: InputMaybe<User_Subscriptions_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersUser_Subscriptions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<User_Subscriptions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<User_Subscriptions_Order_By>>;
+  where?: InputMaybe<User_Subscriptions_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
 export type UsersVotesArgs = {
   distinct_on?: InputMaybe<Array<Votes_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -6154,7 +6234,6 @@ export type Users_Avg_Fields = {
   reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish_created?: Maybe<Scalars['Float']['output']>;
   total_votes_received?: Maybe<Scalars['Float']['output']>;
-  user_level?: Maybe<Scalars['Float']['output']>;
 };
 
 /** Boolean expression to filter rows from the table "users". All fields are combined with a logical 'AND'. */
@@ -6185,8 +6264,9 @@ export type Users_Bool_Exp = {
   total_fish_created?: InputMaybe<Int_Comparison_Exp>;
   total_votes_received?: InputMaybe<Int_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamp_Comparison_Exp>;
-  user_level?: InputMaybe<Int_Comparison_Exp>;
-  user_subscription?: InputMaybe<User_Subscriptions_Bool_Exp>;
+  user_language?: InputMaybe<String_Comparison_Exp>;
+  user_subscriptions?: InputMaybe<User_Subscriptions_Bool_Exp>;
+  user_subscriptions_aggregate?: InputMaybe<User_Subscriptions_Aggregate_Bool_Exp>;
   votes?: InputMaybe<Votes_Bool_Exp>;
   votes_aggregate?: InputMaybe<Votes_Aggregate_Bool_Exp>;
 };
@@ -6204,7 +6284,6 @@ export type Users_Inc_Input = {
   reputation_score?: InputMaybe<Scalars['Int']['input']>;
   total_fish_created?: InputMaybe<Scalars['Int']['input']>;
   total_votes_received?: InputMaybe<Scalars['Int']['input']>;
-  user_level?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** input type for inserting data into table "users" */
@@ -6230,8 +6309,9 @@ export type Users_Insert_Input = {
   total_fish_created?: InputMaybe<Scalars['Int']['input']>;
   total_votes_received?: InputMaybe<Scalars['Int']['input']>;
   updated_at?: InputMaybe<Scalars['timestamp']['input']>;
-  user_level?: InputMaybe<Scalars['Int']['input']>;
-  user_subscription?: InputMaybe<User_Subscriptions_Obj_Rel_Insert_Input>;
+  /** 用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean */
+  user_language?: InputMaybe<Scalars['String']['input']>;
+  user_subscriptions?: InputMaybe<User_Subscriptions_Arr_Rel_Insert_Input>;
   votes?: InputMaybe<Votes_Arr_Rel_Insert_Input>;
 };
 
@@ -6254,7 +6334,8 @@ export type Users_Max_Fields = {
   total_fish_created?: Maybe<Scalars['Int']['output']>;
   total_votes_received?: Maybe<Scalars['Int']['output']>;
   updated_at?: Maybe<Scalars['timestamp']['output']>;
-  user_level?: Maybe<Scalars['Int']['output']>;
+  /** 用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean */
+  user_language?: Maybe<Scalars['String']['output']>;
 };
 
 /** aggregate min on columns */
@@ -6276,7 +6357,8 @@ export type Users_Min_Fields = {
   total_fish_created?: Maybe<Scalars['Int']['output']>;
   total_votes_received?: Maybe<Scalars['Int']['output']>;
   updated_at?: Maybe<Scalars['timestamp']['output']>;
-  user_level?: Maybe<Scalars['Int']['output']>;
+  /** 用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean */
+  user_language?: Maybe<Scalars['String']['output']>;
 };
 
 /** response of any mutation on the table "users" */
@@ -6323,8 +6405,8 @@ export type Users_Order_By = {
   total_fish_created?: InputMaybe<Order_By>;
   total_votes_received?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
-  user_level?: InputMaybe<Order_By>;
-  user_subscription?: InputMaybe<User_Subscriptions_Order_By>;
+  user_language?: InputMaybe<Order_By>;
+  user_subscriptions_aggregate?: InputMaybe<User_Subscriptions_Aggregate_Order_By>;
   votes_aggregate?: InputMaybe<Votes_Aggregate_Order_By>;
 };
 
@@ -6366,7 +6448,7 @@ export enum Users_Select_Column {
   /** column name */
   UpdatedAt = 'updated_at',
   /** column name */
-  UserLevel = 'user_level'
+  UserLanguage = 'user_language'
 }
 
 /** input type for updating data in table "users" */
@@ -6388,7 +6470,8 @@ export type Users_Set_Input = {
   total_fish_created?: InputMaybe<Scalars['Int']['input']>;
   total_votes_received?: InputMaybe<Scalars['Int']['input']>;
   updated_at?: InputMaybe<Scalars['timestamp']['input']>;
-  user_level?: InputMaybe<Scalars['Int']['input']>;
+  /** 用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean */
+  user_language?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** aggregate stddev on columns */
@@ -6397,7 +6480,6 @@ export type Users_Stddev_Fields = {
   reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish_created?: Maybe<Scalars['Float']['output']>;
   total_votes_received?: Maybe<Scalars['Float']['output']>;
-  user_level?: Maybe<Scalars['Float']['output']>;
 };
 
 /** aggregate stddev_pop on columns */
@@ -6406,7 +6488,6 @@ export type Users_Stddev_Pop_Fields = {
   reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish_created?: Maybe<Scalars['Float']['output']>;
   total_votes_received?: Maybe<Scalars['Float']['output']>;
-  user_level?: Maybe<Scalars['Float']['output']>;
 };
 
 /** aggregate stddev_samp on columns */
@@ -6415,7 +6496,6 @@ export type Users_Stddev_Samp_Fields = {
   reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish_created?: Maybe<Scalars['Float']['output']>;
   total_votes_received?: Maybe<Scalars['Float']['output']>;
-  user_level?: Maybe<Scalars['Float']['output']>;
 };
 
 /** Streaming cursor of the table "users" */
@@ -6445,7 +6525,8 @@ export type Users_Stream_Cursor_Value_Input = {
   total_fish_created?: InputMaybe<Scalars['Int']['input']>;
   total_votes_received?: InputMaybe<Scalars['Int']['input']>;
   updated_at?: InputMaybe<Scalars['timestamp']['input']>;
-  user_level?: InputMaybe<Scalars['Int']['input']>;
+  /** 用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean */
+  user_language?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** aggregate sum on columns */
@@ -6454,7 +6535,6 @@ export type Users_Sum_Fields = {
   reputation_score?: Maybe<Scalars['Int']['output']>;
   total_fish_created?: Maybe<Scalars['Int']['output']>;
   total_votes_received?: Maybe<Scalars['Int']['output']>;
-  user_level?: Maybe<Scalars['Int']['output']>;
 };
 
 /** update columns of table "users" */
@@ -6490,7 +6570,7 @@ export enum Users_Update_Column {
   /** column name */
   UpdatedAt = 'updated_at',
   /** column name */
-  UserLevel = 'user_level'
+  UserLanguage = 'user_language'
 }
 
 export type Users_Updates = {
@@ -6508,7 +6588,6 @@ export type Users_Var_Pop_Fields = {
   reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish_created?: Maybe<Scalars['Float']['output']>;
   total_votes_received?: Maybe<Scalars['Float']['output']>;
-  user_level?: Maybe<Scalars['Float']['output']>;
 };
 
 /** aggregate var_samp on columns */
@@ -6517,7 +6596,6 @@ export type Users_Var_Samp_Fields = {
   reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish_created?: Maybe<Scalars['Float']['output']>;
   total_votes_received?: Maybe<Scalars['Float']['output']>;
-  user_level?: Maybe<Scalars['Float']['output']>;
 };
 
 /** aggregate variance on columns */
@@ -6526,7 +6604,6 @@ export type Users_Variance_Fields = {
   reputation_score?: Maybe<Scalars['Float']['output']>;
   total_fish_created?: Maybe<Scalars['Float']['output']>;
   total_votes_received?: Maybe<Scalars['Float']['output']>;
-  user_level?: Maybe<Scalars['Float']['output']>;
 };
 
 /** Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'. */

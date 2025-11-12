@@ -27,6 +27,12 @@ const MessageUI = {
       const publicMessages = messages.filter(msg => msg.visibility === 'public');
       const privateMessages = messages.filter(msg => msg.visibility === 'private');
 
+      // 计算未读消息数量和总数
+      const publicUnreadCount = publicMessages.filter(msg => !msg.is_read).length;
+      const publicTotalCount = publicMessages.length;
+      const privateUnreadCount = privateMessages.filter(msg => !msg.is_read).length;
+      const privateTotalCount = privateMessages.length;
+
       let html = '';
 
       // 显示Public Messages
@@ -35,11 +41,16 @@ const MessageUI = {
           return this.renderMessageCard(msg, { showFishInfo, showDeleteBtn });
         }).join('');
 
+        // 根据未读数决定显示格式
+        const publicCountDisplay = publicUnreadCount > 0 
+          ? `${publicUnreadCount}/${publicTotalCount}` 
+          : `${publicTotalCount}`;
+
         html += `
           <div class="messages-group">
             <div class="messages-group-title public collapsed" onclick="MessageUI.toggleGroup(this)">
               <span class="group-icon">▶</span>
-              <span>Public Messages (${publicMessages.length})</span>
+              <span>Public Messages (${publicCountDisplay})</span>
             </div>
             <div class="messages-group-list" style="display: none;">
               ${publicCards}
@@ -54,11 +65,16 @@ const MessageUI = {
           return this.renderMessageCard(msg, { showFishInfo, showDeleteBtn });
         }).join('');
 
+        // 根据未读数决定显示格式
+        const privateCountDisplay = privateUnreadCount > 0 
+          ? `${privateUnreadCount}/${privateTotalCount}` 
+          : `${privateTotalCount}`;
+
         html += `
           <div class="messages-group">
             <div class="messages-group-title private collapsed" onclick="MessageUI.toggleGroup(this)">
               <span class="group-icon">▶</span>
-              <span>Private Messages (${privateMessages.length})</span>
+              <span>Private Messages (${privateCountDisplay})</span>
             </div>
             <div class="messages-group-list" style="display: none;">
               ${privateCards}
@@ -388,6 +404,18 @@ const MessageUI = {
       const currentUserId = MessageClient.getCurrentUserId();
       const canShowDelete = showDeleteBtn && currentUserId;
 
+      // 如果是用户查看自己的消息，自动标记未读消息为已读
+      if (messageType === 'to_owner' && currentUserId === targetId) {
+        const unreadMessages = messages.filter(msg => !msg.is_read);
+        if (unreadMessages.length > 0) {
+          const unreadIds = unreadMessages.map(msg => msg.id);
+          // 异步标记为已读，不阻塞UI渲染
+          this.markMessagesAsRead(currentUserId, unreadIds).catch(error => {
+            console.error('Failed to mark messages as read:', error);
+          });
+        }
+      }
+
       // 渲染留言列表（profile页面使用分组显示）
       const messageListHtml = this.renderMessageList(messages, { 
         showFishInfo, 
@@ -594,6 +622,47 @@ const MessageUI = {
     // 自动聚焦
     if (contentTextarea) {
       setTimeout(() => contentTextarea.focus(), 100);
+    }
+  },
+
+  /**
+   * 标记消息为已读
+   * @param {string} userId - 用户ID
+   * @param {Array<string>} messageIds - 消息ID数组
+   * @returns {Promise} 
+   */
+  async markMessagesAsRead(userId, messageIds) {
+    if (!userId || !messageIds || messageIds.length === 0) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/message/mark-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: userId,
+          messageIds: messageIds
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to mark messages as read');
+      }
+
+      const result = await response.json();
+      
+      // 更新未读消息数量
+      if (window.authUI && typeof window.authUI.updateUnreadCount === 'function') {
+        await window.authUI.updateUnreadCount(userId);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Mark messages as read error:', error);
+      throw error;
     }
   }
 };

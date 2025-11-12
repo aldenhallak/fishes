@@ -106,16 +106,21 @@ module.exports = async function handler(req, res) {
     }
 
     // 4. 获取请求体中的数据
-    const { displayName } = req.body;
+    const { displayName, feederName, userLanguage } = req.body;
 
-    if (!displayName || !displayName.trim()) {
+    // 至少需要更新一个字段
+    if (!displayName && feederName === undefined && userLanguage === undefined) {
       return res.status(400).json({
         success: false,
-        error: '显示名称不能为空'
+        error: '至少需要提供一个要更新的字段'
       });
     }
 
-    console.log('📝 更新用户配置文件，用户ID:', authenticatedUserId, '新名称:', displayName);
+    console.log('📝 更新用户配置文件，用户ID:', authenticatedUserId, {
+      displayName,
+      feederName,
+      userLanguage
+    });
 
     // 5. 检查 users 表中是否有 display_name 字段
     const checkUserQuery = `
@@ -136,16 +141,30 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 6. 更新用户的 display_name
+    // 6. 构建更新对象
+    const updateFields = {};
+    if (displayName && displayName.trim()) {
+      updateFields.display_name = displayName.trim();
+    }
+    if (feederName !== undefined) {
+      updateFields.feeder_name = feederName && feederName.trim() ? feederName.trim() : null;
+    }
+    if (userLanguage !== undefined) {
+      updateFields.user_language = userLanguage && userLanguage.trim() ? userLanguage.trim() : null;
+    }
+
+    // 7. 更新用户信息
     const updateMutation = `
-      mutation UpdateUserDisplayName($userId: String!, $displayName: String!) {
+      mutation UpdateUserProfile($userId: String!, $updateFields: users_set_input!) {
         update_users_by_pk(
           pk_columns: { id: $userId },
-          _set: { display_name: $displayName }
+          _set: $updateFields
         ) {
           id
           email
           display_name
+          feeder_name
+          user_language
           created_at
         }
       }
@@ -153,7 +172,7 @@ module.exports = async function handler(req, res) {
 
     const updateResult = await queryHasura(updateMutation, {
       userId: authenticatedUserId,
-      displayName: displayName.trim()
+      updateFields: updateFields
     });
 
     if (!updateResult.update_users_by_pk) {

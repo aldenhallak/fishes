@@ -101,23 +101,30 @@
 .profile-avatar {
     width: 100px;
     height: 100px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
-    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 42px;
-    font-weight: 900;
     margin: 0 auto 20px;
-    box-shadow: 
-        0 6px 0 rgba(0, 0, 0, 0.25),
-        0 8px 20px rgba(74, 144, 226, 0.4),
-        inset 0 2px 4px rgba(255, 255, 255, 0.3);
-    border: 3px solid rgba(255, 255, 255, 0.9);
     position: relative;
     transition: all 0.3s ease;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    overflow: visible;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* When avatar contains membership badge, ensure no background */
+.profile-avatar:has(.membership-badge) {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.profile-avatar .membership-badge {
+    margin: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .profile-avatar::before {
@@ -157,6 +164,68 @@
 .profile-joined {
     color: #666;
     font-size: 12px;
+}
+
+.profile-membership {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+}
+
+#membership-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#membership-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+}
+
+.upgrade-btn {
+    padding: 6px 16px;
+    border: none;
+    background: linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+    color: white;
+    cursor: pointer;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.15s ease;
+    box-shadow: 0 3px 0 rgba(255, 140, 0, 0.3);
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    border-bottom: 2px solid #FF8C00;
+}
+
+.upgrade-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+    border-radius: 12px 12px 0 0;
+    pointer-events: none;
+}
+
+.upgrade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 rgba(255, 140, 0, 0.3);
+    background: linear-gradient(180deg, #FFE44D 0%, #FFB347 50%, #FF9500 100%);
+}
+
+.upgrade-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 rgba(255, 140, 0, 0.3);
 }
 
 .profile-stats {

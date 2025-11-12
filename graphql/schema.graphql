@@ -2999,8 +2999,14 @@ type messages {
   fish_id: uuid
   id: uuid!
 
+  """消息是否已读，默认false"""
+  is_read: Boolean!
+
   """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
   message_type: String!
+
+  """消息被标记为已读的时间戳"""
+  read_at: timestamp
 
   """接收者用户ID（留言给主人时使用）"""
   receiver_id: String
@@ -3027,7 +3033,23 @@ type messages_aggregate {
 }
 
 input messages_aggregate_bool_exp {
+  bool_and: messages_aggregate_bool_exp_bool_and
+  bool_or: messages_aggregate_bool_exp_bool_or
   count: messages_aggregate_bool_exp_count
+}
+
+input messages_aggregate_bool_exp_bool_and {
+  arguments: messages_select_column_messages_aggregate_bool_exp_bool_and_arguments_columns!
+  distinct: Boolean
+  filter: messages_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input messages_aggregate_bool_exp_bool_or {
+  arguments: messages_select_column_messages_aggregate_bool_exp_bool_or_arguments_columns!
+  distinct: Boolean
+  filter: messages_bool_exp
+  predicate: Boolean_comparison_exp!
 }
 
 input messages_aggregate_bool_exp_count {
@@ -3077,7 +3099,9 @@ input messages_bool_exp {
   fish: fish_bool_exp
   fish_id: uuid_comparison_exp
   id: uuid_comparison_exp
+  is_read: Boolean_comparison_exp
   message_type: String_comparison_exp
+  read_at: timestamp_comparison_exp
   receiver_id: String_comparison_exp
   sender_id: String_comparison_exp
   user: users_bool_exp
@@ -3108,8 +3132,14 @@ input messages_insert_input {
   fish_id: uuid
   id: uuid
 
+  """消息是否已读，默认false"""
+  is_read: Boolean
+
   """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
   message_type: String
+
+  """消息被标记为已读的时间戳"""
+  read_at: timestamp
 
   """接收者用户ID（留言给主人时使用）"""
   receiver_id: String
@@ -3136,6 +3166,9 @@ type messages_max_fields {
   """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
   message_type: String
 
+  """消息被标记为已读的时间戳"""
+  read_at: timestamp
+
   """接收者用户ID（留言给主人时使用）"""
   receiver_id: String
 
@@ -3161,6 +3194,9 @@ input messages_max_order_by {
   """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
   message_type: order_by
 
+  """消息被标记为已读的时间戳"""
+  read_at: order_by
+
   """接收者用户ID（留言给主人时使用）"""
   receiver_id: order_by
 
@@ -3183,6 +3219,9 @@ type messages_min_fields {
 
   """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
   message_type: String
+
+  """消息被标记为已读的时间戳"""
+  read_at: timestamp
 
   """接收者用户ID（留言给主人时使用）"""
   receiver_id: String
@@ -3208,6 +3247,9 @@ input messages_min_order_by {
 
   """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
   message_type: order_by
+
+  """消息被标记为已读的时间戳"""
+  read_at: order_by
 
   """接收者用户ID（留言给主人时使用）"""
   receiver_id: order_by
@@ -3246,7 +3288,9 @@ input messages_order_by {
   fish: fish_order_by
   fish_id: order_by
   id: order_by
+  is_read: order_by
   message_type: order_by
+  read_at: order_by
   receiver_id: order_by
   sender_id: order_by
   user: users_order_by
@@ -3276,7 +3320,13 @@ enum messages_select_column {
   id
 
   """column name"""
+  is_read
+
+  """column name"""
   message_type
+
+  """column name"""
+  read_at
 
   """column name"""
   receiver_id
@@ -3286,6 +3336,22 @@ enum messages_select_column {
 
   """column name"""
   visibility
+}
+
+"""
+select "messages_aggregate_bool_exp_bool_and_arguments_columns" columns of table "messages"
+"""
+enum messages_select_column_messages_aggregate_bool_exp_bool_and_arguments_columns {
+  """column name"""
+  is_read
+}
+
+"""
+select "messages_aggregate_bool_exp_bool_or_arguments_columns" columns of table "messages"
+"""
+enum messages_select_column_messages_aggregate_bool_exp_bool_or_arguments_columns {
+  """column name"""
+  is_read
 }
 
 """
@@ -3300,8 +3366,14 @@ input messages_set_input {
   fish_id: uuid
   id: uuid
 
+  """消息是否已读，默认false"""
+  is_read: Boolean
+
   """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
   message_type: String
+
+  """消息被标记为已读的时间戳"""
+  read_at: timestamp
 
   """接收者用户ID（留言给主人时使用）"""
   receiver_id: String
@@ -3334,8 +3406,14 @@ input messages_stream_cursor_value_input {
   fish_id: uuid
   id: uuid
 
+  """消息是否已读，默认false"""
+  is_read: Boolean
+
   """留言类型：to_fish=给鱼留言，to_owner=给主人留言"""
   message_type: String
+
+  """消息被标记为已读的时间戳"""
+  read_at: timestamp
 
   """接收者用户ID（留言给主人时使用）"""
   receiver_id: String
@@ -3364,7 +3442,13 @@ enum messages_update_column {
   id
 
   """column name"""
+  is_read
+
+  """column name"""
   message_type
+
+  """column name"""
+  read_at
 
   """column name"""
   receiver_id
@@ -6886,16 +6970,6 @@ type user_subscriptions_mutation_response {
 }
 
 """
-input type for inserting object relation for remote table "user_subscriptions"
-"""
-input user_subscriptions_obj_rel_insert_input {
-  data: user_subscriptions_insert_input!
-
-  """upsert condition"""
-  on_conflict: user_subscriptions_on_conflict
-}
-
-"""
 on_conflict condition type for table "user_subscriptions"
 """
 input user_subscriptions_on_conflict {
@@ -7514,10 +7588,47 @@ type users {
   total_fish_created: Int
   total_votes_received: Int
   updated_at: timestamp
-  user_level: Int
 
-  """An object relationship"""
-  user_subscription: user_subscriptions
+  """
+  用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean
+  """
+  user_language: String
+
+  """An array relationship"""
+  user_subscriptions(
+    """distinct select on columns"""
+    distinct_on: [user_subscriptions_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_subscriptions_order_by!]
+
+    """filter the rows returned"""
+    where: user_subscriptions_bool_exp
+  ): [user_subscriptions!]!
+
+  """An aggregate relationship"""
+  user_subscriptions_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_subscriptions_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_subscriptions_order_by!]
+
+    """filter the rows returned"""
+    where: user_subscriptions_bool_exp
+  ): user_subscriptions_aggregate!
 
   """An array relationship"""
   votes(
@@ -7586,7 +7697,6 @@ type users_avg_fields {
   reputation_score: Float
   total_fish_created: Float
   total_votes_received: Float
-  user_level: Float
 }
 
 """
@@ -7619,8 +7729,9 @@ input users_bool_exp {
   total_fish_created: Int_comparison_exp
   total_votes_received: Int_comparison_exp
   updated_at: timestamp_comparison_exp
-  user_level: Int_comparison_exp
-  user_subscription: user_subscriptions_bool_exp
+  user_language: String_comparison_exp
+  user_subscriptions: user_subscriptions_bool_exp
+  user_subscriptions_aggregate: user_subscriptions_aggregate_bool_exp
   votes: votes_bool_exp
   votes_aggregate: votes_aggregate_bool_exp
 }
@@ -7647,7 +7758,6 @@ input users_inc_input {
   reputation_score: Int
   total_fish_created: Int
   total_votes_received: Int
-  user_level: Int
 }
 
 """
@@ -7677,8 +7787,12 @@ input users_insert_input {
   total_fish_created: Int
   total_votes_received: Int
   updated_at: timestamp
-  user_level: Int
-  user_subscription: user_subscriptions_obj_rel_insert_input
+
+  """
+  用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean
+  """
+  user_language: String
+  user_subscriptions: user_subscriptions_arr_rel_insert_input
   votes: votes_arr_rel_insert_input
 }
 
@@ -7702,7 +7816,11 @@ type users_max_fields {
   total_fish_created: Int
   total_votes_received: Int
   updated_at: timestamp
-  user_level: Int
+
+  """
+  用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean
+  """
+  user_language: String
 }
 
 """aggregate min on columns"""
@@ -7725,7 +7843,11 @@ type users_min_fields {
   total_fish_created: Int
   total_votes_received: Int
   updated_at: timestamp
-  user_level: Int
+
+  """
+  用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean
+  """
+  user_language: String
 }
 
 """
@@ -7779,8 +7901,8 @@ input users_order_by {
   total_fish_created: order_by
   total_votes_received: order_by
   updated_at: order_by
-  user_level: order_by
-  user_subscription: user_subscriptions_order_by
+  user_language: order_by
+  user_subscriptions_aggregate: user_subscriptions_aggregate_order_by
   votes_aggregate: votes_aggregate_order_by
 }
 
@@ -7839,7 +7961,7 @@ enum users_select_column {
   updated_at
 
   """column name"""
-  user_level
+  user_language
 }
 
 """
@@ -7865,7 +7987,11 @@ input users_set_input {
   total_fish_created: Int
   total_votes_received: Int
   updated_at: timestamp
-  user_level: Int
+
+  """
+  用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean
+  """
+  user_language: String
 }
 
 """aggregate stddev on columns"""
@@ -7873,7 +7999,6 @@ type users_stddev_fields {
   reputation_score: Float
   total_fish_created: Float
   total_votes_received: Float
-  user_level: Float
 }
 
 """aggregate stddev_pop on columns"""
@@ -7881,7 +8006,6 @@ type users_stddev_pop_fields {
   reputation_score: Float
   total_fish_created: Float
   total_votes_received: Float
-  user_level: Float
 }
 
 """aggregate stddev_samp on columns"""
@@ -7889,7 +8013,6 @@ type users_stddev_samp_fields {
   reputation_score: Float
   total_fish_created: Float
   total_votes_received: Float
-  user_level: Float
 }
 
 """
@@ -7924,7 +8047,11 @@ input users_stream_cursor_value_input {
   total_fish_created: Int
   total_votes_received: Int
   updated_at: timestamp
-  user_level: Int
+
+  """
+  用户选择的语言（英文全称），用于群聊模式等场景。支持：English, French, Spanish, Chinese, Traditional Chinese, Japanese, Korean
+  """
+  user_language: String
 }
 
 """aggregate sum on columns"""
@@ -7932,7 +8059,6 @@ type users_sum_fields {
   reputation_score: Int
   total_fish_created: Int
   total_votes_received: Int
-  user_level: Int
 }
 
 """
@@ -7985,7 +8111,7 @@ enum users_update_column {
   updated_at
 
   """column name"""
-  user_level
+  user_language
 }
 
 input users_updates {
@@ -8004,7 +8130,6 @@ type users_var_pop_fields {
   reputation_score: Float
   total_fish_created: Float
   total_votes_received: Float
-  user_level: Float
 }
 
 """aggregate var_samp on columns"""
@@ -8012,7 +8137,6 @@ type users_var_samp_fields {
   reputation_score: Float
   total_fish_created: Float
   total_votes_received: Float
-  user_level: Float
 }
 
 """aggregate variance on columns"""
@@ -8020,7 +8144,6 @@ type users_variance_fields {
   reputation_score: Float
   total_fish_created: Float
   total_votes_received: Float
-  user_level: Float
 }
 
 scalar uuid

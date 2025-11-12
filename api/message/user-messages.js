@@ -68,6 +68,8 @@ module.exports = async function handler(req, res) {
           content
           visibility
           created_at
+          is_read
+          read_at
         }
       }
     `;

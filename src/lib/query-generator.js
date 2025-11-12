@@ -6,12 +6,46 @@
 const { getTableInfo, isNumericType, isBooleanType } = require('./schema-parser');
 
 /**
+ * 获取表的默认排序字段
+ */
+function getDefaultSortField(tableName) {
+  const tableInfo = getTableInfo(tableName);
+  if (!tableInfo) {
+    return 'id'; // 回退到默认值
+  }
+  
+  // 优先使用 id 字段
+  if (tableInfo.fields.some(f => f.name === 'id')) {
+    return 'id';
+  }
+  
+  // 对于 global_params 表，使用 key 字段
+  if (tableName === 'global_params') {
+    return 'key';
+  }
+  
+  // 尝试使用 key 字段（如果存在）
+  if (tableInfo.fields.some(f => f.name === 'key')) {
+    return 'key';
+  }
+  
+  // 使用第一个字段作为默认排序字段
+  if (tableInfo.fields.length > 0) {
+    return tableInfo.fields[0].name;
+  }
+  
+  // 最后的回退
+  return 'id';
+}
+
+/**
  * 生成 GET 查询
  */
 function generateGetQuery(tableName, fields, orderBy, orderDirection) {
   const fieldList = fields.join('\n            ');
   
-  const sortField = orderBy || 'id';
+  // 如果没有指定排序字段，使用表的默认排序字段
+  const sortField = orderBy || getDefaultSortField(tableName);
   const sortDir = orderDirection || 'desc';
   
   return `
@@ -69,24 +103,60 @@ function generateInsertMutation(tableName, data) {
 }
 
 /**
+ * 获取表的主键字段
+ */
+function getPrimaryKeyFieldName(tableName) {
+  const tableInfo = getTableInfo(tableName);
+  if (!tableInfo) {
+    return 'id'; // 回退到默认值
+  }
+  
+  // 优先使用 id 字段
+  if (tableInfo.fields.some(f => f.name === 'id')) {
+    return 'id';
+  }
+  
+  // 对于 global_params 表，使用 key 字段
+  if (tableName === 'global_params') {
+    return 'key';
+  }
+  
+  // 尝试使用 key 字段（如果存在）
+  if (tableInfo.fields.some(f => f.name === 'key')) {
+    return 'key';
+  }
+  
+  // 使用第一个字段作为主键
+  if (tableInfo.fields.length > 0) {
+    return tableInfo.fields[0].name;
+  }
+  
+  // 最后的回退
+  return 'id';
+}
+
+/**
  * 生成 PUT 更新 mutation
  */
-function generateUpdateMutation(tableName, id, data) {
+function generateUpdateMutation(tableName, pkValue, data) {
   const tableInfo = getTableInfo(tableName);
   if (!tableInfo) {
     throw new Error(`Table ${tableName} not found in schema`);
   }
 
-  // 检测ID字段类型
-  const idField = tableInfo.fields.find(f => f.name === 'id');
-  const idType = idField ? idField.type : 'bigint';
+  // 获取主键字段名
+  const pkFieldName = getPrimaryKeyFieldName(tableName);
   
-  const variableDefinitions = [`$id: ${idType}!`];
+  // 检测主键字段类型
+  const pkField = tableInfo.fields.find(f => f.name === pkFieldName);
+  const pkType = pkField ? pkField.type : 'bigint';
+  
+  const variableDefinitions = [`$pkValue: ${pkType}!`];
   const setFields = [];
-  const variables = { id: convertId(id, idType) };
+  const variables = { pkValue: convertId(pkValue, pkType) };
 
   for (const field of tableInfo.fields) {
-    if (['id', 'created_at', 'updated_at'].includes(field.name)) {
+    if ([pkFieldName, 'created_at', 'updated_at'].includes(field.name)) {
       continue;
     }
 
@@ -109,7 +179,7 @@ function generateUpdateMutation(tableName, id, data) {
       ${variableDefinitions.join(',\n      ')}
     ) {
       update_${tableName}_by_pk(
-        pk_columns: { id: $id }
+        pk_columns: { ${pkFieldName}: $pkValue }
         _set: {
           ${setFields.join(',\n          ')}
         }
@@ -125,49 +195,55 @@ function generateUpdateMutation(tableName, id, data) {
 /**
  * 生成 DELETE 删除 mutation（单个）
  */
-function generateDeleteMutation(tableName, id) {
+function generateDeleteMutation(tableName, pkValue) {
   const tableInfo = getTableInfo(tableName);
   if (!tableInfo) {
     throw new Error(`Table ${tableName} not found in schema`);
   }
 
-  // 检测ID字段类型
-  const idField = tableInfo.fields.find(f => f.name === 'id');
-  const idType = idField ? idField.type : 'bigint';
+  // 获取主键字段名
+  const pkFieldName = getPrimaryKeyFieldName(tableName);
+  
+  // 检测主键字段类型
+  const pkField = tableInfo.fields.find(f => f.name === pkFieldName);
+  const pkType = pkField ? pkField.type : 'bigint';
 
   const mutation = `
-    mutation Delete${capitalizeFirst(tableName)}($id: ${idType}!) {
-      delete_${tableName}_by_pk(id: $id) {
-        id
+    mutation Delete${capitalizeFirst(tableName)}($pkValue: ${pkType}!) {
+      delete_${tableName}_by_pk(${pkFieldName}: $pkValue) {
+        ${pkFieldName}
       }
     }
   `;
 
   return {
     mutation,
-    variables: { id: convertId(id, idType) }
+    variables: { pkValue: convertId(pkValue, pkType) }
   };
 }
 
 /**
  * 生成批量删除 mutation
  */
-function generateBatchDeleteMutation(tableName, ids) {
+function generateBatchDeleteMutation(tableName, pkValues) {
   const tableInfo = getTableInfo(tableName);
   if (!tableInfo) {
     throw new Error(`Table ${tableName} not found in schema`);
   }
 
-  // 检测ID字段类型
-  const idField = tableInfo.fields.find(f => f.name === 'id');
-  const idType = idField ? idField.type : 'bigint';
+  // 获取主键字段名
+  const pkFieldName = getPrimaryKeyFieldName(tableName);
+  
+  // 检测主键字段类型
+  const pkField = tableInfo.fields.find(f => f.name === pkFieldName);
+  const pkType = pkField ? pkField.type : 'bigint';
 
   const mutation = `
-    mutation BatchDelete${capitalizeFirst(tableName)}($ids: [${idType}!]!) {
-      delete_${tableName}(where: {id: {_in: $ids}}) {
+    mutation BatchDelete${capitalizeFirst(tableName)}($pkValues: [${pkType}!]!) {
+      delete_${tableName}(where: {${pkFieldName}: {_in: $pkValues}}) {
         affected_rows
         returning {
-          id
+          ${pkFieldName}
         }
       }
     }
@@ -175,7 +251,7 @@ function generateBatchDeleteMutation(tableName, ids) {
 
   return {
     mutation,
-    variables: { ids: ids.map(id => convertId(id, idType)) }
+    variables: { pkValues: pkValues.map(pk => convertId(pk, pkType)) }
   };
 }
 
@@ -260,6 +336,7 @@ module.exports = {
   generateInsertMutation,
   generateUpdateMutation,
   generateDeleteMutation,
-  generateBatchDeleteMutation
+  generateBatchDeleteMutation,
+  getPrimaryKeyFieldName
 };
 

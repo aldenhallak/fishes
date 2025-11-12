@@ -24,14 +24,23 @@
     <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
     <link rel="icon" type="image/png" href="/fish_logo.png">
     
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-601YXTKK0L"></script>
+    <!-- Google tag (gtag.js) - 添加错误处理 -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-601YXTKK0L');
+      // 尝试加载Google Analytics，失败时静默处理
+      (function() {
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-601YXTKK0L';
+        script.onerror = function() {
+          console.warn('⚠️ Google Analytics failed to load (network issue)');
+        };
+        document.head.appendChild(script);
+        
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-601YXTKK0L');
+      })();
     </script>
 
 </head>
@@ -122,6 +131,11 @@
                 <div class="profile-basic">
                     <div class="profile-avatar" id="profile-avatar"></div>
                     <div class="profile-name" id="profile-name"></div>
+                    <div class="profile-membership" id="profile-membership">
+                        <span id="membership-badge"></span>
+                        <span id="membership-text"></span>
+                        <button id="upgrade-btn" class="upgrade-btn" style="display: none;">Upgrade</button>
+                    </div>
                     <div class="profile-email" id="profile-email"></div>
                     <div class="profile-joined" id="profile-joined"></div>
                 </div>
@@ -152,10 +166,6 @@
         
         <!-- Messages Section -->
         <div id="profile-messages-section" class="profile-messages-section" style="display: none;">
-            <div class="profile-messages-header">
-                <h3 class="profile-messages-title">Received Messages</h3>
-                <span class="profile-messages-count" id="profile-messages-count">0</span>
-            </div>
             <div id="profile-messages-container"></div>
         </div>
     </div>
@@ -163,16 +173,66 @@
     <script src="src/js/footer-utils.js"></script>
   <!-- Supabase SDK -->
   <script src="public/supabase-config.js?v=2.2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // 尝试加载Supabase SDK，如果失败则使用备用CDN
+    (function() {
+      const cdnSources = [
+        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+        'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js',
+        'https://cdn.skypack.dev/@supabase/supabase-js@2'
+      ];
+      
+      let loaded = false;
+      let currentIndex = 0;
+      
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = () => {
+            loaded = true;
+            console.log('✅ Supabase SDK loaded from:', src);
+            resolve();
+          };
+          script.onerror = () => {
+            console.warn('⚠️ Failed to load from:', src);
+            reject();
+          };
+          document.head.appendChild(script);
+        });
+      }
+      
+      async function tryLoadSupabase() {
+        while (currentIndex < cdnSources.length && !loaded) {
+          try {
+            await loadScript(cdnSources[currentIndex]);
+            break;
+          } catch (error) {
+            currentIndex++;
+            if (currentIndex >= cdnSources.length) {
+              console.error('❌ All CDN sources failed. Please check your network connection.');
+              console.error('💡 You may need to:');
+              console.error('   1. Check your internet connection');
+              console.error('   2. Disable browser tracking prevention');
+              console.error('   3. Use a VPN if CDN is blocked in your region');
+            }
+          }
+        }
+      }
+      
+      tryLoadSupabase();
+    })();
+  </script>
   <script src="src/js/supabase-init.js?v=2.3"></script>
   <script src="src/js/fish-utils.js?v=2.5"></script>
   <script src="src/js/fishtank-favorites.js"></script>
   <script src="src/js/social-config.js?v=2.1"></script>
   <script src="src/js/social-share.js?v=2.1"></script>
-  <script src="src/js/auth-ui.js?v=2.5"></script>
-  <script src="src/js/fish-info-modal.js?v=1.0"></script>
-  <script src="src/js/hamburger-menu.js?v=1.0"></script>
-  <script src="src/js/profile.js"></script>
+    <script src="src/js/auth-ui.js?v=2.5"></script>
+    <script src="src/js/fish-info-modal.js?v=1.0"></script>
+    <script src="src/js/hamburger-menu.js?v=1.0"></script>
+    <script src="src/js/membership-icons.js"></script>
+    <script src="src/js/profile.js"></script>
   <script>
     // Initialize navigation authentication
     if (typeof initializeAuthNavigation === 'function') {

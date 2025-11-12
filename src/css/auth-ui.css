@@ -302,6 +302,7 @@
   white-space: nowrap; /* 防止文字换行 */
   z-index: 1002; /* 确保在导航栏上方 */
   height: auto;
+  position: relative; /* 为未读消息徽章定位 */
 }
 
 .user-menu-trigger:hover {
@@ -411,6 +412,40 @@
 
 .user-dropdown-item:hover svg {
   color: #6366F1;
+}
+
+/* 未读消息徽章 */
+.unread-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  background: #EF4444;
+  color: white;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.user-menu-trigger .unread-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  margin-left: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.user-dropdown-item {
+  position: relative;
+}
+
+.user-dropdown-item .unread-badge {
+  margin-left: auto;
 }
 
 /* ============================================

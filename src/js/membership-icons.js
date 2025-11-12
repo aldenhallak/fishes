@@ -12,28 +12,34 @@ function getMembershipIcon(tier) {
         free: {
             icon: '🐟',
             emoji: '🐟',
+            svgUrl: 'https://cdn.fishart.online/fishart_web/icon/free.svg',
             text: 'Free',
-            color: '#95A5A6',
-            bgColor: '#ECF0F1',
-            borderColor: '#BDC3C7',
+            color: '#8a8a8a', // 灰色
+            bgColor: 'linear-gradient(135deg, #F5F5F5 0%, #E0E0E0 100%)',
+            borderColor: '#8a8a8a',
+            shadowColor: 'rgba(138, 138, 138, 0.5)',
             description: '免费会员'
         },
         plus: {
-            icon: '⭐',
-            emoji: '⭐',
+            icon: '🐠',
+            emoji: '🐠',
+            svgUrl: 'https://cdn.fishart.online/fishart_web/icon/plus.svg',
             text: 'Plus',
-            color: '#F39C12',
-            bgColor: '#FEF5E7',
-            borderColor: '#F39C12',
+            color: '#4EC6BF', // 青色
+            bgColor: 'linear-gradient(135deg, #E4FBFC 0%, #B4ECEF 100%)',
+            borderColor: '#4EC6BF',
+            shadowColor: 'rgba(78, 198, 191, 0.6)',
             description: 'Plus会员'
         },
         premium: {
-            icon: '👑',
-            emoji: '👑',
+            icon: '🐡',
+            emoji: '🐡',
+            svgUrl: 'https://cdn.fishart.online/fishart_web/icon/premium.svg',
             text: 'Premium',
-            color: '#9B59B6',
-            bgColor: '#F4ECF7',
-            borderColor: '#9B59B6',
+            color: '#D786EA', // 紫色/金色
+            bgColor: 'linear-gradient(135deg, #F4ECF7 0%, #E8D5F0 100%)',
+            borderColor: '#D786EA',
+            shadowColor: 'rgba(215, 134, 234, 0.6)',
             description: 'Premium会员'
         }
     };
@@ -42,7 +48,7 @@ function getMembershipIcon(tier) {
 }
 
 /**
- * 创建会员等级徽章DOM元素
+ * 创建会员等级徽章DOM元素（3D鱼图标）
  * @param {string} tier - 会员等级
  * @param {Object} options - 配置选项
  * @returns {HTMLElement} 徽章元素
@@ -62,28 +68,64 @@ function createMembershipBadge(tier, options = {}) {
     
     // 根据尺寸设置样式
     const sizes = {
-        small: { width: '24px', height: '24px', fontSize: '14px' },
-        medium: { width: '40px', height: '40px', fontSize: '20px' },
-        large: { width: '80px', height: '80px', fontSize: '40px' }
+        small: { width: '24px', height: '24px', fontSize: '14px', shadowSize: '8px' },
+        medium: { width: '40px', height: '40px', fontSize: '20px', shadowSize: '12px' },
+        large: { width: '80px', height: '80px', fontSize: '60px', shadowSize: '20px' }
     };
     
     const sizeStyle = sizes[size] || sizes.medium;
     
+    // 创建3D鱼图标（使用SVG图标）
+    const fishIcon = document.createElement('div');
+    fishIcon.className = `membership-fish-icon membership-fish-${tier}`;
+    fishIcon.style.cssText = `
+        display: inline-block;
+        width: ${sizeStyle.width};
+        height: ${sizeStyle.height};
+        position: relative;
+        filter: none;
+        transform: none;
+        transition: all 0.3s ease;
+    `;
+    
+    // 创建SVG图片元素
+    const svgImg = document.createElement('img');
+    svgImg.src = iconData.svgUrl;
+    svgImg.alt = iconData.text;
+    svgImg.style.cssText = `
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    `;
+    fishIcon.appendChild(svgImg);
+    
+    // 不添加高光效果，只显示纯图标
+    
+    // 移除背景、边框、阴影，只显示图标
     badge.style.cssText = `
         display: inline-flex;
         align-items: center;
         justify-content: center;
         width: ${sizeStyle.width};
         height: ${sizeStyle.height};
-        border-radius: 50%;
-        background: ${iconData.bgColor};
-        border: 2px solid ${iconData.borderColor};
-        font-size: ${sizeStyle.fontSize};
         position: relative;
         flex-shrink: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
     `;
     
-    badge.innerHTML = iconData.emoji;
+    badge.appendChild(fishIcon);
+    
+    // 简单的hover效果（只缩放，不添加3D效果）
+    badge.addEventListener('mouseenter', function() {
+        fishIcon.style.transform = 'scale(1.1)';
+    });
+    
+    badge.addEventListener('mouseleave', function() {
+        fishIcon.style.transform = 'scale(1)';
+    });
     
     if (showText) {
         const textSpan = document.createElement('span');
@@ -106,7 +148,7 @@ function createMembershipBadge(tier, options = {}) {
 }
 
 /**
- * 创建简单的会员等级图标（用于小图标显示）
+ * 创建简单的会员等级图标（用于小图标显示，3D鱼图标）
  * @param {string} tier - 会员等级
  * @returns {HTMLElement} 图标元素
  */
@@ -115,18 +157,45 @@ function createMembershipIcon(tier) {
     const icon = document.createElement('span');
     icon.className = `membership-icon membership-icon-${tier}`;
     icon.setAttribute('title', iconData.description);
+    
+    // 创建3D鱼图标（使用SVG图标）
+    const fishIcon = document.createElement('div');
+    fishIcon.style.cssText = `
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        position: relative;
+        filter: none;
+        transform: none;
+        transition: all 0.2s ease;
+    `;
+    
+    // 创建SVG图片元素
+    const svgImg = document.createElement('img');
+    svgImg.src = iconData.svgUrl;
+    svgImg.alt = iconData.text;
+    svgImg.style.cssText = `
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    `;
+    fishIcon.appendChild(svgImg);
+    
+    // 移除背景、边框、阴影，只显示图标
     icon.style.cssText = `
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: ${iconData.bgColor};
-        border: 1px solid ${iconData.borderColor};
-        font-size: 12px;
+        width: 24px;
+        height: 24px;
+        position: relative;
+        background: transparent;
+        border: none;
+        box-shadow: none;
     `;
-    icon.textContent = iconData.emoji;
+    
+    icon.appendChild(fishIcon);
     return icon;
 }
 
@@ -138,7 +207,7 @@ function createMembershipIcon(tier) {
 async function getUserMembershipTier(userId) {
     if (!userId) return 'free';
     
-    const HASURA_ENDPOINT = 'https://fishtalk.hasura.app/v1/graphql';
+    // 使用API代理而不是直接访问Hasura，避免CORS问题
     const query = `
         query GetUserSubscription($userId: String!) {
             user_subscriptions(
@@ -156,7 +225,8 @@ async function getUserMembershipTier(userId) {
     `;
 
     try {
-        const response = await fetch(HASURA_ENDPOINT, {
+        // 通过API代理访问GraphQL，避免CORS问题
+        const response = await fetch('/api/graphql', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -167,6 +237,10 @@ async function getUserMembershipTier(userId) {
             })
         });
 
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
         const result = await response.json();
         
         if (result.errors) {
@@ -174,7 +248,7 @@ async function getUserMembershipTier(userId) {
             return 'free';
         }
 
-        const subscriptions = result.data.user_subscriptions;
+        const subscriptions = result.data?.user_subscriptions;
         
         if (!subscriptions || subscriptions.length === 0) {
             return 'free';

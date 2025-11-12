@@ -142,6 +142,14 @@ class AuthUI {
       console.log('🔧 Auto-login enabled (LOGIN_MODE=AUTO)');
       console.log('📧 Email:', config.email);
       
+      // 检查Supabase是否已初始化
+      if (!window.supabaseAuth || !window.supabaseAuth.client) {
+        console.warn('⚠️ Supabase not initialized, cannot perform auto-login');
+        console.warn('💡 This may be due to network issues preventing CDN from loading');
+        console.warn('💡 Please check your internet connection and try refreshing the page');
+        return;
+      }
+      
       // 执行自动登录
       const { data, error } = await window.supabaseAuth.client.auth.signInWithPassword({
         email: config.email,
@@ -174,6 +182,11 @@ class AuthUI {
       }
     } catch (error) {
       console.error('❌ Auto-login exception:', error);
+      // 如果是Supabase未初始化错误，提供更友好的提示
+      if (error.message && (error.message.includes('null') || error.message.includes('Cannot read'))) {
+        console.warn('💡 Supabase SDK may not be loaded due to network issues');
+        console.warn('💡 Please check your internet connection and try refreshing the page');
+      }
     }
   }
 
@@ -261,7 +274,6 @@ class AuthUI {
     userContainer.style.display = 'none';
     userContainer.innerHTML = `
       <button class="user-menu-trigger" aria-label="User menu">
-        <img class="user-avatar" src="" alt="User avatar">
         <span class="user-name"></span>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="6 9 12 15 18 9"></polyline>
@@ -274,6 +286,13 @@ class AuthUI {
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
           Profile
+        </a>
+        <a href="profile.html#messages" class="user-dropdown-item" id="messages-menu-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+          Messages
         </a>
         <button class="user-dropdown-item" id="logout-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -744,7 +763,7 @@ class AuthUI {
   /**
    * 显示用户菜单
    */
-  showUserMenu(user) {
+  async showUserMenu(user) {
     if (!this.userContainer) return;
     
     // 获取用户信息
@@ -753,43 +772,39 @@ class AuthUI {
                      user.email?.split('@')[0] || 
                      'User';
     
-    const avatarUrl = user.user_metadata?.avatar_url || 
-                      user.user_metadata?.picture || 
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=6366F1&color=fff`;
-    
-    console.log('Setting user avatar:', avatarUrl);
     console.log('User name:', userName);
     
-    // 更新用户信息
-    const avatar = this.userContainer.querySelector('.user-avatar');
+    // 更新用户信息（不显示头像）
     const name = this.userContainer.querySelector('.user-name');
-    
-    if (avatar) {
-      // 添加错误处理标志，防止无限循环
-      let errorHandled = false;
-      
-      // 添加错误处理：如果图片加载失败，使用备用头像
-      avatar.onerror = () => {
-        if (!errorHandled) {
-          errorHandled = true;
-          console.warn('Avatar failed to load, using fallback');
-          avatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=6366F1&color=fff&size=96`;
-        }
-      };
-      
-      // 添加加载成功日志
-      avatar.onload = () => {
-        console.log('✅ Avatar loaded successfully');
-      };
-      
-      // 设置referrer policy，允许Google头像加载
-      avatar.referrerPolicy = 'no-referrer';
-      
-      // 设置图片源（放在最后，这样事件处理器已经绑定）
-      avatar.src = avatarUrl;
-    }
+    const trigger = this.userContainer.querySelector('.user-menu-trigger');
     
     if (name) name.textContent = userName;
+    
+    // 添加会员图标
+    if (trigger && typeof getUserMembershipTier === 'function' && typeof createMembershipIcon === 'function') {
+      try {
+        const tier = await getUserMembershipTier(user.id);
+        const membershipIcon = createMembershipIcon(tier);
+        
+        // 移除已存在的会员图标
+        const existingIcon = trigger.querySelector('.membership-icon');
+        if (existingIcon) {
+          existingIcon.remove();
+        }
+        
+        // 将会员图标插入到头像和用户名之间
+        if (avatar && avatar.nextSibling) {
+          trigger.insertBefore(membershipIcon, avatar.nextSibling);
+        } else if (name) {
+          trigger.insertBefore(membershipIcon, name);
+        }
+      } catch (error) {
+        console.error('Failed to load membership icon:', error);
+      }
+    }
+    
+    // 加载并显示未读消息数量
+    await this.updateUnreadCount(user.id);
     
     // 显示用户容器，隐藏登录按钮
     this.userContainer.style.display = 'flex';
@@ -807,6 +822,62 @@ class AuthUI {
     const settingsLink = document.getElementById('settings-link');
     if (settingsLink) {
       settingsLink.style.display = '';
+    }
+  }
+
+  /**
+   * 更新未读消息数量
+   */
+  async updateUnreadCount(userId) {
+    if (!userId || !this.userContainer) return;
+    
+    try {
+      const response = await fetch(`/api/message/unread-count?userId=${encodeURIComponent(userId)}`);
+      if (!response.ok) {
+        console.error('Failed to fetch unread count');
+        return;
+      }
+      
+      const data = await response.json();
+      const unreadCount = data.unreadCount || 0;
+      
+      // 更新按钮上的未读消息徽章
+      const trigger = this.userContainer.querySelector('.user-menu-trigger');
+      if (trigger) {
+        let badge = trigger.querySelector('.unread-badge');
+        
+        if (unreadCount > 0) {
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'unread-badge';
+            trigger.appendChild(badge);
+          }
+          badge.textContent = unreadCount > 99 ? '99+' : unreadCount.toString();
+          badge.style.display = 'flex';
+        } else if (badge) {
+          badge.style.display = 'none';
+        }
+      }
+      
+      // 更新下拉菜单中的未读消息数量
+      const messagesItem = this.userContainer.querySelector('#messages-menu-item');
+      if (messagesItem) {
+        let itemBadge = messagesItem.querySelector('.unread-badge');
+        
+        if (unreadCount > 0) {
+          if (!itemBadge) {
+            itemBadge = document.createElement('span');
+            itemBadge.className = 'unread-badge';
+            messagesItem.appendChild(itemBadge);
+          }
+          itemBadge.textContent = unreadCount > 99 ? '99+' : unreadCount.toString();
+          itemBadge.style.display = 'flex';
+        } else if (itemBadge) {
+          itemBadge.style.display = 'none';
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update unread count:', error);
     }
   }
 

@@ -2458,13 +2458,13 @@ async function initializeGroupChat() {
             const userPreference = localStorage.getItem('groupChatEnabled');
             if (userPreference !== null) {
                 groupChatEnabled = userPreference === 'true';
-                console.log(`Group chat: Using user preference: ${groupChatEnabled ? 'ON' : 'OFF'}`);
+                console.log(`AI Fish Group Chat: Using user preference: ${groupChatEnabled ? 'ON' : 'OFF'}`);
             } else {
                 groupChatEnabled = defaultGroupChatEnabled;
-                console.log(`Group chat: Using environment default: ${groupChatEnabled ? 'ON' : 'OFF'}`);
+                console.log(`AI Fish Group Chat: Using environment default: ${groupChatEnabled ? 'ON' : 'OFF'}`);
             }
             
-            console.log(`  Group chat interval: ${groupChatIntervalMinutes} minutes`);
+            console.log(`  AI Fish Group Chat interval: ${groupChatIntervalMinutes} minutes`);
         } else {
             // 如果API失败，检查用户本地设置
             const userPreference = localStorage.getItem('groupChatEnabled');
@@ -2528,11 +2528,27 @@ async function initializeGroupChat() {
         communityChatManager.updateCostControlTimes(maxInactiveTimeMinutes, maxRunTimeMinutes);
         
         if (groupChatEnabled || monologueEnabled) {
-            console.log(`✅ Chat features initialized: Group Chat ${groupChatEnabled ? 'ON' : 'OFF'}, Monologue ${monologueEnabled ? 'ON' : 'OFF'}, Cost Saving ${costSavingEnabled ? 'ON' : 'OFF'}`);
+            console.log(`✅ Chat features initialized: AI Fish Group Chat ${groupChatEnabled ? 'ON' : 'OFF'}, Monologue ${monologueEnabled ? 'ON' : 'OFF'}, Cost Saving ${costSavingEnabled ? 'ON' : 'OFF'}`);
             // Setup event listeners for cost control (only if cost saving is enabled)
             if (costSavingEnabled) {
                 setupChatCostControlListeners();
             }
+            
+            // Mark as initialized after a short delay to ensure page is fully loaded
+            // This prevents false "page hidden" detection during page load
+            // Also ensure group chat is scheduled if it was enabled
+            setTimeout(() => {
+                if (communityChatManager) {
+                    console.log('🔍 [DEBUG] Marking chat manager as initialized...');
+                    communityChatManager.markInitialized();
+                    
+                    // Double-check: if group chat is enabled but interval is not set, schedule it
+                    if (groupChatEnabled && !communityChatManager.autoChatInterval) {
+                        console.log('⚠️ [DEBUG] Group chat enabled but no interval set, rescheduling...');
+                        communityChatManager.scheduleAutoChats(communityChatManager.groupChatIntervalMinutes);
+                    }
+                }
+            }, 2000); // 2 seconds delay to ensure page is fully loaded
         } else {
             console.log('ℹ️ Chat features initialized but disabled');
         }
@@ -2566,9 +2582,18 @@ function setupChatCostControlListeners() {
         return;
     }
     
+    // Initialize page visibility state (may be false during page load, so check after a delay)
+    setTimeout(() => {
+        if (communityChatManager) {
+            const isVisible = !document.hidden;
+            communityChatManager.setPageVisible(isVisible);
+        }
+    }, 1000); // Wait 1 second after setup to check actual visibility
+    
     // Page visibility change (tab switch, minimize window)
     document.addEventListener('visibilitychange', () => {
-        if (communityChatManager) {
+        // Ignore visibility changes during initialization
+        if (communityChatManager && communityChatManager.isInitialized) {
             const isVisible = !document.hidden;
             communityChatManager.setPageVisible(isVisible);
         }
@@ -2576,7 +2601,8 @@ function setupChatCostControlListeners() {
     
     // Window blur/focus (tab loses/gains focus)
     window.addEventListener('blur', () => {
-        if (communityChatManager) {
+        // Ignore blur events during initialization
+        if (communityChatManager && communityChatManager.isInitialized) {
             communityChatManager.setPageVisible(false);
         }
     });

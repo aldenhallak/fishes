@@ -23,11 +23,21 @@ let tableData = null;
 let pendingUpdates = {};
 let selectedRows = new Set();
 let editingCell = null;
-let sortColumn = 'id';
+let sortColumn = null; // 将在加载数据后根据表结构设置
 let sortDirection = 'desc';
 
-// 只读字段
-const readOnlyColumns = ['id', 'created_at', 'updated_at'];
+// 获取只读字段列表
+function getReadOnlyColumns(columns) {
+  const readOnly = ['created_at', 'updated_at'];
+  
+  // 主键字段应该是只读的
+  const pkField = getPrimaryKeyField(columns);
+  if (pkField && !readOnly.includes(pkField)) {
+    readOnly.push(pkField);
+  }
+  
+  return readOnly;
+}
 
 // 获取URL参数
 function getQueryParam(param) {
@@ -60,9 +70,106 @@ async function init() {
   await loadTableData();
 }
 
+// 获取表的主键字段名
+function getPrimaryKeyField(columns) {
+  if (!columns || columns.length === 0) {
+    return 'id';
+  }
+  
+  // 优先使用 id 字段
+  if (columns.some(col => {
+    const colName = typeof col === 'string' ? col : col.name;
+    return colName === 'id';
+  })) {
+    return 'id';
+  }
+  
+  // 对于 global_params 表，使用 key 字段
+  if (currentTable === 'global_params') {
+    const keyCol = columns.find(col => {
+      const colName = typeof col === 'string' ? col : col.name;
+      return colName === 'key';
+    });
+    if (keyCol) {
+      return typeof keyCol === 'string' ? keyCol : keyCol.name;
+    }
+  }
+  
+  // 尝试使用 key 字段（如果存在）
+  const keyCol = columns.find(col => {
+    const colName = typeof col === 'string' ? col : col.name;
+    return colName === 'key';
+  });
+  if (keyCol) {
+    return typeof keyCol === 'string' ? keyCol : keyCol.name;
+  }
+  
+  // 使用第一个字段作为主键
+  const firstCol = columns[0];
+  return typeof firstCol === 'string' ? firstCol : firstCol.name;
+}
+
+// 获取行的主键值
+function getRowPrimaryKey(row, columns) {
+  const pkField = getPrimaryKeyField(columns);
+  const value = row[pkField];
+  return value !== null && value !== undefined ? value.toString() : '';
+}
+
+// 获取默认排序字段
+function getDefaultSortColumn(columns) {
+  return getPrimaryKeyField(columns);
+}
+
+// 对列进行排序，将主键和名称字段放在最前面
+function sortColumnsForDisplay(columns) {
+  if (!columns || columns.length === 0) {
+    return columns;
+  }
+  
+  // 获取主键字段名
+  const pkField = getPrimaryKeyField(columns);
+  
+  // 名称字段的可能名称
+  const nameFieldPatterns = ['name', 'fish_name', 'username', 'title', 'label', 'description'];
+  
+  // 分类字段
+  const pkColumns = [];
+  const nameColumns = [];
+  const otherColumns = [];
+  
+  columns.forEach(col => {
+    const colName = typeof col === 'string' ? col : col.name;
+    
+    if (colName === pkField) {
+      pkColumns.push(col);
+    } else if (nameFieldPatterns.some(pattern => colName.toLowerCase().includes(pattern))) {
+      nameColumns.push(col);
+    } else {
+      otherColumns.push(col);
+    }
+  });
+  
+  // 按优先级合并：主键 -> 名称 -> 其他
+  return [...pkColumns, ...nameColumns, ...otherColumns];
+}
+
 // 加载表数据
 async function loadTableData() {
   try {
+    // 如果还没有设置排序字段，先获取表结构来确定默认排序字段
+    if (!sortColumn) {
+      // 先获取一次数据来确定列结构
+      const tempResponse = await fetch(`/api/admin/tables/${currentTable}?limit=1&offset=0`);
+      const tempResult = await tempResponse.json();
+      
+      if (tempResult.success && tempResult.data.columns) {
+        sortColumn = getDefaultSortColumn(tempResult.data.columns);
+      } else {
+        sortColumn = 'id'; // 回退到默认值
+      }
+    }
+    
     const params = new URLSearchParams({
       limit: '100',
       offset: '0',
@@ -93,6 +200,9 @@ function renderTable() {
   }
 
   const { columns, rows } = tableData;
+  
+  // 对列进行排序，将主键和名称字段放在最前面
+  const sortedColumns = sortColumnsForDisplay(columns);
 
   // 渲染表头
   const thead = document.getElementById('table-head');
@@ -101,13 +211,13 @@ function renderTable() {
       <th class="checkbox-cell">
         <input type="checkbox" id="select-all" />
       </th>
-      ${columns.map(col => {
+      ${sortedColumns.map(col => {
         const colName = typeof col === 'string' ? col : col.name;
         return `
         <th onclick="handleSort('${colName}')" class="${sortColumn === colName ? 'sorted' : ''}">
           <div>
             ${formatColumnName(colName)}
-            ${readOnlyColumns.includes(colName) ? ' 🔒' : ''}
+            ${getReadOnlyColumns(columns).includes(colName) ? ' 🔒' : ''}
             <span class="sort-indicator">
               ${sortColumn === colName ? (sortDirection === 'asc' ? '↑' : '↓') : '⇅'}
             </span>
@@ -123,7 +233,10 @@ function renderTable() {
   // 绑定全选框
   document.getElementById('select-all').addEventListener('change', (e) => {
     if (e.target.checked) {
-      rows.forEach(row => selectedRows.add(row.id.toString()));
+      rows.forEach(row => {
+        const rowId = getRowPrimaryKey(row, columns);
+        selectedRows.add(rowId);
+      });
     } else {
       selectedRows.clear();
     }
@@ -137,7 +250,7 @@ function renderTable() {
   if (rows.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="${columns.length + 1}" style="text-align: center; padding: 3rem; color: #718096;">
+        <td colspan="${sortedColumns.length + 1}" style="text-align: center; padding: 3rem; color: #718096;">
           <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
           <h3>暂无数据</h3>
           <p>该表中没有数据记录</p>
@@ -148,7 +261,7 @@ function renderTable() {
   }
 
   tbody.innerHTML = rows.map(row => {
-    const rowId = row.id.toString();
+    const rowId = getRowPrimaryKey(row, columns);
     const isSelected = selectedRows.has(rowId);
     
     return `
@@ -160,7 +273,7 @@ function renderTable() {
             onchange="toggleRowSelection('${rowId}')"
           />
         </td>
-        ${columns.map(col => {
+        ${sortedColumns.map(col => {
           const colName = typeof col === 'string' ? col : col.name;
           return renderCell(row, colName, rowId);
         }).join('')}
@@ -172,6 +285,7 @@ function renderTable() {
 // 渲染单元格
 function renderCell(row, col, rowId) {
   const value = row[col];
+  const readOnlyColumns = getReadOnlyColumns(tableData.columns);
   const isReadOnly = readOnlyColumns.includes(col);
   const isPending = hasPendingChange(rowId, col);
   
@@ -264,13 +378,18 @@ window.startEdit = function(rowId, column, event) {
     event.preventDefault();
   }
   
+  const readOnlyColumns = getReadOnlyColumns(tableData.columns);
   if (readOnlyColumns.includes(column)) return;
   
   const cell = document.querySelector(`td[data-row-id="${rowId}"][data-column="${column}"]`);
   if (!cell) return;
 
   // 获取当前值
-  const row = tableData.rows.find(r => r.id.toString() === rowId);
+  const pkField = getPrimaryKeyField(tableData.columns);
+  const row = tableData.rows.find(r => {
+    const rId = getRowPrimaryKey(r, tableData.columns);
+    return rId === rowId;
+  });
   if (!row) return;
 
   let currentValue = row[column];
@@ -376,17 +495,24 @@ function saveEdit(newValue) {
   // 记录更改
   if (!pendingUpdates[rowId]) {
     // 根据表的主键类型决定是否需要 parseInt
-    // fish 表使用 UUID，不需要 parseInt
-    const pkColumn = tableData.columns.find(col => col.name === 'id');
-    const idValue = (pkColumn && pkColumn.type === 'Int') ? parseInt(rowId) : rowId;
-    console.log('[保存编辑] 创建新的待更新记录:', { rowId, pkColumn, idValue });
-    pendingUpdates[rowId] = { id: idValue };
+    const pkField = getPrimaryKeyField(tableData.columns);
+    const pkColumn = tableData.columns.find(col => {
+      const colName = typeof col === 'string' ? col : col.name;
+      return colName === pkField;
+    });
+    const pkValue = (pkColumn && pkColumn.type === 'Int') ? parseInt(rowId) : rowId;
+    console.log('[保存编辑] 创建新的待更新记录:', { rowId, pkField, pkColumn, pkValue });
+    pendingUpdates[rowId] = { [pkField]: pkValue };
   }
   pendingUpdates[rowId][column] = newValue;
   console.log('[保存编辑] 待更新记录:', pendingUpdates[rowId]);
 
   // 更新本地数据
-  const row = tableData.rows.find(r => r.id.toString() === rowId);
+  const pkField = getPrimaryKeyField(tableData.columns);
+  const row = tableData.rows.find(r => {
+    const rId = getRowPrimaryKey(r, tableData.columns);
+    return rId === rowId;
+  });
   if (row) {
     row[column] = newValue;
   }
@@ -576,7 +702,8 @@ async function handleBatchDelete() {
 function updateStats() {
   if (!tableData) return;
 
-  document.getElementById('column-count').textContent = tableData.columns.length;
+  const sortedColumns = sortColumnsForDisplay(tableData.columns);
+  document.getElementById('column-count').textContent = sortedColumns.length;
   document.getElementById('row-count').textContent = tableData.rows.length;
   document.getElementById('display-range').textContent = 
     `${tableData.pagination.offset + 1} - ${tableData.pagination.offset + tableData.rows.length}`;

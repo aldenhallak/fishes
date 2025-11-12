@@ -13,6 +13,19 @@ async function getUserProfileFromHasura(userId) {
                     created_at
                     total_fish_created
                     reputation_score
+                    feeder_name
+                    user_language
+                    user_subscriptions(
+                        order_by: { created_at: desc }
+                        limit: 1
+                    ) {
+                        plan
+                        is_active
+                        member_type {
+                            id
+                            name
+                        }
+                    }
                     fishes_aggregate {
                         aggregate {
                             count
@@ -61,12 +74,69 @@ async function getUserProfileFromHasura(userId) {
         // Get favorite count from separate query
         const favoriteCount = result.data.fish_favorites_aggregate?.aggregate?.count || 0;
         
+        // Get membership info
+        // First try to get active subscription, if not found, get the latest one
+        const subscriptions = user.user_subscriptions || [];
+        
+        // Find active subscription (is_active = true or null)
+        let activeSubscription = subscriptions.find(sub => 
+            sub.is_active === true || sub.is_active === null
+        );
+        
+        // If no active subscription found, use the latest one (already sorted by created_at desc)
+        const latestSubscription = activeSubscription || (subscriptions.length > 0 ? subscriptions[0] : null);
+        
+        // Debug logging for subscription data
+        console.log('🔍 Subscription debug:', {
+            userId: user.id,
+            subscriptionsCount: subscriptions.length,
+            activeSubscription: activeSubscription,
+            latestSubscription: latestSubscription,
+            allSubscriptions: subscriptions.map(sub => ({
+                plan: sub.plan,
+                is_active: sub.is_active,
+                member_type_id: sub.member_type?.id
+            }))
+        });
+        
+        // Determine membership tier
+        // Priority: plan field > member_type.id > default to 'free'
+        let membershipTier = 'free';
+        let membershipName = 'Free';
+        
+        if (latestSubscription) {
+            // Use plan field if available
+            if (latestSubscription.plan) {
+                membershipTier = latestSubscription.plan.toLowerCase();
+            } 
+            // Fallback to member_type.id
+            else if (latestSubscription.member_type?.id) {
+                membershipTier = latestSubscription.member_type.id.toLowerCase();
+            }
+            
+            // Get membership name
+            if (latestSubscription.member_type?.name) {
+                membershipName = latestSubscription.member_type.name;
+            } else {
+                // Fallback name based on tier
+                const tierNames = {
+                    'free': 'Free',
+                    'plus': 'Plus',
+                    'premium': 'Premium'
+                };
+                membershipName = tierNames[membershipTier] || 'Free';
+            }
+        }
+        
         // Debug logging
         console.log('📊 Profile data:', {
             userId: user.id,
             fishCount: user.fishes_aggregate.aggregate.count || 0,
             favoriteCount: favoriteCount,
-            rawData: result.data
+            membershipTier: membershipTier,
+            membershipName: membershipName,
+            subscriptionPlan: latestSubscription?.plan,
+            subscriptionIsActive: latestSubscription?.is_active
         });
         
         // Transform to match expected profile format
@@ -81,7 +151,11 @@ async function getUserProfileFromHasura(userId) {
             totalScore: user.fishes_aggregate.aggregate.sum?.upvotes || 0,
             totalUpvotes: user.fishes_aggregate.aggregate.sum?.upvotes || 0,
             reputationScore: user.reputation_score || 0,
-            favoriteCount: favoriteCount
+            favoriteCount: favoriteCount,
+            feederName: user.feeder_name || '',
+            userLanguage: user.user_language || '',
+            membershipTier: membershipTier,
+            membershipName: membershipName
         };
     } catch (error) {
         console.error('Error fetching profile from Hasura:', error);
@@ -185,12 +259,74 @@ function displayProfile(profile, searchedUserId = null) {
     const isCurrentUser = currentUserId && (currentUserId === profileUserId);
     const isLoggedIn = !!(token && userData);
 
-    // Update profile display
-    document.getElementById('profile-avatar').textContent = initial;
+    // Update profile display - use membership icon instead of initial
+    const membershipTier = profile.membershipTier || 'free';
+    const membershipName = profile.membershipName || (membershipTier === 'free' ? 'Free' : membershipTier === 'plus' ? 'Plus' : 'Premium');
+    
+    // Clear avatar and add membership icon
+    const avatarElement = document.getElementById('profile-avatar');
+    avatarElement.innerHTML = '';
+    if (typeof createMembershipBadge === 'function') {
+        const membershipBadge = createMembershipBadge(membershipTier, { size: 'large' });
+        avatarElement.appendChild(membershipBadge);
+    } else {
+        // Fallback to SVG icons if membership-icons.js is not loaded
+        const svgMap = {
+            'free': 'https://cdn.fishart.online/fishart_web/icon/free.svg',
+            'plus': 'https://cdn.fishart.online/fishart_web/icon/plus.svg',
+            'premium': 'https://cdn.fishart.online/fishart_web/icon/premium.svg'
+        };
+        const svgUrl = svgMap[membershipTier] || svgMap['free'];
+        const img = document.createElement('img');
+        img.src = svgUrl;
+        img.alt = membershipName;
+        img.style.cssText = 'width: 80px; height: 80px; object-fit: contain;';
+        avatarElement.appendChild(img);
+    }
+    
     const profileName = profile.displayName || profile.artistName || 'Anonymous User';
     
     // 直接显示用户名，不添加"(You)"等后缀
     document.getElementById('profile-name').textContent = profileName;
+    
+    // Display membership info
+    const membershipBadgeElement = document.getElementById('membership-badge');
+    const membershipTextElement = document.getElementById('membership-text');
+    const upgradeBtn = document.getElementById('upgrade-btn');
+    
+    if (membershipBadgeElement && typeof createMembershipIcon === 'function') {
+        membershipBadgeElement.innerHTML = '';
+        const smallBadge = createMembershipIcon(membershipTier);
+        membershipBadgeElement.appendChild(smallBadge);
+    } else if (membershipBadgeElement) {
+        // Fallback to SVG icons if membership-icons.js is not loaded
+        const svgMap = {
+            'free': 'https://cdn.fishart.online/fishart_web/icon/free.svg',
+            'plus': 'https://cdn.fishart.online/fishart_web/icon/plus.svg',
+            'premium': 'https://cdn.fishart.online/fishart_web/icon/premium.svg'
+        };
+        const svgUrl = svgMap[membershipTier] || svgMap['free'];
+        const img = document.createElement('img');
+        img.src = svgUrl;
+        img.alt = membershipName;
+        img.style.cssText = 'width: 20px; height: 20px; object-fit: contain;';
+        membershipBadgeElement.appendChild(img);
+    }
+    
+    if (membershipTextElement) {
+        membershipTextElement.textContent = membershipName;
+    }
+    
+    // Show upgrade button for free and plus members (only for current user)
+    if (upgradeBtn && isCurrentUser && (membershipTier === 'free' || membershipTier === 'plus')) {
+        upgradeBtn.style.display = 'inline-block';
+        upgradeBtn.onclick = () => {
+            // Navigate to membership upgrade page or show upgrade modal
+            window.location.href = 'fish-settings.html';
+        };
+    } else if (upgradeBtn) {
+        upgradeBtn.style.display = 'none';
+    }
     
     // Hide email field since profile endpoint doesn't return it
     const emailElement = document.getElementById('profile-email');
@@ -258,6 +394,12 @@ function showError(message) {
 
 // Add enter key support for search
 document.addEventListener('DOMContentLoaded', function () {
+    // 检查网络连接状态
+    const isOnline = navigator.onLine;
+    if (!isOnline) {
+        console.warn('⚠️ Network appears to be offline');
+    }
+    
     // Check if there's a user ID in the URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const searchedUserId = urlParams.get('userId');
@@ -268,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function () {
             displayProfile(profile, searchedUserId);
         }).catch(error => {
             console.error('Error loading user profile from URL:', error);
-            showError('User not found or error loading profile');
+            showError('User not found or error loading profile. Please check your network connection.');
         });
         return;
     }
@@ -289,25 +431,39 @@ document.addEventListener('DOMContentLoaded', function () {
                            parsedUserData.email;
             
             if (userId) {
-                // Load current user's profile directly
+                // 尝试从API加载，如果失败则使用localStorage数据
                 getUserProfile(userId).then(profile => {
                     displayProfile(profile, userId);
                 }).catch(error => {
                     console.error('Error loading current user profile:', error);
                     // 回退到显示localStorage中的基本信息
-                    console.log('📦 Falling back to localStorage data');
+                    console.log('📦 Falling back to localStorage data (network may be unavailable)');
                     const fallbackProfile = {
                         userId: userId,
                         displayName: parsedUserData.name || parsedUserData.email?.split('@')[0] || 'User',
                         email: parsedUserData.email,
                         avatarUrl: parsedUserData.avatar_url,
-                        createdAt: new Date().toISOString(),
-                        fishCount: 0,
-                        totalUpvotes: 0,
-                        reputationScore: 0,
-                        favoriteCount: 0
+                        createdAt: parsedUserData.created_at || new Date().toISOString(),
+                        fishCount: parsedUserData.fishCount || 0,
+                        totalUpvotes: parsedUserData.totalUpvotes || 0,
+                        reputationScore: parsedUserData.reputationScore || 0,
+                        favoriteCount: parsedUserData.favoriteCount || 0,
+                        membershipTier: parsedUserData.membershipTier || 'free',
+                        membershipName: parsedUserData.membershipName || 'Free'
                     };
                     displayProfile(fallbackProfile, userId);
+                    
+                    // 显示网络提示
+                    if (!isOnline) {
+                        const errorDiv = document.getElementById('error');
+                        if (errorDiv) {
+                            errorDiv.textContent = '⚠️ Network unavailable. Showing cached profile data. Some features may be limited.';
+                            errorDiv.style.display = 'block';
+                            errorDiv.style.background = '#fff3cd';
+                            errorDiv.style.color = '#856404';
+                            errorDiv.style.border = '1px solid #ffc107';
+                        }
+                    }
                 });
             } else {
                 document.getElementById('profile-empty').style.display = 'block';
@@ -411,51 +567,140 @@ function hideEditProfileButton() {
 }
 
 function toggleEditProfile() {
-    isEditMode = !isEditMode;
-
-    if (isEditMode) {
-        enterEditMode();
-    } else {
-        exitEditMode();
-    }
+    showEditProfileModal();
 }
 
-function enterEditMode() {
-    const profileName = document.getElementById('profile-name');
-    const currentName = currentProfile.displayName || currentProfile.artistName || 'Anonymous User';
+// Show edit profile modal
+function showEditProfileModal() {
+    // Get current values
+    const currentName = currentProfile.feederName || currentProfile.displayName || currentProfile.artistName || '';
+    const currentLanguage = currentProfile.userLanguage || '';
 
-    // Replace name display with input field
-    profileName.innerHTML = `
-        <input type="text" id="edit-name-input" value="${escapeHtml(currentName)}" class="edit-name-input" maxlength="50" placeholder="Enter your display name">
-        <div class="edit-buttons">
-            <button onclick="saveProfile()" class="save-btn">Save</button>
-            <button onclick="cancelEdit()" class="cancel-btn">Cancel</button>
-        </div>
+    // Supported languages
+    const languages = [
+        { value: '', label: 'Default (English)' },
+        { value: 'English', label: 'English' },
+        { value: 'French', label: 'French' },
+        { value: 'Spanish', label: 'Spanish' },
+        { value: 'Chinese', label: 'Chinese (简体中文)' },
+        { value: 'Traditional Chinese', label: 'Traditional Chinese (繁體中文)' },
+        { value: 'Japanese', label: 'Japanese' },
+        { value: 'Korean', label: 'Korean' }
+    ];
+
+    // Create modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'edit-profile-modal-overlay';
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
     `;
 
-    // Hide the edit button while in edit mode
-    const editBtn = document.getElementById('edit-profile-btn');
-    editBtn.style.display = 'none';
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    modalContent.style.cssText = `
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    `;
 
-    // Focus the input field and add keyboard support
+    modalContent.innerHTML = `
+        <h2 style="margin-top: 0; margin-bottom: 20px; color: #333;">Edit Profile</h2>
+        <form id="edit-profile-form">
+            <div style="margin-bottom: 20px;">
+                <label for="edit-feeder-name" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                    Nickname (昵称)
+                </label>
+                <input 
+                    type="text" 
+                    id="edit-feeder-name" 
+                    value="${escapeHtml(currentName)}" 
+                    class="edit-input" 
+                    maxlength="50" 
+                    placeholder="Enter your nickname"
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; background: white;"
+                >
+            </div>
+            <div style="margin-bottom: 25px;">
+                <label for="edit-user-language" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                    Language (语言)
+                </label>
+                <select 
+                    id="edit-user-language" 
+                    class="edit-select"
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; background: white;"
+                >
+                    <option value="" ${currentLanguage === '' ? 'selected' : ''}>Default (English)</option>
+                    <option value="English" ${currentLanguage === 'English' ? 'selected' : ''}>English</option>
+                    <option value="French" ${currentLanguage === 'French' ? 'selected' : ''}>French</option>
+                    <option value="Spanish" ${currentLanguage === 'Spanish' ? 'selected' : ''}>Spanish</option>
+                    <option value="简体中文" ${currentLanguage === '简体中文' || currentLanguage === 'Chinese' ? 'selected' : ''}>简体中文</option>
+                    <option value="繁體中文" ${currentLanguage === '繁體中文' || currentLanguage === 'Traditional Chinese' ? 'selected' : ''}>繁體中文</option>
+                    <option value="Japanese" ${currentLanguage === 'Japanese' ? 'selected' : ''}>Japanese</option>
+                    <option value="Korean" ${currentLanguage === 'Korean' ? 'selected' : ''}>Korean</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                <button 
+                    type="button" 
+                    onclick="closeEditProfileModal()" 
+                    class="cancel-btn"
+                    style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 5px; cursor: pointer; font-size: 14px;"
+                >
+                    Cancel
+                </button>
+                <button 
+                    type="button" 
+                    onclick="saveProfileFromModal()" 
+                    class="save-btn"
+                    style="padding: 10px 20px; border: none; background: #007bff; color: white; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 600;"
+                >
+                    Save
+                </button>
+            </div>
+        </form>
+    `;
+
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+
+    // Close modal when clicking overlay
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            closeEditProfileModal();
+        }
+    });
+
+    // Focus first input
     setTimeout(() => {
-        const input = document.getElementById('edit-name-input');
+        const input = document.getElementById('edit-feeder-name');
         if (input) {
             input.focus();
-            input.select();
-
-            // Add keyboard event listeners
-            input.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    saveProfile();
-                } else if (e.key === 'Escape') {
-                    e.preventDefault();
-                    cancelEdit();
-                }
-            });
         }
     }, 100);
+}
+
+// Close edit profile modal
+function closeEditProfileModal() {
+    const modal = document.getElementById('edit-profile-modal-overlay');
+    if (modal) {
+        modal.remove();
+    }
 }
 
 function exitEditMode() {
@@ -496,14 +741,13 @@ function cancelEdit() {
     exitEditMode();
 }
 
-async function saveProfile() {
-    const nameInput = document.getElementById('edit-name-input');
-    const newDisplayName = nameInput.value.trim();
-
-    if (!newDisplayName) {
-        alert('Display name cannot be empty');
-        return;
-    }
+// Save profile from modal
+async function saveProfileFromModal() {
+    const nameInput = document.getElementById('edit-feeder-name');
+    const languageSelect = document.getElementById('edit-user-language');
+    
+    const newFeederName = nameInput.value.trim();
+    const newUserLanguage = languageSelect.value.trim();
 
     // Check if user is logged in
     const token = localStorage.getItem('userToken');
@@ -514,70 +758,96 @@ async function saveProfile() {
 
     try {
         // Show loading state on save button
-        const saveBtn = document.querySelector('.save-btn');
-        const cancelBtn = document.querySelector('.cancel-btn');
+        const saveBtn = document.querySelector('#edit-profile-modal-overlay .save-btn');
+        const cancelBtn = document.querySelector('#edit-profile-modal-overlay .cancel-btn');
 
-        saveBtn.textContent = 'Saving...';
-        saveBtn.classList.add('saving');
-        saveBtn.disabled = true;
-        cancelBtn.disabled = true;
+        if (saveBtn) {
+            saveBtn.textContent = 'Saving...';
+            saveBtn.disabled = true;
+        }
+        if (cancelBtn) {
+            cancelBtn.disabled = true;
+        }
 
-        // Get current user ID and token
+        // Get current user ID
         const userData = JSON.parse(localStorage.getItem('userData') || '{}');
         const userIdFromStorage = localStorage.getItem('userId');
         const userId = userIdFromStorage || userData.uid || userData.userId || userData.id || userData.email;
-        const token = localStorage.getItem('userToken');
 
-        // Prepare headers
-        const headers = {
-            'Content-Type': 'application/json',
-        };
-
-        // Add authorization header if user is logged in
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        // Update profile via API
-        const response = await fetch(`${BACKEND_URL}/api/profile/${encodeURIComponent(userId)}`, {
+        // Update profile via API endpoint (uses admin secret, avoids JWT issues)
+        const backendUrl = window.BACKEND_URL || '';
+        const response = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(userId)}`, {
             method: 'PUT',
-            headers: headers,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify({
-                displayName: newDisplayName
+                feederName: newFeederName || null,
+                userLanguage: newUserLanguage || null
             })
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to update profile: ${response.status}`);
+            const errorText = await response.text();
+            let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.error || errorJson.message || errorMessage;
+            } catch (e) {
+                errorMessage = errorText || errorMessage;
+            }
+            throw new Error(errorMessage);
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.error || '更新失败');
         }
 
         // Update local profile data
-        currentProfile.displayName = newDisplayName;
+        if (result.user) {
+            currentProfile.feederName = result.user.feeder_name || newFeederName;
+            currentProfile.userLanguage = result.user.user_language || newUserLanguage;
+        } else {
+            currentProfile.feederName = newFeederName;
+            currentProfile.userLanguage = newUserLanguage;
+        }
 
-        // Exit edit mode and refresh display
-        isEditMode = false;
-        exitEditMode();
+        // Close modal
+        closeEditProfileModal();
 
         // Show success message
         showSuccessMessage('Profile updated successfully!');
+
+        // Refresh profile display after a short delay
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
 
     } catch (error) {
         console.error('Error updating profile:', error);
         alert(`Error updating profile: ${error.message}`);
 
         // Restore button states
-        const saveBtn = document.querySelector('.save-btn');
-        const cancelBtn = document.querySelector('.cancel-btn');
+        const saveBtn = document.querySelector('#edit-profile-modal-overlay .save-btn');
+        const cancelBtn = document.querySelector('#edit-profile-modal-overlay .cancel-btn');
 
         if (saveBtn) {
             saveBtn.textContent = 'Save';
-            saveBtn.classList.remove('saving');
             saveBtn.disabled = false;
         }
         if (cancelBtn) {
             cancelBtn.disabled = false;
         }
     }
+}
+
+// Legacy function for backward compatibility
+async function saveProfile() {
+    // Redirect to modal-based editing
+    showEditProfileModal();
 }
 
 // Helper function to show success message
