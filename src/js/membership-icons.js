@@ -118,14 +118,7 @@ function createMembershipBadge(tier, options = {}) {
     
     badge.appendChild(fishIcon);
     
-    // 简单的hover效果（只缩放，不添加3D效果）
-    badge.addEventListener('mouseenter', function() {
-        fishIcon.style.transform = 'scale(1.1)';
-    });
-    
-    badge.addEventListener('mouseleave', function() {
-        fishIcon.style.transform = 'scale(1)';
-    });
+    // 移除所有hover动画效果
     
     if (showText) {
         const textSpan = document.createElement('span');

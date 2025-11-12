@@ -106,7 +106,6 @@
     justify-content: center;
     margin: 0 auto 20px;
     position: relative;
-    transition: all 0.3s ease;
     overflow: visible;
     background: transparent;
     border: none;
@@ -127,25 +126,7 @@
     box-shadow: none;
 }
 
-.profile-avatar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 50%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
-    border-radius: 50% 50% 0 0;
-    pointer-events: none;
-}
-
-.profile-avatar:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 
-        0 8px 0 rgba(0, 0, 0, 0.25),
-        0 12px 30px rgba(74, 144, 226, 0.5),
-        inset 0 2px 4px rgba(255, 255, 255, 0.4);
-}
+/* 移除profile-avatar的所有动画和装饰效果 */
 
 .profile-name {
     font-size: 28px;

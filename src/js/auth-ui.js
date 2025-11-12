@@ -780,7 +780,7 @@ class AuthUI {
     
     if (name) name.textContent = userName;
     
-    // 添加会员图标
+    // 添加会员图标（不显示用户头像，只显示会员图标）
     if (trigger && typeof getUserMembershipTier === 'function' && typeof createMembershipIcon === 'function') {
       try {
         const tier = await getUserMembershipTier(user.id);
@@ -792,11 +792,11 @@ class AuthUI {
           existingIcon.remove();
         }
         
-        // 将会员图标插入到头像和用户名之间
-        if (avatar && avatar.nextSibling) {
-          trigger.insertBefore(membershipIcon, avatar.nextSibling);
-        } else if (name) {
+        // 将会员图标插入到用户名之前
+        if (name) {
           trigger.insertBefore(membershipIcon, name);
+        } else {
+          trigger.insertBefore(membershipIcon, trigger.firstChild);
         }
       } catch (error) {
         console.error('Failed to load membership icon:', error);
