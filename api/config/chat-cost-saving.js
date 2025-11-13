@@ -8,6 +8,7 @@
  */
 
 require('dotenv').config({ path: '.env.local' });
+const { getGlobalParamInt } = require('../../lib/global-params');
 
 module.exports = async function handler(req, res) {
   // 只允许 GET 请求
@@ -24,11 +25,11 @@ module.exports = async function handler(req, res) {
     const costSavingMode = process.env.CHAT_COST_SAVING || 'ON';
     const isEnabled = costSavingMode.toUpperCase() === 'ON';
 
-    // 从环境变量读取时间配置（单位：分钟）
+    // 从全局参数表读取时间配置（单位：分钟）
     // CHAT_COST_SAVING_INACTIVE_TIME: 用户无活动时间阈值（默认15分钟）
     // CHAT_COST_SAVING_MAX_TALKING_TIME: 最大连续运行时间（默认60分钟）
-    const maxInactiveTimeMinutes = parseInt(process.env.CHAT_COST_SAVING_INACTIVE_TIME || '15', 10);
-    const maxRunTimeMinutes = parseInt(process.env.CHAT_COST_SAVING_MAX_TALKING_TIME || '60', 10);
+    const maxInactiveTimeMinutes = await getGlobalParamInt('CHAT_COST_SAVING_INACTIVE_TIME', 15);
+    const maxRunTimeMinutes = await getGlobalParamInt('CHAT_COST_SAVING_MAX_TALKING_TIME', 60);
 
     console.log('💰 Chat cost saving config requested');
     console.log(`   Mode: ${costSavingMode} (enabled: ${isEnabled})`);

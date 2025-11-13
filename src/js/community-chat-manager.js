@@ -188,18 +188,6 @@ class CommunityChatManager {
         throw new Error(data.error || 'Failed to generate chat');
       }
       
-      // Display usage info in browser console
-      if (data.usageInfo) {
-        const usage = data.usageInfo;
-        if (usage.unlimited) {
-          console.log(`🎯 启动群聊：${usage.tier.toUpperCase()} 用户 ${usage.userId} - 无限制使用`);
-        } else {
-          console.log(`🎯 启动群聊：当前用户今日已用群聊数 ${usage.usage}/${usage.limit}`);
-        }
-      } else {
-        console.log('🎯 启动群聊：未获取到使用量信息');
-      }
-      
       console.log(`✅ AI Fish Group Chat generated: ${data.dialogues?.length || 0} messages`, {
         sessionId: data.sessionId,
         topic: data.topic
@@ -397,6 +385,74 @@ class CommunityChatManager {
   }
   
   /**
+   * 获取并显示用户群聊使用情况
+   * @returns {Promise<Object|null>} - { usage, limit, unlimited, tier } 或 null
+   */
+  async displayGroupChatUsage() {
+    try {
+      // 获取当前用户ID
+      let currentUserId = null;
+      
+      // Try getCurrentUserId function first
+      if (typeof getCurrentUserId === 'function') {
+        try {
+          currentUserId = await getCurrentUserId();
+        } catch (error) {
+          // Ignore error
+        }
+      }
+      
+      // Fallback to localStorage if getCurrentUserId returns null
+      if (!currentUserId) {
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+          try {
+            const parsed = JSON.parse(userData);
+            currentUserId = parsed.userId || parsed.uid || parsed.id;
+          } catch (error) {
+            // Ignore error
+          }
+        }
+        
+        // Also try userId directly from localStorage
+        if (!currentUserId) {
+          currentUserId = localStorage.getItem('userId');
+        }
+      }
+      
+      if (!currentUserId) {
+        // User not logged in, skip
+        return null;
+      }
+      
+      // 获取使用情况
+      const usageResponse = await fetch(`/api/fish/chat/usage?userId=${encodeURIComponent(currentUserId)}`);
+      if (usageResponse && usageResponse.ok) {
+        const usageData = await usageResponse.json();
+        if (usageData.success) {
+          if (usageData.unlimited) {
+            console.log(`💬 当前用户今日已用群聊数 ${usageData.usage}（${usageData.tier} 会员，无限次）`);
+          } else {
+            console.log(`💬 当前用户今日已用群聊数 ${usageData.usage}/${usageData.limit}`);
+          }
+          // 返回使用情况数据
+          return {
+            usage: usageData.usage,
+            limit: usageData.limit,
+            unlimited: usageData.unlimited,
+            tier: usageData.tier
+          };
+        }
+      }
+      return null;
+    } catch (error) {
+      // 静默失败，不影响主流程
+      console.debug('Failed to get group chat usage:', error);
+      return null;
+    }
+  }
+
+  /**
    * Start an automatic chat session (for testing or scheduled chats)
    * @returns {Promise} - Resolves when session starts
    */
@@ -427,6 +483,17 @@ class CommunityChatManager {
       return;
     }
     
+    // 检查群聊使用情况（启动群聊时）
+    const usageInfo = await this.displayGroupChatUsage();
+    
+    // 如果有限制且已达到限制，不启动群聊
+    if (usageInfo && !usageInfo.unlimited && usageInfo.limit !== null) {
+      if (usageInfo.usage >= usageInfo.limit) {
+        console.log(`⛔ 群聊次数已达上限（${usageInfo.usage}/${usageInfo.limit}），跳过本次群聊`);
+        return;
+      }
+    }
+    
     console.log('✅ Starting automatic chat session...');
     
     const session = await this.generateChatSession();
@@ -446,6 +513,29 @@ class CommunityChatManager {
     if (!this.groupChatEnabled) {
       console.log('❌ AI Fish Group Chat is disabled, cannot trigger chat');
       return;
+    }
+    
+    // 检查群聊使用情况（手动触发时）
+    const usageInfo = await this.displayGroupChatUsage();
+    
+    // 如果有限制且已达到限制，不启动群聊
+    if (usageInfo && !usageInfo.unlimited && usageInfo.limit !== null) {
+      if (usageInfo.usage >= usageInfo.limit) {
+        console.log(`⛔ 群聊次数已达上限（${usageInfo.usage}/${usageInfo.limit}），无法手动触发群聊`);
+        // 显示升级提示
+        if (usageInfo.limit) {
+          this.showUpgradePrompt(
+            `Free members can generate AI Fish Group Chat ${usageInfo.usage}/${usageInfo.limit} times per day.`,
+            'Upgrade to Plus or Premium membership for unlimited AI Fish Group Chat',
+            {
+              usage: usageInfo.usage,
+              limit: usageInfo.limit,
+              tier: usageInfo.tier || 'free'
+            }
+          );
+        }
+        return;
+      }
     }
     
     console.log('🎮 Manually triggering community chat...');
@@ -1154,132 +1244,201 @@ class CommunityChatManager {
       this._upgradePromptShown = false;
     }, 5 * 60 * 1000);
     
-    // Create modal HTML
+    // Create modal HTML with game-style design
     const modalHTML = `
-      <div id="upgradeLimitModal" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      <div id="upgradeLimitModal" class="modal" style="
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.3s ease;
       ">
-        <div style="
-          background: white;
-          border-radius: 16px;
-          padding: 32px;
-          max-width: 480px;
-          width: 90%;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        <div class="modal-content" style="
+          width: 480px;
+          max-width: 90vw;
         ">
-          <div style="text-align: center; margin-bottom: 24px;">
+          <!-- 关闭按钮 -->
+          <button class="close" onclick="document.getElementById('upgradeLimitModal').remove()" style="
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E6850E 100%);
+            border: none;
+            border-bottom: 3px solid #CC6E00;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+              0 4px 0 rgba(0, 0, 0, 0.25),
+              inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            transition: all 0.15s ease;
+            z-index: 1;
+            line-height: 1;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+          " onmouseover="this.style.transform='translateY(-2px) rotate(90deg) scale(1.1)'; this.style.boxShadow='0 6px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.4)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3)'" onmousedown="this.style.transform='translateY(2px) rotate(90deg) scale(1.05)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3)'">×</button>
+          
+          <!-- 内容区域 -->
+          <div style="text-align: center; margin-bottom: 28px; padding-top: 8px;">
+            <!-- 图标 -->
             <div style="
-              width: 64px;
-              height: 64px;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              width: 80px;
+              height: 80px;
+              background: linear-gradient(180deg, #9B59B6 0%, #7D3C98 50%, #5E2C73 100%);
               border-radius: 50%;
               display: inline-flex;
               align-items: center;
               justify-content: center;
-              font-size: 32px;
-              margin-bottom: 16px;
+              font-size: 40px;
+              margin-bottom: 20px;
+              box-shadow: 
+                0 8px 0 rgba(0, 0, 0, 0.25),
+                inset 0 4px 8px rgba(255, 255, 255, 0.3);
+              border: 3px solid rgba(255, 255, 255, 0.5);
+              position: relative;
             ">
-              🎣
+              <span style="position: relative; z-index: 1;">💭</span>
+              <!-- 图标光泽效果 -->
+              <div style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 50%;
+                background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+                border-radius: 50% 50% 0 0;
+                pointer-events: none;
+              "></div>
             </div>
+            
+            <!-- 标题 -->
             <h2 style="
-              font-size: 24px;
-              font-weight: 600;
-              color: #1a1a1a;
-              margin: 0 0 8px 0;
-            ">AI Fish Group Chat 次数已用完</h2>
+              font-size: 28px;
+              font-weight: 900;
+              color: #333333;
+              margin: 0 0 12px 0;
+              text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            ">AI Fish Group Chat Limit Reached</h2>
+            
+            <!-- 描述 -->
             <p style="
               font-size: 16px;
               color: #666;
               margin: 0;
-              line-height: 1.5;
+              line-height: 1.6;
             ">${message}</p>
           </div>
           
+          <!-- 使用量显示卡片 -->
           <div style="
-            background: #f7f7f7;
-            border-radius: 12px;
-            padding: 20px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+            border-radius: 16px;
+            padding: 24px;
             margin-bottom: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 
+              inset 0 2px 4px rgba(0, 0, 0, 0.1),
+              0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
           ">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <span style="color: #666; font-size: 14px;">今日已使用</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
               <span style="
-                color: #667eea;
-                font-size: 20px;
+                color: #666;
+                font-size: 16px;
                 font-weight: 600;
+              ">Used Today</span>
+              <span style="
+                color: #4A90E2;
+                font-size: 24px;
+                font-weight: 900;
+                text-shadow: 0 1px 2px rgba(74, 144, 226, 0.3);
               ">${limitInfo.usage} / ${limitInfo.limit}</span>
             </div>
+            
+            <!-- 进度条容器 -->
             <div style="
-              height: 8px;
+              height: 14px;
               background: #e0e0e0;
-              border-radius: 4px;
+              border-radius: 7px;
               overflow: hidden;
+              box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+              position: relative;
             ">
+              <!-- 进度条 -->
               <div style="
                 height: 100%;
-                background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(90deg, 
+                  #4A90E2 0%, 
+                  #9B59B6 50%, 
+                  #7D3C98 100%);
                 width: ${Math.min(100, (limitInfo.usage / limitInfo.limit) * 100)}%;
-                transition: width 0.3s ease;
-              "></div>
+                transition: width 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                box-shadow: 
+                  0 2px 4px rgba(74, 144, 226, 0.4),
+                  inset 0 1px 2px rgba(255, 255, 255, 0.3);
+                position: relative;
+              ">
+                <!-- 进度条光泽 -->
+                <div style="
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  right: 0;
+                  height: 50%;
+                  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+                  border-radius: 7px 7px 0 0;
+                  pointer-events: none;
+                "></div>
+              </div>
             </div>
           </div>
           
+          <!-- 升级提示卡片 -->
           <div style="
-            background: #fff4e6;
-            border-left: 4px solid #f59e0b;
-            padding: 16px;
-            margin-bottom: 24px;
-            border-radius: 4px;
+            background: linear-gradient(135deg, #fff4e6 0%, #fef3cd 100%);
+            border-left: 6px solid #FF9500;
+            padding: 20px;
+            margin-bottom: 28px;
+            border-radius: 12px;
+            box-shadow: 
+              0 4px 8px rgba(255, 149, 0, 0.2),
+              inset 0 1px 2px rgba(255, 255, 255, 0.5);
+            position: relative;
           ">
             <p style="
               margin: 0;
               color: #92400e;
-              font-size: 14px;
-              line-height: 1.5;
+              font-size: 15px;
+              line-height: 1.6;
+              font-weight: 500;
             ">
               💡 ${upgradeSuggestion}
             </p>
           </div>
           
-          <div style="display: flex; gap: 12px;">
-            <button onclick="document.getElementById('upgradeLimitModal').remove()" style="
+          <!-- 按钮组 -->
+          <div style="display: flex; gap: 16px;">
+            <!-- 稍后再说按钮 - 3D灰色按钮 -->
+            <button onclick="document.getElementById('upgradeLimitModal').remove()" class="game-btn game-btn-white" style="
               flex: 1;
-              padding: 12px 24px;
-              background: #f3f4f6;
-              border: none;
-              border-radius: 8px;
+              padding: 16px 24px;
               font-size: 16px;
-              font-weight: 500;
-              color: #4b5563;
-              cursor: pointer;
-              transition: background 0.2s;
-            " onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">
-              稍后再说
+              position: relative;
+            ">
+              <span>Maybe Later</span>
             </button>
-            <button onclick="window.location.href='/membership.html'" style="
+            
+            <!-- 立即升级按钮 - 3D橙色按钮 -->
+            <button onclick="window.location.href='/membership.html'" class="game-btn game-btn-orange" style="
               flex: 1;
-              padding: 12px 24px;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              border: none;
-              border-radius: 8px;
+              padding: 16px 24px;
               font-size: 16px;
-              font-weight: 500;
-              color: white;
-              cursor: pointer;
-              transition: transform 0.2s, box-shadow 0.2s;
-              box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.5)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'">
-              立即升级 ✨
+              position: relative;
+            ">
+              <span>Upgrade Now ✨</span>
             </button>
           </div>
         </div>
@@ -1290,6 +1449,16 @@ class CommunityChatManager {
     const modalDiv = document.createElement('div');
     modalDiv.innerHTML = modalHTML;
     document.body.appendChild(modalDiv);
+    
+    // Add click outside to close functionality
+    const modal = document.getElementById('upgradeLimitModal');
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.remove();
+        }
+      });
+    }
     
     // Log for debugging
     console.log('📢 Upgrade prompt shown:', { message, limitInfo });

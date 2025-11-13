@@ -675,7 +675,7 @@ function showEditProfileModal() {
         <form id="edit-profile-form">
             <div style="margin-bottom: 20px;">
                 <label for="edit-feeder-name" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
-                    Nickname (昵称)
+                    Nickname
                 </label>
                 <input 
                     type="text" 
@@ -689,7 +689,7 @@ function showEditProfileModal() {
             </div>
             <div style="margin-bottom: 25px;">
                 <label for="edit-user-language" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
-                    Language (语言)
+                    Language
                 </label>
                 <select 
                     id="edit-user-language" 

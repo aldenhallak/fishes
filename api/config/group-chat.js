@@ -7,6 +7,7 @@
  */
 
 require('dotenv').config({ path: '.env.local' });
+const { getGlobalParamInt } = require('../../lib/global-params');
 
 module.exports = async function handler(req, res) {
   // 只允许 GET 请求
@@ -23,12 +24,14 @@ module.exports = async function handler(req, res) {
     const groupChatMode = process.env.GROUP_CHAT || 'OFF';
     const isEnabled = groupChatMode.toUpperCase() === 'ON';
 
-    // 从环境变量读取群聊时间间隔（单位：分钟，默认 5 分钟）
-    const intervalTimeMinutes = parseInt(process.env.GROUP_CHAT_INTERVAL_TIME || '5', 10);
+    // 从全局参数表读取群聊时间间隔（单位：秒，转换为分钟）
+    // group_chat_interval_s: 群聊间隔（秒），默认 30 秒 = 0.5 分钟，但通常设置为 300 秒 = 5 分钟
+    const intervalTimeSeconds = await getGlobalParamInt('group_chat_interval_s', 300);
+    const intervalTimeMinutes = Math.round(intervalTimeSeconds / 60); // 转换为分钟（四舍五入）
 
     console.log('💬 Group chat config requested');
     console.log(`   Mode: ${groupChatMode} (enabled: ${isEnabled})`);
-    console.log(`   Interval: ${intervalTimeMinutes} minutes`);
+    console.log(`   Interval: ${intervalTimeSeconds} seconds (${intervalTimeMinutes} minutes)`);
 
     return res.status(200).json({
       groupChatMode: groupChatMode,

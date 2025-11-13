@@ -199,33 +199,39 @@
         /* Mobile-specific styles */
         @media (max-width: 768px) {
             
+            html {
+                height: 100%;
+                overflow: hidden;
+            }
+            
             body {
                 margin: 0;
                 padding: 0;
                 touch-action: manipulation; /* Prevent zoom on double-tap */
-                display: flex;
-                flex-direction: column;
-                height: 100vh;
+                height: 100%;
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
             }
             
             #swim-canvas {
                 width: 100vw !important;
-                height: calc(100vh - 80px) !important;
+                height: 100vh !important;
                 max-width: 100vw !important;
+                max-height: 100vh !important;
                 border: none !important;
                 display: block !important;
                 margin: 0 !important;
-                flex: 1;
+                padding: 0 !important;
                 touch-action: manipulation;
-                position: relative;
+                position: fixed;
+                top: 0;
+                left: 0;
                 z-index: 1;
             }
             
             .game-tank-controls {
-                bottom: 0 !important;
-                padding: 6px 12px !important;
-                flex-direction: column !important;
-                gap: 8px !important;
+                display: none !important;
             }
             
             .desktop-only {
@@ -236,15 +242,9 @@
                 display: inline;
             }
             
+            /* Hide footer on tank page mobile */
             footer {
-                position: static !important;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 8px 5px;
-                font-size: 10px;
-                backdrop-filter: blur(10px);
-                border-top: 1px solid #ddd;
-                flex-shrink: 0;
-                margin: 0;
+                display: none !important;
             }
         }
         
@@ -257,22 +257,42 @@
                 display: none;
             }
             
+            html {
+                height: 100%;
+                overflow: hidden;
+            }
+            
             body {
                 margin: 0;
                 padding: 0;
+                overflow: hidden;
+                height: 100%;
+                position: fixed;
+                width: 100%;
             }
             
             #swim-canvas {
                 width: 100vw !important;
-                height: calc(100vh - 80px) !important;
+                height: 100vh !important;
                 max-width: 100vw !important;
+                max-height: 100vh !important;
                 border: none !important;
                 display: block !important;
                 margin: 0 !important;
+                padding: 0 !important;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1;
             }
             
             .game-tank-controls {
-                bottom: 0 !important;
+                display: none !important;
+            }
+            
+            /* Hide footer on tank page desktop */
+            footer {
+                display: none !important;
             }
         }
         
@@ -625,8 +645,8 @@
 <body class="game-style">
   <!-- Top Navigation Bar -->
   <nav class="game-nav">
-    <!-- 汉堡菜单按钮 -->
-    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="打开菜单">
+    <!-- Hamburger Menu Button -->
+    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="Open Menu">
       <span></span>
       <span></span>
       <span></span>
@@ -758,25 +778,19 @@
     <div class="chat-panel" id="chat-panel" style="position: fixed; right: -350px; top: 80px; width: 340px; height: calc(100vh - 100px); background: rgba(255, 255, 255, 0.98); border-radius: 20px 0 0 20px; padding: 20px; box-shadow: -4px 0 32px rgba(0, 0, 0, 0.15); backdrop-filter: blur(10px); border: 2px solid rgba(99, 102, 241, 0.2); border-right: none; display: none; flex-direction: column; transition: right 0.3s ease; z-index: 999; visibility: hidden;">
       <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid rgba(99, 102, 241, 0.1);">
         <span style="font-size: 24px;">💬</span>
-        <h3 style="margin: 0; color: #6366F1; font-size: 18px;">鱼群聊天</h3>
-        <button id="close-chat-panel" style="margin-left: auto; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; padding: 0; line-height: 1; transition: all 0.3s ease;" title="关闭">×</button>
+        <h3 style="margin: 0; color: #6366F1; font-size: 18px;">Fish Group Chat</h3>
+        <button id="close-chat-panel" style="margin-left: auto; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; padding: 0; line-height: 1; transition: all 0.3s ease;" title="Close">×</button>
       </div>
       
       <div style="font-size: 12px; color: #666; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-        <span id="chat-status" style="color: #999;">等待中...</span>
+        <span id="chat-status" style="color: #999;">Waiting...</span>
       </div>
       
       <div id="chat-messages" style="flex: 1; overflow-y: auto; padding-right: 8px;">
         <div style="text-align: center; color: #999; padding: 40px 20px; font-size: 14px;">
-          <p style="margin: 10px 0;">🐟 鱼儿们正在准备聊天...</p>
-          <p style="margin: 10px 0; font-size: 12px;">每5分钟会有新的对话</p>
+          <p style="margin: 10px 0;">🐟 Fish are preparing to chat...</p>
+          <p id="chat-interval-text" style="margin: 10px 0; font-size: 12px;">New conversations every 5 minutes</p>
         </div>
-      </div>
-      
-      <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid rgba(99, 102, 241, 0.1);">
-        <button id="trigger-chat-btn" class="cute-button cute-button-primary" style="width: 100%; padding: 10px; font-size: 14px; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-weight: 600; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); cursor: pointer; transition: all 0.3s ease;">
-          🎯 立即触发聊天
-        </button>
       </div>
     </div>
   </div>
@@ -932,7 +946,7 @@
           // Get current user
           const user = await window.supabaseAuth.getUser();
           if (!user) {
-            alert('请先登录才能进入战斗模式！');
+            alert('Please login first to enter battle mode!');
             if (window.authUI && window.authUI.showLoginModal) {
                 window.authUI.showLoginModal();
             }
@@ -941,7 +955,7 @@
           
           // Check if there are any fish in the global tank
           if (!window.fishes || window.fishes.length === 0) {
-            alert('鱼缸中暂时没有鱼！请稍后再试。');
+            alert('There are no fish in the tank! Please try again later.');
             return;
           }
           
@@ -968,8 +982,8 @@
           console.log('🔍 [tank.html] 用户的鱼数量:', userFish.length);
           
           if (userFish.length === 0) {
-            alert(`你还没有画过鱼！\n\n当前用户ID: ${user.id}\n鱼缸中共有 ${window.fishes.length} 条鱼\n请先画一条鱼。\n\n请检查浏览器控制台查看详细信息。`);
-            if (confirm('是否前往画鱼页面？')) {
+            alert(`You haven't drawn any fish yet!\n\nCurrent User ID: ${user.id}\nTotal fish in tank: ${window.fishes.length}\nPlease draw a fish first.\n\nCheck browser console for more details.`);
+            if (confirm('Go to the drawing page?')) {
               window.location.href = 'index.html';
             }
             return;
@@ -981,12 +995,12 @@
           
           // Show loading state
           const originalText = tankBattleBtn.innerHTML;
-          tankBattleBtn.innerHTML = '⏳ 进入中...';
+          tankBattleBtn.innerHTML = '⏳ Entering...';
           tankBattleBtn.disabled = true;
           
           // Check if BattleClient is loaded
           if (typeof BattleClient === 'undefined') {
-            alert('战斗系统正在加载中...');
+            alert('Battle system is loading...');
             tankBattleBtn.innerHTML = originalText;
             tankBattleBtn.disabled = false;
             return;
@@ -1007,25 +1021,25 @@
               await window.reloadTankForBattleMode(20); // 加载20条战斗鱼
             }
             
-            alert(`✅ 成功进入战斗模式！\n\n当前在线: ${result.currentUsers}/${result.maxUsers}\n鱼: ${selectedFish.Artist || selectedFish.artist || 'Anonymous'}\n\n⚔️ 战斗将在鱼缸内自动进行！\n当你的鱼与其他鱼碰撞时会触发战斗动画。`);
-            tankBattleBtn.innerHTML = '✓ 战斗中';
+            alert(`✅ Successfully entered battle mode!\n\nCurrent online: ${result.currentUsers}/${result.maxUsers}\nFish: ${selectedFish.Artist || selectedFish.artist || 'Anonymous'}\n\n⚔️ Battles will automatically occur in the tank!\nWhen your fish collides with others, battle animations will trigger.`);
+            tankBattleBtn.innerHTML = '✓ In Battle';
             tankBattleBtn.style.background = 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)';
             tankBattleBtn.disabled = false;
             
             // 战斗在当前鱼缸页面内实时进行，无需跳转
           } else if (result.inQueue) {
-            alert(`⏳ 战斗模式已满！\n\n已加入排队：第 ${result.position} 位\n预计等待：${result.estimatedWait}秒`);
+            alert(`⏳ Battle mode is full!\n\nJoined queue: Position ${result.position}\nEstimated wait: ${result.estimatedWait} seconds`);
             tankBattleBtn.innerHTML = originalText;
             tankBattleBtn.disabled = false;
           } else {
-            alert(`❌ 进入失败：${result.error || result.message}`);
+            alert(`❌ Failed to enter: ${result.error || result.message}`);
             tankBattleBtn.innerHTML = originalText;
             tankBattleBtn.disabled = false;
           }
           
         } catch (error) {
           console.error('进入战斗模式错误:', error);
-          alert(`❌ 错误：${error.message}`);
+          alert(`❌ Error: ${error.message}`);
           
           if (tankBattleBtn) {
             tankBattleBtn.innerHTML = '⚔️ Battle';

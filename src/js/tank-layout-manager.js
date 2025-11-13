@@ -10,8 +10,8 @@
 
 // Tank layout configuration
 const TANK_LAYOUT = {
-  rows: 4,                      // Number of rows in the tank
-  rowHeight: 150,               // Height of each row in pixels
+  rows: 6,                      // Number of rows in the tank (increased for better distribution)
+  rowHeight: 200,               // Height of each row in pixels (increased)
   
   // Dialogue zone (top of each row)
   dialogueZone: {
@@ -21,7 +21,7 @@ const TANK_LAYOUT = {
   
   // Swim zone (bottom of each row)
   swimZone: {
-    height: 100,                // Height where fish can swim
+    height: 150,                // Height where fish can swim (increased)
     yOffset: 45                 // Distance from row top
   },
   
@@ -284,12 +284,24 @@ class TankLayoutManager {
     this.ctx = ctx;
     this.rows = [];
     
+    // Calculate optimal number of rows based on canvas height
+    // Ensure we cover the entire canvas height
+    const minRowHeight = 150; // Minimum height per row
+    const calculatedRows = Math.max(4, Math.ceil(canvas.height / minRowHeight));
+    const actualRows = Math.min(calculatedRows, 10); // Cap at 10 rows
+    
+    // Update TANK_LAYOUT.rows dynamically
+    const originalRows = TANK_LAYOUT.rows;
+    TANK_LAYOUT.rows = actualRows;
+    TANK_LAYOUT.rowHeight = Math.floor(canvas.height / actualRows);
+    TANK_LAYOUT.swimZone.height = Math.floor(TANK_LAYOUT.rowHeight * 0.7); // 70% of row height for swimming
+    
     // Create row managers
     for (let i = 0; i < TANK_LAYOUT.rows; i++) {
       this.rows.push(new TankRow(i, canvas.width, ctx));
     }
     
-    console.log(`TankLayoutManager initialized with ${TANK_LAYOUT.rows} rows`);
+    console.log(`TankLayoutManager initialized with ${TANK_LAYOUT.rows} rows (canvas: ${canvas.width}x${canvas.height}, row height: ${TANK_LAYOUT.rowHeight}px)`);
   }
   
   /**
@@ -298,21 +310,52 @@ class TankLayoutManager {
    */
   assignFishToRows(fishes) {
     fishes.forEach((fish, index) => {
-      // Distribute fish evenly across rows
-      const rowIndex = index % TANK_LAYOUT.rows;
-      fish.rowIndex = rowIndex;
-      
-      const row = this.rows[rowIndex];
-      fish.yMin = row.swimYMin;
-      fish.yMax = row.swimYMax;
-      
-      // Initialize fish Y within swim zone if not set
-      if (!fish.y || fish.y < row.swimYMin || fish.y > row.swimYMax) {
+      // Determine which row this fish belongs to based on its current Y position
+      // This allows fish to maintain their random initial positions
+      if (fish.y !== undefined && fish.y >= 0) {
+        // Find the row that contains this Y position
+        let assignedRowIndex = 0;
+        for (let i = 0; i < this.rows.length; i++) {
+          const row = this.rows[i];
+          if (fish.y >= row.swimYMin && fish.y <= row.swimYMax) {
+            assignedRowIndex = i;
+            break;
+          }
+        }
+        
+        // If fish is outside all rows, find the closest row
+        if (assignedRowIndex === 0 && fish.y < this.rows[0].swimYMin) {
+          assignedRowIndex = 0;
+        } else if (fish.y > this.rows[this.rows.length - 1].swimYMax) {
+          assignedRowIndex = this.rows.length - 1;
+        }
+        
+        fish.rowIndex = assignedRowIndex;
+        const row = this.rows[assignedRowIndex];
+        fish.yMin = row.swimYMin;
+        fish.yMax = row.swimYMax;
+        
+        // Only adjust Y if fish is significantly outside the row bounds
+        if (fish.y < row.swimYMin - 10) {
+          fish.y = row.swimYMin + Math.random() * 30;
+        } else if (fish.y > row.swimYMax + 10) {
+          fish.y = row.swimYMax - Math.random() * 30;
+        }
+      } else {
+        // If fish doesn't have Y position, distribute evenly across rows
+        const rowIndex = index % TANK_LAYOUT.rows;
+        fish.rowIndex = rowIndex;
+        
+        const row = this.rows[rowIndex];
+        fish.yMin = row.swimYMin;
+        fish.yMax = row.swimYMax;
+        
+        // Place fish randomly within its row's swim zone
         fish.y = row.swimYMin + Math.random() * TANK_LAYOUT.swimZone.height;
       }
     });
     
-    console.log(`Assigned ${fishes.length} fish to ${TANK_LAYOUT.rows} rows`);
+    console.log(`Assigned ${fishes.length} fish to ${TANK_LAYOUT.rows} rows based on their positions`);
   }
   
   /**

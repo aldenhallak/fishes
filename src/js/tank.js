@@ -439,6 +439,23 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
     };
     
     img.onload = function () {
+        // Check for duplicate fish before loading
+        const fishId = fishData.docId || fishData.id;
+        if (fishId) {
+            // Check if this fish already exists in the tank
+            const existingFish = fishes.find(f => {
+                if (f.isDying) return false;
+                const existingId = f.docId || f.id;
+                return existingId === fishId;
+            });
+            
+            if (existingFish) {
+                console.log(`🐠 Skipping duplicate fish (ID: ${fishId}) - already in tank`);
+                if (onDone) onDone(existingFish);
+                return;
+            }
+        }
+        
         // Calculate dynamic size based on current tank and fish count
         const fishSize = calculateFishSize();
         const displayCanvas = makeDisplayFishCanvas(img, fishSize.width, fishSize.height);
@@ -490,6 +507,7 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
             }
 
             fishes.push(fishObj);
+            console.log(`🐠 Added fish to tank (ID: ${fishId}, Total: ${fishes.length})`);
 
             if (onDone) onDone(fishObj);
         } else {
@@ -939,8 +957,54 @@ async function loadInitialFish(sortType = 'recent') {
             }
         }
 
-        filteredFishDocs.forEach((doc, index) => {
+        // Remove duplicates from filteredFishDocs before loading
+        const uniqueFishDocs = [];
+        const seenFishIds = new Set();
+        
+        filteredFishDocs.forEach((doc) => {
+            // Handle different possible backend API formats
+            let data, fishId;
 
+            if (typeof doc.data === 'function') {
+                // Firestore-style document with data() function
+                data = doc.data();
+                fishId = doc.id;
+            } else if (doc.data && typeof doc.data === 'object') {
+                // Backend returns {id: '...', data: {...}}
+                data = doc.data;
+                fishId = doc.id;
+            } else if (doc.id && (doc.image || doc.Image)) {
+                // Backend returns fish data directly as properties
+                data = doc;
+                fishId = doc.id;
+            } else {
+                // Unknown format
+                console.warn('Skipping fish with unknown format:', doc);
+                return;
+            }
+
+            // Skip if data is still undefined or null
+            if (!data) {
+                console.warn('Skipping fish with no data after extraction:', fishId, doc);
+                return;
+            }
+
+            // Check for duplicate fish IDs
+            if (fishId && seenFishIds.has(fishId)) {
+                console.log(`🐠 Skipping duplicate fish from API (ID: ${fishId})`);
+                return;
+            }
+            
+            if (fishId) {
+                seenFishIds.add(fishId);
+            }
+            
+            uniqueFishDocs.push(doc);
+        });
+        
+        console.log(`🐠 Filtered ${filteredFishDocs.length} fish docs to ${uniqueFishDocs.length} unique fish`);
+
+        uniqueFishDocs.forEach((doc, index) => {
             // Handle different possible backend API formats
             let data, fishId;
 
@@ -997,6 +1061,7 @@ async function loadInitialFish(sortType = 'recent') {
         }
         
         // Filter user's fish after loading - keep only the newest one
+        // This is a backup filter, main filtering happens in loadFishIntoTank
         setTimeout(async () => {
             await filterUserFishToNewestOnly();
         }, 1500); // Wait 1.5 seconds for all images to load
@@ -1036,6 +1101,18 @@ async function filterUserFishToNewestOnly() {
             }
         }
         
+        // Also try Supabase auth if available
+        if (!currentUserId && window.supabaseAuth) {
+            try {
+                const user = await window.supabaseAuth.getUser();
+                if (user && user.id) {
+                    currentUserId = user.id;
+                }
+            } catch (error) {
+                console.warn('Failed to get user from supabaseAuth:', error);
+            }
+        }
+        
         if (!currentUserId) {
             console.log('🐠 No user ID found, skipping user fish filtering');
             return; // User not logged in, no filtering needed
@@ -1043,17 +1120,19 @@ async function filterUserFishToNewestOnly() {
         
         console.log('🐠 Filtering user fish, currentUserId:', currentUserId);
         
-        // Find all user's fish in the tank
+        // Find all user's fish in the tank (including those that are dying)
         const userFish = fishes.filter(f => {
-            if (f.isDying) return false;
             const fUserId = f.userId || f.user_id || f.UserId || f.owner_id || f.ownerId;
             return fUserId === currentUserId;
         });
         
-        // If user has multiple fish, keep only the newest one
-        if (userFish.length > 1) {
+        // Filter out already dying fish
+        const aliveUserFish = userFish.filter(f => !f.isDying);
+        
+        // If user has multiple alive fish, keep only the newest one
+        if (aliveUserFish.length > 1) {
             // Sort by creation date (newest first)
-            userFish.sort((a, b) => {
+            aliveUserFish.sort((a, b) => {
                 const aDate = a.createdAt;
                 const bDate = b.createdAt;
                 
@@ -1083,20 +1162,25 @@ async function filterUserFishToNewestOnly() {
             });
             
             // Keep only the newest one, remove the rest
-            const newestUserFish = userFish[0];
-            const fishToRemove = userFish.slice(1);
+            const newestUserFish = aliveUserFish[0];
+            const fishToRemove = aliveUserFish.slice(1);
             
-            console.log(`🐠 User has ${userFish.length} fish, keeping only the newest one (ID: ${newestUserFish.docId || newestUserFish.id})`);
+            console.log(`🐠 User has ${aliveUserFish.length} alive fish, keeping only the newest one (ID: ${newestUserFish.docId || newestUserFish.id})`);
             
             // Remove old user fish with death animation
             fishToRemove.forEach((oldFish, index) => {
                 setTimeout(() => {
                     const oldFishIndex = fishes.indexOf(oldFish);
                     if (oldFishIndex !== -1 && !oldFish.isDying) {
+                        console.log(`🐠 Removing duplicate user fish (ID: ${oldFish.docId || oldFish.id})`);
                         animateFishDeath(oldFishIndex);
                     }
                 }, index * 200); // Stagger the death animations
             });
+        } else if (aliveUserFish.length === 1) {
+            console.log(`🐠 User has exactly 1 fish (ID: ${aliveUserFish[0].docId || aliveUserFish[0].id}), no filtering needed`);
+        } else {
+            console.log('🐠 User has no fish in tank');
         }
     } catch (error) {
         console.error('Error filtering user fish:', error);
@@ -1176,8 +1260,14 @@ async function checkForNewFish() {
                 continue;
             }
 
-            // Only add if we haven't seen this fish before
-            if (!fishes.some(f => f.docId === fishId)) {
+            // Only add if we haven't seen this fish before (check both docId and id)
+            const fishAlreadyExists = fishes.some(f => {
+                if (f.isDying) return false;
+                const existingId = f.docId || f.id;
+                return existingId === fishId;
+            });
+            
+            if (!fishAlreadyExists) {
 
                 // Check if this new fish belongs to the current user
                 const fishUserId = fishData.user_id || fishData.UserId || fishData.userId || fishData.owner_id || fishData.ownerId;
@@ -1317,6 +1407,16 @@ async function checkForNewFish() {
 async function loadFishIntoTank(sortType = 'recent') {
     // Load initial fish
     await loadInitialFish(sortType);
+
+    // Filter user's fish after loading - ensure only one user fish exists
+    // Use multiple attempts to ensure filtering works correctly
+    await filterUserFishToNewestOnly();
+    setTimeout(async () => {
+        await filterUserFishToNewestOnly();
+    }, 2000); // Second attempt after 2 seconds
+    setTimeout(async () => {
+        await filterUserFishToNewestOnly();
+    }, 4000); // Third attempt after 4 seconds
 
     // Set up real-time listener for new fish (only for recent mode)
     if (sortType === 'recent') {
@@ -1545,7 +1645,7 @@ function showFishInfoModal(fish) {
     
     // Favorite button (only show if user is logged in and not their own fish)
     if (showFavoriteButton) {
-        info += `<button class="favorite-btn" id="fav-btn-${fish.docId}" onclick="if(typeof handleFavoriteClick === 'function') handleFavoriteClick('${fish.docId}', event); else alert('收藏功能暂未实现');" style="flex: 1; padding: 12px 16px; border: none; border-radius: 12px; background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E67E00 100%); border-bottom: 3px solid #CC6E00; color: white; cursor: pointer; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Add to favorites">`;
+        info += `<button class="favorite-btn" id="fav-btn-${fish.docId}" onclick="if(typeof handleFavoriteClick === 'function') handleFavoriteClick('${fish.docId}', event); else alert('Favorite feature not yet implemented');" style="flex: 1; padding: 12px 16px; border: none; border-radius: 12px; background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E67E00 100%); border-bottom: 3px solid #CC6E00; color: white; cursor: pointer; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Add to favorites">`;
         info += `⭐ Favorite`;
         info += `</button>`;
     }
@@ -1867,35 +1967,54 @@ function resizeForMobile() {
     const oldWidth = swimCanvas.width;
     const oldHeight = swimCanvas.height;
 
-    if (isMobile) {
-        // Match the CSS dimensions for mobile
-        swimCanvas.width = window.innerWidth;
-        swimCanvas.height = window.innerHeight - 120; // Match calc(100vh - 120px)
-        swimCanvas.style.width = '100vw';
-        swimCanvas.style.height = 'calc(100vh - 120px)';
-        swimCanvas.style.maxWidth = '100vw';
-        swimCanvas.style.maxHeight = 'calc(100vh - 120px)';
-    } else {
-        // Desktop dimensions - full screen, controls below
-        swimCanvas.width = window.innerWidth;
-        swimCanvas.height = window.innerHeight; // Full viewport height
-        swimCanvas.style.width = '100vw';
-        swimCanvas.style.height = '100vh';
-        swimCanvas.style.maxWidth = '100vw';
-        swimCanvas.style.maxHeight = '100vh';
+    // Get actual viewport dimensions
+    // For mobile, use window.innerHeight which excludes browser UI
+    // For better mobile support, we can also use visualViewport if available
+    let viewportHeight = window.innerHeight;
+    let viewportWidth = window.innerWidth;
+    
+    if (window.visualViewport) {
+        viewportHeight = window.visualViewport.height;
+        viewportWidth = window.visualViewport.width;
     }
 
-    // If canvas size changed significantly, rescale all fish
-    const widthChange = Math.abs(oldWidth - swimCanvas.width) / oldWidth;
-    const heightChange = Math.abs(oldHeight - swimCanvas.height) / oldHeight;
+    // Set canvas to full viewport
+    swimCanvas.width = viewportWidth;
+    swimCanvas.height = viewportHeight;
+    swimCanvas.style.width = viewportWidth + 'px';
+    swimCanvas.style.height = viewportHeight + 'px';
+    swimCanvas.style.position = 'fixed';
+    swimCanvas.style.top = '0';
+    swimCanvas.style.left = '0';
 
-    // Rescale if size changed by more than 20%
-    if (widthChange > 0.2 || heightChange > 0.2) {
-        rescaleAllFish();
+    console.log(`🐠 Canvas resized to ${swimCanvas.width}x${swimCanvas.height} (${isMobile ? 'mobile' : 'desktop'}, viewport: ${viewportWidth}x${viewportHeight})`);
+
+    // If canvas size changed significantly, rescale all fish
+    if (oldWidth > 0 && oldHeight > 0) {
+        const widthChange = Math.abs(oldWidth - swimCanvas.width) / oldWidth;
+        const heightChange = Math.abs(oldHeight - swimCanvas.height) / oldHeight;
+
+        // Rescale if size changed by more than 20%
+        if (widthChange > 0.2 || heightChange > 0.2) {
+            rescaleAllFish();
+        }
     }
 }
 window.addEventListener('resize', resizeForMobile);
+
+// Also listen to visualViewport changes for mobile browsers
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', resizeForMobile);
+    window.visualViewport.addEventListener('scroll', resizeForMobile);
+}
+
+// Initial resize
 resizeForMobile();
+
+// Force resize after a short delay to ensure proper initialization
+setTimeout(() => {
+    resizeForMobile();
+}, 100);
 
 // Optimize performance by caching food detection calculations
 let foodDetectionCache = new Map();
@@ -2326,7 +2445,7 @@ function updateChatUI(chatSession) {
     `;
     titleDiv.innerHTML = `
         <span style="font-weight: 600; color: #6366F1; font-size: 14px;">💬 ${chatSession.topic}</span>
-        <span style="font-size: 11px; color: #999;">${chatSession.participantCount || chatSession.dialogues?.length || 0} 条消息</span>
+        <span style="font-size: 11px; color: #999;">${chatSession.participantCount || chatSession.dialogues?.length || 0} messages</span>
     `;
     sessionCard.appendChild(titleDiv);
     
@@ -2427,6 +2546,64 @@ if (communityChatManager) {
     };
 }
 
+/**
+ * 获取并显示用户群聊使用情况
+ */
+async function displayGroupChatUsage() {
+    try {
+        // 获取当前用户ID
+        let currentUserId = null;
+        
+        // Try getCurrentUserId function first
+        if (typeof getCurrentUserId === 'function') {
+            try {
+                currentUserId = await getCurrentUserId();
+            } catch (error) {
+                // Ignore error
+            }
+        }
+        
+        // Fallback to localStorage if getCurrentUserId returns null
+        if (!currentUserId) {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                try {
+                    const parsed = JSON.parse(userData);
+                    currentUserId = parsed.userId || parsed.uid || parsed.id;
+                } catch (error) {
+                    // Ignore error
+                }
+            }
+            
+            // Also try userId directly from localStorage
+            if (!currentUserId) {
+                currentUserId = localStorage.getItem('userId');
+            }
+        }
+        
+        if (!currentUserId) {
+            // User not logged in, skip
+            return;
+        }
+        
+        // 获取使用情况
+        const usageResponse = await fetch(`/api/fish/chat/usage?userId=${encodeURIComponent(currentUserId)}`);
+        if (usageResponse && usageResponse.ok) {
+            const usageData = await usageResponse.json();
+            if (usageData.success) {
+                if (usageData.unlimited) {
+                    console.log(`💬 当前用户今日已用群聊数 ${usageData.usage}（${usageData.tier} 会员，无限次）`);
+                } else {
+                    console.log(`💬 当前用户今日已用群聊数 ${usageData.usage}/${usageData.limit}`);
+                }
+            }
+        }
+    } catch (error) {
+        // 静默失败，不影响主流程
+        console.debug('Failed to get group chat usage:', error);
+    }
+}
+
 // 初始化群聊功能
 async function initializeGroupChat() {
     if (!communityChatManager) {
@@ -2435,6 +2612,9 @@ async function initializeGroupChat() {
     }
     
     try {
+        // 显示群聊使用情况（页面加载时）
+        await displayGroupChatUsage();
+        
         // 从API获取环境变量配置（群聊、独白和费用节省）
         const [groupChatResponse, monoChatResponse, costSavingResponse] = await Promise.all([
             fetch('/api/config/group-chat').catch(() => null),
@@ -2465,6 +2645,9 @@ async function initializeGroupChat() {
             }
             
             console.log(`  AI Fish Group Chat interval: ${groupChatIntervalMinutes} minutes`);
+            
+            // 更新聊天面板中的间隔时间显示
+            updateChatIntervalText(groupChatIntervalMinutes);
         } else {
             // 如果API失败，检查用户本地设置
             const userPreference = localStorage.getItem('groupChatEnabled');
@@ -2871,32 +3054,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
 
-// 立即触发聊天按钮
-const triggerChatBtn = document.getElementById('trigger-chat-btn');
-if (triggerChatBtn && communityChatManager) {
-    triggerChatBtn.addEventListener('click', async () => {
-        const statusEl = document.getElementById('chat-status');
-        if (statusEl) {
-            statusEl.textContent = '生成中...';
-            statusEl.style.color = '#FF9800';
+// 更新聊天间隔时间显示
+function updateChatIntervalText(intervalMinutes) {
+    const intervalTextEl = document.getElementById('chat-interval-text');
+    if (intervalTextEl) {
+        if (intervalMinutes === 1) {
+            intervalTextEl.textContent = 'New conversations every minute';
+        } else {
+            intervalTextEl.textContent = `New conversations every ${intervalMinutes} minutes`;
         }
-        
-        triggerChatBtn.disabled = true;
-        triggerChatBtn.textContent = '⏳ 生成中...';
-        
-        try {
-            await communityChatManager.triggerChat();
-        } catch (error) {
-            console.error('触发聊天失败:', error);
-            if (statusEl) {
-                statusEl.textContent = '❌ 失败';
-                statusEl.style.color = '#f44336';
-            }
-        } finally {
-            triggerChatBtn.disabled = false;
-            triggerChatBtn.textContent = '🎯 立即触发聊天';
-        }
-    });
+    }
 }
 
 // ===== 背景气泡效果 =====

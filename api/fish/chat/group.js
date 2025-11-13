@@ -48,8 +48,7 @@ async function getUserDailyGroupChatUsage(userId) {
     
     const count = result.data.group_chat_aggregate?.aggregate?.count || 0;
     
-    console.log(`[AI Fish Group Chat] User ${userId} has initiated ${count} group chats today (since ${todayISO})`);
-    console.log(`[AI Fish Group Chat] Query result:`, JSON.stringify(result.data, null, 2));
+    console.log(`[AI Fish Group Chat] User ${userId} has initiated ${count} group chats today`);
     return count;
 }
 
@@ -507,8 +506,6 @@ async function saveGroupChatSession(chatResult, fishArray, initiatorUserId = nul
         initiator_user_id: initiatorUserId
     };
 
-    console.log(`[AI Fish Group Chat] Saving session with initiator_user_id: ${initiatorUserId}`);
-
     try {
         const result = await executeGraphQL(mutation, variables);
         if (result.errors) {
@@ -572,44 +569,19 @@ module.exports = async (req, res) => {
         // For multi-user tanks, we use the first fish's owner as the requesting user
         const requestingUserId = fishArray[0]?.user_id;
         
-        // Check usage and display in starting log
-        if (requestingUserId) {
-            try {
-                const limitCheck = await checkUserGroupChatLimit(requestingUserId);
-                if (limitCheck.tier === 'free') {
-                    console.log(`[AI Fish Group Chat] 🎯 Starting generation for Free user ${requestingUserId}: ${limitCheck.usage}/${limitCheck.limit} used today`);
-                } else {
-                    console.log(`[AI Fish Group Chat] 🎯 Starting generation for ${limitCheck.tier.toUpperCase()} user ${requestingUserId}: unlimited usage`);
-                }
-            } catch (usageError) {
-                console.warn('[AI Fish Group Chat] Failed to check usage for starting log:', usageError);
-                console.log(`[AI Fish Group Chat] 🎯 Starting generation for user ${requestingUserId}: usage check failed`);
-            }
-        } else {
-            console.log('[AI Fish Group Chat] 🎯 Starting generation: no user ID found');
-        }
-        
         if (!requestingUserId) {
             console.warn('[AI Fish Group Chat] No user ID found for fish, allowing request');
         } else {
             // Check if user has reached daily limit (for free users)
             const limitCheck = await checkUserGroupChatLimit(requestingUserId);
             
-            // Log usage information for all users
-            if (limitCheck.tier === 'free') {
-                console.log(`[AI Fish Group Chat] Free user ${requestingUserId}: ${limitCheck.usage}/${limitCheck.limit} used today (${limitCheck.allowed ? 'ALLOWED' : 'BLOCKED'})`);
-            } else {
-                console.log(`[AI Fish Group Chat] ${limitCheck.tier.toUpperCase()} user ${requestingUserId}: unlimited usage (ALLOWED)`);
-            }
-            
             if (!limitCheck.allowed) {
                 // Free user has reached daily limit
-                console.log(`[AI Fish Group Chat] ❌ Daily limit reached for user ${requestingUserId}: ${limitCheck.usage}/${limitCheck.limit}`);
                 return res.status(200).json({
                     success: false,
                     error: 'Daily limit reached',
-                    message: `免费会员每天可生成 AI Fish Group Chat ${limitCheck.usage}/${limitCheck.limit} 次。`,
-                    upgradeSuggestion: '升级到 Plus 或 Premium 会员可无限次使用 AI Fish Group Chat',
+                    message: `Free members can generate AI Fish Group Chat ${limitCheck.usage}/${limitCheck.limit} times per day.`,
+                    upgradeSuggestion: 'Upgrade to Plus or Premium membership for unlimited AI Fish Group Chat',
                     useFallback: true,
                     limitInfo: {
                         usage: limitCheck.usage,
@@ -635,31 +607,11 @@ module.exports = async (req, res) => {
             // Continue even if save fails
         }
 
-        // Get usage info for response (to display in frontend)
-        // IMPORTANT: Get usage AFTER saving the session to show updated count
-        let usageInfo = null;
-        if (requestingUserId) {
-            try {
-                const limitCheck = await checkUserGroupChatLimit(requestingUserId);
-                usageInfo = {
-                    userId: requestingUserId,
-                    tier: limitCheck.tier,
-                    usage: limitCheck.usage, // This will now include the just-saved session
-                    limit: limitCheck.limit,
-                    unlimited: limitCheck.tier !== 'free'
-                };
-                console.log(`[AI Fish Group Chat] Updated usage info for response: ${limitCheck.usage}/${limitCheck.limit}`);
-            } catch (usageError) {
-                console.warn('[AI Fish Group Chat] Failed to get usage info for response:', usageError);
-            }
-        }
-
         return res.status(200).json({
             success: true,
             sessionId,
             ...chatResult,
-            participants: fishArray,
-            usageInfo // 添加使用量信息到响应中
+            participants: fishArray
         });
 
     } catch (error) {

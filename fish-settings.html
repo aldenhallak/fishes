@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en-US">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>鱼缸设置 - Fish Art</title>
+    <title>Tank Settings - Fish Art</title>
     <link rel="stylesheet" href="./src/css/global.css">
     <link rel="stylesheet" href="./src/css/fish-settings.css">
 </head>
@@ -27,28 +27,28 @@
 
     <!-- Main Content -->
     <main class="container" style="padding: 40px 20px; max-width: 1200px; margin: 0 auto;">
-        <h1 style="text-align: center; margin-bottom: 40px;">🐟 鱼缸设置</h1>
+        <h1 style="text-align: center; margin-bottom: 40px;">🐟 Tank Settings</h1>
 
         <!-- Membership Info Card -->
         <div class="card" style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
-            <h2 style="margin-top: 0;">您的会员等级</h2>
+            <h2 style="margin-top: 0;">Your Membership Level</h2>
             <div id="membership-info" style="font-size: 18px;">
-                <p>加载中...</p>
+                <p>Loading...</p>
             </div>
         </div>
 
         <!-- Fish List -->
         <div class="card" style="padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
-            <h2>我的鱼 (<span id="fish-count">0</span> / <span id="fish-max">-</span>)</h2>
+            <h2>My Fish (<span id="fish-count">0</span> / <span id="fish-max">-</span>)</h2>
             <div id="fish-list" style="margin-top: 20px;">
-                <p style="text-align: center; color: #999;">加载中...</p>
+                <p style="text-align: center; color: #999;">Loading...</p>
             </div>
         </div>
 
         <!-- Chat Frequency Settings (Premium Only) -->
         <div id="chat-frequency-section" class="card" style="margin-top: 30px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: none;">
-            <h2>🗣️ 聊天频率设置 (Premium 专属)</h2>
-            <p style="color: #666; margin-bottom: 20px;">Premium会员可以为每条鱼调节说话频率（1-10次/小时）</p>
+            <h2>🗣️ Chat Frequency Settings (Premium Only)</h2>
+            <p style="color: #666; margin-bottom: 20px;">Premium members can adjust the chat frequency for each fish (1-10 times/hour)</p>
             <div id="chat-frequency-controls">
                 <!-- Dynamically populated -->
             </div>
@@ -56,15 +56,15 @@
 
         <!-- Locked Features (Free/Plus) -->
         <div id="locked-features" class="card" style="margin-top: 30px; padding: 20px; background: #f9f9f9; border-radius: 12px; display: none;">
-            <h2>🔒 高级功能</h2>
-            <p style="color: #666;">升级到 <strong>Premium</strong> 会员解锁：</p>
+            <h2>🔒 Premium Features</h2>
+            <p style="color: #666;">Upgrade to <strong>Premium</strong> to unlock:</p>
             <ul style="color: #666; line-height: 1.8;">
-                <li>✨ 调节鱼的说话频率（1-10次/小时）</li>
-                <li>🐟 最多拥有 20 条鱼</li>
-                <li>💬 AI聊天功能</li>
+                <li>✨ Adjust fish chat frequency (1-10 times/hour)</li>
+                <li>🐟 Own up to 20 fish</li>
+                <li>💬 AI Chat Features</li>
             </ul>
             <button style="margin-top: 20px; padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">
-                升级到 Premium
+                Upgrade to Premium
             </button>
         </div>
     </main>

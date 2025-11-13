@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的鱼收藏 - My Fish Collection | FishTalk.app</title>
-    <meta name="description" content="查看您创建的鱼和收藏的鱼。管理您的个人鱼收藏，查看统计信息和详细资料。">
-    <meta name="keywords" content="我的鱼, 鱼收藏, 个人鱼缸, 创作的鱼, 收藏的鱼">
+    <title>My Fish Collection | FishTalk.app</title>
+    <meta name="description" content="View your created and favorited fish. Manage your personal fish collection, view statistics and detailed information.">
+    <meta name="keywords" content="my fish, fish collection, personal tank, created fish, favorited fish">
     
     <!-- Open Graph tags -->
-    <meta property="og:title" content="我的鱼收藏 - 个人鱼画廊">
-    <meta property="og:description" content="查看和管理您创建的鱼和收藏的鱼。">
+    <meta property="og:title" content="My Fish Collection - Personal Fish Gallery">
+    <meta property="og:description" content="View and manage your created and favorited fish.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://fishtalk.app/myfish.html">
     
@@ -38,8 +38,8 @@
     {
       "@context": "https://schema.org",
       "@type": "WebPage",
-      "name": "我的鱼收藏 - 个人画廊",
-      "description": "查看和管理您创建的鱼和收藏的鱼收藏。",
+      "name": "My Fish Collection - Personal Gallery",
+      "description": "View and manage your created and favorited fish collection.",
       "url": "https://fishtalk.app/myfish.html"
     }
     </script>
@@ -384,7 +384,7 @@
   <!-- Top Navigation Bar -->
   <nav class="game-nav">
     <!-- 汉堡菜单按钮 -->
-    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="打开菜单">
+    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="Open Menu">
       <span></span>
       <span></span>
       <span></span>
@@ -441,42 +441,42 @@
     
     <div class="ranking-container">
         <div class="ranking-header animate-fadeInUp">
-            <h1>🐟 我的鱼收藏</h1>
+            <h1>🐟 My Fish Collection</h1>
         </div>
         
         <!-- Stats display -->
         <div class="stats-container animate-fadeInUp delay-1" id="stats-container" style="display: none;">
             <div class="stat-card">
-                <div class="stat-label">总数</div>
+                <div class="stat-label">Total</div>
                 <div class="stat-value" id="stat-total">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">我创作的</div>
+                <div class="stat-label">Created by Me</div>
                 <div class="stat-value" id="stat-own">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">我收藏的</div>
+                <div class="stat-label">Favorited</div>
                 <div class="stat-value" id="stat-favorited">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">存活</div>
+                <div class="stat-label">Alive</div>
                 <div class="stat-value" id="stat-alive">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">平均等级</div>
+                <div class="stat-label">Avg Level</div>
                 <div class="stat-value" id="stat-avg-level">0</div>
             </div>
         </div>
         
         <div class="sort-controls animate-fadeInUp delay-2">
-            <button class="sort-btn active" data-sort="date">📅 按日期</button>
-            <button class="sort-btn" data-sort="level">⭐ 按等级</button>
-            <button class="sort-btn" data-sort="name">🔤 按名称</button>
-            <button class="sort-btn" data-sort="type">🏷️ 按类型</button>
+            <button class="sort-btn active" data-sort="date">📅 By Date</button>
+            <button class="sort-btn" data-sort="level">⭐ By Level</button>
+            <button class="sort-btn" data-sort="name">🔤 By Name</button>
+            <button class="sort-btn" data-sort="type">🏷️ By Type</button>
         </div>
         
         <div id="loading" class="loading">
-            加载中... 
+            Loading... 
         </div>
         
         <div id="fish-grid" class="fish-grid" style="display: none;">
@@ -484,10 +484,10 @@
         </div>
         
         <div id="empty-state" class="empty-state" style="display: none;">
-            <h2>还没有鱼哦！</h2>
-            <p>开始创作您的第一条鱼，或者去鱼缸收藏喜欢的鱼吧！</p>
-            <a href="index.html">🎨 开始绘画</a>
-            <a href="tank.html" style="margin-left: 10px;">🐠 浏览鱼缸</a>
+            <h2>No fish yet!</h2>
+            <p>Start creating your first fish, or browse the tank to favorite some fish!</p>
+            <a href="index.html">🎨 Start Drawing</a>
+            <a href="tank.html" style="margin-left: 10px;">🐠 Browse Tank</a>
         </div>
     </div>
     
