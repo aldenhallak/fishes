@@ -372,8 +372,8 @@ function displayProfile(profile, searchedUserId = null) {
     if (upgradeBtn && isCurrentUser && (membershipTier === 'free' || membershipTier === 'plus')) {
         upgradeBtn.style.display = 'inline-block';
         upgradeBtn.onclick = () => {
-            // Navigate to membership upgrade page or show upgrade modal
-            window.location.href = 'fish-settings.html';
+            // Navigate to membership upgrade page
+            window.location.href = 'membership.html';
         };
     } else if (upgradeBtn) {
         upgradeBtn.style.display = 'none';
