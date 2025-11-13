@@ -232,7 +232,7 @@ async function loadMyFish() {
         
         // 调用 API
         const BACKEND_URL = window.location.origin;
-        const response = await fetch(`${BACKEND_URL}/api/fish/my-tank`, {
+        const response = await fetch(`${BACKEND_URL}/api/fish-api?action=my-tank`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,

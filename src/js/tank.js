@@ -2587,7 +2587,7 @@ async function displayGroupChatUsage() {
         }
         
         // 获取使用情况
-        const usageResponse = await fetch(`/api/fish/chat/usage?userId=${encodeURIComponent(currentUserId)}`);
+        const usageResponse = await fetch(`/api/fish-api?action=chat-usage&userId=${encodeURIComponent(currentUserId)}`);
         if (usageResponse && usageResponse.ok) {
             const usageData = await usageResponse.json();
             if (usageData.success) {

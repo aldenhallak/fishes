@@ -150,7 +150,7 @@
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch(`${API_BASE}/api/fish/my-tank`, {
+      const response = await fetch(`${API_BASE}/api/fish-api?action=my-tank`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -275,7 +275,7 @@
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch(`${API_BASE}/api/fish/my-tank`, {
+      const response = await fetch(`${API_BASE}/api/fish-api?action=my-tank`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`

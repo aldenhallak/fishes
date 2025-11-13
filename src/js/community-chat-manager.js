@@ -151,7 +151,7 @@ class CommunityChatManager {
       
       // Call backend API for group chat (using Coze AI)
       // Pass current tank fish IDs to ensure only fish in the tank are selected
-      const response = await fetch('/api/fish/chat/group', {
+      const response = await fetch('/api/fish-api?action=group-chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -426,7 +426,7 @@ class CommunityChatManager {
       }
       
       // 获取使用情况
-      const usageResponse = await fetch(`/api/fish/chat/usage?userId=${encodeURIComponent(currentUserId)}`);
+      const usageResponse = await fetch(`/api/fish-api?action=chat-usage&userId=${encodeURIComponent(currentUserId)}`);
       if (usageResponse && usageResponse.ok) {
         const usageData = await usageResponse.json();
         if (usageData.success) {
@@ -633,7 +633,7 @@ class CommunityChatManager {
       console.log(`🗣️ Generating monologue for: ${selectedFish.fishName} (${selectedFish.personality})`);
       
       // Call backend API for monologue
-      const response = await fetch('/api/fish/chat/monologue', {
+      const response = await fetch('/api/fish-api?action=monologue', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
