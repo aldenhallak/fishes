@@ -11,13 +11,13 @@
  * - test-credentials: 测试凭证
  */
 
-const backendHandler = require('./config/backend');
-const supabaseHandler = require('./config/supabase');
-const loginModeHandler = require('./config/login-mode');
-const groupChatHandler = require('./config/group-chat');
-const monoChatHandler = require('./config/mono-chat');
-const chatCostSavingHandler = require('./config/chat-cost-saving');
-const testCredentialsHandler = require('./config/test-credentials');
+const backendHandler = require('../lib/api-handlers/config/backend');
+const supabaseHandler = require('../lib/api-handlers/config/supabase');
+const loginModeHandler = require('../lib/api-handlers/config/login-mode');
+const groupChatHandler = require('../lib/api-handlers/config/group-chat');
+const monoChatHandler = require('../lib/api-handlers/config/mono-chat');
+const chatCostSavingHandler = require('../lib/api-handlers/config/chat-cost-saving');
+const testCredentialsHandler = require('../lib/api-handlers/config/test-credentials');
 
 module.exports = async function handler(req, res) {
   const { action } = req.query;

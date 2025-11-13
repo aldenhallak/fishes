@@ -21,25 +21,25 @@
  */
 
 // 导入原有的处理函数
-const listHandler = require('./fish/list');
-const submitHandler = require('./fish/submit');
-const myTankHandler = require('./fish/my-tank');
-const favoriteHandler = require('./fish/favorite');
-const unfavoriteHandler = require('./fish/unfavorite');
-const uploadHandler = require('./fish/upload');
-const updateInfoHandler = require('./fish/update-info');
-const updateChatSettingsHandler = require('./fish/update-chat-settings');
-const getBattleFishHandler = require('./fish/get-battle-fish');
-const communityChatHandler = require('./fish/community-chat');
-const groupChatHandler = require('./fish/chat/group');
-const monologueHandler = require('./fish/chat/monologue');
-const chatUsageHandler = require('./fish/chat/usage');
-const moderationCheckHandler = require('./fish/moderation/check');
+const listHandler = require('../lib/api-handlers/fish/list');
+const submitHandler = require('../lib/api-handlers/fish/submit');
+const myTankHandler = require('../lib/api-handlers/fish/my-tank');
+const favoriteHandler = require('../lib/api-handlers/fish/favorite');
+const unfavoriteHandler = require('../lib/api-handlers/fish/unfavorite');
+const uploadHandler = require('../lib/api-handlers/fish/upload');
+const updateInfoHandler = require('../lib/api-handlers/fish/update-info');
+const updateChatSettingsHandler = require('../lib/api-handlers/fish/update-chat-settings');
+const getBattleFishHandler = require('../lib/api-handlers/fish/get-battle-fish');
+const communityChatHandler = require('../lib/api-handlers/fish/community-chat');
+const groupChatHandler = require('../lib/api-handlers/fish/chat/group');
+const monologueHandler = require('../lib/api-handlers/fish/chat/monologue');
+const chatUsageHandler = require('../lib/api-handlers/fish/chat/usage');
+const moderationCheckHandler = require('../lib/api-handlers/fish/moderation/check');
 
 // 如果 create.js 存在
 let createHandler;
 try {
-  createHandler = require('./fish/create');
+  createHandler = require('../lib/api-handlers/fish/create');
 } catch (e) {
   createHandler = null;
 }

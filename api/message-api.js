@@ -10,12 +10,12 @@
  * - fish-messages: 鱼的消息列表
  */
 
-const sendHandler = require('./message/send');
-const deleteHandler = require('./message/delete');
-const markReadHandler = require('./message/mark-read');
-const unreadCountHandler = require('./message/unread-count');
-const userMessagesHandler = require('./message/user-messages');
-const fishMessagesHandler = require('./message/fish-messages');
+const sendHandler = require('../lib/api-handlers/message/send');
+const deleteHandler = require('../lib/api-handlers/message/delete');
+const markReadHandler = require('../lib/api-handlers/message/mark-read');
+const unreadCountHandler = require('../lib/api-handlers/message/unread-count');
+const userMessagesHandler = require('../lib/api-handlers/message/user-messages');
+const fishMessagesHandler = require('../lib/api-handlers/message/fish-messages');
 
 module.exports = async function handler(req, res) {
   const { action } = req.query;
