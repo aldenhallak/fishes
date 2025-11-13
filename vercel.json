@@ -6,11 +6,6 @@
       "maxDuration": 10
     }
   },
-  "env": {
-    "HASURA_GRAPHQL_ENDPOINT": "@hasura-endpoint",
-    "HASURA_ADMIN_SECRET": "@hasura-secret",
-    "UPSTASH_REDIS_URL": "@redis-url"
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
