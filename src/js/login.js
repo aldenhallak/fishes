@@ -38,7 +38,7 @@ async function loadTestCredentials() {
   }
   
   try {
-    const response = await fetch('/api/config/test-credentials');
+    const response = await fetch('/api/config-api?action=test-credentials');
     if (response.ok) {
       const { email, password } = await response.json();
       if (email && password) {

@@ -193,22 +193,40 @@ function createPlanCard(plan) {
     const isCurrentPlan = currentUser && currentPlan === plan.id;
     const isUpgrade = currentUser && shouldShowUpgrade(plan.id);
     
-    const badgeClass = plan.id === 'premium' ? 'premium' : plan.id === 'plus' ? 'plus' : 'free';
-    const badgeIcon = plan.id === 'premium' ? '👑' : plan.id === 'plus' ? '⭐' : '🆓';
+    // 获取会员等级对应的钻石图标
+    const iconData = typeof getMembershipIcon === 'function' ? getMembershipIcon(plan.id) : null;
+    const badgeIconUrl = iconData ? iconData.svgUrl : '';
+    
+    // 生成唯一ID用于价格切换器
+    const priceToggleId = `price-toggle-${plan.id}`;
     
     card.innerHTML = `
-        <div class="plan-badge ${badgeClass}">
-            <span>${badgeIcon}</span>
-            <span>${plan.name}</span>
+        <div class="plan-badge ${plan.id}">
+            <img src="${badgeIconUrl}" alt="${plan.name}" class="plan-badge-icon">
+            <span class="plan-badge-text">${plan.name}</span>
         </div>
         
         <div class="plan-price">
-            <div class="plan-price-amount">$${plan.monthly_price.toFixed(2)}</div>
-            <div class="plan-price-period">per month</div>
+            <div class="plan-price-wrapper">
+                <div class="plan-price-amount" id="price-amount-${plan.id}">$${plan.monthly_price.toFixed(2)}</div>
+                ${plan.yearly_price > 0 ? `
+                    <div class="plan-price-toggle">
+                        <div class="price-toggle-labels">
+                            <span class="price-toggle-label monthly" id="label-monthly-${plan.id}">Monthly</span>
+                            <label class="price-toggle-switch">
+                                <input type="checkbox" id="${priceToggleId}" class="price-toggle-input" onchange="handlePriceToggle('${plan.id}', ${plan.monthly_price}, ${plan.yearly_price})">
+                                <span class="price-toggle-slider"></span>
+                            </label>
+                            <span class="price-toggle-label yearly" id="label-yearly-${plan.id}">Yearly</span>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
             ${plan.yearly_price > 0 ? `
-                <div class="plan-price-yearly">
-                    or $${plan.yearly_price.toFixed(2)}/year
-                    <span style="color: #4CD964; font-weight: 700;">(${Math.round((1 - plan.yearly_price / (plan.monthly_price * 12)) * 100)}% off)</span>
+                <div class="plan-price-savings" id="price-savings-${plan.id}" style="display: none;">
+                    <span style="color: #4CD964; font-weight: 700; font-size: 14px;">
+                        Save ${Math.round((1 - plan.yearly_price / (plan.monthly_price * 12)) * 100)}%
+                    </span>
                 </div>
             ` : ''}
         </div>
@@ -219,12 +237,8 @@ function createPlanCard(plan) {
                 <span class="feature-text">Up to ${plan.max_fish_count} fish</span>
             </li>
             <li>
-                <span class="feature-icon">${plan.can_self_talk ? '✅' : '❌'}</span>
-                <span class="feature-text">AI Chat Features</span>
-            </li>
-            <li>
                 <span class="feature-icon">${plan.can_group_chat ? '✅' : '❌'}</span>
-                <span class="feature-text">Group Chat</span>
+                <span class="feature-text">AI fish Group Chat</span>
             </li>
             <li>
                 <span class="feature-icon">${plan.can_promote_owner ? '✅' : '❌'}</span>
@@ -241,6 +255,7 @@ function createPlanCard(plan) {
         <button 
             class="plan-button ${isCurrentPlan ? 'current' : isUpgrade ? 'upgrade ' + plan.id : ''}" 
             data-plan-id="${plan.id}"
+            data-billing-period="monthly"
             ${isCurrentPlan ? 'disabled' : ''}
             onclick="handlePlanButtonClick('${plan.id}')"
         >
@@ -249,6 +264,34 @@ function createPlanCard(plan) {
     `;
     
     return card;
+}
+
+// 处理价格切换（按月/按年）
+function handlePriceToggle(planId, monthlyPrice, yearlyPrice) {
+    const toggle = document.getElementById(`price-toggle-${planId}`);
+    const priceAmount = document.getElementById(`price-amount-${planId}`);
+    const priceSavings = document.getElementById(`price-savings-${planId}`);
+    const planButton = document.querySelector(`.plan-card.${planId} .plan-button`);
+    const monthlyLabel = document.getElementById(`label-monthly-${planId}`);
+    const yearlyLabel = document.getElementById(`label-yearly-${planId}`);
+    
+    if (!toggle || !priceAmount) return;
+    
+    if (toggle.checked) {
+        // 切换到年度
+        priceAmount.textContent = `$${yearlyPrice.toFixed(2)}`;
+        if (priceSavings) priceSavings.style.display = 'block';
+        if (planButton) planButton.setAttribute('data-billing-period', 'yearly');
+        if (monthlyLabel) monthlyLabel.style.color = '#666';
+        if (yearlyLabel) yearlyLabel.style.color = '#4CD964';
+    } else {
+        // 切换到月度
+        priceAmount.textContent = `$${monthlyPrice.toFixed(2)}`;
+        if (priceSavings) priceSavings.style.display = 'none';
+        if (planButton) planButton.setAttribute('data-billing-period', 'monthly');
+        if (monthlyLabel) monthlyLabel.style.color = '#4CD964';
+        if (yearlyLabel) yearlyLabel.style.color = '#666';
+    }
 }
 
 // 判断是否应该显示升级按钮
@@ -298,6 +341,10 @@ async function handlePlanButtonClick(planId) {
         }
     }
     
+    // 获取选择的计费周期
+    const planButton = document.querySelector(`.plan-card.${planId} .plan-button`);
+    const billingPeriod = planButton ? (planButton.getAttribute('data-billing-period') || 'monthly') : 'monthly';
+    
     // 创建支付会话
     try {
         showLoading('Creating checkout session...');
@@ -310,7 +357,7 @@ async function handlePlanButtonClick(planId) {
             body: JSON.stringify({
                 userId: currentUser.id,
                 planId: planId,
-                billingPeriod: 'monthly' // 默认月度，可以后续添加选择
+                billingPeriod: billingPeriod
             })
         });
         
@@ -358,4 +405,5 @@ if (document.readyState === 'loading') {
 
 // 导出函数供全局使用
 window.handlePlanButtonClick = handlePlanButtonClick;
+window.handlePriceToggle = handlePriceToggle;
 

@@ -45,9 +45,9 @@
         <span>🏠</span>
         <span>Home</span>
       </a>
-      <a href="membership.html" class="game-btn game-btn-orange">
-        <span>💎</span>
-        <span>Membership</span>
+      <a href="membership.html" class="game-btn game-btn-purple" id="nav-upgrade-btn" style="display: none;">
+        <img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle;">
+        <span>Upgrade</span>
       </a>
       <!-- 登录按钮和用户菜单将由 auth-ui.js 动态插入 -->
     </div>
@@ -80,9 +80,9 @@
         <span class="sidebar-icon">👤</span>
         <span>Profile</span>
       </a>
-      <a href="membership.html" class="sidebar-link">
-        <span class="sidebar-icon">💎</span>
-        <span>Membership</span>
+      <a href="membership.html" class="sidebar-link" id="sidebar-upgrade-link" style="display: none;">
+        <span class="sidebar-icon"><img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain;"></span>
+        <span>Upgrade</span>
       </a>
       <a href="#" id="sidebar-share-btn" class="sidebar-link">
         <span class="sidebar-icon">📤</span>
@@ -127,13 +127,7 @@
               <td>20</td>
             </tr>
             <tr>
-              <td>AI Chat Features</td>
-              <td><span class="cross">❌</span></td>
-              <td><span class="check">✅</span></td>
-              <td><span class="check">✅</span></td>
-            </tr>
-            <tr>
-              <td>Group Chat</td>
+              <td>AI fish Group Chat</td>
               <td><span class="cross">❌</span></td>
               <td><span class="check">✅</span></td>
               <td><span class="check">✅</span></td>
@@ -206,6 +200,7 @@
   <script src="public/supabase-config.js?v=2.2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="src/js/supabase-init.js?v=2.3"></script>
+  <script src="src/js/membership-icons.js?v=1.0"></script>
   <script src="src/js/auth-ui.js?v=2.5"></script>
   <script src="src/js/hamburger-menu.js?v=1.0"></script>
   <script src="src/js/membership.js?v=1.0"></script>

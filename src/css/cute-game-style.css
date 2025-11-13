@@ -305,8 +305,10 @@ main section:last-child .game-btn-group {
 }
 
 .game-btn-purple {
-  background: linear-gradient(180deg, var(--game-purple-light) 0%, var(--game-purple) 50%, #7D3C98 100%);
-  border-bottom: 3px solid #5E2C73;
+  background: linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #E6850E 100%);
+  border-bottom: 3px solid #BFA000;
+  color: #5D4E00;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
 }
 
 .game-btn-white {

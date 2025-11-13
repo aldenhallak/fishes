@@ -48,6 +48,10 @@ const server = http.createServer(async (req, res) => {
       const apiPath = pathname.replace('/api/', '');
       let apiFile = path.join(__dirname, 'api', apiPath + '.js');
       
+      // 调试日志：显示请求详情
+      console.log(`[API] ${req.method} ${pathname}`);
+      console.log(`[API] Query params:`, parsedUrl.query);
+      
       // 检查是否为动态路由（如 /api/admin/tables/fish 或 /api/profile/userId）
       let dynamicMatch = null;
       if (!fs.existsSync(apiFile)) {
@@ -132,14 +136,14 @@ const server = http.createServer(async (req, res) => {
         };
         
         // 记录请求信息用于调试
-        console.log(`API调用: ${req.method} ${pathname}`);
+        console.log(`[API Handler] 调用处理器: ${apiFile}`);
         if (dynamicMatch) {
-          console.log(`动态路由匹配:`, dynamicMatch);
+          console.log(`[API Handler] 动态路由匹配:`, dynamicMatch);
         }
-        console.log(`Query参数:`, req.query);
-        console.log(`Content-Type: ${req.headers['content-type']}`);
-        if (req.body) {
-          console.log(`Request Body:`, req.body);
+        console.log(`[API Handler] Query参数:`, req.query);
+        console.log(`[API Handler] Content-Type: ${req.headers['content-type'] || 'N/A'}`);
+        if (req.body && Object.keys(req.body).length > 0) {
+          console.log(`[API Handler] Request Body:`, req.body);
         }
         
         await handler(req, res);

@@ -54,7 +54,7 @@ async function loadBackendConfig() {
     if (backendConfig.loaded) return backendConfig;
     
     try {
-        const response = await fetch('/api/config/backend');
+        const response = await fetch('/api/config-api?action=backend');
         if (response.ok) {
             const config = await response.json();
             backendConfig = { ...config, loaded: true };

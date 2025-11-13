@@ -1626,13 +1626,64 @@ async function loadFishModel() {
     isModelLoading = true;
     console.log('Loading fish model...');
     
+    // 显示进度条
+    const progressContainer = document.getElementById('onnx-loading-progress');
+    const progressBar = document.getElementById('onnx-progress-bar');
+    const progressText = document.getElementById('onnx-progress-text');
+    
+    if (progressContainer) {
+        progressContainer.style.display = 'block';
+    }
+    
+    // 模拟进度更新（因为 ONNX 加载没有实际的进度事件）
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += Math.random() * 15; // 随机增加进度，让进度条更自然
+            if (progress > 90) progress = 90;
+            
+            if (progressBar) {
+                progressBar.style.width = progress + '%';
+            }
+            if (progressText) {
+                progressText.textContent = Math.round(progress) + '%';
+            }
+        }
+    }, 200);
+    
     modelLoadPromise = (async () => {
         try {
             ortSession = await window.ort.InferenceSession.create('fish_doodle_classifier.onnx');
-            console.log('Fish model loaded successfully');
+            console.log('✅ ONNX model loaded successfully');
+            
+            // 完成进度条
+            clearInterval(progressInterval);
+            if (progressBar) {
+                progressBar.style.width = '100%';
+            }
+            if (progressText) {
+                progressText.textContent = '100%';
+            }
+            
+            // 延迟隐藏进度条，让用户看到完成状态
+            setTimeout(() => {
+                if (progressContainer) {
+                    progressContainer.style.display = 'none';
+                }
+            }, 500);
+            
             return ortSession;
         } catch (error) {
             console.error('Failed to load fish model:', error);
+            
+            // 清除进度更新
+            clearInterval(progressInterval);
+            
+            // 隐藏进度条
+            if (progressContainer) {
+                progressContainer.style.display = 'none';
+            }
+            
             throw error;
         } finally {
             isModelLoading = false;

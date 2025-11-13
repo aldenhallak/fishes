@@ -2617,9 +2617,9 @@ async function initializeGroupChat() {
         
         // 从API获取环境变量配置（群聊、独白和费用节省）
         const [groupChatResponse, monoChatResponse, costSavingResponse] = await Promise.all([
-            fetch('/api/config/group-chat').catch(() => null),
-            fetch('/api/config/mono-chat').catch(() => null),
-            fetch('/api/config/chat-cost-saving').catch(() => null)
+            fetch('/api/config-api?action=group-chat').catch(() => null),
+            fetch('/api/config-api?action=mono-chat').catch(() => null),
+            fetch('/api/config-api?action=chat-cost-saving').catch(() => null)
         ]);
         
         // 处理群聊配置

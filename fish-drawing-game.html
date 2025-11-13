@@ -380,6 +380,10 @@
       🐟 FishTalk.app
     </a>
     <div class="game-nav-links">
+      <a href="membership.html" class="game-btn game-btn-purple" id="nav-upgrade-btn" style="display: none;">
+        <img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle;">
+        <span>Upgrade</span>
+      </a>
       <!-- 登录按钮和用户菜单将由 auth-ui.js 动态插入 -->
     </div>
   </nav>
@@ -406,6 +410,14 @@
       <a href="rank.html" class="sidebar-link">
         <span class="sidebar-icon">⭐</span>
         <span>Rank</span>
+      </a>
+      <a href="profile.html" class="sidebar-link">
+        <span class="sidebar-icon">👤</span>
+        <span>Profile</span>
+      </a>
+      <a href="membership.html" class="sidebar-link" id="sidebar-upgrade-link" style="display: none;">
+        <span class="sidebar-icon"><img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain;"></span>
+        <span>Upgrade</span>
       </a>
       <a href="#" id="sidebar-share-btn" class="sidebar-link">
         <span class="sidebar-icon">📤</span>
@@ -636,6 +648,7 @@
   <script src="src/js/fishtank-favorites.js"></script>
   <script src="src/js/social-config.js?v=2.1"></script>
   <script src="src/js/social-share.js?v=2.1"></script>
+  <script src="src/js/membership-icons.js?v=1.0"></script>
   <script src="src/js/auth-ui.js?v=2.5"></script>
   <script src="src/js/fish-info-modal.js?v=1.0"></script>
   <script src="src/js/hamburger-menu.js?v=1.0"></script>

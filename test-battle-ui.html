@@ -78,6 +78,29 @@
             background: #FF4444;
         }
     </style>
+    <script src="public/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="src/js/supabase-init.js"></script>
+    <script src="src/js/admin-auth.js"></script>
+    <script>
+        // 管理员权限检查
+        (async function() {
+            if (document.readyState === 'loading') {
+                await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+            }
+            if (!window.supabaseAuth) {
+                await new Promise(resolve => {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabaseAuth) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                });
+            }
+            await window.adminAuth.requireAdminAccess();
+        })();
+    </script>
 </head>
 <body>
     <h1>🐠 战斗UI样式测试 ⚔️</h1>

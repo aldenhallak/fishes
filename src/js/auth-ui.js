@@ -103,6 +103,7 @@ class AuthUI {
 
   /**
    * 检查开发环境自动登录
+   * 仅在主页（index.html 或根路径）执行自动登录
    */
   async checkAutoLogin() {
     // 检查是否已登录
@@ -118,19 +119,41 @@ class AuthUI {
       return;
     }
 
+    // 仅在主页执行自动登录
+    const currentPath = window.location.pathname;
+    const isIndexPage = currentPath === '/' || 
+                        currentPath === '/index.html' || 
+                        currentPath.endsWith('/index.html') ||
+                        currentPath === '/index';
+    
+    if (!isIndexPage) {
+      console.log('ℹ️ Auto-login only available on index page, current path:', currentPath);
+      return;
+    }
+
     try {
+      console.log('🔍 Checking auto-login configuration...');
+      
       // 从API获取登录模式配置
-      const response = await fetch('/api/config/login-mode');
+      const response = await fetch('/api/config-api?action=login-mode');
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Failed to fetch login mode config:', response.status, errorText);
         console.log('ℹ️ Could not fetch login mode config, skipping auto-login');
         return;
       }
 
       const config = await response.json();
+      console.log('📋 Login mode config received:', { 
+        loginMode: config.loginMode, 
+        autoLoginEnabled: config.autoLoginEnabled,
+        hasEmail: !!config.email,
+        hasPassword: !!config.password
+      });
       
       // 检查是否启用自动登录
       if (config.loginMode !== 'AUTO' || !config.autoLoginEnabled) {
-        console.log('ℹ️ Auto-login disabled (LOGIN_MODE != AUTO)');
+        console.log('ℹ️ Auto-login disabled (LOGIN_MODE != AUTO or not enabled)');
         return;
       }
 
@@ -142,13 +165,17 @@ class AuthUI {
       console.log('🔧 Auto-login enabled (LOGIN_MODE=AUTO)');
       console.log('📧 Email:', config.email);
       
-      // 检查Supabase是否已初始化
-      if (!window.supabaseAuth || !window.supabaseAuth.client) {
-        console.warn('⚠️ Supabase not initialized, cannot perform auto-login');
+      // 等待Supabase初始化（最多等待10秒）
+      console.log('⏳ Waiting for Supabase initialization...');
+      const supabaseReady = await this.waitForSupabase(10000);
+      if (!supabaseReady) {
+        console.warn('⚠️ Supabase initialization timeout, cannot perform auto-login');
         console.warn('💡 This may be due to network issues preventing CDN from loading');
         console.warn('💡 Please check your internet connection and try refreshing the page');
         return;
       }
+      
+      console.log('✅ Supabase initialized, attempting auto-login...');
       
       // 执行自动登录
       const { data, error } = await window.supabaseAuth.client.auth.signInWithPassword({
@@ -158,13 +185,15 @@ class AuthUI {
       
       if (error) {
         console.error('❌ Auto-login failed:', error.message);
+        console.error('❌ Error details:', error);
       } else {
         console.log('✅ Auto-login successful');
         
         // 存储用户信息
-        if (data.user) {
+        if (data.user && data.session) {
           localStorage.setItem('userToken', data.session.access_token);
           localStorage.setItem('userData', JSON.stringify(data.user));
+          console.log('💾 User data saved to localStorage');
         }
         
         // 检查是否有重定向URL（但不要从index跳转）
@@ -182,6 +211,7 @@ class AuthUI {
       }
     } catch (error) {
       console.error('❌ Auto-login exception:', error);
+      console.error('❌ Error stack:', error.stack);
       // 如果是Supabase未初始化错误，提供更友好的提示
       if (error.message && (error.message.includes('null') || error.message.includes('Cannot read'))) {
         console.warn('💡 Supabase SDK may not be loaded due to network issues');
@@ -435,8 +465,6 @@ class AuthUI {
    */
   async handleOAuthLogin(provider) {
     console.log(`🔐 Attempting to sign in with ${provider}...`);
-    console.log('Checking supabaseAuth:', window.supabaseAuth);
-    console.log('Checking supabase client:', window.supabaseAuth?.client);
     
     if (!window.supabaseAuth) {
       console.error('❌ window.supabaseAuth is not available');
@@ -444,15 +472,27 @@ class AuthUI {
       return;
     }
     
-    if (!window.supabaseAuth.signInWithOAuth) {
-      console.error('❌ signInWithOAuth function not available');
-      this.showError('OAuth login function not available. Please refresh the page and try again.');
-      return;
+    // 等待 Supabase 客户端初始化
+    let retries = 0;
+    const maxRetries = 50; // 最多等待5秒
+    while (!window.supabaseAuth.client && retries < maxRetries) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      retries++;
     }
     
     if (!window.supabaseAuth.client) {
-      console.error('❌ Supabase client not initialized');
-      this.showError('Supabase client not initialized. Please check your configuration.');
+      console.error('❌ Supabase client not initialized after waiting');
+      console.error('💡 Possible causes:');
+      console.error('   1. Supabase configuration not loaded');
+      console.error('   2. Network issues preventing CDN from loading');
+      console.error('   3. Invalid SUPABASE_URL or SUPABASE_ANON_KEY');
+      this.showError('Supabase client not initialized. Please check your configuration and network connection.');
+      return;
+    }
+    
+    if (!window.supabaseAuth.signInWithOAuth) {
+      console.error('❌ signInWithOAuth function not available');
+      this.showError('OAuth login function not available. Please refresh the page and try again.');
       return;
     }
     
@@ -586,10 +626,18 @@ class AuthUI {
       // 确保用户在数据库中存在
       await this.ensureUserExistsInDatabase(user);
       this.showUserMenu(user);
+      // 更新 Upgrade 按钮显示状态
+      await this.updateUpgradeButtonVisibility(user);
+      // 更新 Test 按钮显示状态（仅管理员可见）
+      await this.updateTestButtonVisibility(user);
     } else {
       // 未登录：清除localStorage并显示登录按钮
       this.clearUserFromLocalStorage();
       this.showLoginButton();
+      // 隐藏 Upgrade 按钮
+      this.hideUpgradeButtons();
+      // 隐藏 Test 按钮
+      this.hideTestButton();
     }
   }
   
@@ -832,7 +880,7 @@ class AuthUI {
     if (!userId || !this.userContainer) return;
     
     try {
-      const response = await fetch(`/api/message/unread-count?userId=${encodeURIComponent(userId)}`);
+      const response = await fetch(`/api/message-api?action=unread-count&userId=${encodeURIComponent(userId)}`);
       if (!response.ok) {
         console.error('Failed to fetch unread count');
         return;
@@ -886,6 +934,235 @@ class AuthUI {
    */
   getCurrentUser() {
     return this.currentUser;
+  }
+
+  /**
+   * 更新 Upgrade 按钮的显示状态（仅对 free 和 plus 用户显示）
+   */
+  async updateUpgradeButtonVisibility(user) {
+    if (!user) {
+      this.hideUpgradeButtons();
+      return;
+    }
+
+    try {
+      // 获取用户会员等级
+      let membershipTier = 'free';
+      
+      if (typeof getUserMembershipTier === 'function') {
+        membershipTier = await getUserMembershipTier(user.id);
+      } else {
+        // Fallback: 通过 API 查询
+        const query = `
+          query GetUserSubscription($userId: String!) {
+            user_subscriptions(
+              where: {
+                user_id: {_eq: $userId}
+                is_active: {_eq: true}
+              }
+              order_by: {created_at: desc}
+              limit: 1
+            ) {
+              plan
+            }
+          }
+        `;
+
+        const response = await fetch('/api/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            query,
+            variables: { userId: user.id }
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.data?.user_subscriptions?.[0]?.plan) {
+            membershipTier = result.data.user_subscriptions[0].plan.toLowerCase();
+          }
+        }
+      }
+
+      // 只对 free 和 plus 用户显示 Upgrade 按钮
+      const shouldShow = membershipTier === 'free' || membershipTier === 'plus';
+      
+      if (shouldShow) {
+        this.showUpgradeButtons();
+      } else {
+        this.hideUpgradeButtons();
+      }
+
+      // 调试信息
+      if (window.location.search.includes('debug=upgrade')) {
+        console.log('🔍 Upgrade Button Debug:', {
+          userId: user.id,
+          membershipTier: membershipTier,
+          shouldShow: shouldShow,
+          navButtonsFound: document.querySelectorAll('a[href="membership.html"].game-btn-purple, #nav-upgrade-btn').length,
+          sidebarLinksFound: document.querySelectorAll('a[href="membership.html"].sidebar-link, #sidebar-upgrade-link').length
+        });
+        
+        // 显示调试面板
+        this.showDebugPanel({
+          userId: user.id,
+          membershipTier: membershipTier,
+          shouldShow: shouldShow
+        });
+      }
+    } catch (error) {
+      console.error('❌ Failed to update upgrade button visibility:', error);
+      // 出错时默认隐藏
+      this.hideUpgradeButtons();
+    }
+  }
+
+  /**
+   * 显示 Upgrade 按钮
+   */
+  showUpgradeButtons() {
+    // 导航栏按钮
+    const navUpgradeBtns = document.querySelectorAll('a[href="membership.html"].game-btn-purple, #nav-upgrade-btn');
+    navUpgradeBtns.forEach(btn => {
+      btn.style.display = 'flex';
+    });
+
+    // 侧边栏链接
+    const sidebarUpgradeLinks = document.querySelectorAll('a[href="membership.html"].sidebar-link, #sidebar-upgrade-link');
+    sidebarUpgradeLinks.forEach(link => {
+      link.style.display = 'flex';
+    });
+  }
+
+  /**
+   * 隐藏 Upgrade 按钮
+   */
+  hideUpgradeButtons() {
+    // 导航栏按钮
+    const navUpgradeBtns = document.querySelectorAll('a[href="membership.html"].game-btn-purple, #nav-upgrade-btn');
+    navUpgradeBtns.forEach(btn => {
+      btn.style.display = 'none';
+    });
+
+    // 侧边栏链接
+    const sidebarUpgradeLinks = document.querySelectorAll('a[href="membership.html"].sidebar-link, #sidebar-upgrade-link');
+    sidebarUpgradeLinks.forEach(link => {
+      link.style.display = 'none';
+    });
+  }
+
+  /**
+   * 更新 Test 按钮显示状态（仅管理员可见）
+   */
+  async updateTestButtonVisibility(user) {
+    try {
+      // 等待 admin-auth.js 加载（最多等待2秒）
+      let attempts = 0;
+      const maxAttempts = 20;
+      while (!window.adminAuth && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+
+      // 检查 admin-auth.js 是否已加载
+      if (!window.adminAuth) {
+        console.warn('⚠️ admin-auth.js not loaded, hiding test button');
+        this.hideTestButton();
+        return;
+      }
+
+      // 检查管理员权限
+      const isAdmin = await window.adminAuth.checkAdminAccess();
+      
+      if (isAdmin) {
+        this.showTestButton();
+        console.log('✅ Admin detected, showing test button');
+      } else {
+        this.hideTestButton();
+        console.log('ℹ️ Not admin, hiding test button');
+      }
+    } catch (error) {
+      console.error('❌ Failed to update test button visibility:', error);
+      // 出错时默认隐藏
+      this.hideTestButton();
+    }
+  }
+
+  /**
+   * 显示 Test 按钮
+   */
+  showTestButton() {
+    const testBtns = document.querySelectorAll('a[href="test-center.html"].game-btn-white, #nav-test-btn');
+    testBtns.forEach(btn => {
+      btn.style.display = 'flex';
+    });
+  }
+
+  /**
+   * 隐藏 Test 按钮
+   */
+  hideTestButton() {
+    const testBtns = document.querySelectorAll('a[href="test-center.html"].game-btn-white, #nav-test-btn');
+    testBtns.forEach(btn => {
+      btn.style.display = 'none';
+    });
+  }
+
+  /**
+   * 显示调试面板
+   */
+  showDebugPanel(debugInfo) {
+    // 移除已存在的调试面板
+    const existingPanel = document.getElementById('upgrade-debug-panel');
+    if (existingPanel) {
+      existingPanel.remove();
+    }
+
+    // 创建调试面板
+    const panel = document.createElement('div');
+    panel.id = 'upgrade-debug-panel';
+    panel.style.cssText = `
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      z-index: 10000;
+      max-width: 300px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      border: 2px solid #FFD700;
+    `;
+    
+    panel.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #FFD700; padding-bottom: 8px;">
+        <strong style="color: #FFD700;">🔍 Upgrade Debug</strong>
+        <button onclick="this.parentElement.parentElement.remove()" style="background: transparent; border: none; color: white; cursor: pointer; font-size: 18px;">×</button>
+      </div>
+      <div style="line-height: 1.6;">
+        <div><strong>User ID:</strong><br><span style="color: #4CAF50;">${debugInfo.userId.substring(0, 20)}...</span></div>
+        <div style="margin-top: 8px;"><strong>Membership:</strong><br><span style="color: #FFD700;">${debugInfo.membershipTier.toUpperCase()}</span></div>
+        <div style="margin-top: 8px;"><strong>Should Show:</strong><br><span style="color: ${debugInfo.shouldShow ? '#4CAF50' : '#FF3B30'};">${debugInfo.shouldShow ? 'YES ✓' : 'NO ✗'}</span></div>
+        <div style="margin-top: 8px; font-size: 10px; color: #999;">
+          Only Free & Plus users see Upgrade button
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(panel);
+    
+    // 5秒后自动关闭
+    setTimeout(() => {
+      if (panel.parentElement) {
+        panel.remove();
+      }
+    }, 5000);
   }
 }
 

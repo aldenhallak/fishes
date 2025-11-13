@@ -126,34 +126,37 @@
 .plan-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border-radius: 24px;
-  font-size: 18px;
-  font-weight: 700;
+  gap: 12px;
+  padding: 0;
   margin-bottom: 24px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
-.plan-badge.free {
-  background: linear-gradient(180deg, #E0E0E0 0%, #B0B0B0 50%, #909090 100%);
+.plan-badge-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.plan-badge-text {
+  font-size: 28px;
+  font-weight: 700;
   color: #333;
-  border-bottom: 3px solid #707070;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.plan-badge.plus {
-  background: linear-gradient(180deg, #4A90E2 0%, #357ABD 50%, #2C5F8F 100%);
-  color: white;
-  border-bottom: 3px solid #1E4A6B;
+.plan-badge.free .plan-badge-text {
+  color: #8a8a8a;
 }
 
-.plan-badge.premium {
-  background: linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #E6850E 100%);
-  color: #5D4E00;
-  border-bottom: 3px solid #BFA000;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+.plan-badge.plus .plan-badge-text {
+  color: #4EC6BF;
+}
+
+.plan-badge.premium .plan-badge-text {
+  color: #D786EA;
 }
 
 /* ===== 价格显示 ===== */
@@ -162,25 +165,96 @@
   margin-bottom: 32px;
 }
 
+.plan-price-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .plan-price-amount {
-  font-size: 56px;
+  font-size: 36px;
   font-weight: 900;
   color: #333;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 8px;
   line-height: 1;
 }
 
-.plan-price-period {
-  font-size: 18px;
-  color: #666;
+.plan-price-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.price-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.price-toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.price-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 26px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.price-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.price-toggle-input:checked + .price-toggle-slider {
+  background: linear-gradient(180deg, #4CD964 0%, #2EBD4A 100%);
+}
+
+.price-toggle-input:checked + .price-toggle-slider:before {
+  transform: translateX(24px);
+}
+
+.price-toggle-labels {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
   font-weight: 600;
 }
 
-.plan-price-yearly {
-  font-size: 14px;
-  color: #999;
+.price-toggle-label {
+  color: #666;
+  transition: color 0.3s;
+}
+
+.price-toggle-label.monthly {
+  color: #4CD964;
+}
+
+.plan-price-savings {
   margin-top: 8px;
+  font-size: 14px;
 }
 
 /* ===== 功能列表 ===== */

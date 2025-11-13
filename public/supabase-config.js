@@ -15,7 +15,7 @@ window.supabaseConfigReady = false;
 (async function loadSupabaseConfig() {
   try {
     // 尝试从API获取配置（开发环境）
-    const response = await fetch('/api/config/supabase');
+    const response = await fetch('/api/config-api?action=supabase');
     if (response.ok) {
       const config = await response.json();
       window.SUPABASE_URL = config.url;

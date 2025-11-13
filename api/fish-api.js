@@ -21,25 +21,25 @@
  */
 
 // 导入原有的处理函数
-const listHandler = require('../lib/api-handlers/fish/list');
-const submitHandler = require('../lib/api-handlers/fish/submit');
-const myTankHandler = require('../lib/api-handlers/fish/my-tank');
-const favoriteHandler = require('../lib/api-handlers/fish/favorite');
-const unfavoriteHandler = require('../lib/api-handlers/fish/unfavorite');
-const uploadHandler = require('../lib/api-handlers/fish/upload');
-const updateInfoHandler = require('../lib/api-handlers/fish/update-info');
-const updateChatSettingsHandler = require('../lib/api-handlers/fish/update-chat-settings');
-const getBattleFishHandler = require('../lib/api-handlers/fish/get-battle-fish');
-const communityChatHandler = require('../lib/api-handlers/fish/community-chat');
-const groupChatHandler = require('../lib/api-handlers/fish/chat/group');
-const monologueHandler = require('../lib/api-handlers/fish/chat/monologue');
-const chatUsageHandler = require('../lib/api-handlers/fish/chat/usage');
-const moderationCheckHandler = require('../lib/api-handlers/fish/moderation/check');
+const listHandler = require('../lib/api_handlers/fish/list');
+const submitHandler = require('../lib/api_handlers/fish/submit');
+const myTankHandler = require('../lib/api_handlers/fish/my-tank');
+const favoriteHandler = require('../lib/api_handlers/fish/favorite');
+const unfavoriteHandler = require('../lib/api_handlers/fish/unfavorite');
+const uploadHandler = require('../lib/api_handlers/fish/upload');
+const updateInfoHandler = require('../lib/api_handlers/fish/update-info');
+const updateChatSettingsHandler = require('../lib/api_handlers/fish/update-chat-settings');
+const getBattleFishHandler = require('../lib/api_handlers/fish/get-battle-fish');
+const communityChatHandler = require('../lib/api_handlers/fish/community-chat');
+const groupChatHandler = require('../lib/api_handlers/fish/chat/group');
+const monologueHandler = require('../lib/api_handlers/fish/chat/monologue');
+const chatUsageHandler = require('../lib/api_handlers/fish/chat/usage');
+const moderationCheckHandler = require('../lib/api_handlers/fish/moderation/check');
 
 // 如果 create.js 存在
 let createHandler;
 try {
-  createHandler = require('../lib/api-handlers/fish/create');
+  createHandler = require('../lib/api_handlers/fish/create');
 } catch (e) {
   createHandler = null;
 }

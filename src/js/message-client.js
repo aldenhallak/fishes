@@ -26,7 +26,7 @@ const MessageClient = {
     }
 
     try {
-      const response = await fetch('/api/message/send', {
+      const response = await fetch('/api/message-api?action=send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -62,12 +62,12 @@ const MessageClient = {
     const userId = this.getCurrentUserId();
 
     try {
-      const params = new URLSearchParams({ fishId });
+      const params = new URLSearchParams({ action: 'fish-messages', fishId });
       if (userId) {
         params.append('userId', userId);
       }
 
-      const response = await fetch(`/api/message/fish-messages?${params.toString()}`, {
+      const response = await fetch(`/api/message-api?${params.toString()}`, {
         method: 'GET'
       });
 
@@ -93,12 +93,12 @@ const MessageClient = {
     const currentUserId = this.getCurrentUserId();
 
     try {
-      const params = new URLSearchParams({ userId });
+      const params = new URLSearchParams({ action: 'user-messages', userId });
       if (currentUserId) {
         params.append('currentUserId', currentUserId);
       }
 
-      const response = await fetch(`/api/message/user-messages?${params.toString()}`, {
+      const response = await fetch(`/api/message-api?${params.toString()}`, {
         method: 'GET'
       });
 
@@ -128,7 +128,7 @@ const MessageClient = {
     }
 
     try {
-      const response = await fetch('/api/message/delete', {
+      const response = await fetch('/api/message-api?action=delete', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'

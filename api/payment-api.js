@@ -7,9 +7,9 @@
  * - manage-subscription: 管理订阅
  */
 
-const createCheckoutHandler = require('../lib/api-handlers/payment/create-checkout');
-const webhookHandler = require('../lib/api-handlers/payment/webhook');
-const manageSubscriptionHandler = require('../lib/api-handlers/payment/manage-subscription');
+const createCheckoutHandler = require('../lib/api_handlers/payment/create-checkout');
+const webhookHandler = require('../lib/api_handlers/payment/webhook');
+const manageSubscriptionHandler = require('../lib/api_handlers/payment/manage-subscription');
 
 module.exports = async function handler(req, res) {
   const { action } = req.query;

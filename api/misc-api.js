@@ -7,9 +7,9 @@
  * - vote: 投票
  */
 
-const profileHandler = require('../lib/api-handlers/profile/[userId]');
-const reportHandler = require('../lib/api-handlers/report/submit');
-const voteHandler = require('../lib/api-handlers/vote/vote');
+const profileHandler = require('../lib/api_handlers/profile/[userId]');
+const reportHandler = require('../lib/api_handlers/report/submit');
+const voteHandler = require('../lib/api_handlers/vote/vote');
 
 module.exports = async function handler(req, res) {
   const { action } = req.query;

@@ -637,7 +637,7 @@ const MessageUI = {
     }
 
     try {
-      const response = await fetch('/api/message/mark-read', {
+      const response = await fetch('/api/message-api?action=mark-read', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
