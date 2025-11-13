@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "node dev-server.js",
     "dev:vercel": "vercel dev",
-    "build": "echo 'No build step required for static site with serverless functions'",
     "test:hasura": "node scripts/test-hasura-connection.js",
     "test:redis": "node scripts/test-redis-connection.js",
     "test:api": "node scripts/test-api-endpoints.js",
