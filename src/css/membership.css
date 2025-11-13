@@ -135,9 +135,14 @@
 }
 
 .plan-badge-icon {
-  width: 32px;
-  height: 32px;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px;
+  min-height: 48px;
+  max-width: 48px;
+  max-height: 48px;
   object-fit: contain;
+  display: block;
 }
 
 .plan-badge-text {
@@ -148,15 +153,15 @@
 }
 
 .plan-badge.free .plan-badge-text {
-  color: #8a8a8a;
+  color: #5a5a5a;
 }
 
 .plan-badge.plus .plan-badge-text {
-  color: #4EC6BF;
+  color: #2A9D96;
 }
 
 .plan-badge.premium .plan-badge-text {
-  color: #D786EA;
+  color: #B866D1;
 }
 
 /* ===== 价格显示 ===== */
@@ -208,10 +213,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background: linear-gradient(180deg, #A0A0A0 0%, #707070 100%);
   transition: 0.3s;
   border-radius: 26px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(0, 0, 0, 0.2);
 }
 
 .price-toggle-slider:before {
@@ -228,7 +234,8 @@
 }
 
 .price-toggle-input:checked + .price-toggle-slider {
-  background: linear-gradient(180deg, #4CD964 0%, #2EBD4A 100%);
+  background: linear-gradient(180deg, #2EBD4A 0%, #1E8D3A 100%);
+  border-color: #1E8D3A;
 }
 
 .price-toggle-input:checked + .price-toggle-slider:before {

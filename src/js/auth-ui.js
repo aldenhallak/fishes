@@ -628,16 +628,12 @@ class AuthUI {
       this.showUserMenu(user);
       // 更新 Upgrade 按钮显示状态
       await this.updateUpgradeButtonVisibility(user);
-      // 更新 Test 按钮显示状态（仅管理员可见）
-      await this.updateTestButtonVisibility(user);
     } else {
       // 未登录：清除localStorage并显示登录按钮
       this.clearUserFromLocalStorage();
       this.showLoginButton();
       // 隐藏 Upgrade 按钮
       this.hideUpgradeButtons();
-      // 隐藏 Test 按钮
-      this.hideTestButton();
     }
   }
   
@@ -1051,63 +1047,6 @@ class AuthUI {
     const sidebarUpgradeLinks = document.querySelectorAll('a[href="membership.html"].sidebar-link, #sidebar-upgrade-link');
     sidebarUpgradeLinks.forEach(link => {
       link.style.display = 'none';
-    });
-  }
-
-  /**
-   * 更新 Test 按钮显示状态（仅管理员可见）
-   */
-  async updateTestButtonVisibility(user) {
-    try {
-      // 等待 admin-auth.js 加载（最多等待2秒）
-      let attempts = 0;
-      const maxAttempts = 20;
-      while (!window.adminAuth && attempts < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        attempts++;
-      }
-
-      // 检查 admin-auth.js 是否已加载
-      if (!window.adminAuth) {
-        console.warn('⚠️ admin-auth.js not loaded, hiding test button');
-        this.hideTestButton();
-        return;
-      }
-
-      // 检查管理员权限
-      const isAdmin = await window.adminAuth.checkAdminAccess();
-      
-      if (isAdmin) {
-        this.showTestButton();
-        console.log('✅ Admin detected, showing test button');
-      } else {
-        this.hideTestButton();
-        console.log('ℹ️ Not admin, hiding test button');
-      }
-    } catch (error) {
-      console.error('❌ Failed to update test button visibility:', error);
-      // 出错时默认隐藏
-      this.hideTestButton();
-    }
-  }
-
-  /**
-   * 显示 Test 按钮
-   */
-  showTestButton() {
-    const testBtns = document.querySelectorAll('a[href="test-center.html"].game-btn-white, #nav-test-btn');
-    testBtns.forEach(btn => {
-      btn.style.display = 'flex';
-    });
-  }
-
-  /**
-   * 隐藏 Test 按钮
-   */
-  hideTestButton() {
-    const testBtns = document.querySelectorAll('a[href="test-center.html"].game-btn-white, #nav-test-btn');
-    testBtns.forEach(btn => {
-      btn.style.display = 'none';
     });
   }
 

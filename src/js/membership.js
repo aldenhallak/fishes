@@ -197,12 +197,16 @@ function createPlanCard(plan) {
     const iconData = typeof getMembershipIcon === 'function' ? getMembershipIcon(plan.id) : null;
     const badgeIconUrl = iconData ? iconData.svgUrl : '';
     
+    // Plus 使用 emoji，其他使用 SVG
+    const isPlus = plan.id === 'plus';
+    const badgeIcon = isPlus ? '💎' : `<img src="${badgeIconUrl}" alt="${plan.name}" class="plan-badge-icon" style="width: 48px; height: 48px; min-width: 48px; min-height: 48px; max-width: 48px; max-height: 48px; object-fit: contain; display: block;">`;
+    
     // 生成唯一ID用于价格切换器
     const priceToggleId = `price-toggle-${plan.id}`;
     
     card.innerHTML = `
         <div class="plan-badge ${plan.id}">
-            <img src="${badgeIconUrl}" alt="${plan.name}" class="plan-badge-icon">
+            ${isPlus ? `<span class="plan-badge-emoji" style="font-size: 48px; line-height: 48px; display: inline-block; width: 48px; height: 48px; text-align: center;">${badgeIcon}</span>` : badgeIcon}
             <span class="plan-badge-text">${plan.name}</span>
         </div>
         
@@ -241,15 +245,17 @@ function createPlanCard(plan) {
                 <span class="feature-text">AI fish Group Chat</span>
             </li>
             <li>
+                <span class="feature-icon">${plan.can_self_talk ? '✅' : '❌'}</span>
+                <span class="feature-text">Self-Talk Feature</span>
+            </li>
+            <li>
                 <span class="feature-icon">${plan.can_promote_owner ? '✅' : '❌'}</span>
                 <span class="feature-text">Promote Owner</span>
             </li>
-            ${plan.id === 'premium' ? `
-                <li>
-                    <span class="feature-icon">✅</span>
-                    <span class="feature-text">Adjust Chat Frequency</span>
-                </li>
-            ` : ''}
+            <li>
+                <span class="feature-icon">${plan.id === 'premium' ? '✅' : '❌'}</span>
+                <span class="feature-text">Adjust Chat Frequency</span>
+            </li>
         </ul>
         
         <button 
