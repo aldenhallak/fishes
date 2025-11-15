@@ -39,12 +39,12 @@ module.exports = async function handler(req, res) {
   // 动态加载 handlers（延迟加载，避免启动错误）
   if (!sendHandler) {
     console.log('[Message API] Initializing handlers...');
-    sendHandler = loadHandler('../lib/api_handlers/message/send');
-    deleteHandler = loadHandler('../lib/api_handlers/message/delete');
-    markReadHandler = loadHandler('../lib/api_handlers/message/mark-read');
-    unreadCountHandler = loadHandler('../lib/api_handlers/message/unread-count');
-    userMessagesHandler = loadHandler('../lib/api_handlers/message/user-messages');
-    fishMessagesHandler = loadHandler('../lib/api_handlers/message/fish-messages');
+    sendHandler = loadHandler('../lib/api_handlers/message/send.js');
+    deleteHandler = loadHandler('../lib/api_handlers/message/delete.js');
+    markReadHandler = loadHandler('../lib/api_handlers/message/mark-read.js');
+    unreadCountHandler = loadHandler('../lib/api_handlers/message/unread-count.js');
+    userMessagesHandler = loadHandler('../lib/api_handlers/message/user-messages.js');
+    fishMessagesHandler = loadHandler('../lib/api_handlers/message/fish-messages.js');
     console.log('[Message API] Handler initialization complete');
   }
   

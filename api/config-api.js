@@ -43,13 +43,13 @@ module.exports = async function handler(req, res) {
   // 动态加载 handlers（延迟加载，避免启动错误）
   if (!backendHandler) {
     console.log('[Config API] Initializing handlers...');
-    backendHandler = loadHandler('../lib/api_handlers/config/backend');
-    supabaseHandler = loadHandler('../lib/api_handlers/config/supabase');
-    loginModeHandler = loadHandler('../lib/api_handlers/config/login-mode');
-    groupChatHandler = loadHandler('../lib/api_handlers/config/group-chat');
-    monoChatHandler = loadHandler('../lib/api_handlers/config/mono-chat');
-    chatCostSavingHandler = loadHandler('../lib/api_handlers/config/chat-cost-saving');
-    testCredentialsHandler = loadHandler('../lib/api_handlers/config/test-credentials');
+    backendHandler = loadHandler('../lib/api_handlers/config/backend.js');
+    supabaseHandler = loadHandler('../lib/api_handlers/config/supabase.js');
+    loginModeHandler = loadHandler('../lib/api_handlers/config/login-mode.js');
+    groupChatHandler = loadHandler('../lib/api_handlers/config/group-chat.js');
+    monoChatHandler = loadHandler('../lib/api_handlers/config/mono-chat.js');
+    chatCostSavingHandler = loadHandler('../lib/api_handlers/config/chat-cost-saving.js');
+    testCredentialsHandler = loadHandler('../lib/api_handlers/config/test-credentials.js');
     console.log('[Config API] Handler initialization complete');
     console.log('[Config API] Handler status:', {
       backend: !!backendHandler,

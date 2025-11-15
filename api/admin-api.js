@@ -6,7 +6,7 @@
  * - table-detail: 表详情（动态路由）
  */
 
-const tablesHandler = require('../lib/api_handlers/admin/tables');
+const tablesHandler = require('../lib/api_handlers/admin/tables.js');
 
 module.exports = async function handler(req, res) {
   const { action, tableName } = req.query;
@@ -16,7 +16,7 @@ module.exports = async function handler(req, res) {
       return await tablesHandler(req, res);
     } else if (action === 'table-detail' && tableName) {
       // 动态加载表详情处理器
-      const tableDetailHandler = require(`../lib/api_handlers/admin/tables/${tableName}`);
+      const tableDetailHandler = require(`../lib/api_handlers/admin/tables/${tableName}.js`);
       return await tableDetailHandler(req, res);
     } else {
       return res.status(400).json({ 

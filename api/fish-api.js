@@ -51,21 +51,21 @@ module.exports = async function handler(req, res) {
   // 动态加载 handlers（延迟加载，避免启动错误）
   if (!listHandler) {
     console.log('[Fish API] Initializing handlers...');
-    listHandler = loadHandler('../lib/api_handlers/fish/list');
-    submitHandler = loadHandler('../lib/api_handlers/fish/submit');
-    myTankHandler = loadHandler('../lib/api_handlers/fish/my-tank');
-    favoriteHandler = loadHandler('../lib/api_handlers/fish/favorite');
-    unfavoriteHandler = loadHandler('../lib/api_handlers/fish/unfavorite');
-    uploadHandler = loadHandler('../lib/api_handlers/fish/upload');
-    updateInfoHandler = loadHandler('../lib/api_handlers/fish/update-info');
-    updateChatSettingsHandler = loadHandler('../lib/api_handlers/fish/update-chat-settings');
-    getBattleFishHandler = loadHandler('../lib/api_handlers/fish/get-battle-fish');
-    communityChatHandler = loadHandler('../lib/api_handlers/fish/community-chat');
-    groupChatHandler = loadHandler('../lib/api_handlers/fish/chat/group');
-    monologueHandler = loadHandler('../lib/api_handlers/fish/chat/monologue');
-    chatUsageHandler = loadHandler('../lib/api_handlers/fish/chat/usage');
-    moderationCheckHandler = loadHandler('../lib/api_handlers/fish/moderation/check');
-    createHandler = loadHandler('../lib/api_handlers/fish/create');
+    listHandler = loadHandler('../lib/api_handlers/fish/list.js');
+    submitHandler = loadHandler('../lib/api_handlers/fish/submit.js');
+    myTankHandler = loadHandler('../lib/api_handlers/fish/my-tank.js');
+    favoriteHandler = loadHandler('../lib/api_handlers/fish/favorite.js');
+    unfavoriteHandler = loadHandler('../lib/api_handlers/fish/unfavorite.js');
+    uploadHandler = loadHandler('../lib/api_handlers/fish/upload.js');
+    updateInfoHandler = loadHandler('../lib/api_handlers/fish/update-info.js');
+    updateChatSettingsHandler = loadHandler('../lib/api_handlers/fish/update-chat-settings.js');
+    getBattleFishHandler = loadHandler('../lib/api_handlers/fish/get-battle-fish.js');
+    communityChatHandler = loadHandler('../lib/api_handlers/fish/community-chat.js');
+    groupChatHandler = loadHandler('../lib/api_handlers/fish/chat/group.js');
+    monologueHandler = loadHandler('../lib/api_handlers/fish/chat/monologue.js');
+    chatUsageHandler = loadHandler('../lib/api_handlers/fish/chat/usage.js');
+    moderationCheckHandler = loadHandler('../lib/api_handlers/fish/moderation/check.js');
+    createHandler = loadHandler('../lib/api_handlers/fish/create.js');
     console.log('[Fish API] Handler initialization complete');
   }
   

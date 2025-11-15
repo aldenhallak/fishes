@@ -6,8 +6,8 @@
  * - messages: Coze 消息
  */
 
-const configHandler = require('../lib/api_handlers/coze/config');
-const messagesHandler = require('../lib/api_handlers/coze/messages');
+const configHandler = require('../lib/api_handlers/coze/config.js');
+const messagesHandler = require('../lib/api_handlers/coze/messages.js');
 
 module.exports = async function handler(req, res) {
   const { action } = req.query;
