@@ -10,5 +10,8 @@
       "src": "/(.*)",
       "dest": "/$1"
     }
+  ],
+  "includeFiles": [
+    "lib/**"
   ]
 }
