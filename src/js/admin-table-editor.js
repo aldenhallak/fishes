@@ -376,6 +376,8 @@ function formatColumnName(col) {
     'max_fish_count': '最大鱼数量',
     'promote_owner_frequency': '宣传主人频率',
     'group_chat_daily_limit': '每日群聊限制',
+    'fee_per_month': '月度费用',
+    'add_to_my_tank_limit': '添加到我的鱼缸限制',
   };
   
   return names[col] || col;

@@ -2660,6 +2660,8 @@ type member_types {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean!
   created_at: timestamp
+  fee_per_month: numeric
+  fee_per_year: numeric
   group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
@@ -2742,6 +2744,9 @@ type member_types_aggregate_fields {
 
 """aggregate avg on columns"""
 type member_types_avg_fields {
+  fee_per_month: Float
+  fee_per_year: Float
+
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
@@ -2764,6 +2769,8 @@ input member_types_bool_exp {
   can_promote_owner: Boolean_comparison_exp
   can_self_talk: Boolean_comparison_exp
   created_at: timestamp_comparison_exp
+  fee_per_month: numeric_comparison_exp
+  fee_per_year: numeric_comparison_exp
   group_chat_daily_limit: String_comparison_exp
   id: String_comparison_exp
   lead_topic_frequency: Int_comparison_exp
@@ -2794,6 +2801,9 @@ enum member_types_constraint {
 input type for incrementing numeric columns in table "member_types"
 """
 input member_types_inc_input {
+  fee_per_month: numeric
+  fee_per_year: numeric
+
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Int
 
@@ -2819,6 +2829,8 @@ input member_types_insert_input {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean
   created_at: timestamp
+  fee_per_month: numeric
+  fee_per_year: numeric
   group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
@@ -2843,6 +2855,8 @@ input member_types_insert_input {
 type member_types_max_fields {
   add_to_my_tank_limit: String
   created_at: timestamp
+  fee_per_month: numeric
+  fee_per_year: numeric
   group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
@@ -2866,6 +2880,8 @@ type member_types_max_fields {
 type member_types_min_fields {
   add_to_my_tank_limit: String
   created_at: timestamp
+  fee_per_month: numeric
+  fee_per_year: numeric
   group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
@@ -2922,6 +2938,8 @@ input member_types_order_by {
   can_promote_owner: order_by
   can_self_talk: order_by
   created_at: order_by
+  fee_per_month: order_by
+  fee_per_year: order_by
   group_chat_daily_limit: order_by
   id: order_by
   lead_topic_frequency: order_by
@@ -2956,6 +2974,12 @@ enum member_types_select_column {
 
   """column name"""
   created_at
+
+  """column name"""
+  fee_per_month
+
+  """column name"""
+  fee_per_year
 
   """column name"""
   group_chat_daily_limit
@@ -2994,6 +3018,8 @@ input member_types_set_input {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean
   created_at: timestamp
+  fee_per_month: numeric
+  fee_per_year: numeric
   group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
@@ -3015,6 +3041,9 @@ input member_types_set_input {
 
 """aggregate stddev on columns"""
 type member_types_stddev_fields {
+  fee_per_month: Float
+  fee_per_year: Float
+
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
@@ -3027,6 +3056,9 @@ type member_types_stddev_fields {
 
 """aggregate stddev_pop on columns"""
 type member_types_stddev_pop_fields {
+  fee_per_month: Float
+  fee_per_year: Float
+
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
@@ -3039,6 +3071,9 @@ type member_types_stddev_pop_fields {
 
 """aggregate stddev_samp on columns"""
 type member_types_stddev_samp_fields {
+  fee_per_month: Float
+  fee_per_year: Float
+
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
@@ -3073,6 +3108,8 @@ input member_types_stream_cursor_value_input {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean
   created_at: timestamp
+  fee_per_month: numeric
+  fee_per_year: numeric
   group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
@@ -3094,6 +3131,9 @@ input member_types_stream_cursor_value_input {
 
 """aggregate sum on columns"""
 type member_types_sum_fields {
+  fee_per_month: numeric
+  fee_per_year: numeric
+
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Int
 
@@ -3122,6 +3162,12 @@ enum member_types_update_column {
 
   """column name"""
   created_at
+
+  """column name"""
+  fee_per_month
+
+  """column name"""
+  fee_per_year
 
   """column name"""
   group_chat_daily_limit
@@ -3158,6 +3204,9 @@ input member_types_updates {
 
 """aggregate var_pop on columns"""
 type member_types_var_pop_fields {
+  fee_per_month: Float
+  fee_per_year: Float
+
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
@@ -3170,6 +3219,9 @@ type member_types_var_pop_fields {
 
 """aggregate var_samp on columns"""
 type member_types_var_samp_fields {
+  fee_per_month: Float
+  fee_per_year: Float
+
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
@@ -3182,6 +3234,9 @@ type member_types_var_samp_fields {
 
 """aggregate variance on columns"""
 type member_types_variance_fields {
+  fee_per_month: Float
+  fee_per_year: Float
+
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
@@ -4647,6 +4702,23 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [votes_updates!]!
   ): [votes_mutation_response]
+}
+
+scalar numeric
+
+"""
+Boolean expression to compare columns of type "numeric". All fields are combined with logical 'AND'.
+"""
+input numeric_comparison_exp {
+  _eq: numeric
+  _gt: numeric
+  _gte: numeric
+  _in: [numeric!]
+  _is_null: Boolean
+  _lt: numeric
+  _lte: numeric
+  _neq: numeric
+  _nin: [numeric!]
 }
 
 """column ordering options"""

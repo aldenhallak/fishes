@@ -3,8 +3,7 @@
  * 会员套餐页面逻辑
  */
 
-const HASURA_ENDPOINT = window.HASURA_GRAPHQL_ENDPOINT || '';
-const HASURA_SECRET = window.HASURA_ADMIN_SECRET || '';
+const BACKEND_URL = window.BACKEND_URL || '';
 
 let currentUser = null;
 let currentPlan = 'free';
@@ -55,11 +54,10 @@ async function loadCurrentMembership() {
             }
         `;
         
-        const response = await fetch(HASURA_ENDPOINT, {
+        const response = await fetch(`${BACKEND_URL}/api/graphql`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'x-hasura-admin-secret': HASURA_SECRET
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 query,
@@ -67,7 +65,15 @@ async function loadCurrentMembership() {
             })
         });
         
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
+        if (result.errors) {
+            throw new Error(result.errors[0].message);
+        }
+        
         if (result.data?.users_by_pk?.user_subscriptions?.[0]) {
             currentPlan = result.data.users_by_pk.user_subscriptions[0].plan;
             console.log('✅ Current plan:', currentPlan);
@@ -82,29 +88,33 @@ async function loadMemberTypes() {
     try {
         const query = `
             query GetMemberTypes {
-                member_types(order_by: { monthly_price: asc }) {
+                member_types(order_by: { fee_per_month: asc }) {
                     id
                     name
                     max_fish_count
                     can_self_talk
                     can_group_chat
                     can_promote_owner
-                    monthly_price
-                    yearly_price
-                    stripe_price_id_monthly
-                    stripe_price_id_yearly
+                    fee_per_month
+                    fee_per_year
                 }
             }
         `;
         
-        const response = await fetch(HASURA_ENDPOINT, {
+        const response = await fetch(`${BACKEND_URL}/api/graphql`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'x-hasura-admin-secret': HASURA_SECRET
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ query })
         });
+        
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('❌ HTTP error:', response.status, response.statusText);
+            console.error('Response text:', text.substring(0, 200));
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         
         const result = await response.json();
         if (result.errors) {
@@ -112,11 +122,54 @@ async function loadMemberTypes() {
         }
         
         memberTypes = result.data.member_types || [];
-        console.log('✅ Loaded member types:', memberTypes);
         
-        // 如果没有价格数据，使用默认值
-        if (memberTypes.length > 0 && !memberTypes[0].monthly_price) {
-            console.warn('⚠️ Price data not found, using defaults');
+        // 过滤掉管理员计划
+        memberTypes = memberTypes.filter(type => type.id !== 'admin');
+        
+        console.log('✅ Loaded member types:', memberTypes);
+        console.log('🔍 Raw fee_per_month and fee_per_year values:', memberTypes.map(t => ({ 
+            id: t.id, 
+            fee_per_month: t.fee_per_month, 
+            fee_per_year: t.fee_per_year,
+            type_month: typeof t.fee_per_month,
+            type_year: typeof t.fee_per_year
+        })));
+        
+        // 转换 fee_per_month 和 fee_per_year 为数字
+        memberTypes = memberTypes.map(type => {
+            // fee_per_month 是 numeric 类型，可能是字符串、数字或 null
+            let monthlyPrice = 0;
+            if (type.fee_per_month !== null && type.fee_per_month !== undefined) {
+                const parsed = parseFloat(type.fee_per_month);
+                if (!isNaN(parsed) && parsed >= 0) {
+                    monthlyPrice = parsed;
+                }
+            }
+            
+            // fee_per_year 从数据库获取
+            let yearlyPrice = 0;
+            if (type.fee_per_year !== null && type.fee_per_year !== undefined) {
+                const parsed = parseFloat(type.fee_per_year);
+                if (!isNaN(parsed) && parsed >= 0) {
+                    yearlyPrice = parsed;
+                }
+            }
+            
+            console.log(`💰 ${type.id}: fee_per_month=${type.fee_per_month} -> monthly_price=${monthlyPrice}, fee_per_year=${type.fee_per_year} -> yearly_price=${yearlyPrice}`);
+            
+            return {
+                ...type,
+                monthly_price: monthlyPrice,
+                yearly_price: yearlyPrice
+            };
+        });
+        
+        // 检查是否有任何价格数据
+        const hasAnyPrice = memberTypes.some(type => type.monthly_price > 0 || (type.fee_per_month !== null && type.fee_per_month !== undefined));
+        
+        // 如果没有价格数据，使用默认值（但保留从数据库获取的其他数据）
+        if (!hasAnyPrice && memberTypes.length > 0) {
+            console.warn('⚠️ No price data found in database, using defaults');
             memberTypes = memberTypes.map(type => {
                 const defaults = {
                     free: { monthly: 0, yearly: 0 },
