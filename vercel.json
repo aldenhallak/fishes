@@ -2,7 +2,8 @@
   "functions": {
     "api/**/*.js": {
       "memory": 512,
-      "maxDuration": 10
+      "maxDuration": 10,
+      "includeFiles": "lib/**"
     }
   },
   "routes": [
@@ -10,8 +11,5 @@
       "src": "/(.*)",
       "dest": "/$1"
     }
-  ],
-  "includeFiles": [
-    "lib/**"
   ]
 }
