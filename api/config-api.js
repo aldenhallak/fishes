@@ -41,26 +41,25 @@ module.exports = async function handler(req, res) {
   console.log(`[Config API] NODE_ENV:`, process.env.NODE_ENV);
   
   // 动态加载 handlers（延迟加载，避免启动错误）
-  if (!backendHandler) {
-    console.log('[Config API] Initializing handlers...');
-    backendHandler = loadHandler('../lib/api_handlers/config/backend.js');
-    supabaseHandler = loadHandler('../lib/api_handlers/config/supabase.js');
-    loginModeHandler = loadHandler('../lib/api_handlers/config/login-mode.js');
-    groupChatHandler = loadHandler('../lib/api_handlers/config/group-chat.js');
-    monoChatHandler = loadHandler('../lib/api_handlers/config/mono-chat.js');
-    chatCostSavingHandler = loadHandler('../lib/api_handlers/config/chat-cost-saving.js');
-    testCredentialsHandler = loadHandler('../lib/api_handlers/config/test-credentials.js');
-    console.log('[Config API] Handler initialization complete');
-    console.log('[Config API] Handler status:', {
-      backend: !!backendHandler,
-      supabase: !!supabaseHandler,
-      loginMode: !!loginModeHandler,
-      groupChat: !!groupChatHandler,
-      monoChat: !!monoChatHandler,
-      chatCostSaving: !!chatCostSavingHandler,
-      testCredentials: !!testCredentialsHandler
-    });
-  }
+  // 在 Serverless 环境中，每次都重新加载以确保最新状态
+  console.log('[Config API] Initializing handlers...');
+  backendHandler = loadHandler('../lib/api_handlers/config/backend.js');
+  supabaseHandler = loadHandler('../lib/api_handlers/config/supabase.js');
+  loginModeHandler = loadHandler('../lib/api_handlers/config/login-mode.js');
+  groupChatHandler = loadHandler('../lib/api_handlers/config/group-chat.js');
+  monoChatHandler = loadHandler('../lib/api_handlers/config/mono-chat.js');
+  chatCostSavingHandler = loadHandler('../lib/api_handlers/config/chat-cost-saving.js');
+  testCredentialsHandler = loadHandler('../lib/api_handlers/config/test-credentials.js');
+  console.log('[Config API] Handler initialization complete');
+  console.log('[Config API] Handler status:', {
+    backend: !!backendHandler,
+    supabase: !!supabaseHandler,
+    loginMode: !!loginModeHandler,
+    groupChat: !!groupChatHandler,
+    monoChat: !!monoChatHandler,
+    chatCostSaving: !!chatCostSavingHandler,
+    testCredentials: !!testCredentialsHandler
+  });
   
   try {
     switch (action) {
