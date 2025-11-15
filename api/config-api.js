@@ -37,6 +37,8 @@ module.exports = async function handler(req, res) {
   
   console.log(`[Config API] Request received: action=${action}`);
   console.log(`[Config API] Query params:`, req.query);
+  console.log(`[Config API] __dirname:`, __dirname);
+  console.log(`[Config API] NODE_ENV:`, process.env.NODE_ENV);
   
   // 动态加载 handlers（延迟加载，避免启动错误）
   if (!backendHandler) {
@@ -49,20 +51,44 @@ module.exports = async function handler(req, res) {
     chatCostSavingHandler = loadHandler('../lib/api_handlers/config/chat-cost-saving');
     testCredentialsHandler = loadHandler('../lib/api_handlers/config/test-credentials');
     console.log('[Config API] Handler initialization complete');
+    console.log('[Config API] Handler status:', {
+      backend: !!backendHandler,
+      supabase: !!supabaseHandler,
+      loginMode: !!loginModeHandler,
+      groupChat: !!groupChatHandler,
+      monoChat: !!monoChatHandler,
+      chatCostSaving: !!chatCostSavingHandler,
+      testCredentials: !!testCredentialsHandler
+    });
   }
   
   try {
     switch (action) {
       case 'backend':
         if (!backendHandler) {
+          console.error('[Config API] Backend handler not loaded');
           return res.status(500).json({ error: 'Backend handler not available' });
         }
         return await backendHandler(req, res);
       case 'supabase':
         if (!supabaseHandler) {
-          return res.status(500).json({ error: 'Supabase handler not available' });
+          console.error('[Config API] Supabase handler not loaded');
+          return res.status(500).json({ 
+            error: 'Supabase handler not available',
+            details: 'Handler failed to load. Check server logs for details.'
+          });
         }
-        return await supabaseHandler(req, res);
+        console.log('[Config API] Calling supabase handler...');
+        try {
+          return await supabaseHandler(req, res);
+        } catch (handlerError) {
+          console.error('[Config API] Supabase handler execution error:', handlerError);
+          console.error('[Config API] Error stack:', handlerError.stack);
+          return res.status(500).json({
+            error: 'Supabase handler execution failed',
+            details: process.env.NODE_ENV === 'development' ? handlerError.message : undefined
+          });
+        }
       case 'login-mode':
         if (!loginModeHandler) {
           return res.status(500).json({ error: 'Login mode handler not available' });
