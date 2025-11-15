@@ -1610,6 +1610,73 @@ let lastFishCheck = true;
 let isModelLoading = false;
 let modelLoadPromise = null;
 
+// Cache API 配置
+const ONNX_CACHE_NAME = 'onnx-model-cache-v1';
+const MODEL_URL = 'fish_doodle_classifier.onnx';
+
+// 初始化 Cache API
+async function initModelCache() {
+    if ('caches' in window) {
+        try {
+            return await caches.open(ONNX_CACHE_NAME);
+        } catch (error) {
+            console.warn('Failed to open cache:', error);
+            return null;
+        }
+    }
+    return null;
+}
+
+// 从缓存加载模型，如果不存在则下载并缓存
+async function loadModelWithCache() {
+    const cache = await initModelCache();
+    
+    if (cache) {
+        // 检查缓存中是否有模型
+        const cachedResponse = await cache.match(MODEL_URL);
+        if (cachedResponse) {
+            console.log('📦 Loading ONNX model from cache...');
+            try {
+                // 从缓存获取 ArrayBuffer
+                const arrayBuffer = await cachedResponse.arrayBuffer();
+                // ONNX Runtime 支持从 ArrayBuffer 加载
+                const session = await window.ort.InferenceSession.create(arrayBuffer);
+                console.log('✅ ONNX model loaded from cache');
+                return session;
+            } catch (error) {
+                // 如果从缓存加载失败，尝试重新下载
+                console.warn('Failed to load from cache, will re-download:', error);
+                // 删除损坏的缓存
+                await cache.delete(MODEL_URL);
+            }
+        }
+        
+        // 缓存中没有或加载失败，从网络下载
+        console.log('⬇️ Downloading ONNX model (will be cached)...');
+        try {
+            const response = await fetch(MODEL_URL);
+            if (response.ok) {
+                // 将响应克隆并存入缓存
+                await cache.put(MODEL_URL, response.clone());
+                // 从响应获取 ArrayBuffer
+                const arrayBuffer = await response.arrayBuffer();
+                const session = await window.ort.InferenceSession.create(arrayBuffer);
+                console.log('✅ ONNX model downloaded and cached');
+                return session;
+            } else {
+                throw new Error(`Failed to fetch model: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Failed to download model:', error);
+            throw error;
+        }
+    } else {
+        // 不支持 Cache API，直接加载（浏览器会自动使用 HTTP 缓存）
+        console.log('⚠️ Cache API not available, loading model directly...');
+        return await window.ort.InferenceSession.create(MODEL_URL);
+    }
+}
+
 // Load ONNX model (make sure fish_doodle_classifier.onnx is in your public folder)
 async function loadFishModel() {
     // If already loaded, return immediately
@@ -1653,7 +1720,7 @@ async function loadFishModel() {
     
     modelLoadPromise = (async () => {
         try {
-            ortSession = await window.ort.InferenceSession.create('fish_doodle_classifier.onnx');
+            ortSession = await loadModelWithCache();
             console.log('✅ ONNX model loaded successfully');
             
             // 完成进度条
