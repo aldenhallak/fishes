@@ -307,9 +307,54 @@ class TankLayoutManager {
   /**
    * Assign fish to rows when they are first loaded
    * @param {Array} fishes - Array of fish objects
+   * @param {boolean} preserveDistribution - If true, distribute evenly across rows instead of using Y position
    */
-  assignFishToRows(fishes) {
+  assignFishToRows(fishes, preserveDistribution = false) {
     fishes.forEach((fish, index) => {
+      // If preserveDistribution is true, assign rows without moving fish positions
+      // This prevents fish from being moved to upper screen after refresh
+      if (preserveDistribution) {
+        // Find which row contains the fish's current Y position
+        // If fish is outside all rows, assign to closest row but don't move the fish
+        let rowIndex = 0;
+        let foundRow = false;
+        
+        if (fish.y !== undefined && fish.y >= 0) {
+          // Try to find the row that contains this Y position
+          for (let i = 0; i < this.rows.length; i++) {
+            const row = this.rows[i];
+            if (fish.y >= row.swimYMin && fish.y <= row.swimYMax) {
+              rowIndex = i;
+              foundRow = true;
+              break;
+            }
+          }
+          
+          // If not found, assign to closest row based on Y position
+          if (!foundRow) {
+            const totalHeight = this.canvas.height;
+            const yProportion = Math.max(0, Math.min(1, fish.y / totalHeight));
+            rowIndex = Math.min(
+              Math.floor(yProportion * TANK_LAYOUT.rows),
+              TANK_LAYOUT.rows - 1
+            );
+          }
+        } else {
+          // If no Y position, distribute evenly by index
+          rowIndex = index % TANK_LAYOUT.rows;
+        }
+        
+        // Assign row but DON'T move the fish - keep its current Y position
+        fish.rowIndex = rowIndex;
+        const row = this.rows[rowIndex];
+        fish.yMin = row.swimYMin;
+        fish.yMax = row.swimYMax;
+        
+        // Don't modify fish.y - keep it at its current position
+        // The fish will be constrained by updateFishPosition during animation
+        return;
+      }
+      
       // Determine which row this fish belongs to based on its current Y position
       // This allows fish to maintain their random initial positions
       if (fish.y !== undefined && fish.y >= 0) {
@@ -323,9 +368,16 @@ class TankLayoutManager {
           }
         }
         
-        // If fish is outside all rows, find the closest row
+        // If fish is outside all rows, calculate row based on Y position proportion
+        // This ensures even distribution instead of all going to first row
         if (assignedRowIndex === 0 && fish.y < this.rows[0].swimYMin) {
-          assignedRowIndex = 0;
+          // Calculate which row based on Y position proportion
+          const totalHeight = this.canvas.height;
+          const yProportion = fish.y / totalHeight;
+          assignedRowIndex = Math.min(
+            Math.floor(yProportion * TANK_LAYOUT.rows),
+            TANK_LAYOUT.rows - 1
+          );
         } else if (fish.y > this.rows[this.rows.length - 1].swimYMax) {
           assignedRowIndex = this.rows.length - 1;
         }
@@ -336,10 +388,11 @@ class TankLayoutManager {
         fish.yMax = row.swimYMax;
         
         // Only adjust Y if fish is significantly outside the row bounds
+        // But don't move fish that are already in a reasonable position
         if (fish.y < row.swimYMin - 10) {
-          fish.y = row.swimYMin + Math.random() * 30;
+          fish.y = row.swimYMin + Math.random() * TANK_LAYOUT.swimZone.height;
         } else if (fish.y > row.swimYMax + 10) {
-          fish.y = row.swimYMax - Math.random() * 30;
+          fish.y = row.swimYMax - Math.random() * TANK_LAYOUT.swimZone.height;
         }
       } else {
         // If fish doesn't have Y position, distribute evenly across rows
@@ -355,16 +408,24 @@ class TankLayoutManager {
       }
     });
     
-    console.log(`Assigned ${fishes.length} fish to ${TANK_LAYOUT.rows} rows based on their positions`);
+    if (preserveDistribution) {
+      console.log(`✅ Assigned ${fishes.length} fish to ${TANK_LAYOUT.rows} rows (preserving distribution)`);
+    } else {
+      console.log(`Assigned ${fishes.length} fish to ${TANK_LAYOUT.rows} rows based on their positions`);
+    }
   }
   
   /**
    * Update fish position (constrain to swim zone)
    * @param {Object} fish - Fish object
+   * @param {boolean} preservePosition - If true, don't move fish even if outside row bounds
    */
-  updateFishPosition(fish) {
+  updateFishPosition(fish, preservePosition = false) {
     if (fish.rowIndex !== undefined && this.rows[fish.rowIndex]) {
-      this.rows[fish.rowIndex].constrainFishY(fish);
+      if (!preservePosition) {
+        this.rows[fish.rowIndex].constrainFishY(fish);
+      }
+      // If preservePosition is true, don't constrain - let fish stay where it is
     }
   }
   

@@ -149,6 +149,30 @@ class CommunityChatManager {
       console.log('Participants:', participants.map(p => ({ id: p.id, name: p.fishName })));
       console.log('Current tank fish IDs:', currentTankFishIds.length);
       
+      // Get current user ID to pass to backend
+      let currentUserId = null;
+      if (typeof getCurrentUserId === 'function') {
+        try {
+          currentUserId = await getCurrentUserId();
+        } catch (error) {
+          // Ignore error
+        }
+      }
+      if (!currentUserId) {
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+          try {
+            const parsed = JSON.parse(userData);
+            currentUserId = parsed.userId || parsed.uid || parsed.id;
+          } catch (error) {
+            // Ignore error
+          }
+        }
+        if (!currentUserId) {
+          currentUserId = localStorage.getItem('userId');
+        }
+      }
+      
       // Call backend API for group chat (using Coze AI)
       // Pass current tank fish IDs to ensure only fish in the tank are selected
       const response = await fetch('/api/fish-api?action=group-chat', {
@@ -158,7 +182,8 @@ class CommunityChatManager {
         },
         body: JSON.stringify({
           prompt: `Generate a "${topic}" conversation`,
-          tankFishIds: currentTankFishIds // Pass current tank fish IDs
+          tankFishIds: currentTankFishIds, // Pass current tank fish IDs
+          userId: currentUserId // Pass current user ID for initiator_user_id
         })
       });
       
@@ -443,16 +468,16 @@ class CommunityChatManager {
       if (usageResponse && usageResponse.ok) {
         const usageData = await usageResponse.json();
         if (usageData.success) {
-          if (usageData.unlimited) {
+          if (usageData.unlimited || usageData.limit === null) {
             console.log(`💬 当前用户今日已用群聊数 ${usageData.usage}（${usageData.tier} 会员，无限次）`);
           } else {
             console.log(`💬 当前用户今日已用群聊数 ${usageData.usage}/${usageData.limit}`);
           }
           // 返回使用情况数据
           return {
-            usage: usageData.usage,
+            usage: usageData.usage || 0,
             limit: usageData.limit,
-            unlimited: usageData.unlimited,
+            unlimited: usageData.unlimited || usageData.limit === null,
             tier: usageData.tier
           };
         }
@@ -499,10 +524,22 @@ class CommunityChatManager {
     // 检查群聊使用情况（启动群聊时）
     const usageInfo = await this.displayGroupChatUsage();
     
-    // 如果有限制且已达到限制，不启动群聊
+    // 如果有限制且已达到限制，不启动群聊并显示升级提示
     if (usageInfo && !usageInfo.unlimited && usageInfo.limit !== null) {
       if (usageInfo.usage >= usageInfo.limit) {
         console.log(`⛔ 群聊次数已达上限（${usageInfo.usage}/${usageInfo.limit}），跳过本次群聊`);
+        // 显示升级提示
+        if (usageInfo.limit) {
+          this.showUpgradePrompt(
+            `Free members can generate AI Fish Group Chat ${usageInfo.usage}/${usageInfo.limit} times per day.`,
+            'Upgrade to Plus or Premium membership for unlimited AI Fish Group Chat',
+            {
+              usage: usageInfo.usage,
+              limit: usageInfo.limit,
+              tier: usageInfo.tier || 'free'
+            }
+          );
+        }
         return;
       }
     }

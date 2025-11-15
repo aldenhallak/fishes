@@ -15,6 +15,9 @@ const tableDisplayNames = {
   'fishtanks': '鱼缸表',
   'fishtank_fish': '鱼缸-鱼关联表',
   'fishtank_views': '鱼缸浏览记录',
+  'member_types': '会员类型表',
+  'group_chat': '群聊记录表',
+  'global_params': '全局参数表',
 };
 
 // 全局状态
@@ -365,6 +368,14 @@ function formatColumnName(col) {
     'transaction_type': '交易类型',
     'amount': '金额',
     'description': '描述',
+    // member_types 表字段
+    'can_group_chat': '可参与群聊',
+    'can_promote_owner': '可宣传主人',
+    'can_self_talk': '可自语',
+    'lead_topic_frequency': '主导话题频率',
+    'max_fish_count': '最大鱼数量',
+    'promote_owner_frequency': '宣传主人频率',
+    'group_chat_daily_limit': '每日群聊限制',
   };
   
   return names[col] || col;

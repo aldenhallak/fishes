@@ -2169,7 +2169,7 @@ export type Jsonb_Comparison_Exp = {
   _nin?: InputMaybe<Array<Scalars['jsonb']['input']>>;
 };
 
-/** 会员类型表，定义不同会员类型的权益配置 */
+/** 会员类型表：free, plus, premium, admin */
 export type Member_Types = {
   __typename?: 'member_types';
   /** 该会员类型的鱼是否可以参与群聊 */
@@ -2179,6 +2179,7 @@ export type Member_Types = {
   /** 该会员类型的鱼是否可以自语 */
   can_self_talk: Scalars['Boolean']['output'];
   created_at?: Maybe<Scalars['timestamp']['output']>;
+  group_chat_daily_limit?: Maybe<Scalars['String']['output']>;
   /** 会员类型标识：free, plus, premium */
   id: Scalars['String']['output'];
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
@@ -2197,7 +2198,7 @@ export type Member_Types = {
 };
 
 
-/** 会员类型表，定义不同会员类型的权益配置 */
+/** 会员类型表：free, plus, premium, admin */
 export type Member_TypesUser_SubscriptionsArgs = {
   distinct_on?: InputMaybe<Array<User_Subscriptions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -2207,7 +2208,7 @@ export type Member_TypesUser_SubscriptionsArgs = {
 };
 
 
-/** 会员类型表，定义不同会员类型的权益配置 */
+/** 会员类型表：free, plus, premium, admin */
 export type Member_TypesUser_Subscriptions_AggregateArgs = {
   distinct_on?: InputMaybe<Array<User_Subscriptions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -2266,6 +2267,7 @@ export type Member_Types_Bool_Exp = {
   can_promote_owner?: InputMaybe<Boolean_Comparison_Exp>;
   can_self_talk?: InputMaybe<Boolean_Comparison_Exp>;
   created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  group_chat_daily_limit?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<String_Comparison_Exp>;
   lead_topic_frequency?: InputMaybe<Int_Comparison_Exp>;
   max_fish_count?: InputMaybe<Int_Comparison_Exp>;
@@ -2303,6 +2305,7 @@ export type Member_Types_Insert_Input = {
   /** 该会员类型的鱼是否可以自语 */
   can_self_talk?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  group_chat_daily_limit?: InputMaybe<Scalars['String']['input']>;
   /** 会员类型标识：free, plus, premium */
   id?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
@@ -2321,6 +2324,7 @@ export type Member_Types_Insert_Input = {
 export type Member_Types_Max_Fields = {
   __typename?: 'member_types_max_fields';
   created_at?: Maybe<Scalars['timestamp']['output']>;
+  group_chat_daily_limit?: Maybe<Scalars['String']['output']>;
   /** 会员类型标识：free, plus, premium */
   id?: Maybe<Scalars['String']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
@@ -2338,6 +2342,7 @@ export type Member_Types_Max_Fields = {
 export type Member_Types_Min_Fields = {
   __typename?: 'member_types_min_fields';
   created_at?: Maybe<Scalars['timestamp']['output']>;
+  group_chat_daily_limit?: Maybe<Scalars['String']['output']>;
   /** 会员类型标识：free, plus, premium */
   id?: Maybe<Scalars['String']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
@@ -2380,6 +2385,7 @@ export type Member_Types_Order_By = {
   can_promote_owner?: InputMaybe<Order_By>;
   can_self_talk?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
+  group_chat_daily_limit?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   lead_topic_frequency?: InputMaybe<Order_By>;
   max_fish_count?: InputMaybe<Order_By>;
@@ -2406,6 +2412,8 @@ export enum Member_Types_Select_Column {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
+  GroupChatDailyLimit = 'group_chat_daily_limit',
+  /** column name */
   Id = 'id',
   /** column name */
   LeadTopicFrequency = 'lead_topic_frequency',
@@ -2428,6 +2436,7 @@ export type Member_Types_Set_Input = {
   /** 该会员类型的鱼是否可以自语 */
   can_self_talk?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  group_chat_daily_limit?: InputMaybe<Scalars['String']['input']>;
   /** 会员类型标识：free, plus, premium */
   id?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
@@ -2491,6 +2500,7 @@ export type Member_Types_Stream_Cursor_Value_Input = {
   /** 该会员类型的鱼是否可以自语 */
   can_self_talk?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  group_chat_daily_limit?: InputMaybe<Scalars['String']['input']>;
   /** 会员类型标识：free, plus, premium */
   id?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
@@ -2525,6 +2535,8 @@ export enum Member_Types_Update_Column {
   CanSelfTalk = 'can_self_talk',
   /** column name */
   CreatedAt = 'created_at',
+  /** column name */
+  GroupChatDailyLimit = 'group_chat_daily_limit',
   /** column name */
   Id = 'id',
   /** column name */

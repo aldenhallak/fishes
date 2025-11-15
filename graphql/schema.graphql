@@ -2647,7 +2647,7 @@ input jsonb_comparison_exp {
   _nin: [jsonb!]
 }
 
-"""会员类型表，定义不同会员类型的权益配置"""
+"""会员类型表：free, plus, premium, admin"""
 type member_types {
   """该会员类型的鱼是否可以参与群聊"""
   can_group_chat: Boolean!
@@ -2658,6 +2658,7 @@ type member_types {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean!
   created_at: timestamp
+  group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
   id: String!
@@ -2760,6 +2761,7 @@ input member_types_bool_exp {
   can_promote_owner: Boolean_comparison_exp
   can_self_talk: Boolean_comparison_exp
   created_at: timestamp_comparison_exp
+  group_chat_daily_limit: String_comparison_exp
   id: String_comparison_exp
   lead_topic_frequency: Int_comparison_exp
   max_fish_count: Int_comparison_exp
@@ -2812,6 +2814,7 @@ input member_types_insert_input {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean
   created_at: timestamp
+  group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
   id: String
@@ -2834,6 +2837,7 @@ input member_types_insert_input {
 """aggregate max on columns"""
 type member_types_max_fields {
   created_at: timestamp
+  group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
   id: String
@@ -2855,6 +2859,7 @@ type member_types_max_fields {
 """aggregate min on columns"""
 type member_types_min_fields {
   created_at: timestamp
+  group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
   id: String
@@ -2909,6 +2914,7 @@ input member_types_order_by {
   can_promote_owner: order_by
   can_self_talk: order_by
   created_at: order_by
+  group_chat_daily_limit: order_by
   id: order_by
   lead_topic_frequency: order_by
   max_fish_count: order_by
@@ -2939,6 +2945,9 @@ enum member_types_select_column {
 
   """column name"""
   created_at
+
+  """column name"""
+  group_chat_daily_limit
 
   """column name"""
   id
@@ -2972,6 +2981,7 @@ input member_types_set_input {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean
   created_at: timestamp
+  group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
   id: String
@@ -3048,6 +3058,7 @@ input member_types_stream_cursor_value_input {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean
   created_at: timestamp
+  group_chat_daily_limit: String
 
   """会员类型标识：free, plus, premium"""
   id: String
@@ -3093,6 +3104,9 @@ enum member_types_update_column {
 
   """column name"""
   created_at
+
+  """column name"""
+  group_chat_daily_limit
 
   """column name"""
   id

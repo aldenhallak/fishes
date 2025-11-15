@@ -1053,10 +1053,15 @@ async function loadInitialFish(sortType = 'recent') {
         }
         
         // Assign fish to rows for community chat layout (wait for images to load)
+        // Use preserveDistribution=true to maintain even distribution after refresh
+        // Clear any existing timeout to prevent multiple calls
+        if (window.assignFishToRowsTimeout) {
+            clearTimeout(window.assignFishToRowsTimeout);
+        }
         if (tankLayoutManager) {
-            setTimeout(() => {
-                tankLayoutManager.assignFishToRows(fishes);
-                console.log(`✅ Assigned ${fishes.length} fish to ${tankLayoutManager.rows.length} rows`);
+            window.assignFishToRowsTimeout = setTimeout(() => {
+                tankLayoutManager.assignFishToRows(fishes, true);
+                // Log is now handled inside assignFishToRows
             }, 1000); // Wait 1 second for images to load
         }
         

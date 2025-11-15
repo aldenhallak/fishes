@@ -587,9 +587,9 @@
         
         /* Chat Box Toggle - same style as Fish Talk */
         #sidebar-menu #toggle-chat-btn-sidebar {
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
             justify-content: space-between !important;
             align-items: center !important;
         }
@@ -707,7 +707,7 @@
         </label>
       </div>
       <!-- Chat Box Toggle (Switch Style) -->
-      <div class="sidebar-link" id="toggle-chat-btn-sidebar" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;">
+      <div class="sidebar-link" id="toggle-chat-btn-sidebar" style="cursor: pointer; display: none; align-items: center; justify-content: space-between; padding: 12px 16px;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <span class="sidebar-icon">💬</span>
           <span>Chat Box</span>
@@ -1112,18 +1112,22 @@
                      element.style.display = 'flex';
                      element.style.justifyContent = 'flex-start';
                      element.style.alignItems = 'center';
+                     element.style.visibility = 'visible';
+                     element.style.opacity = '1';
                    } else if (element.id === 'toggle-chat-btn-sidebar') {
-                     // Chat Box: flex with space-between (like Fish Talk)
-                     element.style.display = 'flex';
-                     element.style.justifyContent = 'space-between';
-                     element.style.alignItems = 'center';
+                     // Chat Box: hidden (disabled)
+                     element.style.display = 'none';
+                     element.style.visibility = 'hidden';
+                     element.style.opacity = '0';
                    } else if (element.tagName === 'SELECT') {
                      element.style.display = 'block';
+                     element.style.visibility = 'visible';
+                     element.style.opacity = '1';
                    } else {
                      element.style.display = 'flex';
+                     element.style.visibility = 'visible';
+                     element.style.opacity = '1';
                    }
-                   element.style.visibility = 'visible';
-                   element.style.opacity = '1';
                 } else {
                   console.error(`  ${name}: ✗ Missing!`);
                 }
