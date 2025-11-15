@@ -1648,10 +1648,10 @@ function showFishInfoModal(fish) {
     info += `👍 <span class="vote-count upvote-count">${fish.upvotes || 0}</span>`;
     info += `</button>`;
     
-    // Favorite button (only show if user is logged in and not their own fish)
+    // Add to My Tank button (only show if user is logged in and not their own fish)
     if (showFavoriteButton) {
-        info += `<button class="favorite-btn" id="fav-btn-${fish.docId}" onclick="if(typeof handleFavoriteClick === 'function') handleFavoriteClick('${fish.docId}', event); else alert('Favorite feature not yet implemented');" style="flex: 1; padding: 12px 16px; border: none; border-radius: 12px; background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E67E00 100%); border-bottom: 3px solid #CC6E00; color: white; cursor: pointer; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Add to favorites">`;
-        info += `⭐ Favorite`;
+        info += `<button class="add-to-tank-btn" id="add-tank-btn-${fish.docId}" onclick="if(typeof handleAddToMyTank === 'function') handleAddToMyTank('${fish.docId}', event); else alert('Add to My Tank feature not yet implemented');" style="flex: 1; padding: 12px 16px; border: none; border-radius: 12px; background: linear-gradient(180deg, #4A90E2 0%, #357ABD 50%, #2C5F8F 100%); border-bottom: 3px solid #1E4A6F; color: white; cursor: pointer; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Add this fish to your personal tank">`;
+        info += `🐟 Add to My Tank`;
         info += `</button>`;
     }
     
@@ -1730,9 +1730,167 @@ function handleReport(fishId, button) {
     handleReportGeneric(fishId, button);
 }
 
+// Handle Add to My Tank click
+async function handleAddToMyTank(fishId, event) {
+    if (event) event.stopPropagation();
+    
+    const button = document.getElementById(`add-tank-btn-${fishId}`);
+    if (!button) return;
+    
+    // Check if user is logged in
+    const userToken = localStorage.getItem('userToken');
+    if (!userToken) {
+        if (typeof FishTankFavorites !== 'undefined' && FishTankFavorites.showToast) {
+            FishTankFavorites.showToast('Please login to add fish to your tank', 'info');
+        } else {
+            alert('Please login to add fish to your tank');
+        }
+        return;
+    }
+    
+    try {
+        button.disabled = true;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '⏳ Adding...';
+        
+        // Check if already in tank
+        const isFav = typeof FishTankFavorites !== 'undefined' 
+            ? await FishTankFavorites.isFavorite(fishId)
+            : false;
+        
+        if (isFav) {
+            // Remove from tank
+            if (typeof FishTankFavorites !== 'undefined') {
+                await FishTankFavorites.removeFromFavorites(fishId);
+            }
+            button.innerHTML = '🐟 Add to My Tank';
+            button.style.background = 'linear-gradient(180deg, #4A90E2 0%, #357ABD 50%, #2C5F8F 100%)';
+            if (typeof FishTankFavorites !== 'undefined' && FishTankFavorites.showToast) {
+                FishTankFavorites.showToast('Removed from your tank');
+            }
+        } else {
+            // Add to tank
+            const API_BASE = typeof BACKEND_URL !== 'undefined' ? BACKEND_URL : '';
+            const response = await fetch(`${API_BASE}/api/fish/favorite`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${userToken}`
+                },
+                body: JSON.stringify({ fishId })
+            });
+
+            const data = await response.json();
+            
+            if (response.status === 403) {
+                // Tank limit reached - show upgrade modal
+                showUpgradeModal({
+                    title: '🐟 Tank is Full!',
+                    message: data.message || 'You have reached your tank limit',
+                    currentCount: data.currentCount || 0,
+                    maxLimit: data.maxLimit || 5,
+                    tier: data.tier || 'free',
+                    memberTypeName: data.memberTypeName || 'Free',
+                    upgradeUrl: data.upgradeUrl || '/membership.html'
+                });
+                button.innerHTML = originalHTML;
+            } else if (response.ok) {
+                // Success
+                button.innerHTML = '✅ In My Tank';
+                button.style.background = 'linear-gradient(180deg, #6FE77D 0%, #4CD964 50%, #3CB54A 100%)';
+                if (typeof FishTankFavorites !== 'undefined' && FishTankFavorites.showToast) {
+                    FishTankFavorites.showToast('Fish added to your tank! 🎉');
+                }
+                // Update cache if available
+                if (typeof FishTankFavorites !== 'undefined' && FishTankFavorites.initializeCache) {
+                    await FishTankFavorites.initializeCache();
+                }
+            } else {
+                throw new Error(data.error || 'Failed to add fish to tank');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error adding to tank:', error);
+        if (typeof FishTankFavorites !== 'undefined' && FishTankFavorites.showToast) {
+            FishTankFavorites.showToast(error.message || 'Failed to add fish to tank', 'error');
+        } else {
+            alert(error.message || 'Failed to add fish to tank');
+        }
+        button.innerHTML = '🐟 Add to My Tank';
+        button.style.background = 'linear-gradient(180deg, #4A90E2 0%, #357ABD 50%, #2C5F8F 100%)';
+    } finally {
+        button.disabled = false;
+    }
+}
+
+// Show upgrade modal when tank limit is reached
+function showUpgradeModal({ title, message, currentCount, maxLimit, tier, memberTypeName, upgradeUrl }) {
+    const benefits = {
+        free: [
+            { plan: 'Plus', limit: 20, features: ['20 fish slots', 'AI chat features'] },
+            { plan: 'Premium', limit: 100, features: ['100 fish slots', 'All Plus features', 'Custom chat frequency'] }
+        ],
+        plus: [
+            { plan: 'Premium', limit: 100, features: ['100 fish slots', 'Custom chat frequency', 'Priority support'] }
+        ]
+    };
+    
+    const tierBenefits = benefits[tier] || [];
+    
+    const modalHTML = `
+        <div style="padding: 20px; max-width: 500px;">
+            <h2 style="margin: 0 0 15px 0; color: #333; font-size: 24px;">${title}</h2>
+            <p style="margin: 0 0 20px 0; color: #666; line-height: 1.6;">${message}</p>
+            
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="font-weight: 600; color: #333;">Current:</span>
+                    <span style="color: #666;">${currentCount}/${maxLimit} fish</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-weight: 600; color: #333;">Your Plan:</span>
+                    <span style="color: #666; text-transform: capitalize;">${memberTypeName}</span>
+                </div>
+            </div>
+            
+            ${tierBenefits.length > 0 ? `
+            <div style="margin-bottom: 20px;">
+                <h3 style="margin: 0 0 15px 0; color: #333; font-size: 18px;">Upgrade Benefits:</h3>
+                ${tierBenefits.map(benefit => `
+                    <div style="background: white; border: 2px solid #4A90E2; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-weight: 700; color: #4A90E2; font-size: 16px;">${benefit.plan}</span>
+                            <span style="color: #666; font-weight: 600;">${benefit.limit} fish slots</span>
+                        </div>
+                        <ul style="margin: 0; padding-left: 20px; color: #666;">
+                            ${benefit.features.map(f => `<li style="margin: 5px 0;">${f}</li>`).join('')}
+                        </ul>
+                    </div>
+                `).join('')}
+            </div>
+            ` : ''}
+            
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="this.closest('.modal').remove()" 
+                    style="padding: 10px 20px; border: 2px solid #ddd; background: white; border-radius: 6px; cursor: pointer; font-weight: 600; color: #666;">
+                    Maybe Later
+                </button>
+                <button onclick="window.location.href='${upgradeUrl || '/membership.html'}'" 
+                    style="padding: 10px 20px; border: none; background: linear-gradient(180deg, #4A90E2 0%, #357ABD 100%); color: white; border-radius: 6px; cursor: pointer; font-weight: 700; box-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);">
+                    Upgrade Now
+                </button>
+            </div>
+        </div>
+    `;
+    
+    showModal(modalHTML);
+}
+
 // Make functions globally available for onclick handlers
 window.handleVote = handleVote;
 window.handleReport = handleReport;
+window.handleAddToMyTank = handleAddToMyTank;
 
 function showModal(html, onClose) {
     let modal = document.createElement('div');

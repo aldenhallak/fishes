@@ -917,9 +917,44 @@ swimBtn.addEventListener('click', async () => {
     lastFishCheck = isFish;
     showFishWarning(!isFish);
     
-    // Get saved artist name or use Anonymous
+    // Get saved artist name or user profile name or use Anonymous
     const savedArtist = localStorage.getItem('artistName');
-    const defaultName = (savedArtist && savedArtist !== 'Anonymous') ? savedArtist : 'Anonymous';
+    let defaultName = (savedArtist && savedArtist !== 'Anonymous') ? savedArtist : 'Anonymous';
+    let defaultUserInfo = localStorage.getItem('userInfo') || '';
+    
+    // Try to get user profile name and about_me if logged in
+    if (window.supabaseAuth) {
+        try {
+            const user = await window.supabaseAuth.getUser();
+            if (user) {
+                const backendUrl = window.BACKEND_URL || '';
+                const userId = user.id;
+                const profileResponse = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(userId)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+                    }
+                });
+                
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    if (profileData.user) {
+                        if (profileData.user.feeder_name) {
+                            defaultName = profileData.user.feeder_name;
+                        } else if (profileData.user.display_name) {
+                            defaultName = profileData.user.display_name;
+                        }
+                        // Load about_me as default value for user-info
+                        if (profileData.user.about_me) {
+                            defaultUserInfo = profileData.user.about_me;
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('Could not fetch user profile, using saved/default values:', error);
+        }
+    }
     
     // Show different modal based on fish validity
     if (!isFish) {
@@ -1070,6 +1105,7 @@ swimBtn.addEventListener('click', async () => {
                     <span style='color: #4A90E2; font-size: 12px; font-weight: 600; margin-left: 8px;'>💬 Your fish will mention you in chat!</span>
                 </label>
                 <input type='text' id='user-info' 
+                    value='${escapeHtml(defaultUserInfo)}'
                     placeholder='e.g., My owner loves pizza' 
                     style='width: 100%; padding: 14px 16px; border: 3px solid #e2e8f0; border-radius: 12px; font-size: 15px; box-sizing: border-box;
                     background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
@@ -1263,6 +1299,32 @@ swimBtn.addEventListener('click', async () => {
         localStorage.setItem('artistName', artist);
         if (userInfo) {
             localStorage.setItem('userInfo', userInfo);
+        }
+        
+        // Save user-info to user profile about_me if logged in
+        if (userInfo && window.supabaseAuth) {
+            try {
+                const user = await window.supabaseAuth.getUser();
+                if (user) {
+                    const backendUrl = window.BACKEND_URL || '';
+                    const userId = user.id;
+                    const token = localStorage.getItem('userToken');
+                    if (token) {
+                        await fetch(`${backendUrl}/api/profile/${encodeURIComponent(userId)}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                aboutMe: userInfo
+                            })
+                        });
+                    }
+                }
+            } catch (error) {
+                console.log('Could not save user-info to about_me:', error);
+            }
         }
         
         console.log('🚀 开始提交鱼');
@@ -2000,9 +2062,44 @@ if (window.supabaseAuth) {
                     lastFishCheck = isFish;
                     showFishWarning(!isFish);
                     
-                    // 获取保存的艺术家名称
+                    // 获取保存的艺术家名称或用户资料名称
                     const savedArtist = localStorage.getItem('artistName');
-                    const defaultName = (savedArtist && savedArtist !== 'Anonymous') ? savedArtist : 'Anonymous';
+                    let defaultName = (savedArtist && savedArtist !== 'Anonymous') ? savedArtist : 'Anonymous';
+                    let defaultUserInfo = localStorage.getItem('userInfo') || '';
+                    
+                    // Try to get user profile name and about_me if logged in
+                    if (window.supabaseAuth) {
+                        try {
+                            const user = await window.supabaseAuth.getUser();
+                            if (user) {
+                                const backendUrl = window.BACKEND_URL || '';
+                                const userId = user.id;
+                                const profileResponse = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(userId)}`, {
+                                    method: 'GET',
+                                    headers: {
+                                        'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+                                    }
+                                });
+                                
+                                if (profileResponse.ok) {
+                                    const profileData = await profileResponse.json();
+                                    if (profileData.user) {
+                                        if (profileData.user.feeder_name) {
+                                            defaultName = profileData.user.feeder_name;
+                                        } else if (profileData.user.display_name) {
+                                            defaultName = profileData.user.display_name;
+                                        }
+                                        // Load about_me as default value for user-info
+                                        if (profileData.user.about_me) {
+                                            defaultUserInfo = profileData.user.about_me;
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.log('Could not fetch user profile, using saved/default values:', error);
+                        }
+                    }
                     
                     // 显示命名modal
                     if (!isFish) {
@@ -2151,6 +2248,7 @@ if (window.supabaseAuth) {
                                     <span style='color: #4A90E2; font-size: 12px; font-weight: 600; margin-left: 8px;'>💬 Your fish will mention you in chat!</span>
                                 </label>
                                 <input type='text' id='user-info' 
+                                    value='${escapeHtml(defaultUserInfo)}'
                                     placeholder='e.g., My owner loves pizza' 
                                     style='width: 100%; padding: 14px 16px; border: 3px solid #e2e8f0; border-radius: 12px; font-size: 15px; box-sizing: border-box;
                                     background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
@@ -2158,7 +2256,7 @@ if (window.supabaseAuth) {
                                     transition: all 0.2s; color: #000000;' 
                                     maxlength='50' />
                                 <small style='color: #64748b; font-size: 12px; margin-top: 6px; display: block;'>Your fish may mention this information in chat to get to know you better!</small>
-            </div>
+                            </div>
                             
                             <div style='margin-top: 28px; display: flex; gap: 12px; justify-content: center;'>
                                 <button id='submit-fish' style='padding: 14px 32px; background: linear-gradient(180deg, #4CD964 0%, #4CD964 50%, #3CB54A 100%);
@@ -2344,6 +2442,32 @@ if (window.supabaseAuth) {
                             localStorage.setItem('artistName', artist);
                             if (userInfo) {
                                 localStorage.setItem('userInfo', userInfo);
+                            }
+                            
+                            // Save user-info to user profile about_me if logged in
+                            if (userInfo && window.supabaseAuth) {
+                                try {
+                                    const user = await window.supabaseAuth.getUser();
+                                    if (user) {
+                                        const backendUrl = window.BACKEND_URL || '';
+                                        const userId = user.id;
+                                        const token = localStorage.getItem('userToken');
+                                        if (token) {
+                                            await fetch(`${backendUrl}/api/profile/${encodeURIComponent(userId)}`, {
+                                                method: 'PUT',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'Authorization': `Bearer ${token}`
+                                                },
+                                                body: JSON.stringify({
+                                                    aboutMe: userInfo
+                                                })
+                                            });
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.log('Could not save user-info to about_me:', error);
+                                }
                             }
                             
                             console.log('🚀 开始提交鱼');

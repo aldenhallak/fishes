@@ -15,6 +15,7 @@ async function getUserProfileFromHasura(userId) {
                     reputation_score
                     feeder_name
                     user_language
+                    about_me
                     user_subscriptions(
                         order_by: { created_at: desc }
                         limit: 5
@@ -181,6 +182,7 @@ async function getUserProfileFromHasura(userId) {
             favoriteCount: favoriteCount,
             feederName: user.feeder_name || '',
             userLanguage: user.user_language || '',
+            aboutMe: user.about_me || '',
             membershipTier: membershipTier,
             membershipName: membershipName
         };
@@ -623,9 +625,10 @@ function toggleEditProfile() {
 
 // Show edit profile modal
 function showEditProfileModal() {
-    // Get current values
-    const currentName = currentProfile.feederName || currentProfile.displayName || currentProfile.artistName || '';
+    // Get current values - Nickname defaults from about_me if available
+    const currentName = currentProfile.feederName || currentProfile.displayName || currentProfile.aboutMe || currentProfile.artistName || '';
     const currentLanguage = currentProfile.userLanguage || '';
+    const currentAboutMe = currentProfile.aboutMe || '';
 
     // Supported languages
     const languages = [
@@ -684,7 +687,7 @@ function showEditProfileModal() {
                     class="edit-input" 
                     maxlength="50" 
                     placeholder="Enter your nickname"
-                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; background: white;"
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; background: white; color: #000000;"
                 >
             </div>
             <div style="margin-bottom: 25px;">
@@ -694,17 +697,31 @@ function showEditProfileModal() {
                 <select 
                     id="edit-user-language" 
                     class="edit-select"
-                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; background: white;"
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; background: white; color: #000000;"
                 >
-                    <option value="" ${currentLanguage === '' ? 'selected' : ''}>Default (English)</option>
-                    <option value="English" ${currentLanguage === 'English' ? 'selected' : ''}>English</option>
-                    <option value="French" ${currentLanguage === 'French' ? 'selected' : ''}>French</option>
-                    <option value="Spanish" ${currentLanguage === 'Spanish' ? 'selected' : ''}>Spanish</option>
-                    <option value="简体中文" ${currentLanguage === '简体中文' || currentLanguage === 'Chinese' ? 'selected' : ''}>简体中文</option>
-                    <option value="繁體中文" ${currentLanguage === '繁體中文' || currentLanguage === 'Traditional Chinese' ? 'selected' : ''}>繁體中文</option>
-                    <option value="Japanese" ${currentLanguage === 'Japanese' ? 'selected' : ''}>Japanese</option>
-                    <option value="Korean" ${currentLanguage === 'Korean' ? 'selected' : ''}>Korean</option>
+                    <option value="" ${currentLanguage === '' ? 'selected' : ''} style="color: #000000;">Default (English)</option>
+                    <option value="English" ${currentLanguage === 'English' ? 'selected' : ''} style="color: #000000;">English</option>
+                    <option value="French" ${currentLanguage === 'French' ? 'selected' : ''} style="color: #000000;">French</option>
+                    <option value="Spanish" ${currentLanguage === 'Spanish' ? 'selected' : ''} style="color: #000000;">Spanish</option>
+                    <option value="简体中文" ${currentLanguage === '简体中文' || currentLanguage === 'Chinese' ? 'selected' : ''} style="color: #000000;">简体中文</option>
+                    <option value="繁體中文" ${currentLanguage === '繁體中文' || currentLanguage === 'Traditional Chinese' ? 'selected' : ''} style="color: #000000;">繁體中文</option>
+                    <option value="Japanese" ${currentLanguage === 'Japanese' ? 'selected' : ''} style="color: #000000;">Japanese</option>
+                    <option value="Korean" ${currentLanguage === 'Korean' ? 'selected' : ''} style="color: #000000;">Korean</option>
                 </select>
+            </div>
+            <div style="margin-bottom: 25px;">
+                <label for="edit-about-me" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                    About Me
+                </label>
+                <textarea 
+                    id="edit-about-me" 
+                    class="edit-textarea"
+                    maxlength="200" 
+                    rows="4"
+                    placeholder="Tell us about yourself..."
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; background: white; color: #000000; resize: vertical; min-height: 80px; font-family: inherit;"
+                >${escapeHtml(currentAboutMe)}</textarea>
+                <small style="color: #64748b; font-size: 12px; margin-top: 6px; display: block;">A brief introduction about yourself (optional)</small>
             </div>
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                 <button 
@@ -796,9 +813,11 @@ function cancelEdit() {
 async function saveProfileFromModal() {
     const nameInput = document.getElementById('edit-feeder-name');
     const languageSelect = document.getElementById('edit-user-language');
+    const aboutMeTextarea = document.getElementById('edit-about-me');
     
     const newFeederName = nameInput.value.trim();
     const newUserLanguage = languageSelect.value.trim();
+    const newAboutMe = aboutMeTextarea ? aboutMeTextarea.value.trim() : '';
 
     // Check if user is logged in
     const token = localStorage.getItem('userToken');
@@ -835,7 +854,8 @@ async function saveProfileFromModal() {
             },
             body: JSON.stringify({
                 feederName: newFeederName || null,
-                userLanguage: newUserLanguage || null
+                userLanguage: newUserLanguage || null,
+                aboutMe: newAboutMe || null
             })
         });
 
@@ -861,9 +881,28 @@ async function saveProfileFromModal() {
         if (result.user) {
             currentProfile.feederName = result.user.feeder_name || newFeederName;
             currentProfile.userLanguage = result.user.user_language || newUserLanguage;
+            currentProfile.displayName = result.user.feeder_name || newFeederName || currentProfile.displayName;
+            currentProfile.aboutMe = result.user.about_me || newAboutMe || '';
         } else {
             currentProfile.feederName = newFeederName;
             currentProfile.userLanguage = newUserLanguage;
+            currentProfile.displayName = newFeederName || currentProfile.displayName;
+            currentProfile.aboutMe = newAboutMe || '';
+        }
+
+        // Update profile name display immediately
+        const profileNameElement = document.getElementById('profile-name');
+        if (profileNameElement) {
+            const displayName = currentProfile.displayName || currentProfile.feederName || currentProfile.artistName || 'Anonymous User';
+            profileNameElement.textContent = displayName;
+            
+            // Update avatar initial if exists
+            const profileAvatar = document.getElementById('profile-avatar');
+            if (profileAvatar) {
+                const nameForInitial = displayName;
+                const initial = nameForInitial.charAt(0).toUpperCase();
+                profileAvatar.textContent = initial;
+            }
         }
 
         // Close modal
@@ -871,11 +910,6 @@ async function saveProfileFromModal() {
 
         // Show success message
         showSuccessMessage('Profile updated successfully!');
-
-        // Refresh profile display after a short delay
-        setTimeout(() => {
-            window.location.reload();
-        }, 1000);
 
     } catch (error) {
         console.error('Error updating profile:', error);

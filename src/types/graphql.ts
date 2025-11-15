@@ -2172,6 +2172,7 @@ export type Jsonb_Comparison_Exp = {
 /** 会员类型表：free, plus, premium, admin */
 export type Member_Types = {
   __typename?: 'member_types';
+  add_to_my_tank_limit?: Maybe<Scalars['String']['output']>;
   /** 该会员类型的鱼是否可以参与群聊 */
   can_group_chat: Scalars['Boolean']['output'];
   /** 该会员类型的鱼是否可以宣传主人 */
@@ -2263,6 +2264,7 @@ export type Member_Types_Bool_Exp = {
   _and?: InputMaybe<Array<Member_Types_Bool_Exp>>;
   _not?: InputMaybe<Member_Types_Bool_Exp>;
   _or?: InputMaybe<Array<Member_Types_Bool_Exp>>;
+  add_to_my_tank_limit?: InputMaybe<String_Comparison_Exp>;
   can_group_chat?: InputMaybe<Boolean_Comparison_Exp>;
   can_promote_owner?: InputMaybe<Boolean_Comparison_Exp>;
   can_self_talk?: InputMaybe<Boolean_Comparison_Exp>;
@@ -2298,6 +2300,7 @@ export type Member_Types_Inc_Input = {
 
 /** input type for inserting data into table "member_types" */
 export type Member_Types_Insert_Input = {
+  add_to_my_tank_limit?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼是否可以参与群聊 */
   can_group_chat?: InputMaybe<Scalars['Boolean']['input']>;
   /** 该会员类型的鱼是否可以宣传主人 */
@@ -2323,6 +2326,7 @@ export type Member_Types_Insert_Input = {
 /** aggregate max on columns */
 export type Member_Types_Max_Fields = {
   __typename?: 'member_types_max_fields';
+  add_to_my_tank_limit?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
   group_chat_daily_limit?: Maybe<Scalars['String']['output']>;
   /** 会员类型标识：free, plus, premium */
@@ -2341,6 +2345,7 @@ export type Member_Types_Max_Fields = {
 /** aggregate min on columns */
 export type Member_Types_Min_Fields = {
   __typename?: 'member_types_min_fields';
+  add_to_my_tank_limit?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
   group_chat_daily_limit?: Maybe<Scalars['String']['output']>;
   /** 会员类型标识：free, plus, premium */
@@ -2381,6 +2386,7 @@ export type Member_Types_On_Conflict = {
 
 /** Ordering options when selecting data from "member_types". */
 export type Member_Types_Order_By = {
+  add_to_my_tank_limit?: InputMaybe<Order_By>;
   can_group_chat?: InputMaybe<Order_By>;
   can_promote_owner?: InputMaybe<Order_By>;
   can_self_talk?: InputMaybe<Order_By>;
@@ -2403,6 +2409,8 @@ export type Member_Types_Pk_Columns_Input = {
 
 /** select columns of table "member_types" */
 export enum Member_Types_Select_Column {
+  /** column name */
+  AddToMyTankLimit = 'add_to_my_tank_limit',
   /** column name */
   CanGroupChat = 'can_group_chat',
   /** column name */
@@ -2429,6 +2437,7 @@ export enum Member_Types_Select_Column {
 
 /** input type for updating data in table "member_types" */
 export type Member_Types_Set_Input = {
+  add_to_my_tank_limit?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼是否可以参与群聊 */
   can_group_chat?: InputMaybe<Scalars['Boolean']['input']>;
   /** 该会员类型的鱼是否可以宣传主人 */
@@ -2493,6 +2502,7 @@ export type Member_Types_Stream_Cursor_Input = {
 
 /** Initial value of the column from where the streaming should start */
 export type Member_Types_Stream_Cursor_Value_Input = {
+  add_to_my_tank_limit?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼是否可以参与群聊 */
   can_group_chat?: InputMaybe<Scalars['Boolean']['input']>;
   /** 该会员类型的鱼是否可以宣传主人 */
@@ -2527,6 +2537,8 @@ export type Member_Types_Sum_Fields = {
 
 /** update columns of table "member_types" */
 export enum Member_Types_Update_Column {
+  /** column name */
+  AddToMyTankLimit = 'add_to_my_tank_limit',
   /** column name */
   CanGroupChat = 'can_group_chat',
   /** column name */
@@ -6177,6 +6189,7 @@ export type User_Visible_Messages_View_Updates = {
 /** columns and relationships of "users" */
 export type Users = {
   __typename?: 'users';
+  about_me?: Maybe<Scalars['String']['output']>;
   avatar_url?: Maybe<Scalars['String']['output']>;
   ban_reason?: Maybe<Scalars['String']['output']>;
   banned_until?: Maybe<Scalars['timestamp']['output']>;
@@ -6409,6 +6422,7 @@ export type Users_Bool_Exp = {
   _and?: InputMaybe<Array<Users_Bool_Exp>>;
   _not?: InputMaybe<Users_Bool_Exp>;
   _or?: InputMaybe<Array<Users_Bool_Exp>>;
+  about_me?: InputMaybe<String_Comparison_Exp>;
   avatar_url?: InputMaybe<String_Comparison_Exp>;
   ban_reason?: InputMaybe<String_Comparison_Exp>;
   banned_until?: InputMaybe<Timestamp_Comparison_Exp>;
@@ -6458,6 +6472,7 @@ export type Users_Inc_Input = {
 
 /** input type for inserting data into table "users" */
 export type Users_Insert_Input = {
+  about_me?: InputMaybe<Scalars['String']['input']>;
   avatar_url?: InputMaybe<Scalars['String']['input']>;
   ban_reason?: InputMaybe<Scalars['String']['input']>;
   banned_until?: InputMaybe<Scalars['timestamp']['input']>;
@@ -6489,6 +6504,7 @@ export type Users_Insert_Input = {
 /** aggregate max on columns */
 export type Users_Max_Fields = {
   __typename?: 'users_max_fields';
+  about_me?: Maybe<Scalars['String']['output']>;
   avatar_url?: Maybe<Scalars['String']['output']>;
   ban_reason?: Maybe<Scalars['String']['output']>;
   banned_until?: Maybe<Scalars['timestamp']['output']>;
@@ -6512,6 +6528,7 @@ export type Users_Max_Fields = {
 /** aggregate min on columns */
 export type Users_Min_Fields = {
   __typename?: 'users_min_fields';
+  about_me?: Maybe<Scalars['String']['output']>;
   avatar_url?: Maybe<Scalars['String']['output']>;
   ban_reason?: Maybe<Scalars['String']['output']>;
   banned_until?: Maybe<Scalars['timestamp']['output']>;
@@ -6557,6 +6574,7 @@ export type Users_On_Conflict = {
 
 /** Ordering options when selecting data from "users". */
 export type Users_Order_By = {
+  about_me?: InputMaybe<Order_By>;
   avatar_url?: InputMaybe<Order_By>;
   ban_reason?: InputMaybe<Order_By>;
   banned_until?: InputMaybe<Order_By>;
@@ -6589,6 +6607,8 @@ export type Users_Pk_Columns_Input = {
 
 /** select columns of table "users" */
 export enum Users_Select_Column {
+  /** column name */
+  AboutMe = 'about_me',
   /** column name */
   AvatarUrl = 'avatar_url',
   /** column name */
@@ -6625,6 +6645,7 @@ export enum Users_Select_Column {
 
 /** input type for updating data in table "users" */
 export type Users_Set_Input = {
+  about_me?: InputMaybe<Scalars['String']['input']>;
   avatar_url?: InputMaybe<Scalars['String']['input']>;
   ban_reason?: InputMaybe<Scalars['String']['input']>;
   banned_until?: InputMaybe<Scalars['timestamp']['input']>;
@@ -6680,6 +6701,7 @@ export type Users_Stream_Cursor_Input = {
 
 /** Initial value of the column from where the streaming should start */
 export type Users_Stream_Cursor_Value_Input = {
+  about_me?: InputMaybe<Scalars['String']['input']>;
   avatar_url?: InputMaybe<Scalars['String']['input']>;
   ban_reason?: InputMaybe<Scalars['String']['input']>;
   banned_until?: InputMaybe<Scalars['timestamp']['input']>;
@@ -6711,6 +6733,8 @@ export type Users_Sum_Fields = {
 
 /** update columns of table "users" */
 export enum Users_Update_Column {
+  /** column name */
+  AboutMe = 'about_me',
   /** column name */
   AvatarUrl = 'avatar_url',
   /** column name */

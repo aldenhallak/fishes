@@ -2649,6 +2649,8 @@ input jsonb_comparison_exp {
 
 """会员类型表：free, plus, premium, admin"""
 type member_types {
+  add_to_my_tank_limit: String
+
   """该会员类型的鱼是否可以参与群聊"""
   can_group_chat: Boolean!
 
@@ -2757,6 +2759,7 @@ input member_types_bool_exp {
   _and: [member_types_bool_exp!]
   _not: member_types_bool_exp
   _or: [member_types_bool_exp!]
+  add_to_my_tank_limit: String_comparison_exp
   can_group_chat: Boolean_comparison_exp
   can_promote_owner: Boolean_comparison_exp
   can_self_talk: Boolean_comparison_exp
@@ -2805,6 +2808,8 @@ input member_types_inc_input {
 input type for inserting data into table "member_types"
 """
 input member_types_insert_input {
+  add_to_my_tank_limit: String
+
   """该会员类型的鱼是否可以参与群聊"""
   can_group_chat: Boolean
 
@@ -2836,6 +2841,7 @@ input member_types_insert_input {
 
 """aggregate max on columns"""
 type member_types_max_fields {
+  add_to_my_tank_limit: String
   created_at: timestamp
   group_chat_daily_limit: String
 
@@ -2858,6 +2864,7 @@ type member_types_max_fields {
 
 """aggregate min on columns"""
 type member_types_min_fields {
+  add_to_my_tank_limit: String
   created_at: timestamp
   group_chat_daily_limit: String
 
@@ -2910,6 +2917,7 @@ input member_types_on_conflict {
 
 """Ordering options when selecting data from "member_types"."""
 input member_types_order_by {
+  add_to_my_tank_limit: order_by
   can_group_chat: order_by
   can_promote_owner: order_by
   can_self_talk: order_by
@@ -2934,6 +2942,9 @@ input member_types_pk_columns_input {
 select columns of table "member_types"
 """
 enum member_types_select_column {
+  """column name"""
+  add_to_my_tank_limit
+
   """column name"""
   can_group_chat
 
@@ -2972,6 +2983,8 @@ enum member_types_select_column {
 input type for updating data in table "member_types"
 """
 input member_types_set_input {
+  add_to_my_tank_limit: String
+
   """该会员类型的鱼是否可以参与群聊"""
   can_group_chat: Boolean
 
@@ -3049,6 +3062,8 @@ input member_types_stream_cursor_input {
 
 """Initial value of the column from where the streaming should start"""
 input member_types_stream_cursor_value_input {
+  add_to_my_tank_limit: String
+
   """该会员类型的鱼是否可以参与群聊"""
   can_group_chat: Boolean
 
@@ -3093,6 +3108,9 @@ type member_types_sum_fields {
 update columns of table "member_types"
 """
 enum member_types_update_column {
+  """column name"""
+  add_to_my_tank_limit
+
   """column name"""
   can_group_chat
 
@@ -7605,6 +7623,7 @@ input user_visible_messages_view_updates {
 columns and relationships of "users"
 """
 type users {
+  about_me: String
   avatar_url: String
   ban_reason: String
   banned_until: timestamp
@@ -7922,6 +7941,7 @@ input users_bool_exp {
   _and: [users_bool_exp!]
   _not: users_bool_exp
   _or: [users_bool_exp!]
+  about_me: String_comparison_exp
   avatar_url: String_comparison_exp
   ban_reason: String_comparison_exp
   banned_until: timestamp_comparison_exp
@@ -7982,6 +8002,7 @@ input users_inc_input {
 input type for inserting data into table "users"
 """
 input users_insert_input {
+  about_me: String
   avatar_url: String
   ban_reason: String
   banned_until: timestamp
@@ -8017,6 +8038,7 @@ input users_insert_input {
 
 """aggregate max on columns"""
 type users_max_fields {
+  about_me: String
   avatar_url: String
   ban_reason: String
   banned_until: timestamp
@@ -8044,6 +8066,7 @@ type users_max_fields {
 
 """aggregate min on columns"""
 type users_min_fields {
+  about_me: String
   avatar_url: String
   ban_reason: String
   banned_until: timestamp
@@ -8101,6 +8124,7 @@ input users_on_conflict {
 
 """Ordering options when selecting data from "users"."""
 input users_order_by {
+  about_me: order_by
   avatar_url: order_by
   ban_reason: order_by
   banned_until: order_by
@@ -8135,6 +8159,9 @@ input users_pk_columns_input {
 select columns of table "users"
 """
 enum users_select_column {
+  """column name"""
+  about_me
+
   """column name"""
   avatar_url
 
@@ -8188,6 +8215,7 @@ enum users_select_column {
 input type for updating data in table "users"
 """
 input users_set_input {
+  about_me: String
   avatar_url: String
   ban_reason: String
   banned_until: timestamp
@@ -8248,6 +8276,7 @@ input users_stream_cursor_input {
 
 """Initial value of the column from where the streaming should start"""
 input users_stream_cursor_value_input {
+  about_me: String
   avatar_url: String
   ban_reason: String
   banned_until: timestamp
@@ -8285,6 +8314,9 @@ type users_sum_fields {
 update columns of table "users"
 """
 enum users_update_column {
+  """column name"""
+  about_me
+
   """column name"""
   avatar_url
 
