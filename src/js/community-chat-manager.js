@@ -179,8 +179,21 @@ class CommunityChatManager {
           console.warn('API suggests using fallback:', data.message);
           
           // Show upgrade prompt if it's a daily limit issue
+          // But first verify that the limit is actually reached by checking current usage
           if (data.error === 'Daily limit reached' && data.limitInfo) {
-            this.showUpgradePrompt(data.message, data.upgradeSuggestion, data.limitInfo);
+            // Double-check usage before showing upgrade prompt
+            const currentUsageInfo = await this.displayGroupChatUsage();
+            if (currentUsageInfo && !currentUsageInfo.unlimited && currentUsageInfo.limit !== null) {
+              // Only show upgrade prompt if usage has actually reached the limit
+              if (currentUsageInfo.usage >= currentUsageInfo.limit) {
+                this.showUpgradePrompt(data.message, data.upgradeSuggestion, data.limitInfo);
+              } else {
+                console.log(`⚠️ API reported limit reached, but current usage (${currentUsageInfo.usage}/${currentUsageInfo.limit}) shows limit not reached. Skipping upgrade prompt.`);
+              }
+            } else {
+              // If we can't verify, show the prompt anyway (fallback behavior)
+              this.showUpgradePrompt(data.message, data.upgradeSuggestion, data.limitInfo);
+            }
           }
           
           return this.generateFallbackSession();

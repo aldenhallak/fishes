@@ -14,7 +14,7 @@
 const path = require('path');
 
 // 动态加载 handler，避免启动时出错
-let backendHandler, supabaseHandler, loginModeHandler, groupChatHandler, monoChatHandler, chatCostSavingHandler, testCredentialsHandler;
+let backendHandler, supabaseHandler, loginModeHandler, groupChatHandler, monoChatHandler, chatCostSavingHandler, testCredentialsHandler, hasuraHandler;
 
 function loadHandler(relativePath) {
   try {
@@ -50,6 +50,7 @@ module.exports = async function handler(req, res) {
   monoChatHandler = loadHandler('../lib/api_handlers/config/mono-chat.js');
   chatCostSavingHandler = loadHandler('../lib/api_handlers/config/chat-cost-saving.js');
   testCredentialsHandler = loadHandler('../lib/api_handlers/config/test-credentials.js');
+  hasuraHandler = loadHandler('../lib/api_handlers/config/hasura.js');
   console.log('[Config API] Handler initialization complete');
   console.log('[Config API] Handler status:', {
     backend: !!backendHandler,
@@ -113,10 +114,15 @@ module.exports = async function handler(req, res) {
           return res.status(500).json({ error: 'Test credentials handler not available' });
         }
         return await testCredentialsHandler(req, res);
+      case 'hasura':
+        if (!hasuraHandler) {
+          return res.status(500).json({ error: 'Hasura handler not available' });
+        }
+        return await hasuraHandler(req, res);
       default:
         return res.status(400).json({ 
           error: 'Invalid action',
-          available: ['backend', 'supabase', 'login-mode', 'group-chat', 'mono-chat', 'chat-cost-saving', 'test-credentials']
+          available: ['backend', 'supabase', 'login-mode', 'group-chat', 'mono-chat', 'chat-cost-saving', 'test-credentials', 'hasura']
         });
     }
   } catch (error) {

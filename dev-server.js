@@ -46,7 +46,13 @@ const server = http.createServer(async (req, res) => {
   if (pathname.startsWith('/api/')) {
     try {
       const apiPath = pathname.replace('/api/', '');
+      // 首先尝试在 api/ 目录查找（向后兼容）
       let apiFile = path.join(__dirname, 'api', apiPath + '.js');
+      
+      // 如果 api/ 目录不存在，尝试在 lib/api_handlers/ 目录查找
+      if (!fs.existsSync(apiFile)) {
+        apiFile = path.join(__dirname, 'lib', 'api_handlers', apiPath + '.js');
+      }
       
       // 调试日志：显示请求详情
       console.log(`[API] ${req.method} ${pathname}`);
@@ -59,9 +65,14 @@ const server = http.createServer(async (req, res) => {
         
         // 尝试匹配动态路由 /api/admin/tables/[tableName]
         if (parts.length >= 3 && parts[0] === 'admin' && parts[1] === 'tables' && parts[2]) {
-          // /api/admin/tables/{tableName} -> api/admin/tables/[tableName].js
-          apiFile = path.join(__dirname, 'api', 'admin', 'tables', '[tableName].js');
-          if (fs.existsSync(apiFile)) {
+          // 首先尝试 api/ 目录
+          let testFile = path.join(__dirname, 'api', 'admin', 'tables', '[tableName].js');
+          if (!fs.existsSync(testFile)) {
+            // 如果不存在，尝试 lib/api_handlers/ 目录
+            testFile = path.join(__dirname, 'lib', 'api_handlers', 'admin', 'tables', '[tableName].js');
+          }
+          if (fs.existsSync(testFile)) {
+            apiFile = testFile;
             // 将动态参数添加到 req.query
             req.query = req.query || parsedUrl.query || {};
             req.query.tableName = parts[2];
@@ -71,9 +82,14 @@ const server = http.createServer(async (req, res) => {
         
         // 尝试匹配动态路由 /api/profile/[userId]
         if (parts.length === 2 && parts[0] === 'profile' && parts[1]) {
-          // /api/profile/{userId} -> api/profile/[userId].js
-          apiFile = path.join(__dirname, 'api', 'profile', '[userId].js');
-          if (fs.existsSync(apiFile)) {
+          // 首先尝试 api/ 目录
+          let testFile = path.join(__dirname, 'api', 'profile', '[userId].js');
+          if (!fs.existsSync(testFile)) {
+            // 如果不存在，尝试 lib/api_handlers/ 目录
+            testFile = path.join(__dirname, 'lib', 'api_handlers', 'profile', '[userId].js');
+          }
+          if (fs.existsSync(testFile)) {
+            apiFile = testFile;
             // 将动态参数添加到 req.query
             req.query = req.query || parsedUrl.query || {};
             req.query.userId = parts[1];
