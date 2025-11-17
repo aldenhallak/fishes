@@ -91,10 +91,11 @@ async function loadMemberTypes() {
                 member_types(order_by: { fee_per_month: asc }) {
                     id
                     name
-                    max_fish_count
+                    draw_fish_limit
                     can_self_talk
                     can_group_chat
                     can_promote_owner
+                    group_chat_daily_limit
                     fee_per_month
                     fee_per_year
                 }
@@ -127,15 +128,17 @@ async function loadMemberTypes() {
         memberTypes = memberTypes.filter(type => type.id !== 'admin');
         
         console.log('✅ Loaded member types:', memberTypes);
-        console.log('🔍 Raw fee_per_month and fee_per_year values:', memberTypes.map(t => ({ 
+        console.log('🔍 Raw values:', memberTypes.map(t => ({ 
             id: t.id, 
+            draw_fish_limit: t.draw_fish_limit,
             fee_per_month: t.fee_per_month, 
             fee_per_year: t.fee_per_year,
+            type_draw_limit: typeof t.draw_fish_limit,
             type_month: typeof t.fee_per_month,
             type_year: typeof t.fee_per_year
         })));
         
-        // 转换 fee_per_month 和 fee_per_year 为数字
+        // 转换 fee_per_month 和 fee_per_year 为数字，保留 draw_fish_limit
         memberTypes = memberTypes.map(type => {
             // fee_per_month 是 numeric 类型，可能是字符串、数字或 null
             let monthlyPrice = 0;
@@ -155,10 +158,14 @@ async function loadMemberTypes() {
                 }
             }
             
-            console.log(`💰 ${type.id}: fee_per_month=${type.fee_per_month} -> monthly_price=${monthlyPrice}, fee_per_year=${type.fee_per_year} -> yearly_price=${yearlyPrice}`);
+            // draw_fish_limit 是 String 类型，直接保留
+            const drawFishLimit = type.draw_fish_limit || null;
+            
+            console.log(`💰 ${type.id}: draw_fish_limit=${drawFishLimit}, fee_per_month=${type.fee_per_month} -> monthly_price=${monthlyPrice}, fee_per_year=${type.fee_per_year} -> yearly_price=${yearlyPrice}`);
             
             return {
                 ...type,
+                draw_fish_limit: drawFishLimit,
                 monthly_price: monthlyPrice,
                 yearly_price: yearlyPrice
             };
@@ -191,7 +198,7 @@ async function loadMemberTypes() {
             {
                 id: 'free',
                 name: 'Free',
-                max_fish_count: 1,
+                draw_fish_limit: '1',
                 can_self_talk: false,
                 can_group_chat: false,
                 can_promote_owner: false,
@@ -201,7 +208,7 @@ async function loadMemberTypes() {
             {
                 id: 'plus',
                 name: 'Plus',
-                max_fish_count: 5,
+                draw_fish_limit: '5',
                 can_self_talk: true,
                 can_group_chat: true,
                 can_promote_owner: true,
@@ -211,7 +218,7 @@ async function loadMemberTypes() {
             {
                 id: 'premium',
                 name: 'Premium',
-                max_fish_count: 20,
+                draw_fish_limit: '20',
                 can_self_talk: true,
                 can_group_chat: true,
                 can_promote_owner: true,
@@ -290,16 +297,12 @@ function createPlanCard(plan) {
         
         <ul class="plan-features">
             <li>
-                <span class="feature-icon">🐟</span>
-                <span class="feature-text">Up to ${plan.max_fish_count} fish</span>
+                <span class="feature-icon">✅</span>
+                <span class="feature-text">Draw your fish (${plan.draw_fish_limit || 'unlimited'})</span>
             </li>
             <li>
-                <span class="feature-icon">${plan.can_group_chat ? '✅' : '❌'}</span>
-                <span class="feature-text">AI fish Group Chat</span>
-            </li>
-            <li>
-                <span class="feature-icon">${plan.can_self_talk ? '✅' : '❌'}</span>
-                <span class="feature-text">Self-Talk Feature</span>
+                <span class="feature-icon">✅</span>
+                <span class="feature-text">AI fish Group Chat${plan.group_chat_daily_limit && plan.group_chat_daily_limit !== 'unlimited' ? ` (${plan.group_chat_daily_limit} per day)` : plan.group_chat_daily_limit === 'unlimited' ? ' (unlimited)' : ''}</span>
             </li>
             <li>
                 <span class="feature-icon">${plan.can_promote_owner ? '✅' : '❌'}</span>

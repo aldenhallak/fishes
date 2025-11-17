@@ -2181,6 +2181,7 @@ export type Member_Types = {
   /** 该会员类型的鱼是否可以自语 */
   can_self_talk: Scalars['Boolean']['output'];
   created_at?: Maybe<Scalars['timestamp']['output']>;
+  draw_fish_limit?: Maybe<Scalars['String']['output']>;
   fee_per_month?: Maybe<Scalars['numeric']['output']>;
   fee_per_year?: Maybe<Scalars['numeric']['output']>;
   group_chat_daily_limit?: Maybe<Scalars['String']['output']>;
@@ -2188,8 +2189,6 @@ export type Member_Types = {
   id: Scalars['String']['output'];
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency: Scalars['Int']['output'];
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count: Scalars['Int']['output'];
   /** 会员类型名称（显示用） */
   name: Scalars['String']['output'];
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
@@ -2258,8 +2257,6 @@ export type Member_Types_Avg_Fields = {
   fee_per_year?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: Maybe<Scalars['Float']['output']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
   promote_owner_frequency?: Maybe<Scalars['Float']['output']>;
 };
@@ -2274,12 +2271,12 @@ export type Member_Types_Bool_Exp = {
   can_promote_owner?: InputMaybe<Boolean_Comparison_Exp>;
   can_self_talk?: InputMaybe<Boolean_Comparison_Exp>;
   created_at?: InputMaybe<Timestamp_Comparison_Exp>;
+  draw_fish_limit?: InputMaybe<String_Comparison_Exp>;
   fee_per_month?: InputMaybe<Numeric_Comparison_Exp>;
   fee_per_year?: InputMaybe<Numeric_Comparison_Exp>;
   group_chat_daily_limit?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<String_Comparison_Exp>;
   lead_topic_frequency?: InputMaybe<Int_Comparison_Exp>;
-  max_fish_count?: InputMaybe<Int_Comparison_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
   promote_owner_frequency?: InputMaybe<Int_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamp_Comparison_Exp>;
@@ -2301,8 +2298,6 @@ export type Member_Types_Inc_Input = {
   fee_per_year?: InputMaybe<Scalars['numeric']['input']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: InputMaybe<Scalars['Int']['input']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: InputMaybe<Scalars['Int']['input']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
   promote_owner_frequency?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -2317,6 +2312,7 @@ export type Member_Types_Insert_Input = {
   /** 该会员类型的鱼是否可以自语 */
   can_self_talk?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  draw_fish_limit?: InputMaybe<Scalars['String']['input']>;
   fee_per_month?: InputMaybe<Scalars['numeric']['input']>;
   fee_per_year?: InputMaybe<Scalars['numeric']['input']>;
   group_chat_daily_limit?: InputMaybe<Scalars['String']['input']>;
@@ -2324,8 +2320,6 @@ export type Member_Types_Insert_Input = {
   id?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: InputMaybe<Scalars['Int']['input']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: InputMaybe<Scalars['Int']['input']>;
   /** 会员类型名称（显示用） */
   name?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
@@ -2339,6 +2333,7 @@ export type Member_Types_Max_Fields = {
   __typename?: 'member_types_max_fields';
   add_to_my_tank_limit?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
+  draw_fish_limit?: Maybe<Scalars['String']['output']>;
   fee_per_month?: Maybe<Scalars['numeric']['output']>;
   fee_per_year?: Maybe<Scalars['numeric']['output']>;
   group_chat_daily_limit?: Maybe<Scalars['String']['output']>;
@@ -2346,8 +2341,6 @@ export type Member_Types_Max_Fields = {
   id?: Maybe<Scalars['String']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: Maybe<Scalars['Int']['output']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: Maybe<Scalars['Int']['output']>;
   /** 会员类型名称（显示用） */
   name?: Maybe<Scalars['String']['output']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
@@ -2360,6 +2353,7 @@ export type Member_Types_Min_Fields = {
   __typename?: 'member_types_min_fields';
   add_to_my_tank_limit?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
+  draw_fish_limit?: Maybe<Scalars['String']['output']>;
   fee_per_month?: Maybe<Scalars['numeric']['output']>;
   fee_per_year?: Maybe<Scalars['numeric']['output']>;
   group_chat_daily_limit?: Maybe<Scalars['String']['output']>;
@@ -2367,8 +2361,6 @@ export type Member_Types_Min_Fields = {
   id?: Maybe<Scalars['String']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: Maybe<Scalars['Int']['output']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: Maybe<Scalars['Int']['output']>;
   /** 会员类型名称（显示用） */
   name?: Maybe<Scalars['String']['output']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
@@ -2406,12 +2398,12 @@ export type Member_Types_Order_By = {
   can_promote_owner?: InputMaybe<Order_By>;
   can_self_talk?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
+  draw_fish_limit?: InputMaybe<Order_By>;
   fee_per_month?: InputMaybe<Order_By>;
   fee_per_year?: InputMaybe<Order_By>;
   group_chat_daily_limit?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   lead_topic_frequency?: InputMaybe<Order_By>;
-  max_fish_count?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
   promote_owner_frequency?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
@@ -2437,6 +2429,8 @@ export enum Member_Types_Select_Column {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
+  DrawFishLimit = 'draw_fish_limit',
+  /** column name */
   FeePerMonth = 'fee_per_month',
   /** column name */
   FeePerYear = 'fee_per_year',
@@ -2446,8 +2440,6 @@ export enum Member_Types_Select_Column {
   Id = 'id',
   /** column name */
   LeadTopicFrequency = 'lead_topic_frequency',
-  /** column name */
-  MaxFishCount = 'max_fish_count',
   /** column name */
   Name = 'name',
   /** column name */
@@ -2466,6 +2458,7 @@ export type Member_Types_Set_Input = {
   /** 该会员类型的鱼是否可以自语 */
   can_self_talk?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  draw_fish_limit?: InputMaybe<Scalars['String']['input']>;
   fee_per_month?: InputMaybe<Scalars['numeric']['input']>;
   fee_per_year?: InputMaybe<Scalars['numeric']['input']>;
   group_chat_daily_limit?: InputMaybe<Scalars['String']['input']>;
@@ -2473,8 +2466,6 @@ export type Member_Types_Set_Input = {
   id?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: InputMaybe<Scalars['Int']['input']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: InputMaybe<Scalars['Int']['input']>;
   /** 会员类型名称（显示用） */
   name?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
@@ -2489,8 +2480,6 @@ export type Member_Types_Stddev_Fields = {
   fee_per_year?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: Maybe<Scalars['Float']['output']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
   promote_owner_frequency?: Maybe<Scalars['Float']['output']>;
 };
@@ -2502,8 +2491,6 @@ export type Member_Types_Stddev_Pop_Fields = {
   fee_per_year?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: Maybe<Scalars['Float']['output']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
   promote_owner_frequency?: Maybe<Scalars['Float']['output']>;
 };
@@ -2515,8 +2502,6 @@ export type Member_Types_Stddev_Samp_Fields = {
   fee_per_year?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: Maybe<Scalars['Float']['output']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
   promote_owner_frequency?: Maybe<Scalars['Float']['output']>;
 };
@@ -2539,6 +2524,7 @@ export type Member_Types_Stream_Cursor_Value_Input = {
   /** 该会员类型的鱼是否可以自语 */
   can_self_talk?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
+  draw_fish_limit?: InputMaybe<Scalars['String']['input']>;
   fee_per_month?: InputMaybe<Scalars['numeric']['input']>;
   fee_per_year?: InputMaybe<Scalars['numeric']['input']>;
   group_chat_daily_limit?: InputMaybe<Scalars['String']['input']>;
@@ -2546,8 +2532,6 @@ export type Member_Types_Stream_Cursor_Value_Input = {
   id?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: InputMaybe<Scalars['Int']['input']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: InputMaybe<Scalars['Int']['input']>;
   /** 会员类型名称（显示用） */
   name?: InputMaybe<Scalars['String']['input']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
@@ -2562,8 +2546,6 @@ export type Member_Types_Sum_Fields = {
   fee_per_year?: Maybe<Scalars['numeric']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: Maybe<Scalars['Int']['output']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: Maybe<Scalars['Int']['output']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
   promote_owner_frequency?: Maybe<Scalars['Int']['output']>;
 };
@@ -2581,6 +2563,8 @@ export enum Member_Types_Update_Column {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
+  DrawFishLimit = 'draw_fish_limit',
+  /** column name */
   FeePerMonth = 'fee_per_month',
   /** column name */
   FeePerYear = 'fee_per_year',
@@ -2590,8 +2574,6 @@ export enum Member_Types_Update_Column {
   Id = 'id',
   /** column name */
   LeadTopicFrequency = 'lead_topic_frequency',
-  /** column name */
-  MaxFishCount = 'max_fish_count',
   /** column name */
   Name = 'name',
   /** column name */
@@ -2616,8 +2598,6 @@ export type Member_Types_Var_Pop_Fields = {
   fee_per_year?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: Maybe<Scalars['Float']['output']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
   promote_owner_frequency?: Maybe<Scalars['Float']['output']>;
 };
@@ -2629,8 +2609,6 @@ export type Member_Types_Var_Samp_Fields = {
   fee_per_year?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: Maybe<Scalars['Float']['output']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
   promote_owner_frequency?: Maybe<Scalars['Float']['output']>;
 };
@@ -2642,8 +2620,6 @@ export type Member_Types_Variance_Fields = {
   fee_per_year?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼主导话题的频率（每小时次数） */
   lead_topic_frequency?: Maybe<Scalars['Float']['output']>;
-  /** 该会员类型可创建的最大鱼数量 */
-  max_fish_count?: Maybe<Scalars['Float']['output']>;
   /** 该会员类型的鱼宣传主人的频率（每小时次数） */
   promote_owner_frequency?: Maybe<Scalars['Float']['output']>;
 };

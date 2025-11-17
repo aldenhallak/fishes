@@ -2660,6 +2660,7 @@ type member_types {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean!
   created_at: timestamp
+  draw_fish_limit: String
   fee_per_month: numeric
   fee_per_year: numeric
   group_chat_daily_limit: String
@@ -2669,9 +2670,6 @@ type member_types {
 
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Int!
-
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Int!
 
   """会员类型名称（显示用）"""
   name: String!
@@ -2750,9 +2748,6 @@ type member_types_avg_fields {
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Float
-
   """该会员类型的鱼宣传主人的频率（每小时次数）"""
   promote_owner_frequency: Float
 }
@@ -2769,12 +2764,12 @@ input member_types_bool_exp {
   can_promote_owner: Boolean_comparison_exp
   can_self_talk: Boolean_comparison_exp
   created_at: timestamp_comparison_exp
+  draw_fish_limit: String_comparison_exp
   fee_per_month: numeric_comparison_exp
   fee_per_year: numeric_comparison_exp
   group_chat_daily_limit: String_comparison_exp
   id: String_comparison_exp
   lead_topic_frequency: Int_comparison_exp
-  max_fish_count: Int_comparison_exp
   name: String_comparison_exp
   promote_owner_frequency: Int_comparison_exp
   updated_at: timestamp_comparison_exp
@@ -2807,9 +2802,6 @@ input member_types_inc_input {
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Int
 
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Int
-
   """该会员类型的鱼宣传主人的频率（每小时次数）"""
   promote_owner_frequency: Int
 }
@@ -2829,6 +2821,7 @@ input member_types_insert_input {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean
   created_at: timestamp
+  draw_fish_limit: String
   fee_per_month: numeric
   fee_per_year: numeric
   group_chat_daily_limit: String
@@ -2838,9 +2831,6 @@ input member_types_insert_input {
 
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Int
-
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Int
 
   """会员类型名称（显示用）"""
   name: String
@@ -2855,6 +2845,7 @@ input member_types_insert_input {
 type member_types_max_fields {
   add_to_my_tank_limit: String
   created_at: timestamp
+  draw_fish_limit: String
   fee_per_month: numeric
   fee_per_year: numeric
   group_chat_daily_limit: String
@@ -2864,9 +2855,6 @@ type member_types_max_fields {
 
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Int
-
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Int
 
   """会员类型名称（显示用）"""
   name: String
@@ -2880,6 +2868,7 @@ type member_types_max_fields {
 type member_types_min_fields {
   add_to_my_tank_limit: String
   created_at: timestamp
+  draw_fish_limit: String
   fee_per_month: numeric
   fee_per_year: numeric
   group_chat_daily_limit: String
@@ -2889,9 +2878,6 @@ type member_types_min_fields {
 
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Int
-
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Int
 
   """会员类型名称（显示用）"""
   name: String
@@ -2938,12 +2924,12 @@ input member_types_order_by {
   can_promote_owner: order_by
   can_self_talk: order_by
   created_at: order_by
+  draw_fish_limit: order_by
   fee_per_month: order_by
   fee_per_year: order_by
   group_chat_daily_limit: order_by
   id: order_by
   lead_topic_frequency: order_by
-  max_fish_count: order_by
   name: order_by
   promote_owner_frequency: order_by
   updated_at: order_by
@@ -2976,6 +2962,9 @@ enum member_types_select_column {
   created_at
 
   """column name"""
+  draw_fish_limit
+
+  """column name"""
   fee_per_month
 
   """column name"""
@@ -2989,9 +2978,6 @@ enum member_types_select_column {
 
   """column name"""
   lead_topic_frequency
-
-  """column name"""
-  max_fish_count
 
   """column name"""
   name
@@ -3018,6 +3004,7 @@ input member_types_set_input {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean
   created_at: timestamp
+  draw_fish_limit: String
   fee_per_month: numeric
   fee_per_year: numeric
   group_chat_daily_limit: String
@@ -3027,9 +3014,6 @@ input member_types_set_input {
 
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Int
-
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Int
 
   """会员类型名称（显示用）"""
   name: String
@@ -3047,9 +3031,6 @@ type member_types_stddev_fields {
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Float
-
   """该会员类型的鱼宣传主人的频率（每小时次数）"""
   promote_owner_frequency: Float
 }
@@ -3062,9 +3043,6 @@ type member_types_stddev_pop_fields {
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Float
-
   """该会员类型的鱼宣传主人的频率（每小时次数）"""
   promote_owner_frequency: Float
 }
@@ -3076,9 +3054,6 @@ type member_types_stddev_samp_fields {
 
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
-
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Float
 
   """该会员类型的鱼宣传主人的频率（每小时次数）"""
   promote_owner_frequency: Float
@@ -3108,6 +3083,7 @@ input member_types_stream_cursor_value_input {
   """该会员类型的鱼是否可以自语"""
   can_self_talk: Boolean
   created_at: timestamp
+  draw_fish_limit: String
   fee_per_month: numeric
   fee_per_year: numeric
   group_chat_daily_limit: String
@@ -3117,9 +3093,6 @@ input member_types_stream_cursor_value_input {
 
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Int
-
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Int
 
   """会员类型名称（显示用）"""
   name: String
@@ -3136,9 +3109,6 @@ type member_types_sum_fields {
 
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Int
-
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Int
 
   """该会员类型的鱼宣传主人的频率（每小时次数）"""
   promote_owner_frequency: Int
@@ -3164,6 +3134,9 @@ enum member_types_update_column {
   created_at
 
   """column name"""
+  draw_fish_limit
+
+  """column name"""
   fee_per_month
 
   """column name"""
@@ -3177,9 +3150,6 @@ enum member_types_update_column {
 
   """column name"""
   lead_topic_frequency
-
-  """column name"""
-  max_fish_count
 
   """column name"""
   name
@@ -3210,9 +3180,6 @@ type member_types_var_pop_fields {
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Float
-
   """该会员类型的鱼宣传主人的频率（每小时次数）"""
   promote_owner_frequency: Float
 }
@@ -3225,9 +3192,6 @@ type member_types_var_samp_fields {
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
 
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Float
-
   """该会员类型的鱼宣传主人的频率（每小时次数）"""
   promote_owner_frequency: Float
 }
@@ -3239,9 +3203,6 @@ type member_types_variance_fields {
 
   """该会员类型的鱼主导话题的频率（每小时次数）"""
   lead_topic_frequency: Float
-
-  """该会员类型可创建的最大鱼数量"""
-  max_fish_count: Float
 
   """该会员类型的鱼宣传主人的频率（每小时次数）"""
   promote_owner_frequency: Float

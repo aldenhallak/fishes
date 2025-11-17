@@ -823,7 +823,27 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
             }
             
             // 根据错误类型显示不同的提示
-            if (submitResult.error === 'Membership limit reached') {
+            if (submitResult.error === 'Daily drawing limit reached') {
+                // 每日限量错误 - 显示详细信息
+                showUserAlert({
+                    type: 'warning',
+                    title: 'Daily Limit Reached',
+                    message: submitResult.message || 'You have reached your daily drawing limit.',
+                    buttons: [
+                        {
+                            text: 'View Membership',
+                            action: () => {
+                                window.location.href = 'membership.html';
+                            },
+                            closeAfterAction: true
+                        },
+                        {
+                            text: 'OK',
+                            closeAfterAction: true
+                        }
+                    ]
+                });
+            } else if (submitResult.error === 'Membership limit reached') {
                 // 会员限制错误 - 显示详细信息
                 showUserAlert({
                     type: 'warning',
