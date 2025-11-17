@@ -825,13 +825,166 @@
   <script src="src/js/tank-layout-manager.js?v=1.3"></script>
   <script src="src/js/community-chat-manager.js?v=2.0"></script>
     <script src="src/js/tank.js?v=4.0"></script>
-  <script>
-    // Initialize navigation authentication
-    if (typeof initializeAuthNavigation === 'function') {
-      initializeAuthNavigation();
-    }
-    
-    // Sidebar controls - independent functionality
+    <script>
+      // Initialize navigation authentication
+      if (typeof initializeAuthNavigation === 'function') {
+        initializeAuthNavigation();
+      }
+      
+      // Remind user to login for Fish Talk feature after 10 seconds
+      (async function() {
+        // Wait for auth modules to be ready
+        await new Promise(resolve => {
+          if (window.supabaseAuth && window.authUI) {
+            resolve();
+          } else {
+            const checkInterval = setInterval(() => {
+              if (window.supabaseAuth && window.authUI) {
+                clearInterval(checkInterval);
+                resolve();
+              }
+            }, 100);
+            // Timeout after 5 seconds
+            setTimeout(() => {
+              clearInterval(checkInterval);
+              resolve();
+            }, 5000);
+          }
+        });
+        
+        // Check if user is logged in
+        try {
+          const user = await window.supabaseAuth?.getCurrentUser();
+          if (!user) {
+            // User is not logged in, show reminder after 10 seconds
+            setTimeout(() => {
+              // Check again to make sure user still not logged in
+              window.supabaseAuth?.getCurrentUser().then(currentUser => {
+                if (!currentUser) {
+                  // Show reminder notification
+                  const reminderMessage = '💬 登录后即可使用 Fish Talk 功能，让鱼儿们开始对话吧！';
+                  
+                  // Try to show a notification or alert
+                  if (window.authUI && window.authUI.showLoginModal) {
+                    // Create a custom notification
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                      position: fixed;
+                      top: 20px;
+                      right: 20px;
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      color: white;
+                      padding: 16px 20px;
+                      border-radius: 12px;
+                      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                      z-index: 10001;
+                      max-width: 350px;
+                      animation: slideInRight 0.3s ease;
+                      cursor: pointer;
+                    `;
+                    notification.innerHTML = `
+                      <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 24px;">💬</span>
+                        <div style="flex: 1;">
+                          <div style="font-weight: 600; margin-bottom: 4px;">Fish Talk 功能</div>
+                          <div style="font-size: 14px; opacity: 0.9;">登录后即可使用 Fish Talk 功能</div>
+                        </div>
+                        <button id="close-reminder-btn" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; line-height: 1; opacity: 0.7; transition: opacity 0.2s;" title="关闭">×</button>
+                      </div>
+                      <button id="login-from-reminder-btn" style="width: 100%; margin-top: 12px; padding: 8px 16px; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 8px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s;">立即登录</button>
+                    `;
+                    
+                    // Add animation
+                    const style = document.createElement('style');
+                    style.textContent = `
+                      @keyframes slideInRight {
+                        from {
+                          transform: translateX(100%);
+                          opacity: 0;
+                        }
+                        to {
+                          transform: translateX(0);
+                          opacity: 1;
+                        }
+                      }
+                      @keyframes slideOutRight {
+                        from {
+                          transform: translateX(0);
+                          opacity: 1;
+                        }
+                        to {
+                          transform: translateX(100%);
+                          opacity: 0;
+                        }
+                      }
+                    `;
+                    document.head.appendChild(style);
+                    
+                    document.body.appendChild(notification);
+                    
+                    // Close button handler
+                    const closeBtn = notification.querySelector('#close-reminder-btn');
+                    closeBtn.addEventListener('click', (e) => {
+                      e.stopPropagation();
+                      notification.style.animation = 'slideOutRight 0.3s ease';
+                      setTimeout(() => {
+                        notification.remove();
+                      }, 300);
+                    });
+                    
+                    // Login button handler
+                    const loginBtn = notification.querySelector('#login-from-reminder-btn');
+                    loginBtn.addEventListener('click', (e) => {
+                      e.stopPropagation();
+                      notification.style.animation = 'slideOutRight 0.3s ease';
+                      setTimeout(() => {
+                        notification.remove();
+                        if (window.authUI && window.authUI.showLoginModal) {
+                          window.authUI.showLoginModal();
+                        }
+                      }, 300);
+                    });
+                    
+                    // Auto close after 10 seconds
+                    setTimeout(() => {
+                      if (notification.parentNode) {
+                        notification.style.animation = 'slideOutRight 0.3s ease';
+                        setTimeout(() => {
+                          notification.remove();
+                        }, 300);
+                      }
+                    }, 10000);
+                    
+                    // Hover effect
+                    loginBtn.addEventListener('mouseenter', () => {
+                      loginBtn.style.background = 'rgba(255, 255, 255, 0.3)';
+                    });
+                    loginBtn.addEventListener('mouseleave', () => {
+                      loginBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+                    });
+                    
+                    closeBtn.addEventListener('mouseenter', () => {
+                      closeBtn.style.opacity = '1';
+                    });
+                    closeBtn.addEventListener('mouseleave', () => {
+                      closeBtn.style.opacity = '0.7';
+                    });
+                  } else {
+                    // Fallback: simple alert
+                    alert(reminderMessage);
+                  }
+                }
+              });
+            }, 10000); // 10 seconds
+          } catch (error) {
+            console.error('检查登录状态时出错:', error);
+          }
+        } catch (error) {
+          console.error('初始化登录提醒时出错:', error);
+        }
+      })();
+      
+      // Sidebar controls - independent functionality
     (function() {
       // Wait for DOM and tank.js to be fully loaded
       setTimeout(() => {

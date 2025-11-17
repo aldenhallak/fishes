@@ -258,6 +258,52 @@
   <script>
     // Initialize navigation authentication
     initializeAuthNavigation();
+    
+    // Check login status when page loads
+    (async function() {
+      // Wait for auth modules to be ready
+      await new Promise(resolve => {
+        if (window.supabaseAuth && window.authUI) {
+          resolve();
+        } else {
+          const checkInterval = setInterval(() => {
+            if (window.supabaseAuth && window.authUI) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+          // Timeout after 5 seconds
+          setTimeout(() => {
+            clearInterval(checkInterval);
+            resolve();
+          }, 5000);
+        }
+      });
+      
+      // Check if user is logged in
+      try {
+        const user = await window.supabaseAuth?.getCurrentUser();
+        if (!user) {
+          // User is not logged in, show login modal
+          console.log('用户未登录，显示登录弹窗');
+          if (window.authUI && window.authUI.showLoginModal) {
+            window.authUI.showLoginModal();
+          } else {
+            // Fallback: redirect to login page
+            console.warn('登录弹窗不可用，重定向到登录页面');
+            window.location.href = 'login.html';
+          }
+        } else {
+          console.log('用户已登录:', user.email);
+        }
+      } catch (error) {
+        console.error('检查登录状态时出错:', error);
+        // On error, show login modal as fallback
+        if (window.authUI && window.authUI.showLoginModal) {
+          window.authUI.showLoginModal();
+        }
+      }
+    })();
   </script>
 </body>
 </html>
