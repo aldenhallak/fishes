@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Twitter OAuth 诊断</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section {
+      background: #252526;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-left: 3px solid #007acc;
+    }
+    .title {
+      color: #4ec9b0;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    .param {
+      color: #ce9178;
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    .value {
+      color: #9cdcfe;
+    }
+    .error {
+      color: #f48771;
+      border-left-color: #f48771;
+    }
+    .success {
+      color: #4ec9b0;
+      border-left-color: #4ec9b0;
+    }
+    .warning {
+      color: #dcdcaa;
+      border-left-color: #dcdcaa;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+    }
+    button:hover {
+      background: #005a9e;
+    }
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    pre {
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 3px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    .status-ok { background: #4ec9b0; }
+    .status-error { background: #f48771; }
+    .status-warning { background: #dcdcaa; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Twitter OAuth 诊断工具</h1>
+  
+  <div class="section">
+    <div class="title">📋 Supabase 配置</div>
+    <div id="supabaseConfig">加载中...</div>
+  </div>
+
+  <div class="section">
+    <div class="title">🔑 Twitter Provider 状态</div>
+    <div id="twitterProviderStatus">检查中...</div>
+  </div>
+
+  <div class="section">
+    <div class="title">🧪 测试 Twitter OAuth</div>
+    <button id="testTwitterBtn" disabled>测试 Twitter 登录</button>
+    <button id="testDiscordBtn" disabled>测试 Discord 登录（对比）</button>
+    <div id="testResult" style="margin-top: 10px;"></div>
+  </div>
+
+  <div class="section">
+    <div class="title">📊 诊断结果</div>
+    <div id="diagnostics"></div>
+  </div>
+
+  <div class="section">
+    <div class="title">💡 建议操作</div>
+    <div id="suggestions"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    let supabaseClient = null;
+
+    // 直接加载 Supabase 配置
+    async function loadSupabaseConfig() {
+      try {
+        const response = await fetch('/api/config-api?action=supabase');
+        if (response.ok) {
+          const config = await response.json();
+          window.SUPABASE_URL = config.url;
+          window.SUPABASE_ANON_KEY = config.anonKey;
+          console.log('✅ Supabase config loaded');
+          return true;
+        }
+        throw new Error('Failed to load config');
+      } catch (error) {
+        console.error('❌ Config load failed:', error);
+        return false;
+      }
+    }
+
+    // 初始化
+    (async function init() {
+      const configLoaded = await loadSupabaseConfig();
+      if (!configLoaded) {
+        document.getElementById('supabaseConfig').innerHTML = 
+          '<div class="param error">❌ 无法加载 Supabase 配置</div>';
+        return;
+      }
+      try {
+        // 显示配置
+        const configDiv = document.getElementById('supabaseConfig');
+        const url = window.SUPABASE_URL;
+        const hasKey = window.SUPABASE_ANON_KEY && window.SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+        
+        configDiv.innerHTML = `
+          <div class="param">
+            <span class="status-indicator ${url && url !== 'YOUR_SUPABASE_URL' ? 'status-ok' : 'status-error'}"></span>
+            Supabase URL: <span class="value">${url || '(未配置)'}</span>
+          </div>
+          <div class="param">
+            <span class="status-indicator ${hasKey ? 'status-ok' : 'status-error'}"></span>
+            Anon Key: <span class="value">${hasKey ? window.SUPABASE_ANON_KEY.substring(0, 20) + '...' : '(未配置)'}</span>
+          </div>
+        `;
+
+        if (!url || url === 'YOUR_SUPABASE_URL' || !hasKey) {
+          document.getElementById('twitterProviderStatus').innerHTML = 
+            '<div class="param error">❌ Supabase 配置无效，无法测试</div>';
+          return;
+        }
+
+        // 初始化 Supabase
+        const { createClient } = supabase;
+        supabaseClient = createClient(url, window.SUPABASE_ANON_KEY);
+
+        // 检查 Twitter Provider
+        await checkTwitterProvider();
+
+        // 启用测试按钮
+        document.getElementById('testTwitterBtn').disabled = false;
+        document.getElementById('testDiscordBtn').disabled = false;
+
+      } catch (error) {
+        document.getElementById('supabaseConfig').innerHTML = 
+          `<div class="param error">❌ 初始化失败: ${error.message}</div>`;
+      }
+    })();
+
+    async function checkTwitterProvider() {
+      const statusDiv = document.getElementById('twitterProviderStatus');
+      
+      try {
+        // 尝试获取 OAuth providers（这个API可能不存在，但我们可以尝试）
+        statusDiv.innerHTML = '<div class="param">⏳ 检查 Twitter Provider...</div>';
+
+        // 实际上，我们无法直接检查 provider 是否启用
+        // 但我们可以尝试发起 OAuth 请求来测试
+        statusDiv.innerHTML = `
+          <div class="param">
+            <span class="status-indicator status-warning"></span>
+            无法直接检查 Provider 状态
+          </div>
+          <div class="param">💡 请在 Supabase Dashboard 中确认 Twitter Provider 已启用</div>
+          <div class="param">📍 Authentication → Providers → Twitter</div>
+        `;
+
+      } catch (error) {
+        statusDiv.innerHTML = `<div class="param error">❌ 检查失败: ${error.message}</div>`;
+      }
+    }
+
+    document.getElementById('testTwitterBtn').onclick = async () => {
+      await testOAuth('twitter');
+    };
+
+    document.getElementById('testDiscordBtn').onclick = async () => {
+      await testOAuth('discord');
+    };
+
+    async function testOAuth(provider) {
+      const resultDiv = document.getElementById('testResult');
+      const diagnosticsDiv = document.getElementById('diagnostics');
+      const suggestionsDiv = document.getElementById('suggestions');
+
+      resultDiv.innerHTML = `<div class="param">⏳ 正在测试 ${provider} OAuth...</div>`;
+      diagnosticsDiv.innerHTML = '';
+      suggestionsDiv.innerHTML = '';
+
+      try {
+        console.log(`🧪 Testing ${provider} OAuth...`);
+        console.log('Supabase URL:', window.SUPABASE_URL);
+        console.log('Provider:', provider);
+
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+          provider: provider,
+          options: {
+            redirectTo: `${window.location.origin}/debug-oauth-callback.html`,
+            skipBrowserRedirect: true  // 不自动跳转，只获取 URL
+          }
+        });
+
+        console.log('OAuth response:', { data, error });
+
+        if (error) {
+          throw error;
+        }
+
+        if (data && data.url) {
+          resultDiv.innerHTML = `
+            <div class="param success">✅ OAuth URL 生成成功</div>
+            <div class="param">Provider: <span class="value">${provider}</span></div>
+            <div class="param">OAuth URL: <span class="value">${data.url.substring(0, 100)}...</span></div>
+          `;
+
+          diagnosticsDiv.innerHTML = `
+            <div class="param success">
+              <span class="status-indicator status-ok"></span>
+              ${provider} Provider 配置正确
+            </div>
+            <div class="param">✅ Supabase 可以生成 OAuth URL</div>
+            <div class="param">✅ Provider 已在 Supabase Dashboard 中启用</div>
+          `;
+
+          suggestionsDiv.innerHTML = `
+            <div class="param success">✅ ${provider} OAuth 配置正常</div>
+            <div class="param">你可以点击下面的按钮测试完整的登录流程：</div>
+            <button onclick="window.location.href='${data.url}'">前往 ${provider} 授权页面</button>
+          `;
+        } else {
+          throw new Error('未返回 OAuth URL');
+        }
+
+      } catch (error) {
+        console.error(`❌ ${provider} OAuth test failed:`, error);
+
+        resultDiv.innerHTML = `<div class="param error">❌ 测试失败: ${error.message}</div>`;
+
+        // 分析错误
+        let diagnosis = '';
+        let suggestions = '';
+
+        if (error.message.includes('404') || error.message.includes('Not Found')) {
+          diagnosis = `
+            <div class="param error">
+              <span class="status-indicator status-error"></span>
+              ${provider} Provider 未启用或配置错误
+            </div>
+            <div class="param">❌ Supabase 返回 404 错误</div>
+            <div class="param">❌ 这通常意味着 Provider 未在 Dashboard 中启用</div>
+          `;
+
+          suggestions = `
+            <div class="param error">❌ ${provider} Provider 未正确配置</div>
+            <div class="param">请按以下步骤检查：</div>
+            <div class="param">1. 访问 Supabase Dashboard</div>
+            <div class="param">2. 选择项目：xxeplxorhecwwhtrakzw</div>
+            <div class="param">3. Authentication → Providers → ${provider}</div>
+            <div class="param">4. 确认 ${provider} Enabled 开关已打开</div>
+            <div class="param">5. 确认 Client ID 和 Client Secret 已填写</div>
+            <div class="param">6. 点击 Save 保存</div>
+            <div class="param">7. 等待 1-2 分钟后重试</div>
+          `;
+        } else if (error.message.includes('Invalid') || error.message.includes('invalid')) {
+          diagnosis = `
+            <div class="param error">
+              <span class="status-indicator status-error"></span>
+              ${provider} Provider 配置无效
+            </div>
+            <div class="param">❌ Client ID 或 Client Secret 可能错误</div>
+          `;
+
+          suggestions = `
+            <div class="param error">❌ ${provider} Provider 凭证可能错误</div>
+            <div class="param">请重新配置：</div>
+            <div class="param">1. 访问 ${provider === 'twitter' ? 'Twitter Developer Portal' : 'Discord Developer Portal'}</div>
+            <div class="param">2. 重新生成 Client Secret</div>
+            <div class="param">3. 复制新的 Client ID 和 Secret</div>
+            <div class="param">4. 在 Supabase Dashboard 中更新</div>
+          `;
+        } else {
+          diagnosis = `
+            <div class="param error">
+              <span class="status-indicator status-error"></span>
+              未知错误
+            </div>
+            <div class="param">错误信息: ${error.message}</div>
+          `;
+
+          suggestions = `
+            <div class="param">请检查：</div>
+            <div class="param">1. Supabase Dashboard 中 ${provider} Provider 是否启用</div>
+            <div class="param">2. Client ID 和 Client Secret 是否正确</div>
+            <div class="param">3. 网络连接是否正常</div>
+            <div class="param">4. 浏览器控制台是否有更多错误信息</div>
+          `;
+        }
+
+        diagnosticsDiv.innerHTML = diagnosis;
+        suggestionsDiv.innerHTML = suggestions;
+      }
+    }
+  </script>
+</body>
+</html>
