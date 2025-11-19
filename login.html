@@ -190,6 +190,61 @@
             transform: translateY(0);
         }
 
+        /* 优化提交按钮样式 */
+        button[type="submit"] {
+            width: 100%;
+            padding: 16px 24px;
+            border: none;
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            color: white;
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            margin: 10px 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button[type="submit"]::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        button[type="submit"]:hover::before {
+            left: 100%;
+        }
+
+        button[type="submit"]:hover {
+            background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        button[type="submit"]:disabled {
+            background: linear-gradient(135deg, #9CA3AF, #6B7280);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .home-btn-container {
             text-align: center;
             margin: 20px 0;
@@ -235,7 +290,14 @@
             <input type="email" id="signin-email" required><br>
             <strong>Password:</strong><br>
             <input type="password" id="signin-password" required><br><br>
-            <button type="submit">Login</button>
+            <button type="submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                    <polyline points="10 17 15 12 10 7"></polyline>
+                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                <span>Login</span>
+            </button>
             <br><br>
             <a href="#" id="forgot-password-link" onclick="showForgotPasswordForm()">Forgot Password?</a>
         </form>
@@ -246,14 +308,28 @@
             <input type="email" id="signup-email" required><br>
             <strong>Password:</strong><br>
             <input type="password" id="signup-password" required><br><br>
-            <button type="submit">Register</button> 
+            <button type="submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                <span>Register</span>
+            </button> 
         </form>
 
         <!-- Forgot Password Form -->
         <form id="forgot-password-form" class="auth-form" style="display: none;">
             <strong>Enter your email address:</strong><br>
             <input type="email" id="forgot-email" required><br><br>
-            <button type="submit">Send Reset Email</button>
+            <button type="submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                <span>Send Reset Email</span>
+            </button>
             <br><br>
             <a href="#" onclick="showAuthForm('signin')">Back to Sign In</a>
         </form>

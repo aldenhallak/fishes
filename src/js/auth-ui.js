@@ -79,8 +79,9 @@ class AuthUI {
     // 监听认证状态变化
     if (window.supabaseAuth) {
       window.supabaseAuth.onAuthStateChange((event, session) => {
-        console.log('🔔 Auth state changed:', event);
-        this.updateAuthUI();
+        console.log('🔔 Auth state changed:', event, session?.user?.email || 'no user');
+        // 传递 session 中的 user，避免重新获取
+        this.updateAuthUI(session?.user || null);
       });
     }
     
@@ -115,6 +116,19 @@ class AuthUI {
    * 仅在主页（index.html 或根路径）执行自动登录
    */
   async checkAutoLogin() {
+    // 检查 URL 中是否有 OAuth 回调参数（access_token, code 等）
+    const urlParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const hasOAuthCallback = urlParams.has('code') || 
+                            urlParams.has('access_token') || 
+                            hashParams.has('access_token') ||
+                            urlParams.has('error');
+    
+    if (hasOAuthCallback) {
+      console.log('🔄 OAuth callback detected, skipping auto-login');
+      return;
+    }
+    
     // 检查是否已登录
     const currentUser = await window.supabaseAuth?.getCurrentUser();
     if (currentUser) {
@@ -622,14 +636,21 @@ class AuthUI {
 
   /**
    * 更新认证UI状态
+   * @param {User|null} userFromSession - 从 session 中传入的用户对象（可选）
    */
-  async updateAuthUI() {
+  async updateAuthUI(userFromSession = null) {
     if (!window.supabaseAuth) return;
     
-    const user = await window.supabaseAuth.getCurrentUser();
+    // 优先使用传入的 user，否则重新获取
+    let user = userFromSession;
+    if (user === null) {
+      user = await window.supabaseAuth.getCurrentUser();
+    }
+    
     this.currentUser = user;
     
     if (user) {
+      console.log('✅ 用户已登录:', user.email);
       // 已登录：显示用户信息并保存到localStorage
       await this.saveUserToLocalStorage(user);
       // 确保用户在数据库中存在
@@ -640,6 +661,7 @@ class AuthUI {
       // 更新 Test 按钮显示状态（仅管理员可见）
       await this.updateTestButtonVisibility(user);
     } else {
+      console.log('ℹ️ 用户未登录');
       // 未登录：清除localStorage并显示登录按钮
       this.clearUserFromLocalStorage();
       this.showLoginButton();
@@ -655,6 +677,9 @@ class AuthUI {
    */
   async ensureUserExistsInDatabase(user) {
     try {
+      console.log('🔍 检查用户是否存在于数据库:', user.id);
+      console.log('📋 用户元数据:', user.user_metadata);
+      
       // 检查用户是否存在
       const checkUserQuery = `
         query CheckUser($userId: String!) {
@@ -691,13 +716,18 @@ class AuthUI {
       // 用户不存在，创建新用户
       console.log('📝 创建新用户记录:', user.id);
       
-      const displayName = user.user_metadata?.name || 
-                         user.user_metadata?.full_name || 
+      // Discord 用户元数据字段可能不同，需要适配
+      const displayName = user.user_metadata?.full_name || 
+                         user.user_metadata?.name || 
+                         user.user_metadata?.user_name ||
+                         user.user_metadata?.preferred_username ||
                          user.email?.split('@')[0] || 
                          'User';
       
       const avatarUrl = user.user_metadata?.avatar_url || 
                        user.user_metadata?.picture;
+      
+      console.log('👤 提取的用户信息:', { displayName, avatarUrl, email: user.email });
       
       const createUserMutation = `
         mutation CreateUser($userId: String!, $email: String!, $displayName: String!, $avatarUrl: String) {

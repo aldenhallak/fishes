@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OAuth 回调调试</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+    .section {
+      background: #252526;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-left: 3px solid #007acc;
+    }
+    .title {
+      color: #4ec9b0;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .param {
+      color: #ce9178;
+      margin: 5px 0;
+    }
+    .value {
+      color: #9cdcfe;
+    }
+    .error {
+      color: #f48771;
+      border-left-color: #f48771;
+    }
+    .success {
+      color: #4ec9b0;
+      border-left-color: #4ec9b0;
+    }
+    pre {
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 3px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 OAuth 回调调试工具</h1>
+  
+  <div class="section">
+    <div class="title">📍 当前 URL</div>
+    <div class="param">完整 URL: <span class="value" id="fullUrl"></span></div>
+    <div class="param">Origin: <span class="value" id="origin"></span></div>
+    <div class="param">Pathname: <span class="value" id="pathname"></span></div>
+    <div class="param">Search: <span class="value" id="search"></span></div>
+    <div class="param">Hash: <span class="value" id="hash"></span></div>
+  </div>
+
+  <div class="section">
+    <div class="title">🔑 Query String 参数</div>
+    <div id="queryParams"></div>
+  </div>
+
+  <div class="section">
+    <div class="title">🔗 Hash Fragment 参数</div>
+    <div id="hashParams"></div>
+  </div>
+
+  <div class="section" id="errorSection" style="display: none;">
+    <div class="title">❌ OAuth 错误</div>
+    <div id="errorDetails"></div>
+  </div>
+
+  <div class="section" id="tokenSection" style="display: none;">
+    <div class="title">✅ OAuth Token</div>
+    <div id="tokenDetails"></div>
+  </div>
+
+  <div class="section">
+    <div class="title">📋 Supabase Session 状态</div>
+    <div id="sessionStatus">等待 Supabase 初始化...</div>
+  </div>
+
+  <div class="section">
+    <div class="title">💡 建议操作</div>
+    <div id="suggestions"></div>
+  </div>
+
+  <script src="/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // 显示 URL 信息
+    document.getElementById('fullUrl').textContent = window.location.href;
+    document.getElementById('origin').textContent = window.location.origin;
+    document.getElementById('pathname').textContent = window.location.pathname;
+    document.getElementById('search').textContent = window.location.search || '(空)';
+    document.getElementById('hash').textContent = window.location.hash || '(空)';
+
+    // 解析 Query String
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryParamsDiv = document.getElementById('queryParams');
+    if (urlParams.toString()) {
+      let html = '';
+      for (const [key, value] of urlParams) {
+        html += `<div class="param">${key}: <span class="value">${value}</span></div>`;
+      }
+      queryParamsDiv.innerHTML = html;
+    } else {
+      queryParamsDiv.innerHTML = '<div class="param">(无参数)</div>';
+    }
+
+    // 解析 Hash Fragment
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const hashParamsDiv = document.getElementById('hashParams');
+    if (hashParams.toString()) {
+      let html = '';
+      for (const [key, value] of hashParams) {
+        // 截断 token 显示
+        const displayValue = value.length > 50 ? value.substring(0, 50) + '...' : value;
+        html += `<div class="param">${key}: <span class="value">${displayValue}</span></div>`;
+      }
+      hashParamsDiv.innerHTML = html;
+    } else {
+      hashParamsDiv.innerHTML = '<div class="param">(无参数)</div>';
+    }
+
+    // 检查错误
+    const error = urlParams.get('error') || hashParams.get('error');
+    const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
+    
+    if (error) {
+      const errorSection = document.getElementById('errorSection');
+      errorSection.style.display = 'block';
+      errorSection.classList.add('error');
+      
+      let errorHtml = `<div class="param">错误代码: <span class="value">${error}</span></div>`;
+      if (errorDescription) {
+        errorHtml += `<div class="param">错误描述: <span class="value">${decodeURIComponent(errorDescription)}</span></div>`;
+      }
+      document.getElementById('errorDetails').innerHTML = errorHtml;
+    }
+
+    // 检查 token
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+    const expiresIn = hashParams.get('expires_in');
+    
+    if (accessToken) {
+      const tokenSection = document.getElementById('tokenSection');
+      tokenSection.style.display = 'block';
+      tokenSection.classList.add('success');
+      
+      let tokenHtml = `<div class="param">✅ Access Token: <span class="value">${accessToken.substring(0, 20)}...</span></div>`;
+      if (refreshToken) {
+        tokenHtml += `<div class="param">✅ Refresh Token: <span class="value">${refreshToken.substring(0, 20)}...</span></div>`;
+      }
+      if (expiresIn) {
+        tokenHtml += `<div class="param">⏱️ 过期时间: <span class="value">${expiresIn} 秒</span></div>`;
+      }
+      document.getElementById('tokenDetails').innerHTML = tokenHtml;
+    }
+
+    // 等待 Supabase 配置加载
+    window.addEventListener('supabaseConfigReady', async () => {
+      const sessionStatusDiv = document.getElementById('sessionStatus');
+      
+      try {
+        // 初始化 Supabase
+        const { createClient } = supabase;
+        const supabaseClient = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+        
+        sessionStatusDiv.innerHTML = '<div class="param">⏳ 正在检查 session...</div>';
+        
+        // 获取 session
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+        
+        if (sessionError) {
+          sessionStatusDiv.innerHTML = `<div class="param error">❌ Session 错误: ${sessionError.message}</div>`;
+        } else if (session) {
+          sessionStatusDiv.innerHTML = `
+            <div class="param success">✅ Session 已建立</div>
+            <div class="param">用户 ID: <span class="value">${session.user.id}</span></div>
+            <div class="param">邮箱: <span class="value">${session.user.email || '(无)'}</span></div>
+            <div class="param">Provider: <span class="value">${session.user.app_metadata?.provider || '(未知)'}</span></div>
+            <div class="param">过期时间: <span class="value">${new Date(session.expires_at * 1000).toLocaleString()}</span></div>
+          `;
+          
+          // 显示用户元数据
+          if (session.user.user_metadata) {
+            sessionStatusDiv.innerHTML += `
+              <div class="param">用户元数据:</div>
+              <pre>${JSON.stringify(session.user.user_metadata, null, 2)}</pre>
+            `;
+          }
+        } else {
+          sessionStatusDiv.innerHTML = '<div class="param">ℹ️ 未找到 session</div>';
+        }
+        
+        // 生成建议
+        const suggestionsDiv = document.getElementById('suggestions');
+        let suggestions = '';
+        
+        if (error) {
+          suggestions += `
+            <div class="param error">❌ OAuth 授权失败</div>
+            <div class="param">1. 检查 Supabase Dashboard 中 Discord Provider 是否正确配置</div>
+            <div class="param">2. 检查 Client ID 和 Client Secret 是否正确</div>
+            <div class="param">3. 检查 Discord Application 中的 Redirect URI 是否匹配</div>
+          `;
+        } else if (accessToken && !session) {
+          suggestions += `
+            <div class="param error">⚠️ 有 Token 但没有 Session</div>
+            <div class="param">1. 可能是 Supabase 处理 token 时出错</div>
+            <div class="param">2. 检查浏览器控制台是否有错误</div>
+            <div class="param">3. 尝试清除浏览器缓存后重试</div>
+          `;
+        } else if (session) {
+          suggestions += `
+            <div class="param success">✅ OAuth 登录成功！</div>
+            <div class="param">可以返回应用继续使用</div>
+            <div class="param"><a href="/index.html" style="color: #4ec9b0;">返回首页</a></div>
+          `;
+        } else {
+          suggestions += `
+            <div class="param">ℹ️ 这不是 OAuth 回调页面</div>
+            <div class="param">如果你刚完成 OAuth 授权，请检查是否被重定向到了错误的页面</div>
+          `;
+        }
+        
+        suggestionsDiv.innerHTML = suggestions;
+        
+      } catch (err) {
+        sessionStatusDiv.innerHTML = `<div class="param error">❌ 初始化失败: ${err.message}</div>`;
+      }
+    });
+
+    // 如果 5 秒后还没加载配置，显示错误
+    setTimeout(() => {
+      if (!window.supabaseConfigReady) {
+        document.getElementById('sessionStatus').innerHTML = 
+          '<div class="param error">❌ Supabase 配置加载超时</div>';
+      }
+    }, 5000);
+  </script>
+</body>
+</html>

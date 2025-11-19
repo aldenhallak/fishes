@@ -163,13 +163,17 @@
   }
   
   .game-nav-links {
-    display: none !important; /* 在移动端隐藏导航链接 */
+    display: flex !important; /* 保持显示以容纳登录按钮 */
+    gap: 8px;
   }
   
-  /* 隐藏导航栏中的链接按钮 */
-  .game-nav .game-nav-links .game-btn {
+  /* 隐藏导航栏中的普通链接按钮，但保留登录按钮和用户菜单 */
+  .game-nav .game-nav-links .game-btn:not(#login-btn) {
     display: none !important;
   }
+  
+  /* 注意：不要强制设置 #login-btn 和 #user-container 的 display 属性
+     让 JavaScript (auth-ui.js) 根据登录状态动态控制显示/隐藏 */
   
   .sidebar-menu {
     width: 260px;
