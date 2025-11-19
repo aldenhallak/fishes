@@ -2066,7 +2066,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // 监听登录状态变化，处理画布恢复
-if (window.supabaseAuth) {
+// 等待 Supabase 初始化完成后再监听
+async function setupAuthListener() {
+    // 等待 supabaseAuth 可用
+    while (!window.supabaseAuth) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
     window.supabaseAuth.onAuthStateChange(async (event, session) => {
         // 登录成功且有待提交的画布
         if (event === 'SIGNED_IN' && sessionStorage.getItem('pendingFishSubmit') === 'true') {
@@ -2522,6 +2528,9 @@ if (window.supabaseAuth) {
         }
     });
 }
+
+// 启动认证监听器
+setupAuthListener();
 
 // ===== 页面加载时初始化气泡效果 =====
 document.addEventListener('DOMContentLoaded', () => {
