@@ -1225,5 +1225,14 @@ if (document.readyState === 'loading') {
   window.authUI.init();
 }
 
+// 导出全局函数，方便在 HTML 中直接调用
+window.showLoginModal = function() {
+  if (window.authUI && window.authUI.showLoginModal) {
+    window.authUI.showLoginModal();
+  } else {
+    console.error('❌ AuthUI not initialized');
+  }
+};
+
 console.log('✅ 认证UI模块已加载');
 
