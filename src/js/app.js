@@ -1448,26 +1448,17 @@ function createPaintOptions() {
     controlsContainer.style.justifyContent = 'center';
     controlsContainer.style.marginTop = '8px';
 
-    // Eraser
-    const eraserBtn = document.createElement('button');
-    eraserBtn.textContent = 'Eraser';
-    eraserBtn.style.padding = '4px 8px';
-    eraserBtn.style.height = '24px';
-    eraserBtn.style.fontSize = '12px';
-    eraserBtn.style.borderRadius = '4px';
-    eraserBtn.style.cursor = 'pointer';
-    eraserBtn.onclick = () => {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = currentLineWidth;
-    };
-    controlsContainer.appendChild(eraserBtn);
-
-    // Line width container
+    // Line width container - moved to the front
     const widthContainer = document.createElement('div');
     widthContainer.style.display = 'flex';
     widthContainer.style.alignItems = 'center';
     widthContainer.style.gap = '4px';
+    // On mobile (narrow screens), make it take full width to be on its own line
+    // On desktop, it will naturally fit in the same line with other buttons
+    if (window.innerWidth <= 768) {
+        widthContainer.style.flexBasis = '100%';
+        widthContainer.style.justifyContent = 'center';
+    }
     
     const widthLabel = document.createElement('span');
     widthLabel.textContent = 'Size:';
@@ -1485,6 +1476,21 @@ function createPaintOptions() {
     };
     widthContainer.appendChild(widthSlider);
     controlsContainer.appendChild(widthContainer);
+
+    // Eraser
+    const eraserBtn = document.createElement('button');
+    eraserBtn.textContent = 'Eraser';
+    eraserBtn.style.padding = '4px 8px';
+    eraserBtn.style.height = '24px';
+    eraserBtn.style.fontSize = '12px';
+    eraserBtn.style.borderRadius = '4px';
+    eraserBtn.style.cursor = 'pointer';
+    eraserBtn.onclick = () => {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = currentLineWidth;
+    };
+    controlsContainer.appendChild(eraserBtn);
     
     paintBar.appendChild(controlsContainer);
 }

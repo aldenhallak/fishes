@@ -238,6 +238,13 @@ main section:last-child .game-btn-group {
   color: white;
   box-shadow: var(--shadow-btn);
   transform: translateY(0);
+  box-sizing: border-box;
+}
+
+/* 确保 button 元素没有默认的 min-width */
+button.game-btn {
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* 顶部光泽效果 */
@@ -611,6 +618,12 @@ main section:last-child .game-btn-group {
   margin: var(--game-space-md) 0 20px 0 !important; /* 底部间距20px */
 }
 
+/* 确保按钮组中的所有按钮（包括 button 和 a 元素）宽度一致 */
+.game-btn-group > .game-btn {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
 /* ===== 标题样式 - 游戏风格 ===== */
 .game-title {
   font-size: 56px;
@@ -860,7 +873,15 @@ main section:last-child .game-btn-group {
   }
   
   .game-btn-group {
-    gap: 16px;
+    gap: 12px;
+    flex-wrap: wrap;         /* 允许换行 */
+    justify-content: center; /* 居中对齐 */
+  }
+  
+  .game-btn-group .game-btn {
+    flex: 0 1 calc(50% - 6px);  /* 平板端每行2个 */
+    max-width: 200px;
+    min-width: 160px;
   }
   
   .game-social-btns {
@@ -869,6 +890,13 @@ main section:last-child .game-btn-group {
   
   .game-footer-links {
     flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .game-footer-link {
+    padding: 4px 12px;
+    font-size: 12px;
   }
   
   .game-btn-round {
@@ -915,15 +943,37 @@ main section:last-child .game-btn-group {
   }
   
   .game-btn-group {
-    flex-direction: column;
+    flex-direction: row;  /* 改为横向排列 */
+    flex-wrap: wrap;      /* 允许换行 */
     width: 100%;
-    gap: 12px;
+    gap: 10px;            /* 减小间隔 */
     margin-bottom: 20px !important;
+    justify-content: center;  /* 居中对齐 */
   }
   
   .game-btn {
-    width: 100%;
-    max-width: 320px;
+    width: calc(50% - 5px) !important;  /* 每行2个，减去间隔 */
+    max-width: 180px !important;         /* 限制最大宽度 */
+    min-width: 140px !important;         /* 设置最小宽度 */
+    display: flex !important;
+    padding: 10px 16px !important;       /* 调整内边距 */
+    font-size: 14px !important;          /* 调整字体大小 */
+  }
+  
+  /* 确保 button 元素也应用相同的宽度 */
+  button.game-btn {
+    width: calc(50% - 5px) !important;
+    max-width: 180px !important;
+    min-width: 140px !important;
+    display: flex !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+  }
+  
+  /* 大按钮在移动端也居中 */
+  .game-btn-big {
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
   
   .game-social-btns {
@@ -937,38 +987,26 @@ main section:last-child .game-btn-group {
   }
 }
 
+/* 480px 媒体查询已经在上面定义，这里是额外的样式补充 */
 @media (max-width: 480px) {
-  .game-title {
-    font-size: 32px;
-  }
-  
-  .game-subtitle {
-    font-size: 16px;
-  }
-  
-  .game-btn-group {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .game-btn {
-    width: 100%;
-    max-width: 320px;
-  }
-  
   .game-toolbar {
     flex-direction: column;
   }
   
   .game-footer-links {
-    flex-direction: column;
-    gap: 12px; /* 移动设备上较小的间隔 */
-    align-items: center; /* 居中对齐 */
+    flex-direction: row; /* 改为横向排列 */
+    flex-wrap: wrap; /* 允许换行 */
+    gap: 8px; /* 减小间隔 */
+    justify-content: center; /* 居中对齐 */
   }
   
   .game-footer-link {
-    min-width: 200px; /* 移动设备上设置最小宽度 */
-    text-align: center; /* 文字居中 */
+    flex: 0 0 auto; /* 不拉伸 */
+    min-width: auto; /* 移除最小宽度限制 */
+    padding: 4px 10px; /* 减小内边距 */
+    font-size: 12px; /* 减小字体 */
+    text-align: center;
+    white-space: nowrap; /* 防止文字换行 */
   }
 }
 
