@@ -340,6 +340,14 @@ button.game-btn {
   box-shadow: 
     var(--shadow-btn),
     0 0 30px rgba(74, 144, 226, 0.5);
+  /* 确保在旧浏览器中也能居中 */
+  display: block;
+  width: -moz-fit-content;  /* Firefox 兼容 */
+  width: -webkit-fit-content;  /* Safari/Chrome 兼容 */
+  width: fit-content;  /* 宽度适应内容 */
+  max-width: 100%;  /* 防止超出屏幕 */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .game-btn-big:hover {
@@ -403,7 +411,13 @@ button.game-btn {
 /* ===== 画布容器 - 木质画板效果 ===== */
 .game-canvas-wrapper {
   position: relative;
-  display: inline-block;
+  display: block;  /* 改为 block 以便更好地居中 */
+  width: -moz-fit-content;  /* Firefox 兼容 */
+  width: -webkit-fit-content;  /* Safari/Chrome 兼容 */
+  width: fit-content;  /* 宽度适应内容 */
+  max-width: 100%;  /* 防止超出屏幕 */
+  margin-left: auto;  /* 左右自动边距实现居中 */
+  margin-right: auto;
   padding: 24px;
   /* 木质纹理渐变背景 */
   background: 
@@ -437,7 +451,8 @@ button.game-btn {
   border-left: 4px solid #D4B896;
   border-right: 3px solid #8B6F47;
   border-bottom: 3px solid #8B6F47;
-  margin: var(--game-space-lg) auto;
+  margin-top: var(--game-space-lg);
+  margin-bottom: var(--game-space-lg);
   animation: canvasFloat 4s ease-in-out infinite;
 }
 
