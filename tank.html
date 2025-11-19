@@ -861,126 +861,290 @@
               // Check again to make sure user still not logged in
               window.supabaseAuth?.getCurrentUser().then(currentUser => {
                 if (!currentUser) {
-                  // Show reminder notification
-                  const reminderMessage = '💬 登录后即可使用 Fish Talk 功能，让鱼儿们开始对话吧！';
-                  
-                  // Try to show a notification or alert
+                  // Show centered modal reminder - Game Style
                   if (window.authUI && window.authUI.showLoginModal) {
-                    // Create a custom notification
-                    const notification = document.createElement('div');
-                    notification.style.cssText = `
+                    // Create modal overlay
+                    const overlay = document.createElement('div');
+                    overlay.className = 'modal';
+                    overlay.style.cssText = `
+                      display: flex;
                       position: fixed;
-                      top: 20px;
-                      right: 20px;
-                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                      color: white;
-                      padding: 16px 20px;
-                      border-radius: 12px;
-                      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 100%;
+                      background: rgba(0, 0, 0, 0.7);
+                      backdrop-filter: blur(8px);
                       z-index: 10001;
-                      max-width: 350px;
-                      animation: slideInRight 0.3s ease;
-                      cursor: pointer;
-                    `;
-                    notification.innerHTML = `
-                      <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 24px;">💬</span>
-                        <div style="flex: 1;">
-                          <div style="font-weight: 600; margin-bottom: 4px;">Fish Talk 功能</div>
-                          <div style="font-size: 14px; opacity: 0.9;">登录后即可使用 Fish Talk 功能</div>
-                        </div>
-                        <button id="close-reminder-btn" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; line-height: 1; opacity: 0.7; transition: opacity 0.2s;" title="关闭">×</button>
-                      </div>
-                      <button id="login-from-reminder-btn" style="width: 100%; margin-top: 12px; padding: 8px 16px; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 8px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s;">立即登录</button>
+                      align-items: center;
+                      justify-content: center;
+                      animation: fadeIn 0.3s ease;
                     `;
                     
-                    // Add animation
+                    // Create modal content with game style
+                    const modal = document.createElement('div');
+                    modal.className = 'modal-content';
+                    modal.style.cssText = `
+                      background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+                      border-radius: 32px;
+                      padding: 40px;
+                      width: 460px;
+                      max-width: 90vw;
+                      box-shadow: 
+                        0 8px 0 rgba(0, 0, 0, 0.2),
+                        0 16px 40px rgba(0, 0, 0, 0.4);
+                      border: 3px solid rgba(255, 255, 255, 0.9);
+                      position: relative;
+                      animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                      text-align: center;
+                    `;
+                    
+                    modal.innerHTML = `
+                      <button id="close-reminder-modal" class="modal-close-btn" style="
+                        position: absolute;
+                        top: 16px;
+                        right: 16px;
+                        width: 36px;
+                        height: 36px;
+                        border-radius: 50%;
+                        background: linear-gradient(180deg, #FF6259 0%, #FF3B30 50%, #CC2920 100%);
+                        border: none;
+                        border-bottom: 3px solid #991F19;
+                        color: white;
+                        font-size: 20px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                        transition: all 0.15s ease;
+                        z-index: 1;
+                        line-height: 1;
+                        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                      " title="Close">×</button>
+                      <div style="font-size: 64px; margin-bottom: 20px; text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">💬</div>
+                      <h2 style="color: #333; margin: 0 0 16px 0; font-size: 32px; font-weight: 900; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">Fish Group Chat</h2>
+                      <p style="color: #666; margin: 0 0 32px 0; font-size: 16px; line-height: 1.6;">
+                        Sign in to unlock the Fish Group Chat feature and watch your fish come alive with conversations!
+                      </p>
+                      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <button id="login-from-reminder" class="game-btn game-btn-green" style="
+                          flex: 1;
+                          min-width: 140px;
+                          padding: 14px 28px;
+                          border: none;
+                          border-radius: 24px;
+                          background: linear-gradient(180deg, #6FE77D 0%, #4CD964 50%, #3CB54A 100%);
+                          border-bottom: 3px solid #2E8B3A;
+                          color: white;
+                          font-size: 16px;
+                          font-weight: 700;
+                          cursor: pointer;
+                          position: relative;
+                          overflow: hidden;
+                          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                          box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                          transition: all 0.15s ease;
+                          transform: translateY(0);
+                        ">
+                          <span style="position: relative; z-index: 1;">Sign In</span>
+                        </button>
+                        <button id="maybe-later-btn" class="game-btn game-btn-white" style="
+                          flex: 1;
+                          min-width: 140px;
+                          padding: 14px 28px;
+                          border: none;
+                          border-radius: 24px;
+                          background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                          border-bottom: 3px solid #A0A0A0;
+                          color: #4A90E2;
+                          font-size: 16px;
+                          font-weight: 700;
+                          cursor: pointer;
+                          position: relative;
+                          overflow: hidden;
+                          box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                          transition: all 0.15s ease;
+                          transform: translateY(0);
+                        ">
+                          <span style="position: relative; z-index: 1;">Maybe Later</span>
+                        </button>
+                      </div>
+                    `;
+                    
+                    // Add colorful top bar
+                    const topBar = document.createElement('div');
+                    topBar.style.cssText = `
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      height: 6px;
+                      background: linear-gradient(90deg, 
+                        #FF9500 0%, 
+                        #FFD700 25%, 
+                        #4CD964 50%, 
+                        #4A90E2 75%, 
+                        #9B59B6 100%);
+                      border-radius: 32px 32px 0 0;
+                    `;
+                    modal.insertBefore(topBar, modal.firstChild);
+                    
+                    // Add top gloss effect
+                    const gloss = document.createElement('div');
+                    gloss.style.cssText = `
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      height: 50%;
+                      background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+                      border-radius: 32px 32px 0 0;
+                      pointer-events: none;
+                    `;
+                    modal.appendChild(gloss);
+                    
+                    // Add animations
                     const style = document.createElement('style');
                     style.textContent = `
-                      @keyframes slideInRight {
-                        from {
-                          transform: translateX(100%);
-                          opacity: 0;
+                      @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                      }
+                      @keyframes modalBounce {
+                        0% { 
+                          transform: scale(0.8) translateY(-30px); 
+                          opacity: 0; 
                         }
-                        to {
-                          transform: translateX(0);
-                          opacity: 1;
+                        50% { 
+                          transform: scale(1.05) translateY(5px); 
+                        }
+                        100% { 
+                          transform: scale(1) translateY(0); 
+                          opacity: 1; 
                         }
                       }
-                      @keyframes slideOutRight {
-                        from {
-                          transform: translateX(0);
-                          opacity: 1;
-                        }
-                        to {
-                          transform: translateX(100%);
-                          opacity: 0;
-                        }
+                      @keyframes fadeOut {
+                        from { opacity: 1; }
+                        to { opacity: 0; }
+                      }
+                      .game-btn::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 50%;
+                        background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+                        border-radius: 24px 24px 0 0;
+                        pointer-events: none;
+                      }
+                      .modal-close-btn::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 50%;
+                        background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+                        border-radius: 50% 50% 0 0;
+                        pointer-events: none;
                       }
                     `;
                     document.head.appendChild(style);
                     
-                    document.body.appendChild(notification);
+                    overlay.appendChild(modal);
+                    document.body.appendChild(overlay);
+                    
+                    // Close modal function
+                    const closeModal = () => {
+                      overlay.style.animation = 'fadeOut 0.3s ease';
+                      setTimeout(() => {
+                        overlay.remove();
+                      }, 300);
+                    };
                     
                     // Close button handler
-                    const closeBtn = notification.querySelector('#close-reminder-btn');
-                    closeBtn.addEventListener('click', (e) => {
-                      e.stopPropagation();
-                      notification.style.animation = 'slideOutRight 0.3s ease';
-                      setTimeout(() => {
-                        notification.remove();
-                      }, 300);
-                    });
+                    const closeBtn = modal.querySelector('#close-reminder-modal');
+                    closeBtn.addEventListener('click', closeModal);
+                    
+                    // Maybe later button handler
+                    const maybeLaterBtn = modal.querySelector('#maybe-later-btn');
+                    maybeLaterBtn.addEventListener('click', closeModal);
                     
                     // Login button handler
-                    const loginBtn = notification.querySelector('#login-from-reminder-btn');
-                    loginBtn.addEventListener('click', (e) => {
-                      e.stopPropagation();
-                      notification.style.animation = 'slideOutRight 0.3s ease';
+                    const loginBtn = modal.querySelector('#login-from-reminder');
+                    loginBtn.addEventListener('click', () => {
+                      closeModal();
                       setTimeout(() => {
-                        notification.remove();
                         if (window.authUI && window.authUI.showLoginModal) {
                           window.authUI.showLoginModal();
                         }
                       }, 300);
                     });
                     
-                    // Auto close after 10 seconds
-                    setTimeout(() => {
-                      if (notification.parentNode) {
-                        notification.style.animation = 'slideOutRight 0.3s ease';
-                        setTimeout(() => {
-                          notification.remove();
-                        }, 300);
+                    // Click overlay to close
+                    overlay.addEventListener('click', (e) => {
+                      if (e.target === overlay) {
+                        closeModal();
                       }
-                    }, 10000);
+                    });
                     
-                    // Hover effect
+                    // 3D Button hover effects - Game Style
                     loginBtn.addEventListener('mouseenter', () => {
-                      loginBtn.style.background = 'rgba(255, 255, 255, 0.3)';
+                      loginBtn.style.transform = 'translateY(-2px)';
+                      loginBtn.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
                     });
                     loginBtn.addEventListener('mouseleave', () => {
-                      loginBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+                      loginBtn.style.transform = 'translateY(0)';
+                      loginBtn.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    loginBtn.addEventListener('mousedown', () => {
+                      loginBtn.style.transform = 'translateY(2px)';
+                      loginBtn.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    loginBtn.addEventListener('mouseup', () => {
+                      loginBtn.style.transform = 'translateY(-2px)';
+                      loginBtn.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    
+                    maybeLaterBtn.addEventListener('mouseenter', () => {
+                      maybeLaterBtn.style.transform = 'translateY(-2px)';
+                      maybeLaterBtn.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    maybeLaterBtn.addEventListener('mouseleave', () => {
+                      maybeLaterBtn.style.transform = 'translateY(0)';
+                      maybeLaterBtn.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    maybeLaterBtn.addEventListener('mousedown', () => {
+                      maybeLaterBtn.style.transform = 'translateY(2px)';
+                      maybeLaterBtn.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    maybeLaterBtn.addEventListener('mouseup', () => {
+                      maybeLaterBtn.style.transform = 'translateY(-2px)';
+                      maybeLaterBtn.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
                     });
                     
                     closeBtn.addEventListener('mouseenter', () => {
-                      closeBtn.style.opacity = '1';
+                      closeBtn.style.transform = 'translateY(-2px) rotate(90deg) scale(1.1)';
+                      closeBtn.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.4)';
                     });
                     closeBtn.addEventListener('mouseleave', () => {
-                      closeBtn.style.opacity = '0.7';
+                      closeBtn.style.transform = 'translateY(0) rotate(0deg) scale(1)';
+                      closeBtn.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3)';
                     });
-                  } else {
-                    // Fallback: simple alert
-                    alert(reminderMessage);
+                    closeBtn.addEventListener('mousedown', () => {
+                      closeBtn.style.transform = 'translateY(2px) rotate(90deg) scale(1.05)';
+                      closeBtn.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3)';
+                    });
                   }
                 }
               });
             }, 10000); // 10 seconds
-          } catch (error) {
-            console.error('检查登录状态时出错:', error);
           }
         } catch (error) {
-          console.error('初始化登录提醒时出错:', error);
+          console.error('Error checking login status:', error);
         }
       })();
       
