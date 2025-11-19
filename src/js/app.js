@@ -1371,12 +1371,9 @@ const colors = [
     '#FF6600', // 大橙
     '#FFFF00', // 大黄
     '#00FF00', // 大绿
-    '#00CCFF', // 大青
     '#0066FF', // 大蓝
-    '#FF00FF', // 大紫
     '#FF1493', // 玫红
-    '#8B4513', // 棕色
-    '#808080'  // 灰色
+    '#8B4513'  // 棕色
 ];
 let currentColor = colors[0];
 let currentLineWidth = 6;
@@ -1395,6 +1392,8 @@ function createPaintOptions() {
         paintBar.style.justifyContent = 'center';
         paintBar.style.padding = '6px 10px';
         paintBar.style.maxWidth = '100%';
+        paintBar.style.width = '100%';
+        paintBar.style.boxSizing = 'border-box';
         paintBar.style.overflowX = 'auto';
         // Insert at the top of draw-ui
         const drawUI = document.getElementById('draw-ui');
@@ -1406,9 +1405,15 @@ function createPaintOptions() {
     // Create a container for colors to make them wrap better on mobile
     const colorContainer = document.createElement('div');
     colorContainer.style.display = 'flex';
-    colorContainer.style.flexWrap = 'wrap';
+    colorContainer.style.flexWrap = 'nowrap';
     colorContainer.style.gap = '4px';
     colorContainer.style.alignItems = 'center';
+    colorContainer.style.overflow = 'hidden';
+    colorContainer.style.width = '100%';
+    colorContainer.style.flexBasis = '100%';
+    colorContainer.style.minWidth = '0';
+    colorContainer.style.maxWidth = '100%';
+    colorContainer.style.boxSizing = 'border-box';
     
     // Color buttons
     colors.forEach(color => {

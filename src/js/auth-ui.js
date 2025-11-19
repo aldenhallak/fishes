@@ -58,12 +58,23 @@ class AuthUI {
   async init() {
     console.log('🔐 Initializing Auth UI...');
     
-    // 等待Supabase初始化
-    await this.waitForSupabase();
-    
-    // 创建UI元素
+    // 立即创建UI元素（不等待Supabase）
     this.createLoginModal();
     this.createUserMenu();
+    
+    // 立即显示登录按钮（默认状态）
+    this.showLoginButton();
+    
+    // 异步等待Supabase初始化并更新UI
+    this.initializeAsync();
+  }
+  
+  /**
+   * 异步初始化（不阻塞UI显示）
+   */
+  async initializeAsync() {
+    // 等待Supabase初始化
+    await this.waitForSupabase();
     
     // 监听认证状态变化
     if (window.supabaseAuth) {
@@ -83,21 +94,19 @@ class AuthUI {
   /**
    * 等待Supabase初始化完成
    */
-  async waitForSupabase() {
-    let attempts = 0;
-    const maxAttempts = 50; // 最多等待5秒
+  async waitForSupabase(maxWaitMs = 3000) {
+    const startTime = Date.now();
     
-    while (attempts < maxAttempts) {
+    while (Date.now() - startTime < maxWaitMs) {
       if (window.supabaseAuth && window.supabaseAuth.client) {
-        console.log('✅ Supabase initialized successfully');
+        console.log(`✅ Supabase initialized successfully (${Date.now() - startTime}ms)`);
         return true;
       }
       
-      await new Promise(resolve => setTimeout(resolve, 100));
-      attempts++;
+      await new Promise(resolve => setTimeout(resolve, 50));
     }
     
-    console.warn('⚠️ Supabase initialization timeout');
+    console.warn(`⚠️ Supabase initialization timeout after ${maxWaitMs}ms`);
     return false;
   }
 
@@ -165,9 +174,9 @@ class AuthUI {
       console.log('🔧 Auto-login enabled (LOGIN_MODE=AUTO)');
       console.log('📧 Email:', config.email);
       
-      // 等待Supabase初始化（最多等待10秒）
+      // 等待Supabase初始化（最多等待5秒）
       console.log('⏳ Waiting for Supabase initialization...');
-      const supabaseReady = await this.waitForSupabase(10000);
+      const supabaseReady = await this.waitForSupabase(5000);
       if (!supabaseReady) {
         console.warn('⚠️ Supabase initialization timeout, cannot perform auto-login');
         console.warn('💡 This may be due to network issues preventing CDN from loading');
