@@ -51,6 +51,12 @@
   animation: fadeIn 0.2s ease;
 }
 
+/* 确保标题横幅使用深灰色 */
+.auth-modal-content .modal-title-banner {
+  background: linear-gradient(180deg, #4A4A4D 0%, #3A3A3D 50%, #2A2A2D 100%) !important;
+  border-bottom: 2px solid #1A1A1D !important;
+}
+
 .auth-modal-overlay {
   position: absolute;
   top: 0;
@@ -88,6 +94,15 @@
   border-radius: 32px 32px 0 0;
   pointer-events: none;
   z-index: 1;
+}
+
+/* 当有标题横幅时，调整 ::after 伪元素位置，避免覆盖标题横幅 */
+.auth-modal-content.has-title-banner::after {
+  top: auto;
+  bottom: 0;
+  height: 30%;
+  border-radius: 0 0 32px 32px;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
 }
 
 @keyframes fadeIn {
@@ -195,6 +210,15 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+
+.auth-modal-body .oauth-btn {
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .auth-modal-footer {
@@ -229,11 +253,13 @@
   color: #4A90E2;
   transition: all 0.15s ease;
   width: 100%;
+  box-sizing: border-box;
   text-decoration: none;
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
   transform: translateY(0);
+  flex-shrink: 0;
 }
 
 .oauth-btn::before {
@@ -583,17 +609,60 @@
    ============================================ */
 @media (max-width: 768px) {
   .auth-modal-content {
-    padding: 24px;
+    padding: 0;
     max-width: 95%;
+  }
+
+  .auth-modal-content .modal-title-banner {
+    background: linear-gradient(180deg, #4A4A4D 0%, #3A3A3D 50%, #2A2A2D 100%) !important;
+    border-bottom: 2px solid #1A1A1D !important;
+    z-index: 3 !important;
+    position: relative;
+  }
+
+  .auth-modal-content .modal-title-banner h2 {
+    margin-right: 45px !important; /* 为关闭按钮留出空间 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .auth-modal-content.has-title-banner::after {
+    top: auto;
+    bottom: 0;
+    height: 30%;
+    border-radius: 0 0 32px 32px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  }
+
+  .modal-content-area {
+    padding: 24px;
+  }
+
+  .auth-modal-body {
+    width: 100% !important;
+    align-items: stretch;
+    box-sizing: border-box;
+    padding: 0;
+  }
+
+  .auth-modal-body .oauth-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+
+  .modal-content-area {
+    padding: 24px !important;
+    box-sizing: border-box;
   }
 
   .auth-modal-header h2 {
     font-size: 20px;
-  }
-
-  .oauth-btn {
-    padding: 10px 16px;
-    font-size: 14px;
   }
 
   .user-name {

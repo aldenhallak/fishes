@@ -1100,9 +1100,9 @@ button.game-btn {
 
 /* 标题横幅样式 */
 .modal-title-banner {
-  background: linear-gradient(180deg, #1A1A1D 0%, #0F0F0F 50%, #050505 100%);
+  background: linear-gradient(180deg, #4A4A4D 0%, #3A3A3D 50%, #2A2A2D 100%) !important;
   padding: 16px 24px;
-  border-bottom: 2px solid #000000;
+  border-bottom: 2px solid #1A1A1D !important;
   position: relative;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1);
   z-index: 2;
@@ -1111,10 +1111,15 @@ button.game-btn {
 .modal-title-banner h2 {
   color: #FFFFFF;
   margin: 0;
+  margin-right: 50px; /* 为关闭按钮留出空间 */
   font-size: 24px;
   font-weight: 900;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
   letter-spacing: 1px;
+  padding-right: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 弹窗内容区域（有标题横幅时） */
@@ -1359,8 +1364,18 @@ button.game-btn {
     width: 95vw;
   }
   
+  .modal-title-banner {
+    background: linear-gradient(180deg, #4A4A4D 0%, #3A3A3D 50%, #2A2A2D 100%) !important;
+    border-bottom: 2px solid #1A1A1D !important;
+    z-index: 3 !important;
+  }
+  
   .modal-title-banner h2 {
     font-size: 20px;
+    margin-right: 45px !important; /* 为关闭按钮留出空间 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .modal-content h2 {
