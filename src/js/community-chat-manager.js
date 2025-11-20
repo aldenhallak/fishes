@@ -155,7 +155,8 @@ class CommunityChatManager {
         try {
           currentUserId = await getCurrentUserId();
         } catch (error) {
-          // Ignore error
+          // User not logged in, use fallback
+          console.log('🔒 User not logged in, using fallback chat');
         }
       }
       if (!currentUserId) {
@@ -171,6 +172,12 @@ class CommunityChatManager {
         if (!currentUserId) {
           currentUserId = localStorage.getItem('userId');
         }
+      }
+      
+      // If user is not logged in, use fallback instead of calling API
+      if (!currentUserId) {
+        console.log('❌ User not logged in, cannot generate AI group chat. Using fallback.');
+        return this.generateFallbackSession();
       }
       
       // Call backend API for group chat (using Coze AI)
@@ -436,7 +443,8 @@ class CommunityChatManager {
         try {
           currentUserId = await getCurrentUserId();
         } catch (error) {
-          // Ignore error
+          // Ignore error silently (user not logged in)
+          console.log('💬 User not logged in, skipping group chat usage display');
         }
       }
       

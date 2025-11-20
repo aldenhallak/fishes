@@ -249,20 +249,28 @@ function renderFeedingEffects() {
 function calculateFishSize() {
     const tankWidth = swimCanvas.width;
     const tankHeight = swimCanvas.height;
+    const isMobile = window.innerWidth <= 768;
 
     // Scale fish size based on tank dimensions
     // Use smaller dimension to ensure fish fit well on all screen ratios
     const baseDimension = Math.min(tankWidth, tankHeight);
 
     // Fish width should be roughly 8-12% of the smaller tank dimension
-    const fishWidth = Math.floor(baseDimension * 0.1); // 10% of smaller dimension
+    // For mobile, double the size (20% instead of 10%)
+    const basePercentage = isMobile ? 0.2 : 0.1;
+    const fishWidth = Math.floor(baseDimension * basePercentage);
     const fishHeight = Math.floor(fishWidth * 0.6); // Maintain 3:5 aspect ratio
 
     // Set reasonable bounds: 
-    // - Minimum: 30px wide (for very small screens)
-    // - Maximum: 150px wide (for very large screens)
-    const finalWidth = Math.max(30, Math.min(150, fishWidth));
-    const finalHeight = Math.max(18, Math.min(90, fishHeight));
+    // - Mobile: 60px - 300px wide (doubled from desktop)
+    // - Desktop: 30px - 150px wide
+    const minWidth = isMobile ? 60 : 30;
+    const maxWidth = isMobile ? 300 : 150;
+    const minHeight = isMobile ? 36 : 18;
+    const maxHeight = isMobile ? 180 : 90;
+    
+    const finalWidth = Math.max(minWidth, Math.min(maxWidth, fishWidth));
+    const finalHeight = Math.max(minHeight, Math.min(maxHeight, fishHeight));
 
     return {
         width: finalWidth,
@@ -2730,7 +2738,8 @@ async function displayGroupChatUsage() {
             try {
                 currentUserId = await getCurrentUserId();
             } catch (error) {
-                // Ignore error
+                // Ignore error silently (user not logged in)
+                console.log('💬 User not logged in, skipping group chat usage display');
             }
         }
         
@@ -2783,6 +2792,63 @@ async function initializeGroupChat() {
     }
     
     try {
+        // 检查用户登录状态
+        let isUserLoggedIn = false;
+        let currentUserId = null;
+        
+        // Try getCurrentUserId function first
+        if (typeof getCurrentUserId === 'function') {
+            try {
+                currentUserId = await getCurrentUserId();
+                isUserLoggedIn = !!currentUserId;
+            } catch (error) {
+                // User not logged in
+                console.log('🔒 User not logged in, group chat will be disabled');
+            }
+        }
+        
+        // Fallback to localStorage
+        if (!currentUserId) {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                try {
+                    const parsed = JSON.parse(userData);
+                    currentUserId = parsed.userId || parsed.uid || parsed.id;
+                    isUserLoggedIn = !!currentUserId;
+                } catch (error) {
+                    // Ignore
+                }
+            }
+            if (!currentUserId) {
+                currentUserId = localStorage.getItem('userId');
+                isUserLoggedIn = !!currentUserId;
+            }
+        }
+        
+        // 如果用户未登录，禁用群聊但允许独白（独白是公开展示功能）
+        if (!isUserLoggedIn) {
+            console.log('🔒 User not logged in');
+            console.log('❌ Group chat disabled (requires login)');
+            console.log('✅ Monologue allowed (public feature)');
+            
+            // 禁用群聊
+            communityChatManager.setGroupChatEnabled(false);
+            updateGroupChatButton(false);
+            updateFishTalkToggle(false);
+            
+            // 独白使用默认设置（允许启用）
+            // 从环境变量或 localStorage 读取独白配置
+            let monologueEnabled = false;
+            const userMonologuePreference = localStorage.getItem('monologueEnabled');
+            if (userMonologuePreference !== null) {
+                monologueEnabled = userMonologuePreference === 'true';
+                console.log(`Monologue: Using user preference: ${monologueEnabled ? 'ON' : 'OFF'}`);
+            }
+            communityChatManager.setMonologueEnabled(monologueEnabled);
+            
+            return; // 不继续初始化群聊相关配置
+        }
+        
         // 显示群聊使用情况（页面加载时）
         await displayGroupChatUsage();
         

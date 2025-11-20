@@ -227,7 +227,18 @@
                 position: fixed;
                 top: 0;
                 left: 0;
-                z-index: 1;
+                z-index: 10;
+            }
+            
+            /* 确保装饰元素在移动端也能显示 */
+            .tank-decorations {
+                position: fixed !important;
+                z-index: 5 !important;
+            }
+            
+            .light-beams {
+                position: fixed !important;
+                z-index: 15 !important;
             }
             
             .game-tank-controls {
@@ -283,7 +294,18 @@
                 position: fixed;
                 top: 0;
                 left: 0;
-                z-index: 1;
+                z-index: 10;
+            }
+            
+            /* 确保装饰元素在桌面端也能显示 */
+            .tank-decorations {
+                position: fixed !important;
+                z-index: 5 !important;
+            }
+            
+            .light-beams {
+                position: fixed !important;
+                z-index: 15 !important;
             }
             
             .game-tank-controls {
@@ -907,9 +929,9 @@
                         width: 36px;
                         height: 36px;
                         border-radius: 50%;
-                        background: linear-gradient(180deg, #FF6259 0%, #FF3B30 50%, #CC2920 100%);
+                        background: linear-gradient(180deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%);
                         border: none;
-                        border-bottom: 3px solid #991F19;
+                        border-bottom: 3px solid #BFA000;
                         color: white;
                         font-size: 20px;
                         font-weight: 700;
@@ -923,7 +945,7 @@
                         line-height: 1;
                         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
                       " title="Close">×</button>
-                      <div style="font-size: 64px; margin-bottom: 20px; text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">💬</div>
+                      <div style="font-size: 64px; margin-bottom: 20px; text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">🐠</div>
                       <h2 style="color: #333; margin: 0 0 16px 0; font-size: 32px; font-weight: 900; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">Fish Group Chat</h2>
                       <p style="color: #666; margin: 0 0 32px 0; font-size: 16px; line-height: 1.6;">
                         Sign in to unlock the Fish Group Chat feature and watch your fish come alive with conversations!
