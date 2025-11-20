@@ -263,12 +263,15 @@ class AuthUI {
     
     modal.innerHTML = `
       <div class="auth-modal-overlay"></div>
-      <div class="auth-modal-content">
-        <button class="auth-modal-close" aria-label="Close">&times;</button>
-        <div class="auth-modal-header">
+      <div class="auth-modal-content has-title-banner">
+        <div class="modal-title-banner">
           <h2>🐟 Sign in to FishTalk</h2>
-          <p>Choose your preferred sign-in method</p>
         </div>
+        <button class="modal-close-btn" aria-label="Close">&times;</button>
+        <div class="modal-content-area">
+          <div class="auth-modal-header">
+            <p>Choose your preferred sign-in method</p>
+          </div>
         <div class="auth-modal-body">
           <!-- 邮箱登录 -->
           <button class="oauth-btn email-login-btn" id="email-login-btn">
@@ -294,8 +297,9 @@ class AuthUI {
             </button>
           `).join('')}
         </div>
-        <div class="auth-modal-footer">
-          <p>By signing in, you agree to our Terms of Service and Privacy Policy</p>
+          <div class="auth-modal-footer">
+            <p>By signing in, you agree to our Terms of Service and Privacy Policy</p>
+          </div>
         </div>
       </div>
     `;
@@ -384,7 +388,7 @@ class AuthUI {
     if (!this.modal) return;
     
     // 关闭按钮
-    const closeBtn = this.modal.querySelector('.auth-modal-close');
+    const closeBtn = this.modal.querySelector('.auth-modal-close, .modal-close-btn');
     if (closeBtn) {
       closeBtn.onclick = () => this.hideLoginModal();
     }

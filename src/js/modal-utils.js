@@ -455,6 +455,20 @@ class ModalManager {
             // Fallback modal creation using game style
             const modal = document.createElement('div');
             modal.className = 'modal';
+            modal.style.cssText = `
+              display: flex;
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background: rgba(0, 0, 0, 0.7);
+              backdrop-filter: blur(8px);
+              z-index: 10001;
+              align-items: center;
+              justify-content: center;
+              animation: fadeIn 0.3s ease;
+            `;
             
             const modalContent = document.createElement('div');
             // Add wide class for tank selection if needed
@@ -464,12 +478,36 @@ class ModalManager {
                 modalContent.className = 'modal-content';
             }
             
+            // Create content area
+            const contentArea = document.createElement('div');
+            contentArea.style.cssText = 'padding: 32px; position: relative; z-index: 1;';
+            
             // Add close button if not already present in HTML
-            if (!html.includes('class="close"') && !html.includes("class='close'")) {
-                modalContent.innerHTML = '<span class="close">&times;</span>' + html;
-            } else {
-                modalContent.innerHTML = html;
+            if (!html.includes('class="close"') && !html.includes("class='close'") && !html.includes('modal-close-btn')) {
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'modal-close-btn';
+                closeBtn.innerHTML = '×';
+                closeBtn.title = 'Close';
+                contentArea.appendChild(closeBtn);
             }
+            
+            contentArea.innerHTML += html;
+            modalContent.appendChild(contentArea);
+            
+            // Add top gloss effect
+            const gloss = document.createElement('div');
+            gloss.style.cssText = `
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              height: 50%;
+              background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+              border-radius: 32px 32px 0 0;
+              pointer-events: none;
+              z-index: 1;
+            `;
+            modalContent.appendChild(gloss);
             
             modal.appendChild(modalContent);
             
@@ -479,7 +517,7 @@ class ModalManager {
             };
             
             // Add close button click handler
-            const closeBtn = modalContent.querySelector('.close');
+            const closeBtn = modalContent.querySelector('.close, .modal-close-btn');
             if (closeBtn) {
                 closeBtn.addEventListener('click', close);
             }

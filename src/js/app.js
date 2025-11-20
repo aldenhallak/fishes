@@ -1,15 +1,41 @@
-// Drawing logic
-const canvas = document.getElementById('draw-canvas');
-const ctx = canvas.getContext('2d', { willReadFrequently: true }); // 性能优化：频繁读取画布
-ctx.lineWidth = 6; // Make lines thicker for better visibility
-let drawing = false;
-let canvasRect = null; // Cache canvas rect to prevent layout thrashing
+// Drawing logic - Initialize after DOM is ready
+let canvas, ctx, drawing = false, canvasRect = null;
+
+function initCanvas() {
+    canvas = document.getElementById('draw-canvas');
+    if (!canvas) {
+        console.error('❌ Canvas element not found!');
+        return false;
+    }
+    ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) {
+        console.error('❌ Failed to get canvas context!');
+        return false;
+    }
+    ctx.lineWidth = 6; // Make lines thicker for better visibility
+    return true;
+}
+
+// Initialize canvas when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (initCanvas()) {
+            setupCanvasEvents();
+        }
+    });
+} else {
+    // DOM already loaded
+    if (initCanvas()) {
+        setupCanvasEvents();
+    }
+}
 
 // ===== 画布提示文字控制 =====
 const canvasHint = document.getElementById('canvas-hint');
 
 // 检查画布是否为空
 function isCanvasEmpty() {
+    if (!canvas || !ctx) return true;
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
     
@@ -148,6 +174,13 @@ function createBackgroundBubbles() {
 
 // Function removed - footer should always be visible
 
+// Setup canvas event listeners
+function setupCanvasEvents() {
+    if (!canvas || !ctx) {
+        console.error('❌ Canvas or context not available for event setup');
+        return;
+    }
+
 // Mouse events
 canvas.addEventListener('mousedown', (e) => {
     drawing = true;
@@ -240,6 +273,8 @@ canvas.addEventListener('touchcancel', () => {
     canvasRect = null; // Clear cache
 });
 
+} // End of setupCanvasEvents function
+
 // Ctrl + Z to undo
 document.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key === 'z') {
@@ -268,43 +303,23 @@ function showModal(html, onClose) {
     modal.style.zIndex = '9999';
     modal.style.animation = 'fadeIn 0.3s ease';
     
-    // 3D游戏风格的弹窗容器
+    // 3D游戏风格的弹窗容器 - 使用新的浅黄色背景
     const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
     modalContent.style.cssText = `
-        background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
-        padding: 32px;
-        border-radius: 24px;
         min-width: 400px;
         max-width: 90vw;
         max-height: 90vh;
         overflow-y: auto;
-        box-shadow: 
-            0 8px 0 rgba(0, 0, 0, 0.2),
-            0 16px 40px rgba(0, 0, 0, 0.4);
-        border: 3px solid rgba(255, 255, 255, 0.9);
-        position: relative;
-        animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
         font-size: 14px;
     `;
     
-    // 顶部彩色条
-    const colorBar = document.createElement('div');
-    colorBar.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 6px;
-        background: linear-gradient(90deg, 
-            #FF9500 0%, 
-            #FFD700 25%, 
-            #4CD964 50%, 
-            #4A90E2 75%, 
-            #9B59B6 100%);
-        border-radius: 24px 24px 0 0;
-    `;
-    modalContent.appendChild(colorBar);
+    // 内容区域
+    const contentDiv = document.createElement('div');
+    contentDiv.style.cssText = 'padding: 32px; position: relative; z-index: 1;';
+    contentDiv.innerHTML = html;
+    modalContent.appendChild(contentDiv);
     
     // 顶部光泽效果
     const shine = document.createElement('div');
@@ -314,17 +329,12 @@ function showModal(html, onClose) {
         left: 0;
         right: 0;
         height: 50%;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
-        border-radius: 24px 24px 0 0;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+        border-radius: 32px 32px 0 0;
         pointer-events: none;
+        z-index: 1;
     `;
     modalContent.appendChild(shine);
-    
-    // 内容区域
-    const contentDiv = document.createElement('div');
-    contentDiv.style.cssText = 'position: relative; z-index: 1;';
-    contentDiv.innerHTML = html;
-    modalContent.appendChild(contentDiv);
     
     modal.appendChild(modalContent);
     
@@ -407,59 +417,40 @@ function showUserAlert(options) {
     `;
     
     const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    if (title) {
+        modalContent.classList.add('has-title-banner');
+    }
     modalContent.style.cssText = `
-        background: ${config.bgGradient};
-        padding: 32px;
-        border-radius: 24px;
         min-width: 400px;
         max-width: 500px;
         width: 90vw;
         max-height: 90vh;
         overflow-y: auto;
-        box-shadow: 
-            0 8px 0 rgba(0, 0, 0, 0.2),
-            0 15px 50px ${config.color}40;
-        border: 3px solid ${config.borderColor};
-        border-bottom: 5px solid ${config.color};
         font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
         position: relative;
-        animation: fadeInScale 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     `;
     
-    // 顶部彩色条
-    const colorBar = document.createElement('div');
-    colorBar.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 6px;
-        background: ${config.color};
-        border-radius: 24px 24px 0 0;
-    `;
-    modalContent.appendChild(colorBar);
+    // 如果有标题，添加标题横幅
+    if (title) {
+        const titleBanner = document.createElement('div');
+        titleBanner.className = 'modal-title-banner';
+        titleBanner.innerHTML = `<h2>${config.icon} ${title}</h2>`;
+        modalContent.appendChild(titleBanner);
+    }
     
-    // 顶部光泽效果
-    const shine = document.createElement('div');
-    shine.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 50%;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
-        border-radius: 24px 24px 0 0;
-        pointer-events: none;
-    `;
-    modalContent.appendChild(shine);
+    // 创建内容区域
+    const contentArea = document.createElement('div');
+    if (title) {
+        contentArea.className = 'modal-content-area';
+    } else {
+        contentArea.style.cssText = 'padding: 32px; position: relative; z-index: 1;';
+    }
     
-    // 构建内容HTML
+    // 构建内容HTML（先构建HTML，再添加关闭按钮）
     let contentHTML = `
         <div style="position: relative; z-index: 1;">
-            ${title ? `<h2 style="color: ${config.titleColor}; margin: 0 0 16px 0; font-size: 24px; text-align: center; font-weight: bold;">
-                ${config.icon} ${title}
-            </h2>` : ''}
-            
             <p style="font-size: 16px; margin: 0 0 20px 0; text-align: center; color: #333; line-height: 1.6;">
                 ${message}
             </p>
@@ -486,7 +477,7 @@ function showUserAlert(options) {
     
     // 按钮区域
     contentHTML += `
-            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; flex-direction: column;">
     `;
     
     buttons.forEach((btn, index) => {
@@ -518,7 +509,33 @@ function showUserAlert(options) {
         </div>
     `;
     
-    modalContent.innerHTML = contentHTML;
+    // 设置内容HTML
+    contentArea.innerHTML = contentHTML;
+    
+    // 添加关闭按钮（在内容之后添加，确保在最上层）
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'modal-close-btn';
+    closeBtn.innerHTML = '×';
+    closeBtn.title = 'Close';
+    contentArea.appendChild(closeBtn);
+    
+    modalContent.appendChild(contentArea);
+    
+    // 添加顶部光泽效果
+    const gloss = document.createElement('div');
+    gloss.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+        border-radius: 32px 32px 0 0;
+        pointer-events: none;
+        z-index: 1;
+    `;
+    modalContent.appendChild(gloss);
+    
     overlay.appendChild(modalContent);
     document.body.appendChild(overlay);
     
@@ -600,6 +617,12 @@ function showUserAlert(options) {
             }
             if (onClose) onClose();
         }, 300);
+    }
+    
+    // 添加关闭按钮事件
+    const closeBtn = overlay.querySelector('.modal-close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', close);
     }
     
     // 点击外部关闭
@@ -746,6 +769,10 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
             bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
         for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
         return new Blob([u8arr], { type: mime });
+    }
+    if (!canvas) {
+        console.error('❌ Canvas not available for image export');
+        return;
     }
     const fishImgData = canvas.toDataURL('image/png');
     const imageBlob = dataURLtoBlob(fishImgData);
@@ -954,6 +981,10 @@ swimBtn.addEventListener('click', async () => {
     
     if (!isLoggedIn) {
         // 未登录：保存画布数据到sessionStorage
+        if (!canvas) {
+            console.error('❌ Canvas not available');
+            return;
+        }
         const canvasData = canvas.toDataURL('image/png');
         sessionStorage.setItem('pendingFishCanvas', canvasData);
         sessionStorage.setItem('pendingFishSubmit', 'true');
@@ -1036,7 +1067,9 @@ swimBtn.addEventListener('click', async () => {
         
         // 重新画按钮 - 清空画布
         document.getElementById('try-again-fish').onclick = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (ctx && canvas) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
             document.querySelector('div[style*="z-index: 9999"]')?.remove();
         };
         document.getElementById('cancel-fish').onclick = () => {
@@ -1462,14 +1495,16 @@ function createPaintOptions() {
         btn.className = 'cute-color-button';
         btn.style.background = color;
         btn.title = color;
-        btn.onclick = () => {
+            btn.onclick = () => {
             // 移除其他按钮的active类
             document.querySelectorAll('.cute-color-button').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            ctx.globalCompositeOperation = 'source-over';
-            currentColor = color;
-            ctx.strokeStyle = color;
+            if (ctx) {
+                ctx.globalCompositeOperation = 'source-over';
+                currentColor = color;
+                ctx.strokeStyle = color;
+            }
         };
         colorContainer.appendChild(btn); 
     });

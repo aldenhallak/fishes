@@ -1064,36 +1064,24 @@ button.game-btn {
 }
 
 .modal-content {
-  background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+  background: linear-gradient(180deg, #FFF9E6 0%, #FFF4D6 100%);
   border-radius: var(--radius-xl);
-  padding: 32px;
+  padding: 0;
   width: 420px;
   max-width: 90vw;
   max-height: 90vh;
-  overflow-y: auto;
+  overflow: hidden;
   box-shadow: 
     0 8px 0 rgba(0, 0, 0, 0.2),
     0 16px 40px rgba(0, 0, 0, 0.4);
-  border: 3px solid rgba(255, 255, 255, 0.9);
+  border: 3px solid #A5B4FC;
   position: relative;
   animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* 弹窗顶部彩色条 */
-.modal-content::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: linear-gradient(90deg, 
-    var(--game-orange) 0%, 
-    var(--game-yellow) 25%, 
-    var(--game-green) 50%, 
-    var(--game-blue) 75%, 
-    var(--game-purple) 100%);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+/* 弹窗内容区域（当没有标题横幅时使用padding） */
+.modal-content:not(.has-title-banner) {
+  padding: 32px;
 }
 
 /* 弹窗顶部光泽效果 */
@@ -1104,9 +1092,37 @@ button.game-btn {
   left: 0;
   right: 0;
   height: 50%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   pointer-events: none;
+  z-index: 1;
+}
+
+/* 标题横幅样式 */
+.modal-title-banner {
+  background: linear-gradient(180deg, #1A1A1D 0%, #0F0F0F 50%, #050505 100%);
+  padding: 16px 24px;
+  border-bottom: 2px solid #000000;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1);
+  z-index: 2;
+}
+
+.modal-title-banner h2 {
+  color: #FFFFFF;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
+  letter-spacing: 1px;
+}
+
+/* 弹窗内容区域（有标题横幅时） */
+.modal-content-area {
+  padding: 40px;
+  padding-top: 32px;
+  position: relative;
+  z-index: 1;
 }
 
 /* 宽弹窗样式 */
@@ -1116,16 +1132,17 @@ button.game-btn {
 }
 
 /* 关闭按钮 */
-.modal .close {
+.modal .close,
+.modal-close-btn {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 20px;
+  right: 20px;
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(180deg, #FF6259 0%, #FF3B30 50%, #CC2920 100%);
+  background: linear-gradient(180deg, #4CD964 0%, #3CB54A 50%, #2E8B3A 100%);
   border: none;
-  border-bottom: 3px solid #991F19;
+  border-bottom: 3px solid #1F6B2A;
   color: white;
   font-size: 20px;
   font-weight: 700;
@@ -1137,12 +1154,13 @@ button.game-btn {
     0 4px 0 rgba(0, 0, 0, 0.25),
     inset 0 2px 4px rgba(255, 255, 255, 0.3);
   transition: all 0.15s ease;
-  z-index: 1;
+  z-index: 10;
   line-height: 1;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.modal .close::before {
+.modal .close::before,
+.modal-close-btn::before {
   content: '';
   position: absolute;
   top: 0;
@@ -1154,15 +1172,17 @@ button.game-btn {
   pointer-events: none;
 }
 
-.modal .close:hover {
-  transform: translateY(-2px) rotate(90deg) scale(1.1);
+.modal .close:hover,
+.modal-close-btn:hover {
+  transform: scale(1.1);
   box-shadow: 
-    0 6px 0 rgba(0, 0, 0, 0.25),
+    0 5px 0 rgba(0, 0, 0, 0.25),
     inset 0 2px 4px rgba(255, 255, 255, 0.4);
 }
 
-.modal .close:active {
-  transform: translateY(2px) rotate(90deg) scale(1.05);
+.modal .close:active,
+.modal-close-btn:active {
+  transform: scale(0.95);
   box-shadow: 
     0 2px 0 rgba(0, 0, 0, 0.25),
     inset 0 2px 4px rgba(255, 255, 255, 0.3);
@@ -1310,16 +1330,37 @@ button.game-btn {
   }
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 /* 响应式弹窗 */
 @media (max-width: 768px) {
   .modal-content {
     width: 90vw;
-    padding: 24px;
     margin: 20px;
+  }
+  
+  .modal-content:not(.has-title-banner) {
+    padding: 24px;
+  }
+  
+  .modal-content-area {
+    padding: 24px;
+    padding-top: 20px;
   }
   
   .modal-content.wide {
     width: 95vw;
+  }
+  
+  .modal-title-banner h2 {
+    font-size: 20px;
   }
   
   .modal-content h2 {

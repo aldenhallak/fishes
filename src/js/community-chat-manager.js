@@ -1302,45 +1302,36 @@ class CommunityChatManager {
       this._upgradePromptShown = false;
     }, 5 * 60 * 1000);
     
-    // Create modal HTML with game-style design
+    // Create modal HTML with new design style
     const modalHTML = `
       <div id="upgradeLimitModal" class="modal" style="
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
         backdrop-filter: blur(8px);
+        z-index: 10001;
+        align-items: center;
+        justify-content: center;
         animation: fadeIn 0.3s ease;
       ">
-        <div class="modal-content" style="
+        <div class="modal-content has-title-banner" style="
           width: 480px;
           max-width: 90vw;
         ">
+          <!-- 标题横幅 -->
+          <div class="modal-title-banner">
+            <h2>AI Fish Group Chat Limit</h2>
+          </div>
+          
           <!-- 关闭按钮 -->
-          <button class="close" onclick="document.getElementById('upgradeLimitModal').remove()" style="
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E6850E 100%);
-            border: none;
-            border-bottom: 3px solid #CC6E00;
-            color: white;
-            font-size: 20px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 
-              0 4px 0 rgba(0, 0, 0, 0.25),
-              inset 0 2px 4px rgba(255, 255, 255, 0.3);
-            transition: all 0.15s ease;
-            z-index: 1;
-            line-height: 1;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-          " onmouseover="this.style.transform='translateY(-2px) rotate(90deg) scale(1.1)'; this.style.boxShadow='0 6px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.4)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3)'" onmousedown="this.style.transform='translateY(2px) rotate(90deg) scale(1.05)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3)'">×</button>
+          <button class="modal-close-btn" onclick="document.getElementById('upgradeLimitModal').remove()" title="Close">×</button>
           
           <!-- 内容区域 -->
-          <div style="text-align: center; margin-bottom: 28px; padding-top: 8px;">
+          <div class="modal-content-area" style="text-align: center; margin-bottom: 28px;">
             <!-- 图标 -->
             <div style="
               width: 80px;
@@ -1371,15 +1362,6 @@ class CommunityChatManager {
                 pointer-events: none;
               "></div>
             </div>
-            
-            <!-- 标题 -->
-            <h2 style="
-              font-size: 28px;
-              font-weight: 900;
-              color: #333333;
-              margin: 0 0 12px 0;
-              text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            ">AI Fish Group Chat Limit Reached</h2>
             
             <!-- 描述 -->
             <p style="
