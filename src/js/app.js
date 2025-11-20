@@ -268,43 +268,23 @@ function showModal(html, onClose) {
     modal.style.zIndex = '9999';
     modal.style.animation = 'fadeIn 0.3s ease';
     
-    // 3D游戏风格的弹窗容器
+    // 3D游戏风格的弹窗容器 - 使用新的浅黄色背景
     const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
     modalContent.style.cssText = `
-        background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
-        padding: 32px;
-        border-radius: 24px;
         min-width: 400px;
         max-width: 90vw;
         max-height: 90vh;
         overflow-y: auto;
-        box-shadow: 
-            0 8px 0 rgba(0, 0, 0, 0.2),
-            0 16px 40px rgba(0, 0, 0, 0.4);
-        border: 3px solid rgba(255, 255, 255, 0.9);
-        position: relative;
-        animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
         font-size: 14px;
     `;
     
-    // 顶部彩色条
-    const colorBar = document.createElement('div');
-    colorBar.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 6px;
-        background: linear-gradient(90deg, 
-            #FF9500 0%, 
-            #FFD700 25%, 
-            #4CD964 50%, 
-            #4A90E2 75%, 
-            #9B59B6 100%);
-        border-radius: 24px 24px 0 0;
-    `;
-    modalContent.appendChild(colorBar);
+    // 内容区域
+    const contentDiv = document.createElement('div');
+    contentDiv.style.cssText = 'padding: 32px; position: relative; z-index: 1;';
+    contentDiv.innerHTML = html;
+    modalContent.appendChild(contentDiv);
     
     // 顶部光泽效果
     const shine = document.createElement('div');
@@ -314,17 +294,12 @@ function showModal(html, onClose) {
         left: 0;
         right: 0;
         height: 50%;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
-        border-radius: 24px 24px 0 0;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+        border-radius: 32px 32px 0 0;
         pointer-events: none;
+        z-index: 1;
     `;
     modalContent.appendChild(shine);
-    
-    // 内容区域
-    const contentDiv = document.createElement('div');
-    contentDiv.style.cssText = 'position: relative; z-index: 1;';
-    contentDiv.innerHTML = html;
-    modalContent.appendChild(contentDiv);
     
     modal.appendChild(modalContent);
     
@@ -407,59 +382,40 @@ function showUserAlert(options) {
     `;
     
     const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    if (title) {
+        modalContent.classList.add('has-title-banner');
+    }
     modalContent.style.cssText = `
-        background: ${config.bgGradient};
-        padding: 32px;
-        border-radius: 24px;
         min-width: 400px;
         max-width: 500px;
         width: 90vw;
         max-height: 90vh;
         overflow-y: auto;
-        box-shadow: 
-            0 8px 0 rgba(0, 0, 0, 0.2),
-            0 15px 50px ${config.color}40;
-        border: 3px solid ${config.borderColor};
-        border-bottom: 5px solid ${config.color};
         font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
         position: relative;
-        animation: fadeInScale 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     `;
     
-    // 顶部彩色条
-    const colorBar = document.createElement('div');
-    colorBar.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 6px;
-        background: ${config.color};
-        border-radius: 24px 24px 0 0;
-    `;
-    modalContent.appendChild(colorBar);
+    // 如果有标题，添加标题横幅
+    if (title) {
+        const titleBanner = document.createElement('div');
+        titleBanner.className = 'modal-title-banner';
+        titleBanner.innerHTML = `<h2>${config.icon} ${title}</h2>`;
+        modalContent.appendChild(titleBanner);
+    }
     
-    // 顶部光泽效果
-    const shine = document.createElement('div');
-    shine.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 50%;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
-        border-radius: 24px 24px 0 0;
-        pointer-events: none;
-    `;
-    modalContent.appendChild(shine);
+    // 创建内容区域
+    const contentArea = document.createElement('div');
+    if (title) {
+        contentArea.className = 'modal-content-area';
+    } else {
+        contentArea.style.cssText = 'padding: 32px; position: relative; z-index: 1;';
+    }
     
-    // 构建内容HTML
+    // 构建内容HTML（先构建HTML，再添加关闭按钮）
     let contentHTML = `
         <div style="position: relative; z-index: 1;">
-            ${title ? `<h2 style="color: ${config.titleColor}; margin: 0 0 16px 0; font-size: 24px; text-align: center; font-weight: bold;">
-                ${config.icon} ${title}
-            </h2>` : ''}
-            
             <p style="font-size: 16px; margin: 0 0 20px 0; text-align: center; color: #333; line-height: 1.6;">
                 ${message}
             </p>
@@ -486,7 +442,7 @@ function showUserAlert(options) {
     
     // 按钮区域
     contentHTML += `
-            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; flex-direction: column;">
     `;
     
     buttons.forEach((btn, index) => {
@@ -518,7 +474,33 @@ function showUserAlert(options) {
         </div>
     `;
     
-    modalContent.innerHTML = contentHTML;
+    // 设置内容HTML
+    contentArea.innerHTML = contentHTML;
+    
+    // 添加关闭按钮（在内容之后添加，确保在最上层）
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'modal-close-btn';
+    closeBtn.innerHTML = '×';
+    closeBtn.title = 'Close';
+    contentArea.appendChild(closeBtn);
+    
+    modalContent.appendChild(contentArea);
+    
+    // 添加顶部光泽效果
+    const gloss = document.createElement('div');
+    gloss.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+        border-radius: 32px 32px 0 0;
+        pointer-events: none;
+        z-index: 1;
+    `;
+    modalContent.appendChild(gloss);
+    
     overlay.appendChild(modalContent);
     document.body.appendChild(overlay);
     
@@ -600,6 +582,12 @@ function showUserAlert(options) {
             }
             if (onClose) onClose();
         }, 300);
+    }
+    
+    // 添加关闭按钮事件
+    const closeButton = overlay.querySelector('.modal-close-btn');
+    if (closeButton) {
+        closeButton.addEventListener('click', close);
     }
     
     // 点击外部关闭

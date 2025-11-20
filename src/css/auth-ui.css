@@ -212,34 +212,50 @@
 }
 
 /* ============================================
-   OAuth登录按钮
+   OAuth登录按钮 - 3D立体感按钮
    ============================================ */
 .oauth-btn {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 20px;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
-  background: white;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+  border-bottom: 3px solid #A0A0A0;
   cursor: pointer;
   font-size: 15px;
-  font-weight: 500;
-  color: #374151;
-  transition: all 0.2s ease;
+  font-weight: 700;
+  color: #4A90E2;
+  transition: all 0.15s ease;
   width: 100%;
   text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  transform: translateY(0);
+}
+
+.oauth-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+  border-radius: 24px 24px 0 0;
+  pointer-events: none;
 }
 
 .oauth-btn:hover {
-  border-color: #d1d5db;
-  background: #f9fafb;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
 }
 
 .oauth-btn:active {
-  transform: translateY(0);
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
 }
 
 .oauth-btn-icon {
@@ -249,60 +265,119 @@
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .oauth-btn-text {
   flex: 1;
   text-align: left;
+  position: relative;
+  z-index: 1;
 }
 
-/* 各平台品牌色 */
+/* 各平台品牌色 - 保持3D立体感 */
+.oauth-btn-google {
+  color: #4285F4;
+}
+
 .oauth-btn-google:hover {
-  border-color: #4285F4;
-  background: #f8f9ff;
+  background: linear-gradient(180deg, #F8F9FF 0%, #E8EBFF 50%, #D8DBFF 100%);
+  border-bottom-color: #4285F4;
+}
+
+.oauth-btn-twitter {
+  color: #000000;
 }
 
 .oauth-btn-twitter:hover {
-  border-color: #000000;
-  background: #f5f5f5;
+  background: linear-gradient(180deg, #F5F5F5 0%, #E5E5E5 50%, #D5D5D5 100%);
+  border-bottom-color: #000000;
+}
+
+.oauth-btn-facebook {
+  color: #1877F2;
 }
 
 .oauth-btn-facebook:hover {
-  border-color: #1877F2;
-  background: #f0f7ff;
+  background: linear-gradient(180deg, #F0F7FF 0%, #E0EFFF 50%, #D0E7FF 100%);
+  border-bottom-color: #1877F2;
+}
+
+.oauth-btn-discord {
+  color: #5865F2;
 }
 
 .oauth-btn-discord:hover {
-  border-color: #5865F2;
-  background: #f3f4ff;
+  background: linear-gradient(180deg, #F3F4FF 0%, #E3E4FF 50%, #D3D4FF 100%);
+  border-bottom-color: #5865F2;
+}
+
+.oauth-btn-apple {
+  color: #000000;
 }
 
 .oauth-btn-apple:hover {
-  border-color: #000000;
-  background: #f5f5f5;
+  background: linear-gradient(180deg, #F5F5F5 0%, #E5E5E5 50%, #D5D5D5 100%);
+  border-bottom-color: #000000;
+}
+
+.oauth-btn-reddit {
+  color: #FF4500;
 }
 
 .oauth-btn-reddit:hover {
-  border-color: #FF4500;
-  background: #fff5f0;
+  background: linear-gradient(180deg, #FFF5F0 0%, #FFE5E0 50%, #FFD5D0 100%);
+  border-bottom-color: #FF4500;
 }
 
-/* 邮箱登录按钮特殊样式 */
+/* 邮箱登录按钮特殊样式 - 3D蓝色按钮 */
 .email-login-btn {
-  background: linear-gradient(135deg, #6366F1, #4F46E5);
+  background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
   color: white;
-  border: 2px solid #6366F1;
-  font-weight: 600;
+  border: none;
+  border-bottom: 3px solid #2A5F8F;
+  border-radius: 24px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s ease;
+  transform: translateY(0);
+}
+
+.email-login-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+  border-radius: 24px 24px 0 0;
+  pointer-events: none;
 }
 
 .email-login-btn:hover {
-  background: linear-gradient(135deg, #4F46E5, #4338CA);
-  border-color: #4F46E5;
-  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+}
+
+.email-login-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
 }
 
 .email-login-btn .oauth-btn-icon svg {
   stroke: white;
+  position: relative;
+  z-index: 1;
+}
+
+.email-login-btn .oauth-btn-text {
+  position: relative;
+  z-index: 1;
 }
 
 /* 分隔线 */
