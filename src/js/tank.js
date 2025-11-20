@@ -3085,7 +3085,7 @@ function updateGroupChatButton(enabled) {
 }
 
 // 切换群聊开关
-function toggleGroupChat() {
+async function toggleGroupChat() {
     if (!communityChatManager) {
         console.warn('CommunityChatManager not initialized');
         return;
@@ -3094,6 +3094,37 @@ function toggleGroupChat() {
     const currentState = communityChatManager.isGroupChatEnabled();
     const newState = !currentState;
     
+    // 如果尝试启用群聊，需要检查登录状态
+    if (newState) {
+        // 检查用户是否已登录
+        let isLoggedIn = false;
+        try {
+            if (window.supabaseAuth && typeof window.supabaseAuth.isLoggedIn === 'function') {
+                isLoggedIn = await window.supabaseAuth.isLoggedIn();
+            } else if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
+                const user = await window.supabaseAuth.getCurrentUser();
+                isLoggedIn = !!user;
+            }
+        } catch (error) {
+            console.error('检查登录状态时出错:', error);
+            isLoggedIn = false;
+        }
+        
+        // 如果未登录，阻止启用并显示登录提示
+        if (!isLoggedIn) {
+            console.log('❌ 未登录用户无法启用群聊');
+            // 显示登录提示
+            if (window.authUI && window.authUI.showLoginModal) {
+                window.authUI.showLoginModal();
+            } else {
+                // Fallback: 使用 alert
+                alert('请先登录以使用群聊功能');
+            }
+            return;
+        }
+    }
+    
+    // 已登录或禁用操作，继续执行
     // 更新管理器状态
     communityChatManager.setGroupChatEnabled(newState);
     
@@ -3183,18 +3214,79 @@ function setupFishTalkToggle() {
     }
 
     // Load saved preference (shared with my tank page)
+    // 但只有在用户已登录时才应用保存的偏好
     const savedPreference = localStorage.getItem('groupChatEnabled');
     if (savedPreference === 'true') {
-        toggleSwitch.checked = true;
-        updateToggleStyle(toggleSwitch, true);
+        // 异步检查登录状态
+        (async () => {
+            let isLoggedIn = false;
+            try {
+                if (window.supabaseAuth && typeof window.supabaseAuth.isLoggedIn === 'function') {
+                    isLoggedIn = await window.supabaseAuth.isLoggedIn();
+                } else if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
+                    const user = await window.supabaseAuth.getCurrentUser();
+                    isLoggedIn = !!user;
+                }
+            } catch (error) {
+                console.error('检查登录状态时出错:', error);
+                isLoggedIn = false;
+            }
+            
+            // 只有登录用户才恢复保存的偏好
+            if (isLoggedIn) {
+                toggleSwitch.checked = true;
+                updateToggleStyle(toggleSwitch, true);
+            } else {
+                // 未登录用户，清除保存的偏好并禁用开关
+                toggleSwitch.checked = false;
+                updateToggleStyle(toggleSwitch, false);
+                localStorage.setItem('groupChatEnabled', 'false');
+            }
+        })();
     }
 
     // Handle toggle click
-    toggleContainer.addEventListener('click', function(e) {
+    toggleContainer.addEventListener('click', async function(e) {
         e.preventDefault();
         e.stopPropagation();
         
         const newState = !toggleSwitch.checked;
+        
+        // 如果尝试启用 Fish Talk，需要检查登录状态
+        if (newState) {
+            // 检查用户是否已登录
+            let isLoggedIn = false;
+            try {
+                if (window.supabaseAuth && typeof window.supabaseAuth.isLoggedIn === 'function') {
+                    isLoggedIn = await window.supabaseAuth.isLoggedIn();
+                } else if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
+                    const user = await window.supabaseAuth.getCurrentUser();
+                    isLoggedIn = !!user;
+                }
+            } catch (error) {
+                console.error('检查登录状态时出错:', error);
+                isLoggedIn = false;
+            }
+            
+            // 如果未登录，阻止启用并显示登录提示
+            if (!isLoggedIn) {
+                console.log('❌ 未登录用户无法启用 Fish Talk');
+                // 恢复开关状态
+                toggleSwitch.checked = false;
+                updateToggleStyle(toggleSwitch, false);
+                
+                // 显示登录提示
+                if (window.authUI && window.authUI.showLoginModal) {
+                    window.authUI.showLoginModal();
+                } else {
+                    // Fallback: 使用 alert
+                    alert('请先登录以使用 Fish Talk 功能');
+                }
+                return;
+            }
+        }
+        
+        // 已登录或禁用操作，继续执行
         toggleSwitch.checked = newState;
         updateToggleStyle(toggleSwitch, newState);
         

@@ -903,35 +903,63 @@
                       animation: fadeIn 0.3s ease;
                     `;
                     
-                    // Create modal content with game style
+                    // Create modal content with game style - redesigned with stone banner
                     const modal = document.createElement('div');
                     modal.className = 'modal-content';
                     modal.style.cssText = `
-                      background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+                      background: linear-gradient(180deg, #FFF9E6 0%, #FFF4D6 100%);
                       border-radius: 32px;
-                      padding: 40px;
+                      padding: 0;
                       width: 460px;
                       max-width: 90vw;
                       box-shadow: 
                         0 8px 0 rgba(0, 0, 0, 0.2),
                         0 16px 40px rgba(0, 0, 0, 0.4);
-                      border: 3px solid rgba(255, 255, 255, 0.9);
+                      border: 3px solid #A5B4FC;
                       position: relative;
                       animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
                       text-align: center;
+                      overflow: hidden;
                     `;
                     
-                    modal.innerHTML = `
+                    // Create stone-style title banner at top
+                    const titleBanner = document.createElement('div');
+                    titleBanner.style.cssText = `
+                      background: linear-gradient(180deg, #1A1A1D 0%, #0F0F0F 50%, #050505 100%);
+                      padding: 16px 24px;
+                      border-bottom: 2px solid #000000;
+                      position: relative;
+                      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1);
+                    `;
+                    titleBanner.innerHTML = `
+                      <h2 style="
+                        color: #FFFFFF;
+                        margin: 0;
+                        font-size: 24px;
+                        font-weight: 900;
+                        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
+                        letter-spacing: 1px;
+                      ">Fish Group Chat</h2>
+                    `;
+                    modal.appendChild(titleBanner);
+                    
+                    // Create main content area
+                    const contentArea = document.createElement('div');
+                    contentArea.style.cssText = `
+                      padding: 40px;
+                      padding-top: 32px;
+                    `;
+                    contentArea.innerHTML = `
                       <button id="close-reminder-modal" class="modal-close-btn" style="
                         position: absolute;
-                        top: 16px;
-                        right: 16px;
+                        top: 20px;
+                        right: 20px;
                         width: 36px;
                         height: 36px;
                         border-radius: 50%;
-                        background: linear-gradient(180deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%);
+                        background: linear-gradient(180deg, #4CD964 0%, #3CB54A 50%, #2E8B3A 100%);
                         border: none;
-                        border-bottom: 3px solid #BFA000;
+                        border-bottom: 3px solid #1F6B2A;
                         color: white;
                         font-size: 20px;
                         font-weight: 700;
@@ -941,26 +969,72 @@
                         justify-content: center;
                         box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3);
                         transition: all 0.15s ease;
-                        z-index: 1;
+                        z-index: 10;
                         line-height: 1;
                         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
                       " title="Close">×</button>
-                      <div style="font-size: 64px; margin-bottom: 20px; text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">🐠</div>
-                      <h2 style="color: #333; margin: 0 0 16px 0; font-size: 32px; font-weight: 900; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">Fish Group Chat</h2>
-                      <p style="color: #666; margin: 0 0 32px 0; font-size: 16px; line-height: 1.6;">
+                      <div style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 20px;
+                        margin-bottom: 24px;
+                        padding: 20px 0;
+                      ">
+                        <div style="
+                          font-size: 72px;
+                          text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                          animation: float 2s ease-in-out infinite;
+                        ">🐠</div>
+                        <div style="
+                          background: linear-gradient(180deg, #D4A574 0%, #C8965A 50%, #B8854A 100%);
+                          border: 3px solid #8B6F3D;
+                          border-radius: 12px;
+                          padding: 16px 20px;
+                          box-shadow: 
+                            0 4px 0 rgba(0, 0, 0, 0.2),
+                            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                          position: relative;
+                        ">
+                          <div style="
+                            color: #5D4037;
+                            font-size: 14px;
+                            font-weight: 700;
+                            margin-bottom: 4px;
+                            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                          ">Unlock Feature</div>
+                          <div style="
+                            color: #3E2723;
+                            font-size: 18px;
+                            font-weight: 900;
+                            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                          ">Group Chat</div>
+                        </div>
+                      </div>
+                      <p style="
+                        color: #666;
+                        margin: 0 0 32px 0;
+                        font-size: 16px;
+                        line-height: 1.6;
+                        padding: 0 10px;
+                      ">
                         Sign in to unlock the Fish Group Chat feature and watch your fish come alive with conversations!
                       </p>
-                      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-                        <button id="login-from-reminder" class="game-btn game-btn-green" style="
-                          flex: 1;
-                          min-width: 140px;
-                          padding: 14px 28px;
+                      <div style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: 12px;
+                        width: 100%;
+                      ">
+                        <button id="login-from-reminder" class="game-btn game-btn-blue" style="
+                          width: 100%;
+                          padding: 16px 28px;
                           border: none;
                           border-radius: 24px;
-                          background: linear-gradient(180deg, #6FE77D 0%, #4CD964 50%, #3CB54A 100%);
-                          border-bottom: 3px solid #2E8B3A;
+                          background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+                          border-bottom: 3px solid #2A5F8F;
                           color: white;
-                          font-size: 16px;
+                          font-size: 18px;
                           font-weight: 700;
                           cursor: pointer;
                           position: relative;
@@ -972,20 +1046,20 @@
                         ">
                           <span style="position: relative; z-index: 1;">Sign In</span>
                         </button>
-                        <button id="maybe-later-btn" class="game-btn game-btn-white" style="
-                          flex: 1;
-                          min-width: 140px;
-                          padding: 14px 28px;
+                        <button id="maybe-later-btn" class="game-btn game-btn-orange" style="
+                          width: 100%;
+                          padding: 16px 28px;
                           border: none;
                           border-radius: 24px;
-                          background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
-                          border-bottom: 3px solid #A0A0A0;
-                          color: #4A90E2;
-                          font-size: 16px;
+                          background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E67E00 100%);
+                          border-bottom: 3px solid #CC6F00;
+                          color: white;
+                          font-size: 18px;
                           font-weight: 700;
                           cursor: pointer;
                           position: relative;
                           overflow: hidden;
+                          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
                           box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
                           transition: all 0.15s ease;
                           transform: translateY(0);
@@ -994,24 +1068,7 @@
                         </button>
                       </div>
                     `;
-                    
-                    // Add colorful top bar
-                    const topBar = document.createElement('div');
-                    topBar.style.cssText = `
-                      position: absolute;
-                      top: 0;
-                      left: 0;
-                      right: 0;
-                      height: 6px;
-                      background: linear-gradient(90deg, 
-                        #FF9500 0%, 
-                        #FFD700 25%, 
-                        #4CD964 50%, 
-                        #4A90E2 75%, 
-                        #9B59B6 100%);
-                      border-radius: 32px 32px 0 0;
-                    `;
-                    modal.insertBefore(topBar, modal.firstChild);
+                    modal.appendChild(contentArea);
                     
                     // Add top gloss effect
                     const gloss = document.createElement('div');
@@ -1021,9 +1078,10 @@
                       left: 0;
                       right: 0;
                       height: 50%;
-                      background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+                      background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
                       border-radius: 32px 32px 0 0;
                       pointer-events: none;
+                      z-index: 1;
                     `;
                     modal.appendChild(gloss);
                     
@@ -1051,6 +1109,14 @@
                         from { opacity: 1; }
                         to { opacity: 0; }
                       }
+                      @keyframes float {
+                        0%, 100% { 
+                          transform: translateY(0px); 
+                        }
+                        50% { 
+                          transform: translateY(-10px); 
+                        }
+                      }
                       .game-btn::before {
                         content: '';
                         position: absolute;
@@ -1062,6 +1128,14 @@
                         border-radius: 24px 24px 0 0;
                         pointer-events: none;
                       }
+                      .game-btn:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+                      }
+                      .game-btn:active {
+                        transform: translateY(2px);
+                        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+                      }
                       .modal-close-btn::before {
                         content: '';
                         position: absolute;
@@ -1072,6 +1146,14 @@
                         background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
                         border-radius: 50% 50% 0 0;
                         pointer-events: none;
+                      }
+                      .modal-close-btn:hover {
+                        transform: scale(1.1);
+                        box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+                      }
+                      .modal-close-btn:active {
+                        transform: scale(0.95);
+                        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3);
                       }
                     `;
                     document.head.appendChild(style);
