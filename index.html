@@ -29,7 +29,7 @@
     <link rel="canonical" href="https://fishtalk.app">
     
     <link rel="stylesheet" href="src/css/animations.css?v=2.0">
-    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.7">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.9">
     <link rel="stylesheet" href="src/css/style.css?v=2.0">
     <link rel="stylesheet" href="src/css/traffic.css?v=2.0">
     <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
@@ -223,7 +223,6 @@
       <section id="drawing-section">
         <h1 class="game-title"><span style="display: inline-block; transform: scaleX(-1);">🐠</span> Draw a Fish Online! <span style="display: inline-block; transform: scaleX(-1);">🐠</span></h1>
         <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
-          <h2 class="game-subtitle" style="margin: 0;">(facing right please)</h2>
           <!-- Fish probability indicator (pre-created to prevent layout shifts) -->
           <div id="fish-probability" class="game-probability low" style="display: none;">
             <span>🐠</span>
@@ -234,6 +233,11 @@
         <!-- 画布容器 -->
         <div class="game-canvas-wrapper">
           <canvas id="draw-canvas" width="600" height="360" aria-label="Fish drawing canvas for creating digital fish art"></canvas>
+          <!-- 画布提示文字 -->
+          <div id="canvas-hint" class="canvas-hint">
+            <span style="font-size: 24px; margin-bottom: 8px; display: inline-block; transform: scaleX(-1);">🐠</span>
+            <span style="font-size: 18px; font-weight: 600;">(facing right please)</span>
+          </div>
           <!-- 绘画粒子容器 -->
           <div id="drawing-particles"></div>
         </div>

@@ -434,9 +434,8 @@ button.game-btn {
   border-radius: 8px;
   /* 立体木框效果 */
   box-shadow: 
-    /* 外部深阴影 */
-    0 12px 0 #8B5A2B,
-    0 16px 35px rgba(0, 0, 0, 0.4),
+    /* 外部阴影（去掉底部厚边缘） */
+    0 8px 25px rgba(0, 0, 0, 0.3),
     /* 顶部高光 */
     inset 0 4px 8px rgba(255, 255, 255, 0.4),
     /* 底部阴影 */
@@ -474,6 +473,29 @@ button.game-btn {
     );
   pointer-events: none;
   border-radius: 8px;
+}
+
+/* 画布提示文字 - 居中覆盖层 */
+.canvas-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;  /* 不阻挡鼠标事件 */
+  color: rgba(139, 90, 43, 0.5);  /* 木质色调，半透明 */
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  transition: opacity 0.3s ease;
+  user-select: none;
+}
+
+.canvas-hint.hidden {
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* Canvas - 内嵌效果 */

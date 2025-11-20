@@ -5,6 +5,39 @@ ctx.lineWidth = 6; // Make lines thicker for better visibility
 let drawing = false;
 let canvasRect = null; // Cache canvas rect to prevent layout thrashing
 
+// ===== 画布提示文字控制 =====
+const canvasHint = document.getElementById('canvas-hint');
+
+// 检查画布是否为空
+function isCanvasEmpty() {
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    
+    // 检查是否所有像素都是透明的
+    for (let i = 3; i < data.length; i += 4) {
+        if (data[i] !== 0) {
+            return false; // 发现非透明像素
+        }
+    }
+    return true;
+}
+
+// 更新提示文字显示状态
+function updateCanvasHint() {
+    if (!canvasHint) return;
+    
+    if (isCanvasEmpty()) {
+        canvasHint.classList.remove('hidden');
+    } else {
+        canvasHint.classList.add('hidden');
+    }
+}
+
+// 初始化时显示提示
+if (canvasHint) {
+    updateCanvasHint();
+}
+
 // ===== 绘画粒子效果 =====
 let particles = [];
 
@@ -121,6 +154,8 @@ canvas.addEventListener('mousedown', (e) => {
     canvasRect = canvas.getBoundingClientRect(); // Cache rect once at start
     ctx.beginPath();
     ctx.moveTo(e.offsetX, e.offsetY);
+    // 开始绘画时隐藏提示
+    updateCanvasHint();
 });
 canvas.addEventListener('mousemove', (e) => {
     if (drawing) {
@@ -138,6 +173,8 @@ canvas.addEventListener('mouseup', () => {
     drawing = false;
     canvasRect = null; // Clear cache
     checkFishAfterStroke();
+    // 绘画结束后更新提示状态
+    updateCanvasHint();
 });
 canvas.addEventListener('mouseleave', () => {
     drawing = false;
@@ -161,6 +198,8 @@ canvas.addEventListener('touchstart', (e) => {
     
     ctx.beginPath();
     ctx.moveTo(canvasX, canvasY);
+    // 开始绘画时隐藏提示
+    updateCanvasHint();
 });
 canvas.addEventListener('touchmove', (e) => {
     e.preventDefault();
@@ -193,6 +232,8 @@ canvas.addEventListener('touchend', () => {
     drawing = false;
     canvasRect = null; // Clear cache
     checkFishAfterStroke();
+    // 绘画结束后更新提示状态
+    updateCanvasHint();
 });
 canvas.addEventListener('touchcancel', () => {
     drawing = false;
@@ -1462,7 +1503,7 @@ function createPaintOptions() {
     
     const widthLabel = document.createElement('span');
     widthLabel.textContent = 'Size:';
-    widthLabel.style.fontSize = '12px';
+    widthLabel.style.fontSize = '16px';
     widthContainer.appendChild(widthLabel);
     
     const widthSlider = document.createElement('input');
@@ -1480,9 +1521,9 @@ function createPaintOptions() {
     // Eraser
     const eraserBtn = document.createElement('button');
     eraserBtn.textContent = 'Eraser';
-    eraserBtn.style.padding = '4px 8px';
-    eraserBtn.style.height = '24px';
-    eraserBtn.style.fontSize = '12px';
+    eraserBtn.style.padding = '6px 12px';
+    eraserBtn.style.height = '32px';
+    eraserBtn.style.fontSize = '16px';
     eraserBtn.style.borderRadius = '4px';
     eraserBtn.style.cursor = 'pointer';
     eraserBtn.onclick = () => {
@@ -1512,11 +1553,15 @@ function undo() {
     }
     // Recalculate fish probability after undo
     checkFishAfterStroke();
+    // 更新提示状态
+    updateCanvasHint();
 }
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     checkFishAfterStroke();
+    // 更新提示状态
+    updateCanvasHint();
 }
 
 function flipCanvas() {
@@ -1563,9 +1608,9 @@ function createUndoButton() {
         if (controlsContainer) {
             const undoBtn = document.createElement('button');
             undoBtn.textContent = 'Undo';
-            undoBtn.style.padding = '4px 8px';
-            undoBtn.style.height = '24px';
-            undoBtn.style.fontSize = '12px';
+            undoBtn.style.padding = '6px 12px';
+            undoBtn.style.height = '32px';
+            undoBtn.style.fontSize = '16px';
             undoBtn.style.borderRadius = '4px';
             undoBtn.style.cursor = 'pointer';
             undoBtn.onclick = undo;
@@ -1582,9 +1627,9 @@ function createClearButton() {
         if (controlsContainer) {
             const clearBtn = document.createElement('button');
             clearBtn.textContent = 'Clear';
-            clearBtn.style.padding = '4px 8px';
-            clearBtn.style.height = '24px';
-            clearBtn.style.fontSize = '12px';
+            clearBtn.style.padding = '6px 12px';
+            clearBtn.style.height = '32px';
+            clearBtn.style.fontSize = '16px';
             clearBtn.style.borderRadius = '4px';
             clearBtn.style.cursor = 'pointer';
             clearBtn.onclick = clearCanvas;
@@ -1601,9 +1646,9 @@ function createFlipButton() {
         if (controlsContainer) {
             const flipBtn = document.createElement('button');
             flipBtn.textContent = 'Flip';
-            flipBtn.style.padding = '4px 8px';
-            flipBtn.style.height = '24px';
-            flipBtn.style.fontSize = '12px';
+            flipBtn.style.padding = '6px 12px';
+            flipBtn.style.height = '32px';
+            flipBtn.style.fontSize = '16px';
             flipBtn.style.borderRadius = '4px';
             flipBtn.style.cursor = 'pointer';
             flipBtn.onclick = flipCanvas;

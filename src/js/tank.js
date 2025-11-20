@@ -2185,7 +2185,15 @@ let cacheUpdateCounter = 0;
 let lastFishCountUpdate = 0;
 
 function animateFishes() {
-    swimCtx.clearRect(0, 0, swimCanvas.width, swimCanvas.height);
+    // Draw ocean gradient background directly on canvas
+    const gradient = swimCtx.createLinearGradient(0, 0, 0, swimCanvas.height);
+    gradient.addColorStop(0, '#B2EBF2');
+    gradient.addColorStop(0.3, '#4FC3F7');
+    gradient.addColorStop(0.7, '#0288D1');
+    gradient.addColorStop(1, '#01579B');
+    swimCtx.fillStyle = gradient;
+    swimCtx.fillRect(0, 0, swimCanvas.width, swimCanvas.height);
+    
     const time = Date.now() / 500;
     const currentTime = Date.now();
 
