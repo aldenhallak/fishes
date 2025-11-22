@@ -390,8 +390,8 @@ async function filterValidFish(fishArray) {
                 }
 
                 try {
-                    const isValid = await testImageUrl(imageUrl);
-                    return isValid ? fish : null;
+                const isValid = await testImageUrl(imageUrl);
+                return isValid ? fish : null;
                 } catch (error) {
                     console.warn('Error testing image URL:', imageUrl, error);
                     return null;
@@ -572,7 +572,7 @@ function goToNextPage() {
         if (showFavorites) {
             loadFavoriteFish(false, currentPage + 1);
         } else {
-            loadFishData(currentSort, false, currentPage + 1);
+        loadFishData(currentSort, false, currentPage + 1);
         }
     }
 }
@@ -585,7 +585,7 @@ function goToPrevPage() {
         if (showFavorites) {
             loadFavoriteFish(false, currentPage - 1);
         } else {
-            loadFishData(currentSort, false, currentPage - 1);
+        loadFishData(currentSort, false, currentPage - 1);
         }
     }
 }
@@ -810,39 +810,39 @@ window.addEventListener('DOMContentLoaded', async () => {
         // Load favorite fish
         await loadFavoriteFish();
     } else {
-        // Update page header if filtering by user
-        if (currentUserId) {
-            await updatePageHeaderForUser(currentUserId);
-        }
-        
-        // Set up sort button event listeners
-        document.querySelectorAll('.sort-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                await handleSortChange(btn.getAttribute('data-sort'));
-            });
+    // Update page header if filtering by user
+    if (currentUserId) {
+        await updatePageHeaderForUser(currentUserId);
+    }
+    
+    // Set up sort button event listeners
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            await handleSortChange(btn.getAttribute('data-sort'));
         });
+    });
 
-        // Set up pagination button event listeners
-        const prevBtn = document.getElementById('prev-page-btn');
-        const nextBtn = document.getElementById('next-page-btn');
-        
-        if (prevBtn) {
-            prevBtn.addEventListener('click', goToPrevPage);
-        }
-        
-        if (nextBtn) {
-            nextBtn.addEventListener('click', goToNextPage);
-        }
+    // Set up pagination button event listeners
+    const prevBtn = document.getElementById('prev-page-btn');
+    const nextBtn = document.getElementById('next-page-btn');
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', goToPrevPage);
+    }
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', goToNextPage);
+    }
 
-        // Disable infinite scroll (we're using pagination buttons now)
-        // Commented out to use pagination instead of infinite scroll
-        // window.addEventListener('scroll', throttledScroll);
+    // Disable infinite scroll (we're using pagination buttons now)
+    // Commented out to use pagination instead of infinite scroll
+    // window.addEventListener('scroll', throttledScroll);
 
-        // Initialize button text with arrows
-        updateSortButtonText();
+    // Initialize button text with arrows
+    updateSortButtonText();
 
-        // Load initial fish data
-        loadFishData();
+    // Load initial fish data
+    loadFishData();
     }
     
     // Initialize favorite buttons if user is logged in

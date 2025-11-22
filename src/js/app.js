@@ -278,14 +278,21 @@ function showModal(html, onClose) {
         modalContent.classList.add('has-title-banner');
     }
     // 对于有标题横幅的弹窗，使用更大的最小宽度以确保标题完整显示
-    const minWidth = hasTitleBanner ? '500px' : '400px';
+    // 在移动端使用响应式宽度，避免超出屏幕
+    const isMobile = window.innerWidth <= 768;
+    const minWidth = hasTitleBanner 
+        ? (isMobile ? '0' : '500px') 
+        : (isMobile ? '0' : '400px');
+    const maxWidth = isMobile ? 'calc(100vw - 40px)' : '90vw';
     modalContent.style.cssText = `
         min-width: ${minWidth};
-        max-width: 90vw;
+        max-width: ${maxWidth};
+        width: ${isMobile ? 'calc(100vw - 40px)' : 'auto'};
         max-height: 90vh;
         overflow-y: auto;
         font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
         font-size: 14px;
+        box-sizing: border-box;
     `;
     
     // 如果HTML中已经包含完整的弹窗结构（包括标题横幅和内容区域），直接使用
@@ -387,6 +394,9 @@ function showUserAlert(options) {
     
     const config = typeConfig[type] || typeConfig.info;
     
+    // 检查是否是会员限制弹窗（采用 Fish Group Chat 风格）
+    const isMembershipLimit = details && details.tier && details.currentCount !== undefined;
+    
     const overlay = document.createElement('div');
     overlay.className = 'user-alert-modal';
     overlay.style.cssText = `
@@ -395,8 +405,8 @@ function showUserAlert(options) {
         top: 0;
         width: 100vw;
         height: 100vh;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(5px);
+        background: ${isMembershipLimit ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.6)'};
+        backdrop-filter: ${isMembershipLimit ? 'blur(8px)' : 'blur(5px)'};
         display: flex;
         align-items: center;
         justify-content: center;
@@ -406,119 +416,378 @@ function showUserAlert(options) {
     
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
-    if (title) {
+    if (title || isMembershipLimit) {
         modalContent.classList.add('has-title-banner');
     }
-    modalContent.style.cssText = `
-        min-width: 400px;
-        max-width: 500px;
-        width: 90vw;
-        max-height: 90vh;
-        overflow-y: auto;
-        font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
-        position: relative;
-        animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    `;
+    // 在移动端使用响应式宽度，避免超出屏幕
+    const isMobile = window.innerWidth <= 768;
+    
+    // 如果是会员限制弹窗，使用 Fish Group Chat 风格
+    if (isMembershipLimit) {
+        modalContent.style.cssText = `
+            background: linear-gradient(180deg, #FFF9E6 0%, #FFF4D6 100%);
+            border-radius: 32px;
+            padding: 0;
+            width: 480px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
+            position: relative;
+            animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-sizing: border-box;
+            box-shadow: 
+                0 8px 0 rgba(0, 0, 0, 0.2),
+                0 16px 40px rgba(0, 0, 0, 0.4);
+            border: 3px solid #A5B4FC;
+            text-align: center;
+            overflow: hidden;
+        `;
+    } else {
+        modalContent.style.cssText = `
+            min-width: ${isMobile ? '0' : '400px'};
+            max-width: ${isMobile ? 'calc(100vw - 40px)' : '500px'};
+            width: ${isMobile ? 'calc(100vw - 40px)' : '90vw'};
+            max-height: 90vh;
+            overflow-y: auto;
+            font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
+            position: relative;
+            animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-sizing: border-box;
+        `;
+    }
+    
+    // 如果是会员限制弹窗，添加导航栏
+    if (isMembershipLimit) {
+        const navBar = document.createElement('nav');
+        navBar.className = 'game-nav';
+        navBar.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #1A1A1D 0%, #0F0F0F 50%, #050505 100%);
+            padding: 12px 20px;
+            border-bottom: 2px solid #000000;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        `;
+        navBar.innerHTML = `
+            <a href="index.html" style="
+                color: #FFFFFF;
+                text-decoration: none;
+                font-size: 18px;
+                font-weight: 700;
+                cursor: pointer;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
+                letter-spacing: 1px;
+                transition: opacity 0.2s;
+            " onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                FishTalk.app <span style="color: #FFD700;">hotguy</span>
+            </a>
+        `;
+        modalContent.appendChild(navBar);
+    }
     
     // 如果有标题，添加标题横幅
-    if (title) {
+    if (title || isMembershipLimit) {
         const titleBanner = document.createElement('div');
         titleBanner.className = 'modal-title-banner';
-        titleBanner.innerHTML = `<h2>${config.icon} ${title}</h2>`;
+        if (isMembershipLimit) {
+            titleBanner.style.cssText = `
+                margin-top: 52px;
+                background: linear-gradient(180deg, #1A1A1D 0%, #0F0F0F 50%, #050505 100%);
+                padding: 16px 24px;
+                border-bottom: 2px solid #000000;
+                position: relative;
+                box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1);
+            `;
+            titleBanner.innerHTML = `<h2 style="color: #FFFFFF; margin: 0; font-size: 24px; font-weight: 900; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2); letter-spacing: 1px;">🐟 Fish Limit Reached</h2>`;
+        } else {
+            titleBanner.innerHTML = `<h2>${config.icon} ${title}</h2>`;
+        }
         modalContent.appendChild(titleBanner);
     }
     
     // 创建内容区域
     const contentArea = document.createElement('div');
-    if (title) {
+    if (title || isMembershipLimit) {
         contentArea.className = 'modal-content-area';
+        if (isMembershipLimit) {
+            contentArea.style.cssText = 'padding: 40px; padding-top: 32px; position: relative; z-index: 1;';
+        }
     } else {
         contentArea.style.cssText = 'padding: 32px; position: relative; z-index: 1;';
     }
     
     // 构建内容HTML（先构建HTML，再添加关闭按钮）
-    let contentHTML = `
-        <div style="position: relative; z-index: 1;">
-            <p style="font-size: 16px; margin: 0 0 20px 0; text-align: center; color: #333; line-height: 1.6;">
-                ${message}
-            </p>
-    `;
+    let contentHTML = '';
     
-    // 如果有详细信息，显示详细信息
-    if (details) {
-        if (details.tier && details.currentCount !== undefined) {
-            // 会员限制信息
-            contentHTML += `
-                <div style="background: rgba(255, 255, 255, 0.6); padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 2px solid ${config.borderColor}40;">
-                    <div style="font-size: 14px; color: #666; margin-bottom: 8px;">
-                        <strong>当前状态：</strong>
-                    </div>
-                    <div style="font-size: 14px; color: #333;">
-                        • 会员等级: <strong>${details.tier}</strong><br>
-                        • 当前鱼数量: <strong>${details.currentCount}</strong> 条<br>
-                        • 上限: <strong>${details.limit || 1}</strong> 条
+    if (isMembershipLimit) {
+        // Fish Group Chat 风格的内容
+        contentHTML = `
+            <div style="position: relative; z-index: 1;">
+                <!-- 图标 -->
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 20px;
+                    margin-bottom: 24px;
+                    padding: 20px 0;
+                ">
+                    <div style="
+                        font-size: 72px;
+                        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                        animation: float 2s ease-in-out infinite;
+                    ">🐟</div>
+                    <div style="
+                        background: linear-gradient(180deg, #D4A574 0%, #C8965A 50%, #B8854A 100%);
+                        border: 3px solid #8B6F3D;
+                        border-radius: 12px;
+                        padding: 16px 20px;
+                        box-shadow: 
+                            0 4px 0 rgba(0, 0, 0, 0.2),
+                            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                        position: relative;
+                    ">
+                        <div style="
+                            color: #5D4037;
+                            font-size: 14px;
+                            font-weight: 700;
+                            margin-bottom: 4px;
+                            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                        ">Upgrade Required</div>
+                        <div style="
+                            color: #3E2723;
+                            font-size: 18px;
+                            font-weight: 900;
+                            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                        ">Create More Fish</div>
                     </div>
                 </div>
-            `;
-        }
-    }
-    
-    // 按钮区域
-    contentHTML += `
-            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; flex-direction: column;">
-    `;
-    
-    buttons.forEach((btn, index) => {
-        const isPrimary = index === 0;
-        const btnStyle = isPrimary ? `
-            background: linear-gradient(180deg, ${config.color} 0%, ${config.color}dd 50%, ${config.color}bb 100%);
-            color: white;
-            font-weight: 900;
-            box-shadow: 0 4px 0 ${config.color}80, 0 6px 20px ${config.color}40;
-        ` : `
-            background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
-            color: ${config.color};
-            font-weight: 700;
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                
+                <!-- 描述 -->
+                <p style="
+                    color: #666;
+                    margin: 0 0 32px 0;
+                    font-size: 16px;
+                    line-height: 1.6;
+                    padding: 0 10px;
+                ">${message}</p>
+                
+                <!-- 当前状态卡片 -->
+                <div style="
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+                    border-radius: 16px;
+                    padding: 24px;
+                    margin-bottom: 24px;
+                    border: 2px solid rgba(255, 255, 255, 0.8);
+                    box-shadow: 
+                        inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                        0 2px 8px rgba(0, 0, 0, 0.1);
+                    position: relative;
+                ">
+                    <div style="font-size: 14px; color: #666; margin-bottom: 16px; text-align: left;">
+                        <strong>当前状态：</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="color: #666; font-size: 16px; font-weight: 600;">会员等级</span>
+                        <span style="color: #4A90E2; font-size: 18px; font-weight: 900; text-shadow: 0 1px 2px rgba(74, 144, 226, 0.3); text-transform: capitalize;">${details.tier}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="color: #666; font-size: 16px; font-weight: 600;">当前鱼数量</span>
+                        <span style="color: #4A90E2; font-size: 18px; font-weight: 900; text-shadow: 0 1px 2px rgba(74, 144, 226, 0.3);">${details.currentCount} 条</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #666; font-size: 16px; font-weight: 600;">上限</span>
+                        <span style="color: #4A90E2; font-size: 18px; font-weight: 900; text-shadow: 0 1px 2px rgba(74, 144, 226, 0.3);">${details.limit || 1} 条</span>
+                    </div>
+                </div>
+                
+                <!-- 按钮区域 -->
+                <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
         `;
         
+        buttons.forEach((btn, index) => {
+            const isPrimary = index === 0;
+            const btnClass = isPrimary ? 'game-btn game-btn-blue' : 'game-btn game-btn-orange';
+            const btnStyle = isPrimary ? `
+                background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+                border-bottom: 3px solid #2A5F8F;
+                color: white;
+            ` : `
+                background: linear-gradient(180deg, #FF9500 0%, #FF8800 50%, #E67700 100%);
+                border-bottom: 3px solid #CC6600;
+                color: white;
+            `;
+            
+            contentHTML += `
+                <button id="alert-btn-${index}" 
+                        class="${btnClass}"
+                        style="
+                            width: 100%;
+                            padding: 16px 28px;
+                            border: none;
+                            border-radius: 24px;
+                            font-size: 18px;
+                            font-weight: 700;
+                            cursor: pointer;
+                            position: relative;
+                            overflow: hidden;
+                            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                            transition: all 0.15s ease;
+                            transform: translateY(0);
+                            ${btnStyle}
+                        ">
+                    <span style="position: relative; z-index: 1;">${btn.text}</span>
+                </button>
+            `;
+        });
+        
         contentHTML += `
-            <button id="alert-btn-${index}" 
-                    style="padding: 12px 32px; font-size: 16px; border: none; border-radius: 16px; cursor: pointer;
-                           ${btnStyle}
-                           transition: all 0.15s; position: relative; overflow: hidden; min-width: 100px;">
-                ${btn.text}
-            </button>
-        `;
-    });
-    
-    contentHTML += `
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    } else {
+        // 原有风格的内容
+        contentHTML = `
+            <div style="position: relative; z-index: 1;">
+                <p style="font-size: 16px; margin: 0 0 20px 0; text-align: center; color: #333; line-height: 1.6;">
+                    ${message}
+                </p>
+        `;
+        
+        // 如果有详细信息，显示详细信息
+        if (details) {
+            if (details.tier && details.currentCount !== undefined) {
+                // 会员限制信息
+                contentHTML += `
+                    <div style="background: rgba(255, 255, 255, 0.6); padding: 16px; border-radius: 12px; margin-bottom: 20px; border: 2px solid ${config.borderColor}40;">
+                        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">
+                            <strong>当前状态：</strong>
+                        </div>
+                        <div style="font-size: 14px; color: #333;">
+                            • 会员等级: <strong>${details.tier}</strong><br>
+                            • 当前鱼数量: <strong>${details.currentCount}</strong> 条<br>
+                            • 上限: <strong>${details.limit || 1}</strong> 条
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // 按钮区域
+        contentHTML += `
+                <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; flex-direction: column;">
+        `;
+        
+        buttons.forEach((btn, index) => {
+            const isPrimary = index === 0;
+            const btnStyle = isPrimary ? `
+                background: linear-gradient(180deg, ${config.color} 0%, ${config.color}dd 50%, ${config.color}bb 100%);
+                color: white;
+                font-weight: 900;
+                box-shadow: 0 4px 0 ${config.color}80, 0 6px 20px ${config.color}40;
+            ` : `
+                background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                color: ${config.color};
+                font-weight: 700;
+                box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+            `;
+            
+            contentHTML += `
+                <button id="alert-btn-${index}" 
+                        style="padding: 12px 32px; font-size: 16px; border: none; border-radius: 16px; cursor: pointer;
+                               ${btnStyle}
+                               transition: all 0.15s; position: relative; overflow: hidden; min-width: 100px;">
+                    ${btn.text}
+                </button>
+            `;
+        });
+        
+        contentHTML += `
+                </div>
+            </div>
+        `;
+    }
     
     // 设置内容HTML
     contentArea.innerHTML = contentHTML;
     
-    // 添加关闭按钮（在内容之后添加，确保在最上层）
+    modalContent.appendChild(contentArea);
+    
+    // 添加关闭按钮（添加到modalContent，确保在右上角）
     const closeBtn = document.createElement('button');
     closeBtn.className = 'modal-close-btn';
+    if (isMembershipLimit) {
+        closeBtn.style.cssText = `
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #4CD964 0%, #3CB54A 50%, #2E8B3A 100%);
+            border: none;
+            border-bottom: 3px solid #1F6B2A;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            transition: all 0.15s ease;
+            z-index: 10;
+            line-height: 1;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        `;
+    } else {
+        // 非会员限制弹窗的关闭按钮也放在右上角
+        closeBtn.style.cssText = `
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #4CD964 0%, #3CB54A 50%, #2E8B3A 100%);
+            border: none;
+            border-bottom: 3px solid #1F6B2A;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            transition: all 0.15s ease;
+            z-index: 10;
+            line-height: 1;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        `;
+    }
     closeBtn.innerHTML = '×';
     closeBtn.title = 'Close';
-    contentArea.appendChild(closeBtn);
-    
-    modalContent.appendChild(contentArea);
+    modalContent.appendChild(closeBtn);
     
     // 添加顶部光泽效果
     const gloss = document.createElement('div');
     gloss.style.cssText = `
         position: absolute;
-        top: 0;
+        top: ${isMembershipLimit ? '52px' : '0'};
         left: 0;
         right: 0;
         height: 50%;
         background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
-        border-radius: 32px 32px 0 0;
+        border-radius: ${isMembershipLimit ? '0' : '32px 32px 0 0'};
         pointer-events: none;
         z-index: 1;
     `;
@@ -533,54 +802,79 @@ function showUserAlert(options) {
         if (!button) return;
         
         const isPrimary = index === 0;
-        if (isPrimary) {
-            const shine = document.createElement('div');
-            shine.style.cssText = `
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 50%;
-                background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
-                border-radius: 16px 16px 0 0;
-                pointer-events: none;
-            `;
-            button.appendChild(shine);
-        }
         
-        // 按钮交互效果
-        button.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-2px)';
+        if (isMembershipLimit) {
+            // Fish Group Chat 风格的按钮交互效果
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                if (isPrimary) {
+                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                } else {
+                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                }
+            });
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+            });
+            button.addEventListener('mousedown', function() {
+                this.style.transform = 'translateY(2px)';
+                this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+            });
+            button.addEventListener('mouseup', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+            });
+        } else {
+            // 原有风格的按钮交互效果
             if (isPrimary) {
-                this.style.boxShadow = `0 6px 0 ${config.color}80, 0 8px 25px ${config.color}50`;
-            } else {
-                this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.15)';
+                const shine = document.createElement('div');
+                shine.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 50%;
+                    background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+                    border-radius: 16px 16px 0 0;
+                    pointer-events: none;
+                `;
+                button.appendChild(shine);
             }
-        });
-        button.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            if (isPrimary) {
-                this.style.boxShadow = `0 4px 0 ${config.color}80, 0 6px 20px ${config.color}40`;
-            } else {
-                this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.15)';
-            }
-        });
-        button.addEventListener('mousedown', function() {
-            this.style.transform = 'translateY(2px)';
-            if (isPrimary) {
-                this.style.boxShadow = `0 2px 0 ${config.color}80, 0 4px 15px ${config.color}40`;
-            } else {
-                this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.15)';
-            }
-        });
-        button.addEventListener('mouseup', function() {
-            this.style.transform = 'translateY(-2px)';
-            if (isPrimary) {
-                this.style.boxShadow = `0 6px 0 ${config.color}80, 0 8px 25px ${config.color}50`;
-            } else {
-                this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.15)';
-            }
-        });
+            
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                if (isPrimary) {
+                    this.style.boxShadow = `0 6px 0 ${config.color}80, 0 8px 25px ${config.color}50`;
+                } else {
+                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.15)';
+                }
+            });
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                if (isPrimary) {
+                    this.style.boxShadow = `0 4px 0 ${config.color}80, 0 6px 20px ${config.color}40`;
+                } else {
+                    this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.15)';
+                }
+            });
+            button.addEventListener('mousedown', function() {
+                this.style.transform = 'translateY(2px)';
+                if (isPrimary) {
+                    this.style.boxShadow = `0 2px 0 ${config.color}80, 0 4px 15px ${config.color}40`;
+                } else {
+                    this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.15)';
+                }
+            });
+            button.addEventListener('mouseup', function() {
+                this.style.transform = 'translateY(-2px)';
+                if (isPrimary) {
+                    this.style.boxShadow = `0 6px 0 ${config.color}80, 0 8px 25px ${config.color}50`;
+                } else {
+                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.15)';
+                }
+            });
+        }
         
         // 按钮点击事件
         button.addEventListener('click', () => {
@@ -623,131 +917,202 @@ function showUserAlert(options) {
     return { close, overlay };
 }
 
-// Enhanced success modal with social sharing
+// Enhanced success modal with social sharing (Fish Group Chat style)
 function showSuccessModal(fishImageUrl, needsModeration) {
     const config = window.SOCIAL_CONFIG;
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(5px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        animation: fadeIn 0.3s ease;
-    `;
-    
-    const modalContent = document.createElement('div');
-    modalContent.style.cssText = `
-        background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
-        padding: 32px;
-        border-radius: 24px;
-        min-width: 400px;
-        max-width: 500px;
-        width: 90vw;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: 
-            0 8px 0 rgba(0, 0, 0, 0.2),
-            0 15px 50px rgba(74, 144, 226, 0.4);
-        border: 3px solid rgba(255, 255, 255, 0.9);
-        border-bottom: 5px solid rgba(74, 144, 226, 0.6);
-        font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
-        position: relative;
-        animation: fadeInScale 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    `;
     
     const modalHTML = `
-        <h2 style="color: #4A90E2; margin: 0 0 24px 0; font-size: 28px; text-align: center; font-weight: bold;">
-            🎉 ${needsModeration ? 'Fish Submitted!' : 'Your Fish is Swimming!'}
-        </h2>
-        
-        <div style="text-align: center; margin-bottom: 24px;">
-            <img src="${fishImageUrl}" alt="Your fish" style="max-width: 200px; border-radius: 16px; border: 3px solid #4A90E2; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);">
+        <div class="modal-title-banner">
+            <h2>🎉 ${needsModeration ? 'Fish Submitted!' : 'Your Fish is Swimming!'}</h2>
         </div>
-        
-        <p style="font-size: 16px; margin: 0 0 24px 0; text-align: center; color: #666;">
-            ${needsModeration 
-                ? '🐠 Your fish will appear in the tank after review.' 
-                : '💙 Love creating with AI? Join our community!'}
-        </p>
-        
-        <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap;">
-            <a href="${config.twitter.url}" target="_blank" rel="noopener noreferrer" 
-               style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: #000; color: white; 
-                      text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 14px;
-                      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); transition: all 0.3s ease;
-                      border: 2px solid transparent;"
-               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 0, 0, 0.35)';"
-               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.25)';">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
-                Follow on X
-            </a>
-            <a href="${config.discord.inviteUrl}" target="_blank" rel="noopener noreferrer"
-               style="display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: #5865F2; color: white;
-                      text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 14px;
-                      box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4); transition: all 0.3s ease;
-                      border: 2px solid transparent;"
-               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(88, 101, 242, 0.5)';"
-               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(88, 101, 242, 0.4)';">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
-                </svg>
-                Join Discord
-            </a>
-        </div>
-        
-        <div style="text-align: center; margin: 24px 0 16px 0; font-weight: 600; font-size: 16px; color: #333;">
-            📢 Share your creation:
-        </div>
-        
-        <div id="share-buttons-container" style="margin-bottom: 24px;"></div>
-        
-        <div style="text-align: center;">
-            <button onclick="window.location.href='tank.html'" 
-                    style="padding: 14px 40px; font-size: 18px; font-weight: bold; color: white;
-                           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                           border: none; border-radius: 16px; cursor: pointer;
-                           box-shadow: 0 6px 0 rgba(102, 126, 234, 0.4), 0 8px 20px rgba(102, 126, 234, 0.3);
-                           transition: all 0.2s ease; position: relative; top: 0;"
-                    onmouseover="this.style.top='-2px'; this.style.boxShadow='0 8px 0 rgba(102, 126, 234, 0.4), 0 10px 25px rgba(102, 126, 234, 0.4)';"
-                    onmouseout="this.style.top='0'; this.style.boxShadow='0 6px 0 rgba(102, 126, 234, 0.4), 0 8px 20px rgba(102, 126, 234, 0.3)';"
-                    onmousedown="this.style.top='3px'; this.style.boxShadow='0 3px 0 rgba(102, 126, 234, 0.4), 0 5px 15px rgba(102, 126, 234, 0.3)';"
-                    onmouseup="this.style.top='0'; this.style.boxShadow='0 6px 0 rgba(102, 126, 234, 0.4), 0 8px 20px rgba(102, 126, 234, 0.3)';">
-                🌊 Let's Swim! 🐟
-            </button>
+        <button class="modal-close-btn" aria-label="Close">&times;</button>
+        <div class="modal-content-area" style="text-align: center; padding: 40px; padding-top: 32px;">
+            <!-- Icon and Card -->
+            <div style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 20px;
+                margin-bottom: 24px;
+                padding: 20px 0;
+            ">
+                <div style="
+                    font-size: 72px;
+                    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                    animation: float 2s ease-in-out infinite;
+                ">🐟</div>
+                <div style="
+                    background: linear-gradient(180deg, #D4A574 0%, #C8965A 50%, #B8854A 100%);
+                    border: 3px solid #8B6F3D;
+                    border-radius: 12px;
+                    padding: 16px 20px;
+                    box-shadow: 
+                        0 4px 0 rgba(0, 0, 0, 0.2),
+                        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                    position: relative;
+                ">
+                    <div style="
+                        color: #5D4037;
+                        font-size: 14px;
+                        font-weight: 700;
+                        margin-bottom: 4px;
+                        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                    ">Success!</div>
+                    <div style="
+                        color: #3E2723;
+                        font-size: 18px;
+                        font-weight: 900;
+                        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                    ">Fish Created</div>
+                </div>
+            </div>
+            
+            <!-- Fish Image -->
+            <div style="text-align: center; margin-bottom: 24px;">
+                <img src="${fishImageUrl}" alt="Your fish" style="
+                    max-width: 200px;
+                    border-radius: 16px;
+                    border: 3px solid #4A90E2;
+                    box-shadow: 
+                        0 4px 0 rgba(0, 0, 0, 0.2),
+                        0 8px 20px rgba(74, 144, 226, 0.3);
+                ">
+            </div>
+            
+            <!-- Description -->
+            <p style="
+                color: #666;
+                margin: 0 0 32px 0;
+                font-size: 16px;
+                line-height: 1.6;
+                padding: 0 10px;
+            ">
+                ${needsModeration 
+                    ? '🐠 Your fish will appear in the tank after review.' 
+                    : '💙 Love creating with AI? Join our community!'}
+            </p>
+            
+            <!-- Social Links -->
+            <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap;">
+                <a href="${config.twitter.url}" target="_blank" rel="noopener noreferrer" 
+                   class="game-btn" style="
+                       display: flex;
+                       align-items: center;
+                       gap: 8px;
+                       padding: 12px 20px;
+                       background: linear-gradient(180deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+                       border-bottom: 3px solid #000000;
+                       color: white;
+                       text-decoration: none;
+                       border-radius: 16px;
+                       font-weight: 700;
+                       font-size: 14px;
+                       box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                       transition: all 0.15s ease;
+                       transform: translateY(0);
+                   "
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 0 rgba(0, 0, 0, 0.25)';"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.25)';"
+                   onmousedown="this.style.transform='translateY(2px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.25)';"
+                   onmouseup="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 0 rgba(0, 0, 0, 0.25)';">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    Follow on X
+                </a>
+                <a href="${config.discord.inviteUrl}" target="_blank" rel="noopener noreferrer"
+                   class="game-btn" style="
+                       display: flex;
+                       align-items: center;
+                       gap: 8px;
+                       padding: 12px 20px;
+                       background: linear-gradient(180deg, #5865F2 0%, #4752C4 50%, #3C45A5 100%);
+                       border-bottom: 3px solid #2F3136;
+                       color: white;
+                       text-decoration: none;
+                       border-radius: 16px;
+                       font-weight: 700;
+                       font-size: 14px;
+                       box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                       transition: all 0.15s ease;
+                       transform: translateY(0);
+                   "
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 0 rgba(0, 0, 0, 0.25)';"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.25)';"
+                   onmousedown="this.style.transform='translateY(2px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.25)';"
+                   onmouseup="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 0 rgba(0, 0, 0, 0.25)';">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                    </svg>
+                    Join Discord
+                </a>
+            </div>
+            
+            <!-- Share Section -->
+            <div style="text-align: center; margin: 24px 0 16px 0; font-weight: 600; font-size: 16px; color: #333;">
+                📢 Share your creation:
+            </div>
+            
+            <div id="share-buttons-container" style="margin-bottom: 24px;"></div>
+            
+            <!-- Let's Swim Button -->
+            <div style="text-align: center; margin-top: 24px;">
+                <button id="lets-swim-btn" onclick="window.location.href='tank.html'" 
+                        class="game-btn game-btn-blue" style="
+                            width: 100%;
+                            padding: 16px 28px;
+                            border: none;
+                            border-radius: 24px;
+                            background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+                            border-bottom: 3px solid #2A5F8F;
+                            color: white;
+                            font-size: 18px;
+                            font-weight: 700;
+                            cursor: pointer;
+                            position: relative;
+                            overflow: hidden;
+                            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                            transition: all 0.15s ease;
+                            transform: translateY(0);
+                        ">
+                    <span style="position: relative; z-index: 1;">🌊 Let's Swim! 🐟</span>
+                </button>
+            </div>
         </div>
     `;
     
-    modalContent.innerHTML = modalHTML;
-    overlay.appendChild(modalContent);
-    document.body.appendChild(overlay);
+    const modal = showModal(modalHTML, () => { });
     
-    // Add share buttons using the social share module
-    const shareContainer = overlay.querySelector('#share-buttons-container');
-    if (shareContainer && window.socialShare) {
-        const shareMenu = window.socialShare.createShareMenu('success-modal-share');
-        shareContainer.appendChild(shareMenu);
-    }
-    
-    // Close modal when clicking outside
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-            overlay.style.animation = 'fadeIn 0.3s ease reverse';
-            setTimeout(() => {
-                if (overlay.parentNode) {
-                    document.body.removeChild(overlay);
-                }
-            }, 300);
+    // Add button interactions
+    setTimeout(() => {
+        const letsSwimBtn = document.getElementById('lets-swim-btn');
+        if (letsSwimBtn) {
+            letsSwimBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+            });
+            letsSwimBtn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+            });
+            letsSwimBtn.addEventListener('mousedown', function() {
+                this.style.transform = 'translateY(2px)';
+                this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+            });
+            letsSwimBtn.addEventListener('mouseup', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+            });
         }
-    });
+        
+        // Add share buttons using the social share module
+        const shareContainer = modal.modal.querySelector('#share-buttons-container');
+        if (shareContainer && window.socialShare) {
+            const shareMenu = window.socialShare.createShareMenu('success-modal-share');
+            shareContainer.appendChild(shareMenu);
+        }
+    }, 100);
 }
 
 // --- Fish submission modal handler ---
@@ -883,7 +1248,7 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
                     message: submitResult.message || 'You have reached your daily drawing limit.',
                     buttons: [
                         {
-                            text: 'View Membership',
+                            text: 'Upgrade',
                             action: () => {
                                 window.location.href = 'membership.html';
                             },
@@ -1030,29 +1395,183 @@ swimBtn.addEventListener('click', async () => {
     
     // Show different modal based on fish validity
     if (!isFish) {
-        // Show encouragement modal for low-scoring fish - no submission
-        showModal(`<div style='text-align:center; padding: 20px;'>
-            <div style='color:#ff6b35; font-weight:bold; font-size: 18px; margin-bottom:16px;'>⚠️ 这可能不是一条鱼</div>
-            <div style='margin-bottom:20px; line-height:1.6; color: #666;'>
-                AI未能识别出鱼的特征。请尝试：<br>
-                • 画一条面向右侧的鱼<br>
-                • 包含鱼的基本特征（身体、尾巴、鱼鳍）<br>
-                • 让线条更清晰一些
+        // Show encouragement modal for low-scoring fish - no submission (Fish Group Chat style)
+        const notFishModal = `
+            <div class="modal-title-banner">
+                <h2>⚠️ Not a Fish Detected</h2>
             </div>
-            <div style='display: flex; gap: 12px; justify-content: center;'>
-                <button id='try-again-fish' class='cute-button cute-button-primary' style='padding: 10px 24px; background:#3498db;'>重新画一条</button>
-                <button id='cancel-fish' class='cute-button' style='padding: 10px 24px; background: #e0e0e0;'>取消</button>
+            <button class="modal-close-btn" aria-label="Close">&times;</button>
+            <div class="modal-content-area" style="text-align: center; padding: 40px; padding-top: 32px;">
+                <!-- Icon and Card -->
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 20px;
+                    margin-bottom: 24px;
+                    padding: 20px 0;
+                ">
+                    <div style="
+                        font-size: 72px;
+                        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                        animation: float 2s ease-in-out infinite;
+                    ">🐟</div>
+                    <div style="
+                        background: linear-gradient(180deg, #D4A574 0%, #C8965A 50%, #B8854A 100%);
+                        border: 3px solid #8B6F3D;
+                        border-radius: 12px;
+                        padding: 16px 20px;
+                        box-shadow: 
+                            0 4px 0 rgba(0, 0, 0, 0.2),
+                            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                        position: relative;
+                    ">
+                        <div style="
+                            color: #5D4037;
+                            font-size: 14px;
+                            font-weight: 700;
+                            margin-bottom: 4px;
+                            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                        ">AI Recognition</div>
+                        <div style="
+                            color: #3E2723;
+                            font-size: 18px;
+                            font-weight: 900;
+                            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                        ">Try Again</div>
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <p style="
+                    color: #666;
+                    margin: 0 0 32px 0;
+                    font-size: 16px;
+                    line-height: 1.6;
+                    padding: 0 10px;
+                ">
+                    The AI couldn't recognize fish features. Please try:
+                </p>
+                
+                <!-- Tips Card -->
+                <div style="
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+                    border-radius: 16px;
+                    padding: 24px;
+                    margin-bottom: 24px;
+                    border: 2px solid rgba(255, 255, 255, 0.8);
+                    box-shadow: 
+                        inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                        0 2px 8px rgba(0, 0, 0, 0.1);
+                    position: relative;
+                    text-align: left;
+                ">
+                    <div style="color: #666; font-size: 15px; line-height: 1.8;">
+                        • Draw a fish facing <strong>right</strong><br>
+                        • Include basic features: <strong>body, tail, fins</strong><br>
+                        • Make the lines <strong>clearer</strong>
+                    </div>
+                </div>
+                
+                <!-- Buttons -->
+                <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                    <button id='try-again-fish' class='game-btn game-btn-blue' style="
+                        width: 100%;
+                        padding: 16px 28px;
+                        border: none;
+                        border-radius: 24px;
+                        background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+                        border-bottom: 3px solid #2A5F8F;
+                        color: white;
+                        font-size: 18px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        position: relative;
+                        overflow: hidden;
+                        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                        box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                        transition: all 0.15s ease;
+                        transform: translateY(0);
+                    ">
+                        <span style="position: relative; z-index: 1;">Draw Again</span>
+                    </button>
+                    <button id='cancel-fish' class='game-btn game-btn-orange' style="
+                        width: 100%;
+                        padding: 16px 28px;
+                        border: none;
+                        border-radius: 24px;
+                        background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E67E00 100%);
+                        border-bottom: 3px solid #CC6F00;
+                        color: white;
+                        font-size: 18px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        position: relative;
+                        overflow: hidden;
+                        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                        box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                        transition: all 0.15s ease;
+                        transform: translateY(0);
+                    ">
+                        <span style="position: relative; z-index: 1;">Cancel</span>
+                    </button>
+                </div>
             </div>
-        </div>`, () => { });
+        `;
         
-        // 重新画按钮 - 清空画布
-        document.getElementById('try-again-fish').onclick = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            document.querySelector('div[style*="z-index: 9999"]')?.remove();
-        };
-        document.getElementById('cancel-fish').onclick = () => {
-            document.querySelector('div[style*="z-index: 9999"]')?.remove();
-        };
+        showModal(notFishModal, () => { });
+        
+        // Add button interactions
+        setTimeout(() => {
+            const tryAgainBtn = document.getElementById('try-again-fish');
+            const cancelBtn = document.getElementById('cancel-fish');
+            
+            if (tryAgainBtn) {
+                tryAgainBtn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                });
+                tryAgainBtn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                });
+                tryAgainBtn.addEventListener('mousedown', function() {
+                    this.style.transform = 'translateY(2px)';
+                    this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+                });
+                tryAgainBtn.addEventListener('mouseup', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                });
+                tryAgainBtn.onclick = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    document.querySelector('div[style*="z-index: 9999"]')?.remove();
+                };
+            }
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                });
+                cancelBtn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                });
+                cancelBtn.addEventListener('mousedown', function() {
+                    this.style.transform = 'translateY(2px)';
+                    this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+                });
+                cancelBtn.addEventListener('mouseup', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                });
+                cancelBtn.onclick = () => {
+                    document.querySelector('div[style*="z-index: 9999"]')?.remove();
+                };
+            }
+        }, 100);
+        
         return; // 不继续执行提交流程
     } else {
         // Show normal submission modal for good fish with fish name and personality
@@ -2304,28 +2823,182 @@ async function setupAuthListener() {
                     
                     // 显示命名modal
                     if (!isFish) {
-                        // 显示警告modal（低分鱼）
-                        showModal(`<div style='text-align:center; padding: 20px;'>
-                            <div style='color:#ff6b35; font-weight:bold; font-size: 18px; margin-bottom:16px;'>⚠️ 这可能不是一条鱼</div>
-                            <div style='margin-bottom:20px; line-height:1.6; color: #666;'>
-                                AI未能识别出鱼的特征。请尝试：<br>
-                                • 画一条面向右侧的鱼<br>
-                                • 包含鱼的基本特征（身体、尾巴、鱼鳍）<br>
-                                • 让线条更清晰一些
+                        // 显示警告modal（低分鱼）- Fish Group Chat style
+                        const notFishModal = `
+                            <div class="modal-title-banner">
+                                <h2>⚠️ Not a Fish Detected</h2>
                             </div>
-                            <div style='display: flex; gap: 12px; justify-content: center;'>
-                                <button id='try-again-fish' class='cute-button cute-button-primary' style='padding: 10px 24px; background:#3498db;'>重新画一条</button>
-                                <button id='cancel-fish' class='cute-button' style='padding: 10px 24px; background: #e0e0e0;'>取消</button>
+                            <button class="modal-close-btn" aria-label="Close">&times;</button>
+                            <div class="modal-content-area" style="text-align: center; padding: 40px; padding-top: 32px;">
+                                <!-- Icon and Card -->
+                                <div style="
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 20px;
+                                    margin-bottom: 24px;
+                                    padding: 20px 0;
+                                ">
+                                    <div style="
+                                        font-size: 72px;
+                                        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                                        animation: float 2s ease-in-out infinite;
+                                    ">🐟</div>
+                                    <div style="
+                                        background: linear-gradient(180deg, #D4A574 0%, #C8965A 50%, #B8854A 100%);
+                                        border: 3px solid #8B6F3D;
+                                        border-radius: 12px;
+                                        padding: 16px 20px;
+                                        box-shadow: 
+                                            0 4px 0 rgba(0, 0, 0, 0.2),
+                                            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                                        position: relative;
+                                    ">
+                                        <div style="
+                                            color: #5D4037;
+                                            font-size: 14px;
+                                            font-weight: 700;
+                                            margin-bottom: 4px;
+                                            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                                        ">AI Recognition</div>
+                                        <div style="
+                                            color: #3E2723;
+                                            font-size: 18px;
+                                            font-weight: 900;
+                                            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                                        ">Try Again</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Description -->
+                                <p style="
+                                    color: #666;
+                                    margin: 0 0 32px 0;
+                                    font-size: 16px;
+                                    line-height: 1.6;
+                                    padding: 0 10px;
+                                ">
+                                    The AI couldn't recognize fish features. Please try:
+                                </p>
+                                
+                                <!-- Tips Card -->
+                                <div style="
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+                                    border-radius: 16px;
+                                    padding: 24px;
+                                    margin-bottom: 24px;
+                                    border: 2px solid rgba(255, 255, 255, 0.8);
+                                    box-shadow: 
+                                        inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                                        0 2px 8px rgba(0, 0, 0, 0.1);
+                                    position: relative;
+                                    text-align: left;
+                                ">
+                                    <div style="color: #666; font-size: 15px; line-height: 1.8;">
+                                        • Draw a fish facing <strong>right</strong><br>
+                                        • Include basic features: <strong>body, tail, fins</strong><br>
+                                        • Make the lines <strong>clearer</strong>
+                                    </div>
+                                </div>
+                                
+                                <!-- Buttons -->
+                                <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                                    <button id='try-again-fish' class='game-btn game-btn-blue' style="
+                                        width: 100%;
+                                        padding: 16px 28px;
+                                        border: none;
+                                        border-radius: 24px;
+                                        background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+                                        border-bottom: 3px solid #2A5F8F;
+                                        color: white;
+                                        font-size: 18px;
+                                        font-weight: 700;
+                                        cursor: pointer;
+                                        position: relative;
+                                        overflow: hidden;
+                                        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                                        box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                                        transition: all 0.15s ease;
+                                        transform: translateY(0);
+                                    ">
+                                        <span style="position: relative; z-index: 1;">Draw Again</span>
+                                    </button>
+                                    <button id='cancel-fish' class='game-btn game-btn-orange' style="
+                                        width: 100%;
+                                        padding: 16px 28px;
+                                        border: none;
+                                        border-radius: 24px;
+                                        background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E67E00 100%);
+                                        border-bottom: 3px solid #CC6F00;
+                                        color: white;
+                                        font-size: 18px;
+                                        font-weight: 700;
+                                        cursor: pointer;
+                                        position: relative;
+                                        overflow: hidden;
+                                        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                                        box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                                        transition: all 0.15s ease;
+                                        transform: translateY(0);
+                                    ">
+                                        <span style="position: relative; z-index: 1;">Cancel</span>
+                                    </button>
+                                </div>
                             </div>
-                        </div>`, () => { });
+                        `;
                         
-                        document.getElementById('try-again-fish').onclick = () => {
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                            document.querySelector('div[style*="z-index: 9999"]')?.remove();
-                        };
-                        document.getElementById('cancel-fish').onclick = () => {
-                            document.querySelector('div[style*="z-index: 9999"]')?.remove();
-                        };
+                        showModal(notFishModal, () => { });
+                        
+                        // Add button interactions
+                        setTimeout(() => {
+                            const tryAgainBtn = document.getElementById('try-again-fish');
+                            const cancelBtn = document.getElementById('cancel-fish');
+                            
+                            if (tryAgainBtn) {
+                                tryAgainBtn.addEventListener('mouseenter', function() {
+                                    this.style.transform = 'translateY(-2px)';
+                                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                tryAgainBtn.addEventListener('mouseleave', function() {
+                                    this.style.transform = 'translateY(0)';
+                                    this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                tryAgainBtn.addEventListener('mousedown', function() {
+                                    this.style.transform = 'translateY(2px)';
+                                    this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                tryAgainBtn.addEventListener('mouseup', function() {
+                                    this.style.transform = 'translateY(-2px)';
+                                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                tryAgainBtn.onclick = () => {
+                                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                    document.querySelector('div[style*="z-index: 9999"]')?.remove();
+                                };
+                            }
+                            
+                            if (cancelBtn) {
+                                cancelBtn.addEventListener('mouseenter', function() {
+                                    this.style.transform = 'translateY(-2px)';
+                                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                cancelBtn.addEventListener('mouseleave', function() {
+                                    this.style.transform = 'translateY(0)';
+                                    this.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                cancelBtn.addEventListener('mousedown', function() {
+                                    this.style.transform = 'translateY(2px)';
+                                    this.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                cancelBtn.addEventListener('mouseup', function() {
+                                    this.style.transform = 'translateY(-2px)';
+                                    this.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                                });
+                                cancelBtn.onclick = () => {
+                                    document.querySelector('div[style*="z-index: 9999"]')?.remove();
+                                };
+                            }
+                        }, 100);
                     } else {
                         // 显示命名modal（好鱼）
                         showModal(`<div class="modal-title-banner">

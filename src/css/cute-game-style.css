@@ -478,12 +478,12 @@ button.game-btn {
 /* 画布提示文字 - 居中覆盖层 */
 .canvas-hint {
   position: absolute;
-  top: 50%;
+  top: 20px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   z-index: 2;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   pointer-events: none;  /* 不阻挡鼠标事件 */
@@ -1360,6 +1360,14 @@ button.game-btn {
   .modal-content {
     width: 90vw;
     margin: 20px;
+    min-width: 0 !important; /* 移除固定最小宽度，允许在移动端自适应 */
+    max-width: calc(100vw - 40px) !important; /* 确保有左右边距 */
+  }
+  
+  .modal-content.has-title-banner {
+    min-width: 0 !important; /* 覆盖固定最小宽度 */
+    width: calc(100vw - 40px) !important; /* 确保有左右边距 */
+    max-width: calc(100vw - 40px) !important;
   }
   
   .modal-content:not(.has-title-banner) {

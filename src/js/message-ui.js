@@ -410,11 +410,8 @@ const MessageUI = {
         messagesData = await MessageClient.getUserMessages(targetId);
       }
 
-      // 调试：检查返回的数据结构
-      console.log('Messages data:', messagesData);
-      
+      // 检查返回的数据结构
       const messages = messagesData.messages || [];
-      console.log('Messages array:', messages, 'Length:', messages.length);
       const currentUserId = MessageClient.getCurrentUserId();
       const canShowDelete = showDeleteBtn && currentUserId;
 
