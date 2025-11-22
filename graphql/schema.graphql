@@ -2012,6 +2012,7 @@ type group_chat {
 
   """An object relationship"""
   user: users
+  user_talk: String
 }
 
 """
@@ -2116,6 +2117,7 @@ input group_chat_bool_exp {
   time_of_day: String_comparison_exp
   topic: String_comparison_exp
   user: users_bool_exp
+  user_talk: String_comparison_exp
 }
 
 """
@@ -2196,6 +2198,7 @@ input group_chat_insert_input {
   """
   topic: String
   user: users_obj_rel_insert_input
+  user_talk: String
 }
 
 """aggregate max on columns"""
@@ -2220,6 +2223,7 @@ type group_chat_max_fields {
   Chat topic, e.g., "Morning Greetings", "Swimming Fun"
   """
   topic: String
+  user_talk: String
 }
 
 """
@@ -2246,6 +2250,7 @@ input group_chat_max_order_by {
   Chat topic, e.g., "Morning Greetings", "Swimming Fun"
   """
   topic: order_by
+  user_talk: order_by
 }
 
 """aggregate min on columns"""
@@ -2270,6 +2275,7 @@ type group_chat_min_fields {
   Chat topic, e.g., "Morning Greetings", "Swimming Fun"
   """
   topic: String
+  user_talk: String
 }
 
 """
@@ -2296,6 +2302,7 @@ input group_chat_min_order_by {
   Chat topic, e.g., "Morning Greetings", "Swimming Fun"
   """
   topic: order_by
+  user_talk: order_by
 }
 
 """
@@ -2330,6 +2337,7 @@ input group_chat_order_by {
   time_of_day: order_by
   topic: order_by
   user: users_order_by
+  user_talk: order_by
 }
 
 """primary key columns input for table: group_chat"""
@@ -2375,6 +2383,9 @@ enum group_chat_select_column {
 
   """column name"""
   topic
+
+  """column name"""
+  user_talk
 }
 
 """
@@ -2406,6 +2417,7 @@ input group_chat_set_input {
   Chat topic, e.g., "Morning Greetings", "Swimming Fun"
   """
   topic: String
+  user_talk: String
 }
 
 """aggregate stddev on columns"""
@@ -2488,6 +2500,7 @@ input group_chat_stream_cursor_value_input {
   Chat topic, e.g., "Morning Greetings", "Swimming Fun"
   """
   topic: String
+  user_talk: String
 }
 
 """aggregate sum on columns"""
@@ -2534,6 +2547,9 @@ enum group_chat_update_column {
 
   """column name"""
   topic
+
+  """column name"""
+  user_talk
 }
 
 input group_chat_updates {

@@ -2691,18 +2691,32 @@ async function checkFishAfterStroke() {
 (function ensureONNXRuntime() {
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeONNX);
+        document.addEventListener('DOMContentLoaded', waitForONNXAndInitialize);
     } else {
-        initializeONNX();
+        waitForONNXAndInitialize();
     }
     
-    function initializeONNX() {
+    async function waitForONNXAndInitialize() {
+        // 等待ONNX Runtime加载（最多等待10秒）
+        let retries = 0;
+        const maxRetries = 200; // 10秒 (200 * 50ms)
+        
+        while (!window.ort && retries < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+            retries++;
+        }
+        
         if (!window.ort) {
-            console.error('ONNX Runtime not loaded! Please check if the script is included in HTML.');
+            console.error('⚠️ ONNX Runtime not loaded after 10 seconds!');
+            console.error('💡 Possible solutions:');
+            console.error('   1. Check your internet connection');
+            console.error('   2. Disable browser tracking prevention (Edge/Safari)');
+            console.error('   3. Check browser console for CDN errors');
+            console.error('   4. Try refreshing the page');
             return;
         }
         
-        console.log('ONNX Runtime available, starting model load...');
+        console.log('✅ ONNX Runtime available, starting model load...');
         loadFishModel().catch(error => {
             console.error('Failed to load fish model on startup:', error);
             console.error('Model path: fish_doodle_classifier.onnx');

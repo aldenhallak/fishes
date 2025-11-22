@@ -1674,6 +1674,7 @@ export type Group_Chat = {
   topic: Scalars['String']['output'];
   /** An object relationship */
   user?: Maybe<Users>;
+  user_talk?: Maybe<Scalars['String']['output']>;
 };
 
 
@@ -1779,6 +1780,7 @@ export type Group_Chat_Bool_Exp = {
   time_of_day?: InputMaybe<String_Comparison_Exp>;
   topic?: InputMaybe<String_Comparison_Exp>;
   user?: InputMaybe<Users_Bool_Exp>;
+  user_talk?: InputMaybe<String_Comparison_Exp>;
 };
 
 /** unique or primary key constraints on table "group_chat" */
@@ -1829,6 +1831,7 @@ export type Group_Chat_Insert_Input = {
   /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
   topic?: InputMaybe<Scalars['String']['input']>;
   user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_talk?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** aggregate max on columns */
@@ -1847,6 +1850,7 @@ export type Group_Chat_Max_Fields = {
   time_of_day?: Maybe<Scalars['String']['output']>;
   /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
   topic?: Maybe<Scalars['String']['output']>;
+  user_talk?: Maybe<Scalars['String']['output']>;
 };
 
 /** order by max() on columns of table "group_chat" */
@@ -1864,6 +1868,7 @@ export type Group_Chat_Max_Order_By = {
   time_of_day?: InputMaybe<Order_By>;
   /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
   topic?: InputMaybe<Order_By>;
+  user_talk?: InputMaybe<Order_By>;
 };
 
 /** aggregate min on columns */
@@ -1882,6 +1887,7 @@ export type Group_Chat_Min_Fields = {
   time_of_day?: Maybe<Scalars['String']['output']>;
   /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
   topic?: Maybe<Scalars['String']['output']>;
+  user_talk?: Maybe<Scalars['String']['output']>;
 };
 
 /** order by min() on columns of table "group_chat" */
@@ -1899,6 +1905,7 @@ export type Group_Chat_Min_Order_By = {
   time_of_day?: InputMaybe<Order_By>;
   /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
   topic?: InputMaybe<Order_By>;
+  user_talk?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "group_chat" */
@@ -1929,6 +1936,7 @@ export type Group_Chat_Order_By = {
   time_of_day?: InputMaybe<Order_By>;
   topic?: InputMaybe<Order_By>;
   user?: InputMaybe<Users_Order_By>;
+  user_talk?: InputMaybe<Order_By>;
 };
 
 /** primary key columns input for table: group_chat */
@@ -1961,7 +1969,9 @@ export enum Group_Chat_Select_Column {
   /** column name */
   TimeOfDay = 'time_of_day',
   /** column name */
-  Topic = 'topic'
+  Topic = 'topic',
+  /** column name */
+  UserTalk = 'user_talk'
 }
 
 /** input type for updating data in table "group_chat" */
@@ -1981,6 +1991,7 @@ export type Group_Chat_Set_Input = {
   time_of_day?: InputMaybe<Scalars['String']['input']>;
   /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
   topic?: InputMaybe<Scalars['String']['input']>;
+  user_talk?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** aggregate stddev on columns */
@@ -2047,6 +2058,7 @@ export type Group_Chat_Stream_Cursor_Value_Input = {
   time_of_day?: InputMaybe<Scalars['String']['input']>;
   /** Chat topic, e.g., "Morning Greetings", "Swimming Fun" */
   topic?: InputMaybe<Scalars['String']['input']>;
+  user_talk?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** aggregate sum on columns */
@@ -2081,7 +2093,9 @@ export enum Group_Chat_Update_Column {
   /** column name */
   TimeOfDay = 'time_of_day',
   /** column name */
-  Topic = 'topic'
+  Topic = 'topic',
+  /** column name */
+  UserTalk = 'user_talk'
 }
 
 export type Group_Chat_Updates = {
