@@ -7,7 +7,7 @@ async function getUserProfileFromHasura(userId) {
             query GetUserProfile($userId: String!) {
                 users_by_pk(id: $userId) {
                     id
-                    display_name
+                    nick_name
                     email
                     avatar_url
                     created_at
@@ -170,8 +170,9 @@ async function getUserProfileFromHasura(userId) {
         // Transform to match expected profile format
         return {
             userId: user.id,
-            displayName: user.display_name,
-            artistName: user.display_name,
+            displayName: user.nick_name,
+            artistName: user.nick_name,
+            nickName: user.nick_name, // 添加 nickName 字段，优先使用
             email: user.email,
             avatarUrl: user.avatar_url,
             createdAt: user.created_at,
@@ -478,41 +479,78 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
     
-    // Check authentication state for current user
-    const token = localStorage.getItem('userToken');
-    const userData = localStorage.getItem('userData');
-    const userIdFromStorage = localStorage.getItem('userId');
+    // Check authentication state for current user - 优先使用Supabase
+    async function checkAndLoadProfile() {
+        let userId = null;
+        let userData = null;
         
-    // Load current user's profile if logged in
-    if (token && userData) {
-        try {
-            const parsedUserData = JSON.parse(userData);
-            const userId = userIdFromStorage || 
-                           parsedUserData.uid || 
-                           parsedUserData.userId || 
-                           parsedUserData.id || 
-                           parsedUserData.email;
+        // 优先使用Supabase检查登录状态
+        if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
+            try {
+                const user = await window.supabaseAuth.getCurrentUser();
+                if (user && user.id) {
+                    userId = user.id;
+                    userData = {
+                        id: user.id,
+                        email: user.email,
+                        name: user.user_metadata?.name || user.user_metadata?.nick_name || user.email?.split('@')[0] || 'User',
+                        avatar_url: user.user_metadata?.avatar_url,
+                        created_at: user.created_at
+                    };
+                    console.log('✅ 使用Supabase获取用户信息:', userId);
+                }
+            } catch (error) {
+                console.warn('⚠️ Supabase获取用户信息失败:', error);
+            }
+        }
+        
+        // 如果Supabase没有用户，回退到localStorage
+        if (!userId) {
+            const token = localStorage.getItem('userToken');
+            const userDataStr = localStorage.getItem('userData');
+            const userIdFromStorage = localStorage.getItem('userId');
             
-            if (userId) {
-                // 尝试从API加载，如果失败则使用localStorage数据
-                getUserProfile(userId).then(profile => {
-                    displayProfile(profile, userId);
-                }).catch(error => {
-                    console.error('Error loading current user profile:', error);
-                    // 回退到显示localStorage中的基本信息
-                    console.log('📦 Falling back to localStorage data (network may be unavailable)');
+            if (token && userDataStr) {
+                try {
+                    const parsedUserData = JSON.parse(userDataStr);
+                    userId = userIdFromStorage || 
+                             parsedUserData.uid || 
+                             parsedUserData.userId || 
+                             parsedUserData.id || 
+                             parsedUserData.email;
+                    userData = parsedUserData;
+                    console.log('📦 使用localStorage获取用户信息:', userId);
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                }
+            } else if (userIdFromStorage) {
+                userId = userIdFromStorage;
+            }
+        }
+        
+        // 加载用户profile
+        if (userId) {
+            try {
+                // 尝试从API加载
+                const profile = await getUserProfile(userId);
+                displayProfile(profile, userId);
+            } catch (error) {
+                console.error('Error loading current user profile:', error);
+                // 回退到显示基本信息
+                if (userData) {
+                    console.log('📦 Falling back to cached user data');
                     const fallbackProfile = {
                         userId: userId,
-                        displayName: parsedUserData.name || parsedUserData.email?.split('@')[0] || 'User',
-                        email: parsedUserData.email,
-                        avatarUrl: parsedUserData.avatar_url,
-                        createdAt: parsedUserData.created_at || new Date().toISOString(),
-                        fishCount: parsedUserData.fishCount || 0,
-                        totalUpvotes: parsedUserData.totalUpvotes || 0,
-                        reputationScore: parsedUserData.reputationScore || 0,
-                        favoriteCount: parsedUserData.favoriteCount || 0,
-                        membershipTier: parsedUserData.membershipTier || 'free',
-                        membershipName: parsedUserData.membershipName || 'Free'
+                        displayName: userData.name || userData.nick_name || userData.display_name || userData.email?.split('@')[0] || 'User',
+                        email: userData.email,
+                        avatarUrl: userData.avatar_url || userData.avatarUrl,
+                        createdAt: userData.created_at || userData.createdAt || new Date().toISOString(),
+                        fishCount: userData.fishCount || 0,
+                        totalUpvotes: userData.totalUpvotes || 0,
+                        reputationScore: userData.reputationScore || 0,
+                        favoriteCount: userData.favoriteCount || 0,
+                        membershipTier: userData.membershipTier || 'free',
+                        membershipName: userData.membershipName || 'Free'
                     };
                     displayProfile(fallbackProfile, userId);
                     
@@ -527,26 +565,31 @@ document.addEventListener('DOMContentLoaded', function () {
                             errorDiv.style.border = '1px solid #ffc107';
                         }
                     }
-                });
-            } else {
-                document.getElementById('profile-empty').style.display = 'block';
+                } else {
+                    // 如果连缓存数据都没有，显示空状态
+                    document.getElementById('profile-empty').style.display = 'block';
+                }
             }
-        } catch (error) {
-            console.error('Error parsing user data:', error);
+        } else {
+            // 没有用户ID，显示空状态
             document.getElementById('profile-empty').style.display = 'block';
         }
-    } else if (userIdFromStorage) {
-        // User not logged in but has userId in localStorage - show their profile with signup prompt
-        getUserProfile(userIdFromStorage).then(profile => {
-            displayProfile(profile, userIdFromStorage);
-            showSignupPrompt();
-        }).catch(error => {
-            console.error('Error loading profile for anonymous user:', error);
-            document.getElementById('profile-empty').style.display = 'block';
-        });
+    }
+    
+    // 等待Supabase初始化（最多等待3秒）
+    if (window.supabaseAuth) {
+        checkAndLoadProfile();
     } else {
-        // Show empty state if no user is logged in and no userId in localStorage
-        document.getElementById('profile-empty').style.display = 'block';
+        // 如果Supabase还没初始化，等待一下
+        let retries = 0;
+        const maxRetries = 30; // 最多等待3秒
+        const checkInterval = setInterval(() => {
+            if (window.supabaseAuth || retries >= maxRetries) {
+                clearInterval(checkInterval);
+                checkAndLoadProfile();
+            }
+            retries++;
+        }, 100);
     }
 });
 
@@ -635,8 +678,8 @@ function toggleEditProfile() {
 
 // Show edit profile modal
 function showEditProfileModal() {
-    // Get current values - Nickname defaults from about_me if available
-    const currentName = currentProfile.feederName || currentProfile.displayName || currentProfile.aboutMe || currentProfile.artistName || '';
+    // Get current values - 优先从 nick_name 获取，然后是 feeder_name
+    const currentName = currentProfile.nickName || currentProfile.feederName || currentProfile.displayName || currentProfile.aboutMe || currentProfile.artistName || '';
     const currentLanguage = currentProfile.userLanguage || '';
     const currentAboutMe = currentProfile.aboutMe || '';
 
@@ -802,10 +845,35 @@ function exitEditMode() {
     // 直接显示用户名，不添加任何后缀
     profileName.textContent = displayName;
 
-    // Update avatar with new initial
-    const nameForInitial = currentProfile.displayName || currentProfile.artistName || 'User';
-    const initial = nameForInitial.charAt(0).toUpperCase();
-    profileAvatar.textContent = initial;
+    // Update avatar with membership icon instead of initial
+    profileAvatar.innerHTML = '';
+    const membershipTier = currentProfile.membershipTier || 'free';
+    
+    if (typeof createMembershipBadge === 'function') {
+        const membershipBadge = createMembershipBadge(membershipTier, { size: 'large' });
+        profileAvatar.appendChild(membershipBadge);
+    } else if (typeof createMembershipIcon === 'function') {
+        const membershipIcon = createMembershipIcon(membershipTier);
+        const iconElement = membershipIcon.querySelector('div');
+        if (iconElement) {
+            iconElement.style.width = '80px';
+            iconElement.style.height = '80px';
+        }
+        profileAvatar.appendChild(membershipIcon);
+    } else {
+        // 回退：使用SVG图标
+        const svgMap = {
+            'free': 'https://cdn.fishart.online/fishart_web/icon/free.svg',
+            'plus': 'https://cdn.fishart.online/fishart_web/icon/plus.svg',
+            'premium': 'https://cdn.fishart.online/fishart_web/icon/premium.svg'
+        };
+        const svgUrl = svgMap[membershipTier] || svgMap['free'];
+        const img = document.createElement('img');
+        img.src = svgUrl;
+        img.alt = membershipTier;
+        img.style.cssText = 'width: 80px; height: 80px; object-fit: contain;';
+        profileAvatar.appendChild(img);
+    }
 
     // Restore edit button
     const editBtn = document.getElementById('edit-profile-btn');
@@ -863,6 +931,7 @@ async function saveProfileFromModal() {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
+                nickName: newFeederName || null, // 保存到 nick_name 字段
                 feederName: newFeederName || null,
                 userLanguage: newUserLanguage || null,
                 aboutMe: newAboutMe || null
@@ -891,11 +960,14 @@ async function saveProfileFromModal() {
         if (result.user) {
             currentProfile.feederName = result.user.feeder_name || newFeederName;
             currentProfile.userLanguage = result.user.user_language || newUserLanguage;
-            currentProfile.displayName = result.user.feeder_name || newFeederName || currentProfile.displayName;
+            // 优先使用 nick_name，如果没有则使用 feeder_name
+            currentProfile.nickName = result.user.nick_name || result.user.feeder_name || newFeederName;
+            currentProfile.displayName = result.user.nick_name || result.user.feeder_name || newFeederName || currentProfile.displayName;
             currentProfile.aboutMe = result.user.about_me || newAboutMe || '';
         } else {
             currentProfile.feederName = newFeederName;
             currentProfile.userLanguage = newUserLanguage;
+            currentProfile.nickName = newFeederName;
             currentProfile.displayName = newFeederName || currentProfile.displayName;
             currentProfile.aboutMe = newAboutMe || '';
         }
@@ -906,13 +978,96 @@ async function saveProfileFromModal() {
             const displayName = currentProfile.displayName || currentProfile.feederName || currentProfile.artistName || 'Anonymous User';
             profileNameElement.textContent = displayName;
             
-            // Update avatar initial if exists
+            // Update avatar with membership icon instead of initial
             const profileAvatar = document.getElementById('profile-avatar');
             if (profileAvatar) {
-                const nameForInitial = displayName;
-                const initial = nameForInitial.charAt(0).toUpperCase();
-                profileAvatar.textContent = initial;
+                // 清空并重新显示会员图标
+                profileAvatar.innerHTML = '';
+                const membershipTier = currentProfile.membershipTier || 'free';
+                
+                if (typeof createMembershipBadge === 'function') {
+                    const membershipBadge = createMembershipBadge(membershipTier, { size: 'large' });
+                    profileAvatar.appendChild(membershipBadge);
+                } else if (typeof createMembershipIcon === 'function') {
+                    // 使用 createMembershipIcon 作为回退
+                    const membershipIcon = createMembershipIcon(membershipTier);
+                    // 调整图标大小以适应profile-avatar
+                    const iconElement = membershipIcon.querySelector('div');
+                    if (iconElement) {
+                        iconElement.style.width = '80px';
+                        iconElement.style.height = '80px';
+                    }
+                    profileAvatar.appendChild(membershipIcon);
+                } else {
+                    // 最后的回退：使用SVG图标
+                    const svgMap = {
+                        'free': 'https://cdn.fishart.online/fishart_web/icon/free.svg',
+                        'plus': 'https://cdn.fishart.online/fishart_web/icon/plus.svg',
+                        'premium': 'https://cdn.fishart.online/fishart_web/icon/premium.svg'
+                    };
+                    const svgUrl = svgMap[membershipTier] || svgMap['free'];
+                    const img = document.createElement('img');
+                    img.src = svgUrl;
+                    img.alt = membershipTier;
+                    img.style.cssText = 'width: 80px; height: 80px; object-fit: contain;';
+                    profileAvatar.appendChild(img);
+                }
             }
+        }
+
+        // Update navigation bar user name
+        const userNameElement = document.querySelector('.user-name');
+        if (userNameElement && newFeederName) {
+            userNameElement.textContent = newFeederName;
+            console.log('✅ 已更新导航栏用户名:', newFeederName);
+        }
+
+        // Update auth UI to refresh user menu with latest profile data
+        if (window.authUI && window.authUI.updateAuthUI) {
+            try {
+                // 重新获取用户信息并更新UI
+                if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
+                    const user = await window.supabaseAuth.getCurrentUser();
+                    if (user) {
+                        // 从数据库获取最新的用户信息
+                        const backendUrl = window.BACKEND_URL || '';
+                        const profileResponse = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(user.id)}`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        if (profileResponse.ok) {
+                            const profileData = await profileResponse.json();
+                            if (profileData.user) {
+                                // 更新user_metadata中的显示名称
+                                const updatedUser = {
+                                    ...user,
+                                    user_metadata: {
+                                        ...user.user_metadata,
+                                        // 优先使用 nick_name
+                                        name: profileData.user.nick_name || profileData.user.feeder_name || user.user_metadata?.name,
+                                        nick_name: profileData.user.nick_name || profileData.user.feeder_name || user.user_metadata?.nick_name
+                                    }
+                                };
+                                // 更新auth UI
+                                await window.authUI.updateAuthUI(updatedUser);
+                                console.log('✅ 已更新Auth UI用户信息');
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ 更新Auth UI失败，但profile已更新:', error);
+                // 即使更新Auth UI失败，也直接更新导航栏用户名
+                if (userNameElement && newFeederName) {
+                    userNameElement.textContent = newFeederName;
+                }
+            }
+        } else if (userNameElement && newFeederName) {
+            // 如果authUI不可用，直接更新导航栏用户名
+            userNameElement.textContent = newFeederName;
         }
 
         // Close modal

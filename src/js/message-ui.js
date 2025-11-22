@@ -23,8 +23,9 @@ const MessageUI = {
 
     // 如果需要分组显示（用于profile页面）
     if (groupByType) {
-      // 分类：Public Messages（visibility=public）和 Private Messages（visibility=private）
-      const publicMessages = messages.filter(msg => msg.visibility === 'public');
+      // 分类：Public Messages（visibility=public或null/undefined）和 Private Messages（visibility=private）
+      // 如果visibility为null或undefined，默认当作public处理
+      const publicMessages = messages.filter(msg => !msg.visibility || msg.visibility === 'public');
       const privateMessages = messages.filter(msg => msg.visibility === 'private');
 
       // 计算未读消息数量和总数
@@ -83,6 +84,15 @@ const MessageUI = {
         `;
       }
 
+      // 如果过滤后两个数组都为空，显示空状态
+      if (!html || html.trim() === '') {
+        return `
+          <div class="messages-empty">
+            No messages yet
+          </div>
+        `;
+      }
+
       return `
         <div class="messages-list">
           ${html}
@@ -111,7 +121,7 @@ const MessageUI = {
   renderMessageCard(message, options = {}) {
     const { showFishInfo = false, showDeleteBtn = false } = options;
     
-    const senderName = message.sender?.display_name || 'Anonymous';
+    const senderName = message.sender?.nick_name || 'Anonymous';
     const senderInitial = senderName.charAt(0).toUpperCase();
     const content = MessageClient.escapeHtml(message.content);
     const time = MessageClient.formatTime(message.created_at);
@@ -400,7 +410,11 @@ const MessageUI = {
         messagesData = await MessageClient.getUserMessages(targetId);
       }
 
+      // 调试：检查返回的数据结构
+      console.log('Messages data:', messagesData);
+      
       const messages = messagesData.messages || [];
+      console.log('Messages array:', messages, 'Length:', messages.length);
       const currentUserId = MessageClient.getCurrentUserId();
       const canShowDelete = showDeleteBtn && currentUserId;
 

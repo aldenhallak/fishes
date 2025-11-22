@@ -298,19 +298,19 @@ function createPlanCard(plan) {
         <ul class="plan-features">
             <li>
                 <span class="feature-icon">✅</span>
-                <span class="feature-text">Draw your fish (${plan.draw_fish_limit || 'unlimited'})</span>
+                <span class="feature-text">Draw your fish${plan.draw_fish_limit && plan.draw_fish_limit !== 'unlimited' ? ` (${plan.draw_fish_limit} per day)` : plan.draw_fish_limit === 'unlimited' ? ' (unlimited)' : ''}</span>
             </li>
             <li>
                 <span class="feature-icon">✅</span>
                 <span class="feature-text">AI fish Group Chat${plan.group_chat_daily_limit && plan.group_chat_daily_limit !== 'unlimited' ? ` (${plan.group_chat_daily_limit} per day)` : plan.group_chat_daily_limit === 'unlimited' ? ' (unlimited)' : ''}</span>
             </li>
             <li>
-                <span class="feature-icon">${plan.can_promote_owner ? '✅' : '❌'}</span>
-                <span class="feature-text">Promote Owner</span>
+                <span class="feature-icon">${plan.id === 'free' ? '❌' : '✅'}</span>
+                <span class="feature-text">Fish talk about you</span>
             </li>
             <li>
-                <span class="feature-icon">${plan.id === 'premium' ? '✅' : '❌'}</span>
-                <span class="feature-text">Adjust Chat Frequency</span>
+                <span class="feature-icon">${plan.id === 'free' ? '❌' : '✅'}</span>
+                <span class="feature-text">Join fish chat</span>
             </li>
         </ul>
         

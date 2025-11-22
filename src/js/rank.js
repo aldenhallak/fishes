@@ -508,6 +508,7 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true, page =
 // Update status message
 function updateStatusMessage() {
     const loadingElement = document.getElementById('loading');
+    if (!loadingElement) return;
 
     if (!hasMoreFish && loadedCount > 0) {
         loadingElement.textContent = `Showing all ${loadedCount} fish 🐟`;
@@ -517,9 +518,22 @@ function updateStatusMessage() {
         loadingElement.style.padding = '20px';
         // 移除 loading 类以停止转圈动画
         loadingElement.classList.remove('loading');
+    } else if (loadedCount === 0 && !isLoading) {
+        // 如果没有鱼且不在加载中，隐藏 loading 元素
+        loadingElement.style.display = 'none';
+        loadingElement.classList.remove('loading');
     } else if (isLoading) {
         // 如果正在加载，确保有 loading 类
         loadingElement.classList.add('loading');
+    } else {
+        // 其他情况，确保移除 loading 类并隐藏
+        loadingElement.classList.remove('loading');
+        if (loadingElement.textContent.includes('Showing all')) {
+            // 如果显示最终消息，保持显示但不转圈
+            loadingElement.style.display = 'block';
+        } else {
+            loadingElement.style.display = 'none';
+        }
     }
 }
 
@@ -724,9 +738,10 @@ async function loadFavoriteFish(isInitialLoad = true, page = currentPage) {
             Image: fish.image_url
         }));
 
-        // Filter to only fish with working images
-        loadingElement.textContent = `Validating ${newFish.length} favorite fish... ⭐`;
-        const validFish = await filterValidFish(newFish);
+        // For favorites, skip image validation to speed up loading
+        // Images will be validated when displayed
+        loadingElement.textContent = `Loading ${newFish.length} favorite fish... ⭐`;
+        const validFish = newFish; // Skip validation for favorites to speed up
 
         // Pagination
         const offset = (page - 1) * pageSize;
@@ -739,6 +754,9 @@ async function loadFavoriteFish(isInitialLoad = true, page = currentPage) {
         // Update allFishData for the current page
         allFishData = pageFish;
         loadedCount = allFishData.length;
+
+        // Set isLoading to false before updating status to prevent spinner from restarting
+        isLoading = false;
 
         // Hide loading and show grid
         loadingElement.style.display = 'none';
@@ -796,35 +814,34 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (currentUserId) {
             await updatePageHeaderForUser(currentUserId);
         }
-    
-    // Set up sort button event listeners
-    document.querySelectorAll('.sort-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            await handleSortChange(btn.getAttribute('data-sort'));
+        
+        // Set up sort button event listeners
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                await handleSortChange(btn.getAttribute('data-sort'));
+            });
         });
-    });
 
-    // Set up pagination button event listeners
-    const prevBtn = document.getElementById('prev-page-btn');
-    const nextBtn = document.getElementById('next-page-btn');
-    
-    if (prevBtn) {
-        prevBtn.addEventListener('click', goToPrevPage);
-    }
-    
-    if (nextBtn) {
-        nextBtn.addEventListener('click', goToNextPage);
-    }
+        // Set up pagination button event listeners
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', goToPrevPage);
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', goToNextPage);
+        }
 
-    // Disable infinite scroll (we're using pagination buttons now)
-    // Commented out to use pagination instead of infinite scroll
-    // window.addEventListener('scroll', throttledScroll);
+        // Disable infinite scroll (we're using pagination buttons now)
+        // Commented out to use pagination instead of infinite scroll
+        // window.addEventListener('scroll', throttledScroll);
 
-    // Initialize button text with arrows
-    updateSortButtonText();
+        // Initialize button text with arrows
+        updateSortButtonText();
 
-    // Load initial fish data (or favorites if requested)
-    if (!showFavorites) {
+        // Load initial fish data
         loadFishData();
     }
     

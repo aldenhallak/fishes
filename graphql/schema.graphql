@@ -7661,7 +7661,6 @@ type users {
   ban_reason: String
   banned_until: timestamp
   created_at: timestamp
-  display_name: String
   email: String!
 
   """主人信息描述 - 用于鱼聊天时了解主人背景"""
@@ -7816,6 +7815,7 @@ type users {
     """filter the rows returned"""
     where: messages_bool_exp
   ): messages_aggregate!
+  nick_name: String
 
   """An array relationship"""
   reports(
@@ -7979,7 +7979,6 @@ input users_bool_exp {
   ban_reason: String_comparison_exp
   banned_until: timestamp_comparison_exp
   created_at: timestamp_comparison_exp
-  display_name: String_comparison_exp
   email: String_comparison_exp
   feeder_info: String_comparison_exp
   feeder_name: String_comparison_exp
@@ -7994,6 +7993,7 @@ input users_bool_exp {
   messagesBySenderId: messages_bool_exp
   messagesBySenderId_aggregate: messages_aggregate_bool_exp
   messages_aggregate: messages_aggregate_bool_exp
+  nick_name: String_comparison_exp
   reports: reports_bool_exp
   reports_aggregate: reports_aggregate_bool_exp
   reputation_score: Int_comparison_exp
@@ -8040,7 +8040,6 @@ input users_insert_input {
   ban_reason: String
   banned_until: timestamp
   created_at: timestamp
-  display_name: String
   email: String
 
   """主人信息描述 - 用于鱼聊天时了解主人背景"""
@@ -8055,6 +8054,7 @@ input users_insert_input {
   last_active: timestamp
   messages: messages_arr_rel_insert_input
   messagesBySenderId: messages_arr_rel_insert_input
+  nick_name: String
   reports: reports_arr_rel_insert_input
   reputation_score: Int
   total_fish_created: Int
@@ -8076,7 +8076,6 @@ type users_max_fields {
   ban_reason: String
   banned_until: timestamp
   created_at: timestamp
-  display_name: String
   email: String
 
   """主人信息描述 - 用于鱼聊天时了解主人背景"""
@@ -8086,6 +8085,7 @@ type users_max_fields {
   feeder_name: String
   id: String
   last_active: timestamp
+  nick_name: String
   reputation_score: Int
   total_fish_created: Int
   total_votes_received: Int
@@ -8104,7 +8104,6 @@ type users_min_fields {
   ban_reason: String
   banned_until: timestamp
   created_at: timestamp
-  display_name: String
   email: String
 
   """主人信息描述 - 用于鱼聊天时了解主人背景"""
@@ -8114,6 +8113,7 @@ type users_min_fields {
   feeder_name: String
   id: String
   last_active: timestamp
+  nick_name: String
   reputation_score: Int
   total_fish_created: Int
   total_votes_received: Int
@@ -8162,7 +8162,6 @@ input users_order_by {
   ban_reason: order_by
   banned_until: order_by
   created_at: order_by
-  display_name: order_by
   email: order_by
   feeder_info: order_by
   feeder_name: order_by
@@ -8173,6 +8172,7 @@ input users_order_by {
   last_active: order_by
   messagesBySenderId_aggregate: messages_aggregate_order_by
   messages_aggregate: messages_aggregate_order_by
+  nick_name: order_by
   reports_aggregate: reports_aggregate_order_by
   reputation_score: order_by
   total_fish_created: order_by
@@ -8208,9 +8208,6 @@ enum users_select_column {
   created_at
 
   """column name"""
-  display_name
-
-  """column name"""
   email
 
   """column name"""
@@ -8227,6 +8224,9 @@ enum users_select_column {
 
   """column name"""
   last_active
+
+  """column name"""
+  nick_name
 
   """column name"""
   reputation_score
@@ -8253,7 +8253,6 @@ input users_set_input {
   ban_reason: String
   banned_until: timestamp
   created_at: timestamp
-  display_name: String
   email: String
 
   """主人信息描述 - 用于鱼聊天时了解主人背景"""
@@ -8264,6 +8263,7 @@ input users_set_input {
   id: String
   is_banned: Boolean
   last_active: timestamp
+  nick_name: String
   reputation_score: Int
   total_fish_created: Int
   total_votes_received: Int
@@ -8314,7 +8314,6 @@ input users_stream_cursor_value_input {
   ban_reason: String
   banned_until: timestamp
   created_at: timestamp
-  display_name: String
   email: String
 
   """主人信息描述 - 用于鱼聊天时了解主人背景"""
@@ -8325,6 +8324,7 @@ input users_stream_cursor_value_input {
   id: String
   is_banned: Boolean
   last_active: timestamp
+  nick_name: String
   reputation_score: Int
   total_fish_created: Int
   total_votes_received: Int
@@ -8363,9 +8363,6 @@ enum users_update_column {
   created_at
 
   """column name"""
-  display_name
-
-  """column name"""
   email
 
   """column name"""
@@ -8382,6 +8379,9 @@ enum users_update_column {
 
   """column name"""
   last_active
+
+  """column name"""
+  nick_name
 
   """column name"""
   reputation_score

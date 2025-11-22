@@ -98,6 +98,21 @@ class AuthUI {
     
     // 初始化UI状态
     await this.updateAuthUI();
+    
+    // 监听页面可见性变化（移动端从登录页返回时）
+    document.addEventListener('visibilitychange', async () => {
+      if (!document.hidden) {
+        // 页面变为可见时，重新检查登录状态
+        console.log('📱 页面变为可见，重新检查登录状态');
+        await this.updateAuthUI();
+      }
+    });
+    
+    // 监听页面焦点变化（移动端切换应用时）
+    window.addEventListener('focus', async () => {
+      console.log('📱 窗口获得焦点，重新检查登录状态');
+      await this.updateAuthUI();
+    });
   }
 
   /**
@@ -742,19 +757,19 @@ class AuthUI {
       console.log('👤 提取的用户信息:', { displayName, avatarUrl, email: user.email });
       
       const createUserMutation = `
-        mutation CreateUser($userId: String!, $email: String!, $displayName: String!, $avatarUrl: String) {
+        mutation CreateUser($userId: String!, $email: String!, $nickName: String!, $avatarUrl: String) {
           insert_users_one(
             object: { 
               id: $userId, 
               email: $email,
-              display_name: $displayName,
+              nick_name: $nickName,
               avatar_url: $avatarUrl,
               is_banned: false
             }
           ) {
             id
             email
-            display_name
+            nick_name
           }
         }
       `;
@@ -769,7 +784,7 @@ class AuthUI {
           variables: { 
             userId: user.id,
             email: user.email,
-            displayName: displayName,
+            nickName: displayName,
             avatarUrl: avatarUrl
           }
         })
@@ -841,6 +856,8 @@ class AuthUI {
   showLoginButton() {
     if (this.loginBtn) {
       this.loginBtn.style.display = 'flex';
+      // 移除隐藏类
+      this.loginBtn.classList.remove('auth-hidden');
     }
     if (this.userContainer) {
       this.userContainer.style.display = 'none';
@@ -865,11 +882,42 @@ class AuthUI {
   async showUserMenu(user) {
     if (!this.userContainer) return;
     
-    // 获取用户信息
-    const userName = user.user_metadata?.name || 
-                     user.user_metadata?.full_name || 
-                     user.email?.split('@')[0] || 
-                     'User';
+    // 获取用户信息 - 优先从数据库获取feeder_name
+    let userName = user.user_metadata?.name || 
+                   user.user_metadata?.full_name || 
+                   user.user_metadata?.nick_name ||
+                   user.email?.split('@')[0] || 
+                   'User';
+    
+    // 尝试从数据库获取最新的feeder_name
+    if (user && user.id) {
+      try {
+        const backendUrl = window.BACKEND_URL || '';
+        const token = localStorage.getItem('userToken');
+        if (token) {
+          const profileResponse = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(user.id)}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            // 优先使用 nick_name，然后是 feeder_name
+            if (profileData.user && profileData.user.nick_name) {
+              userName = profileData.user.nick_name;
+              console.log('✅ 从数据库获取昵称 (nick_name):', userName);
+            } else if (profileData.user && profileData.user.feeder_name) {
+              userName = profileData.user.feeder_name;
+              console.log('✅ 从数据库获取用户名 (feeder_name):', userName);
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('⚠️ 获取用户profile失败，使用默认名称:', error);
+      }
+    }
     
     console.log('User name:', userName);
     
@@ -909,6 +957,8 @@ class AuthUI {
     this.userContainer.style.display = 'flex';
     if (this.loginBtn) {
       this.loginBtn.style.display = 'none';
+      // 添加隐藏类以确保隐藏
+      this.loginBtn.classList.add('auth-hidden');
     }
     
     // 显示"我的鱼"链接

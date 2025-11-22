@@ -715,7 +715,7 @@ async function getUserProfile(userId) {
             query GetUserProfile($userId: String!) {
                 users_by_pk(id: $userId) {
                     id
-                    display_name
+                    nick_name
                     email
                     avatar_url
                     created_at

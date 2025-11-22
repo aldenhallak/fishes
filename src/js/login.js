@@ -112,7 +112,7 @@ function showAlreadyLoggedInUI(user) {
   
   // Get user display name
   const displayName = user.user_metadata?.name || 
-                      user.user_metadata?.display_name ||
+                      user.user_metadata?.nick_name ||
                       user.email?.split('@')[0] || 
                       'User';
   

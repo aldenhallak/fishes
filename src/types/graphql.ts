@@ -6226,7 +6226,6 @@ export type Users = {
   ban_reason?: Maybe<Scalars['String']['output']>;
   banned_until?: Maybe<Scalars['timestamp']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
-  display_name?: Maybe<Scalars['String']['output']>;
   email: Scalars['String']['output'];
   /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
   feeder_info?: Maybe<Scalars['String']['output']>;
@@ -6251,6 +6250,7 @@ export type Users = {
   messagesBySenderId_aggregate: Messages_Aggregate;
   /** An aggregate relationship */
   messages_aggregate: Messages_Aggregate;
+  nick_name?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
   reports: Array<Reports>;
   /** An aggregate relationship */
@@ -6459,7 +6459,6 @@ export type Users_Bool_Exp = {
   ban_reason?: InputMaybe<String_Comparison_Exp>;
   banned_until?: InputMaybe<Timestamp_Comparison_Exp>;
   created_at?: InputMaybe<Timestamp_Comparison_Exp>;
-  display_name?: InputMaybe<String_Comparison_Exp>;
   email?: InputMaybe<String_Comparison_Exp>;
   feeder_info?: InputMaybe<String_Comparison_Exp>;
   feeder_name?: InputMaybe<String_Comparison_Exp>;
@@ -6474,6 +6473,7 @@ export type Users_Bool_Exp = {
   messagesBySenderId?: InputMaybe<Messages_Bool_Exp>;
   messagesBySenderId_aggregate?: InputMaybe<Messages_Aggregate_Bool_Exp>;
   messages_aggregate?: InputMaybe<Messages_Aggregate_Bool_Exp>;
+  nick_name?: InputMaybe<String_Comparison_Exp>;
   reports?: InputMaybe<Reports_Bool_Exp>;
   reports_aggregate?: InputMaybe<Reports_Aggregate_Bool_Exp>;
   reputation_score?: InputMaybe<Int_Comparison_Exp>;
@@ -6509,7 +6509,6 @@ export type Users_Insert_Input = {
   ban_reason?: InputMaybe<Scalars['String']['input']>;
   banned_until?: InputMaybe<Scalars['timestamp']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
-  display_name?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
   feeder_info?: InputMaybe<Scalars['String']['input']>;
@@ -6522,6 +6521,7 @@ export type Users_Insert_Input = {
   last_active?: InputMaybe<Scalars['timestamp']['input']>;
   messages?: InputMaybe<Messages_Arr_Rel_Insert_Input>;
   messagesBySenderId?: InputMaybe<Messages_Arr_Rel_Insert_Input>;
+  nick_name?: InputMaybe<Scalars['String']['input']>;
   reports?: InputMaybe<Reports_Arr_Rel_Insert_Input>;
   reputation_score?: InputMaybe<Scalars['Int']['input']>;
   total_fish_created?: InputMaybe<Scalars['Int']['input']>;
@@ -6541,7 +6541,6 @@ export type Users_Max_Fields = {
   ban_reason?: Maybe<Scalars['String']['output']>;
   banned_until?: Maybe<Scalars['timestamp']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
-  display_name?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
   feeder_info?: Maybe<Scalars['String']['output']>;
@@ -6549,6 +6548,7 @@ export type Users_Max_Fields = {
   feeder_name?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['String']['output']>;
   last_active?: Maybe<Scalars['timestamp']['output']>;
+  nick_name?: Maybe<Scalars['String']['output']>;
   reputation_score?: Maybe<Scalars['Int']['output']>;
   total_fish_created?: Maybe<Scalars['Int']['output']>;
   total_votes_received?: Maybe<Scalars['Int']['output']>;
@@ -6565,7 +6565,6 @@ export type Users_Min_Fields = {
   ban_reason?: Maybe<Scalars['String']['output']>;
   banned_until?: Maybe<Scalars['timestamp']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
-  display_name?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
   feeder_info?: Maybe<Scalars['String']['output']>;
@@ -6573,6 +6572,7 @@ export type Users_Min_Fields = {
   feeder_name?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['String']['output']>;
   last_active?: Maybe<Scalars['timestamp']['output']>;
+  nick_name?: Maybe<Scalars['String']['output']>;
   reputation_score?: Maybe<Scalars['Int']['output']>;
   total_fish_created?: Maybe<Scalars['Int']['output']>;
   total_votes_received?: Maybe<Scalars['Int']['output']>;
@@ -6611,7 +6611,6 @@ export type Users_Order_By = {
   ban_reason?: InputMaybe<Order_By>;
   banned_until?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
-  display_name?: InputMaybe<Order_By>;
   email?: InputMaybe<Order_By>;
   feeder_info?: InputMaybe<Order_By>;
   feeder_name?: InputMaybe<Order_By>;
@@ -6622,6 +6621,7 @@ export type Users_Order_By = {
   last_active?: InputMaybe<Order_By>;
   messagesBySenderId_aggregate?: InputMaybe<Messages_Aggregate_Order_By>;
   messages_aggregate?: InputMaybe<Messages_Aggregate_Order_By>;
+  nick_name?: InputMaybe<Order_By>;
   reports_aggregate?: InputMaybe<Reports_Aggregate_Order_By>;
   reputation_score?: InputMaybe<Order_By>;
   total_fish_created?: InputMaybe<Order_By>;
@@ -6650,8 +6650,6 @@ export enum Users_Select_Column {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
-  DisplayName = 'display_name',
-  /** column name */
   Email = 'email',
   /** column name */
   FeederInfo = 'feeder_info',
@@ -6663,6 +6661,8 @@ export enum Users_Select_Column {
   IsBanned = 'is_banned',
   /** column name */
   LastActive = 'last_active',
+  /** column name */
+  NickName = 'nick_name',
   /** column name */
   ReputationScore = 'reputation_score',
   /** column name */
@@ -6682,7 +6682,6 @@ export type Users_Set_Input = {
   ban_reason?: InputMaybe<Scalars['String']['input']>;
   banned_until?: InputMaybe<Scalars['timestamp']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
-  display_name?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
   feeder_info?: InputMaybe<Scalars['String']['input']>;
@@ -6691,6 +6690,7 @@ export type Users_Set_Input = {
   id?: InputMaybe<Scalars['String']['input']>;
   is_banned?: InputMaybe<Scalars['Boolean']['input']>;
   last_active?: InputMaybe<Scalars['timestamp']['input']>;
+  nick_name?: InputMaybe<Scalars['String']['input']>;
   reputation_score?: InputMaybe<Scalars['Int']['input']>;
   total_fish_created?: InputMaybe<Scalars['Int']['input']>;
   total_votes_received?: InputMaybe<Scalars['Int']['input']>;
@@ -6738,7 +6738,6 @@ export type Users_Stream_Cursor_Value_Input = {
   ban_reason?: InputMaybe<Scalars['String']['input']>;
   banned_until?: InputMaybe<Scalars['timestamp']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
-  display_name?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   /** 主人信息描述 - 用于鱼聊天时了解主人背景 */
   feeder_info?: InputMaybe<Scalars['String']['input']>;
@@ -6747,6 +6746,7 @@ export type Users_Stream_Cursor_Value_Input = {
   id?: InputMaybe<Scalars['String']['input']>;
   is_banned?: InputMaybe<Scalars['Boolean']['input']>;
   last_active?: InputMaybe<Scalars['timestamp']['input']>;
+  nick_name?: InputMaybe<Scalars['String']['input']>;
   reputation_score?: InputMaybe<Scalars['Int']['input']>;
   total_fish_created?: InputMaybe<Scalars['Int']['input']>;
   total_votes_received?: InputMaybe<Scalars['Int']['input']>;
@@ -6776,8 +6776,6 @@ export enum Users_Update_Column {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
-  DisplayName = 'display_name',
-  /** column name */
   Email = 'email',
   /** column name */
   FeederInfo = 'feeder_info',
@@ -6789,6 +6787,8 @@ export enum Users_Update_Column {
   IsBanned = 'is_banned',
   /** column name */
   LastActive = 'last_active',
+  /** column name */
+  NickName = 'nick_name',
   /** column name */
   ReputationScore = 'reputation_score',
   /** column name */

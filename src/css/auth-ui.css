@@ -35,6 +35,12 @@
   flex-shrink: 0;
 }
 
+/* 隐藏登录按钮（当用户已登录时） */
+.login-btn.auth-hidden,
+#login-btn.auth-hidden {
+  display: none !important;
+}
+
 /* ============================================
    登录模态框
    ============================================ */
@@ -524,6 +530,7 @@
   transform: translateY(-10px);
   transition: all 0.2s ease;
   z-index: 1000;
+  overflow: hidden; /* 确保内容不会超出圆角边界 */
 }
 
 .user-dropdown.show {
@@ -547,6 +554,7 @@
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-sizing: border-box; /* 确保 padding 包含在宽度内 */
 }
 
 .user-dropdown-item:first-child {
@@ -554,7 +562,17 @@
   border-top-right-radius: 12px;
 }
 
+.user-dropdown-item:first-child:hover {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
 .user-dropdown-item:last-child {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.user-dropdown-item:last-child:hover {
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
 }
@@ -567,6 +585,8 @@
 .user-dropdown-item:hover {
   background: #f3f4f6;
   color: #6366F1 !important;
+  /* 确保背景色不超出边界 */
+  margin: 0;
 }
 
 .user-dropdown-item:hover svg {
@@ -744,12 +764,14 @@
     padding: 8px 12px;
   }
 
+  /* 移动端也显示用户昵称，但限制最大宽度 */
   .user-name {
-    display: none;
+    max-width: 60px;
+    font-size: 12px;
   }
 
   .user-menu-trigger {
-    padding: 6px;
+    padding: 6px 10px;
   }
 
   .oauth-btn-text {
