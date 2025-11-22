@@ -71,6 +71,7 @@
         }
 
         .auth-tabs {
+            margin-top: 24px;
             margin-bottom: 20px;
             display: flex;
             gap: 10px;
@@ -324,7 +325,7 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            Fish Login
+            Login with Email
         </div>
 
         <div class="auth-tabs">
@@ -333,9 +334,9 @@
         </div>
 
         <!-- Sign In Form -->
-        <form id="signin-form" class="auth-form">
+        <form id="signin-form" class="auth-form" novalidate>
             <strong>Email:</strong><br>
-            <input type="email" id="signin-email" required><br>
+            <input type="text" id="signin-email" inputmode="email" autocomplete="email"><br>
             <strong>Password:</strong><br>
             <input type="password" id="signin-password" required><br><br>
             <button type="submit">
@@ -351,9 +352,9 @@
         </form>
 
         <!-- Sign Up Form -->
-        <form id="signup-form" class="auth-form" style="display: none;">
+        <form id="signup-form" class="auth-form" style="display: none;" novalidate>
             <strong>Email:</strong><br>
-            <input type="email" id="signup-email" required><br>
+            <input type="text" id="signup-email" inputmode="email" autocomplete="email"><br>
             <strong>Password:</strong><br>
             <input type="password" id="signup-password" required><br><br>
             <button type="submit">
@@ -368,9 +369,9 @@
         </form>
 
         <!-- Forgot Password Form -->
-        <form id="forgot-password-form" class="auth-form" style="display: none;">
+        <form id="forgot-password-form" class="auth-form" style="display: none;" novalidate>
             <strong>Enter your email address:</strong><br>
-            <input type="email" id="forgot-email" required><br><br>
+            <input type="text" id="forgot-email" inputmode="email" autocomplete="email"><br><br>
             <button type="submit">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>

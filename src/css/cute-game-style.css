@@ -1068,6 +1068,7 @@ button.game-btn {
   border-radius: var(--radius-xl);
   padding: 0;
   width: 420px;
+  min-width: 420px;
   max-width: 90vw;
   max-height: 90vh;
   overflow: hidden;
@@ -1077,6 +1078,12 @@ button.game-btn {
   border: 3px solid #A5B4FC;
   position: relative;
   animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* 有标题横幅的弹窗使用更大的最小宽度 */
+.modal-content.has-title-banner {
+  min-width: 500px;
+  width: auto;
 }
 
 /* 弹窗内容区域（当没有标题横幅时使用padding） */
@@ -1106,10 +1113,12 @@ button.game-btn {
   position: relative;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1);
   z-index: 2;
+  display: flex;
+  align-items: center;
 }
 
 .modal-title-banner h2 {
-  color: #FFFFFF;
+  color: #FFFFFF !important;
   margin: 0;
   margin-right: 50px; /* 为关闭按钮留出空间 */
   font-size: 24px;
@@ -1120,6 +1129,8 @@ button.game-btn {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0; /* 允许flex收缩 */
 }
 
 /* 弹窗内容区域（有标题横幅时） */
@@ -1358,6 +1369,49 @@ button.game-btn {
   .modal-content-area {
     padding: 24px;
     padding-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* 确保 auth-modal-content 的 modal-content-area 在移动端占满宽度 */
+  .auth-modal-content .modal-content-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  /* 确保 auth-modal-content 在移动端正确居中且没有额外的margin */
+  .auth-modal-content {
+    margin: 0 auto !important;
+  }
+  
+  /* 确保 auth-modal-body 在移动端占满宽度 */
+  .auth-modal-content .auth-modal-body {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* 确保所有按钮在移动端占满宽度 */
+  .auth-modal-content .auth-modal-body .oauth-btn,
+  .auth-modal-content .auth-modal-body button {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    flex-shrink: 0 !important;
+    align-self: stretch !important;
   }
   
   .modal-content.wide {
@@ -1371,6 +1425,7 @@ button.game-btn {
   }
   
   .modal-title-banner h2 {
+    color: #FFFFFF !important;
     font-size: 20px;
     margin-right: 45px !important; /* 为关闭按钮留出空间 */
     overflow: hidden;

@@ -81,6 +81,7 @@
     0 16px 40px rgba(0, 0, 0, 0.4);
   border: 3px solid #A5B4FC;
   animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-sizing: border-box;
 }
 
 .auth-modal-content::after {
@@ -204,6 +205,8 @@
   padding-top: 32px;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .auth-modal-body {
@@ -608,9 +611,24 @@
    响应式设计
    ============================================ */
 @media (max-width: 768px) {
+  /* 确保 auth-modal 在移动端正确居中 */
+  .auth-modal {
+    padding: 0 !important;
+  }
+
+  /* 确保 auth-modal-content 本身占满宽度并居中 */
   .auth-modal-content {
-    padding: 0;
-    max-width: 95%;
+    width: 95% !important;
+    max-width: 95% !important;
+    box-sizing: border-box !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
+  
+  /* 确保 modal-content 本身不会限制宽度 */
+  .auth-modal-content.modal-content {
+    width: 95% !important;
+    max-width: 95% !important;
   }
 
   .auth-modal-content .modal-title-banner {
@@ -635,30 +653,73 @@
     background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
   }
 
-  .modal-content-area {
-    padding: 24px;
-  }
-
-  .auth-modal-body {
+  .auth-modal-content .modal-content-area {
+    padding: 24px !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+    box-sizing: border-box !important;
     width: 100% !important;
-    align-items: stretch;
-    box-sizing: border-box;
-    padding: 0;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
   }
 
-  .auth-modal-body .oauth-btn {
-    padding: 10px 16px;
+  .auth-modal-content .auth-modal-body {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    align-items: stretch !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .auth-modal-content .auth-modal-body .oauth-btn {
+    padding: 10px 16px !important;
     font-size: 14px;
     width: 100% !important;
     min-width: 100% !important;
     max-width: 100% !important;
-    box-sizing: border-box;
-    flex-shrink: 0;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
+    align-self: stretch !important;
+    display: flex !important;
+    position: relative !important;
+  }
+  
+  /* 确保所有按钮（包括email-login-btn）都占满宽度 */
+  .auth-modal-content .auth-modal-body button.oauth-btn,
+  .auth-modal-content .auth-modal-body .email-login-btn,
+  .auth-modal-content .auth-modal-body .oauth-btn-google,
+  .auth-modal-content .auth-modal-body .oauth-btn-discord {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
-  .modal-content-area {
-    padding: 24px !important;
-    box-sizing: border-box;
+  .auth-modal-content .auth-modal-body .oauth-btn:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .auth-modal-content .auth-modal-body .auth-divider {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 8px 0 !important;
   }
 
   .auth-modal-header h2 {

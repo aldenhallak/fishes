@@ -405,12 +405,22 @@ function displayProfile(profile, searchedUserId = null) {
     updateActionButtons(profile, profileUserId, isCurrentUser, isLoggedIn);
     
     // 给Fish Created统计卡片添加点击跳转功能
-    const fishCountContainer = document.querySelector('.stat-item');
-    if (fishCountContainer && profileUserId) {
-        fishCountContainer.style.cursor = 'pointer';
-        fishCountContainer.onclick = () => {
+    const statItems = document.querySelectorAll('.stat-item');
+    if (statItems.length > 0 && profileUserId) {
+        // 第一个是 Fish Created
+        statItems[0].style.cursor = 'pointer';
+        statItems[0].onclick = () => {
             window.location.href = `rank.html?userId=${encodeURIComponent(profileUserId)}`;
         };
+        
+        // 第二个是 Favorites（如果存在）
+        if (statItems.length > 1) {
+            statItems[1].style.cursor = 'pointer';
+            statItems[1].onclick = () => {
+                // 跳转到 rank.html 并显示收藏的鱼
+                window.location.href = `rank.html?favorites=true`;
+            };
+        }
     }
 
     // Show profile content

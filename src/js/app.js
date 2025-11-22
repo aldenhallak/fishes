@@ -268,11 +268,19 @@ function showModal(html, onClose) {
     modal.style.zIndex = '9999';
     modal.style.animation = 'fadeIn 0.3s ease';
     
+    // 检查HTML中是否包含标题横幅
+    const hasTitleBanner = html.includes('modal-title-banner') || html.includes("class='modal-title-banner'") || html.includes('class="modal-title-banner"');
+    
     // 3D游戏风格的弹窗容器 - 使用新的浅黄色背景
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
+    if (hasTitleBanner) {
+        modalContent.classList.add('has-title-banner');
+    }
+    // 对于有标题横幅的弹窗，使用更大的最小宽度以确保标题完整显示
+    const minWidth = hasTitleBanner ? '500px' : '400px';
     modalContent.style.cssText = `
-        min-width: 400px;
+        min-width: ${minWidth};
         max-width: 90vw;
         max-height: 90vh;
         overflow-y: auto;
@@ -280,28 +288,43 @@ function showModal(html, onClose) {
         font-size: 14px;
     `;
     
-    // 内容区域
-    const contentDiv = document.createElement('div');
-    contentDiv.style.cssText = 'padding: 32px; position: relative; z-index: 1;';
-    contentDiv.innerHTML = html;
-    modalContent.appendChild(contentDiv);
-    
-    // 顶部光泽效果
-    const shine = document.createElement('div');
-    shine.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 50%;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
-        border-radius: 32px 32px 0 0;
-        pointer-events: none;
-        z-index: 1;
-    `;
-    modalContent.appendChild(shine);
+    // 如果HTML中已经包含完整的弹窗结构（包括标题横幅和内容区域），直接使用
+    if (hasTitleBanner) {
+        modalContent.innerHTML = html;
+    } else {
+        // 内容区域
+        const contentDiv = document.createElement('div');
+        contentDiv.style.cssText = 'padding: 32px; position: relative; z-index: 1;';
+        contentDiv.innerHTML = html;
+        modalContent.appendChild(contentDiv);
+        
+        // 顶部光泽效果
+        const shine = document.createElement('div');
+        shine.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+            border-radius: 32px 32px 0 0;
+            pointer-events: none;
+            z-index: 1;
+        `;
+        modalContent.appendChild(shine);
+    }
     
     modal.appendChild(modalContent);
+    
+    // 绑定关闭按钮事件
+    setTimeout(() => {
+        const closeBtn = modalContent.querySelector('.modal-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                close();
+            });
+        }
+    }, 0);
     
     function close() {
         modal.style.animation = 'fadeOut 0.3s ease';
@@ -1033,11 +1056,11 @@ swimBtn.addEventListener('click', async () => {
         return; // 不继续执行提交流程
     } else {
         // Show normal submission modal for good fish with fish name and personality
-        showModal(`<div style='text-align:center; padding: 0; max-width: 500px;'>
-            <h2 style='color: #4A90E2; font-weight: 900; font-size: 28px; margin: 0 0 24px 0; text-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);'>
-                🐟 Name Your Fish!
-            </h2>
-            
+        showModal(`<div class="modal-title-banner">
+            <h2>🐟 Name Your Fish!</h2>
+        </div>
+        <button class="modal-close-btn" aria-label="Close">&times;</button>
+        <div class="modal-content-area">
             <div style='text-align: left; margin: 20px 0;'>
                 <label style='display: block; margin-bottom: 8px; font-weight: 700; color: #333; font-size: 15px;'>
                     Fish Name <span style='color: #FF3B30;'>*</span>
@@ -1134,6 +1157,114 @@ swimBtn.addEventListener('click', async () => {
                     class='personality-option' data-personality='gentle'>
                         <input type='radio' name='personality' value='gentle' style='display: none;'>
                         🌸 Gentle
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='sarcastic'>
+                        <input type='radio' name='personality' value='sarcastic' style='display: none;'>
+                        😏 Sarcastic
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='dramatic'>
+                        <input type='radio' name='personality' value='dramatic' style='display: none;'>
+                        🎭 Dramatic
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='naive'>
+                        <input type='radio' name='personality' value='naive' style='display: none;'>
+                        🦋 Naive
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='shy'>
+                        <input type='radio' name='personality' value='shy' style='display: none;'>
+                        😳 Shy
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='anxious'>
+                        <input type='radio' name='personality' value='anxious' style='display: none;'>
+                        😰 Anxious
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='stubborn'>
+                        <input type='radio' name='personality' value='stubborn' style='display: none;'>
+                        🤨 Stubborn
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='serious'>
+                        <input type='radio' name='personality' value='serious' style='display: none;'>
+                        😐 Serious
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='lazy'>
+                        <input type='radio' name='personality' value='lazy' style='display: none;'>
+                        😴 Lazy
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='grumpy'>
+                        <input type='radio' name='personality' value='grumpy' style='display: none;'>
+                        😠 Grumpy
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='aggressive'>
+                        <input type='radio' name='personality' value='aggressive' style='display: none;'>
+                        👊 Aggressive
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='cynical'>
+                        <input type='radio' name='personality' value='cynical' style='display: none;'>
+                        🙄 Cynical
+                    </label>
+                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                    position: relative; overflow: hidden;' 
+                    class='personality-option' data-personality='crude'>
+                        <input type='radio' name='personality' value='crude' style='display: none;'>
+                        🐻 Crude
                     </label>
                 </div>
             </div>
@@ -2197,11 +2328,11 @@ async function setupAuthListener() {
                         };
                     } else {
                         // 显示命名modal（好鱼）
-                        showModal(`<div style='text-align:center; padding: 0; max-width: 500px;'>
-                            <h2 style='color: #4A90E2; font-weight: 900; font-size: 28px; margin: 0 0 24px 0; text-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);'>
-                                🐟 Name Your Fish!
-                            </h2>
-                            
+                        showModal(`<div class="modal-title-banner">
+                            <h2>🐟 Name Your Fish!</h2>
+                        </div>
+                        <button class="modal-close-btn" aria-label="Close">&times;</button>
+                        <div class="modal-content-area">
                             <div style='text-align: left; margin: 20px 0;'>
                                 <label style='display: block; margin-bottom: 8px; font-weight: 700; color: #333; font-size: 15px;'>
                                     Fish Name <span style='color: #FF3B30;'>*</span>
@@ -2298,6 +2429,114 @@ async function setupAuthListener() {
                                     class='personality-option' data-personality='gentle'>
                                         <input type='radio' name='personality' value='gentle' style='display: none;'>
                                         🌸 Gentle
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='sarcastic'>
+                                        <input type='radio' name='personality' value='sarcastic' style='display: none;'>
+                                        😏 Sarcastic
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='dramatic'>
+                                        <input type='radio' name='personality' value='dramatic' style='display: none;'>
+                                        🎭 Dramatic
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='naive'>
+                                        <input type='radio' name='personality' value='naive' style='display: none;'>
+                                        🦋 Naive
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='shy'>
+                                        <input type='radio' name='personality' value='shy' style='display: none;'>
+                                        😳 Shy
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='anxious'>
+                                        <input type='radio' name='personality' value='anxious' style='display: none;'>
+                                        😰 Anxious
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='stubborn'>
+                                        <input type='radio' name='personality' value='stubborn' style='display: none;'>
+                                        🤨 Stubborn
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='serious'>
+                                        <input type='radio' name='personality' value='serious' style='display: none;'>
+                                        😐 Serious
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='lazy'>
+                                        <input type='radio' name='personality' value='lazy' style='display: none;'>
+                                        😴 Lazy
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='grumpy'>
+                                        <input type='radio' name='personality' value='grumpy' style='display: none;'>
+                                        😠 Grumpy
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='aggressive'>
+                                        <input type='radio' name='personality' value='aggressive' style='display: none;'>
+                                        👊 Aggressive
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='cynical'>
+                                        <input type='radio' name='personality' value='cynical' style='display: none;'>
+                                        🙄 Cynical
+                                    </label>
+                                    <label style='cursor: pointer; padding: 10px 8px; border: 3px solid #e2e8f0; border-radius: 12px; text-align: center; 
+                                    transition: all 0.15s; font-size: 13px; font-weight: 700;
+                                    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+                                    color: #4A90E2; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+                                    position: relative; overflow: hidden;' 
+                                    class='personality-option' data-personality='crude'>
+                                        <input type='radio' name='personality' value='crude' style='display: none;'>
+                                        🐻 Crude
                                     </label>
                                 </div>
                             </div>

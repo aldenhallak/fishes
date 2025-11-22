@@ -384,13 +384,18 @@ async function filterValidFish(fishArray) {
         // Test all images in current batch simultaneously
         const batchResults = await Promise.all(
             batch.map(async (fish) => {
-                const imageUrl = fish.image || fish.Image;
+                const imageUrl = fish.image || fish.Image || fish.image_url;
                 if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.startsWith('http')) {
                     return null; // Invalid URL format
                 }
 
-                const isValid = await testImageUrl(imageUrl);
-                return isValid ? fish : null;
+                try {
+                    const isValid = await testImageUrl(imageUrl);
+                    return isValid ? fish : null;
+                } catch (error) {
+                    console.warn('Error testing image URL:', imageUrl, error);
+                    return null;
+                }
             })
         );
 
@@ -428,6 +433,7 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true, page =
 
         loadingElement.textContent = `Loading fish... 🐠`;
         loadingElement.style.display = 'block';
+        loadingElement.classList.add('loading');
         gridElement.style.display = 'none';
         paginationControls.style.display = 'none';
 
@@ -476,6 +482,7 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true, page =
 
         // Hide loading and show grid
         loadingElement.style.display = 'none';
+        loadingElement.classList.remove('loading');
         gridElement.style.display = 'grid';
         paginationControls.style.display = 'flex';
         
@@ -490,7 +497,9 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true, page =
 
     } catch (error) {
         console.error('Error loading fish:', error);
-        document.getElementById('loading').textContent = 'Error loading fish. Please try again.';
+        const loadingElement = document.getElementById('loading');
+        loadingElement.textContent = 'Error loading fish. Please try again.';
+        loadingElement.classList.remove('loading');
     } finally {
         isLoading = false;
     }
@@ -506,6 +515,11 @@ function updateStatusMessage() {
         loadingElement.style.color = '#666';
         loadingElement.style.fontSize = '0.9em';
         loadingElement.style.padding = '20px';
+        // 移除 loading 类以停止转圈动画
+        loadingElement.classList.remove('loading');
+    } else if (isLoading) {
+        // 如果正在加载，确保有 loading 类
+        loadingElement.classList.add('loading');
     }
 }
 
@@ -539,14 +553,26 @@ function updatePaginationControls() {
 // Go to next page
 function goToNextPage() {
     if (!isLoading && hasMoreFish) {
-        loadFishData(currentSort, false, currentPage + 1);
+        const urlParams = new URLSearchParams(window.location.search);
+        const showFavorites = urlParams.get('favorites') === 'true';
+        if (showFavorites) {
+            loadFavoriteFish(false, currentPage + 1);
+        } else {
+            loadFishData(currentSort, false, currentPage + 1);
+        }
     }
 }
 
 // Go to previous page
 function goToPrevPage() {
     if (!isLoading && currentPage > 1) {
-        loadFishData(currentSort, false, currentPage - 1);
+        const urlParams = new URLSearchParams(window.location.search);
+        const showFavorites = urlParams.get('favorites') === 'true';
+        if (showFavorites) {
+            loadFavoriteFish(false, currentPage - 1);
+        } else {
+            loadFishData(currentSort, false, currentPage - 1);
+        }
     }
 }
 
@@ -624,16 +650,152 @@ function throttledScroll() {
     scrollTimeout = setTimeout(handleScroll, 100);
 }
 
+// Load favorite fish
+async function loadFavoriteFish(isInitialLoad = true, page = currentPage) {
+    if (isLoading) {
+        return;
+    }
+
+    isLoading = true;
+    currentPage = page;
+
+    try {
+        const loadingElement = document.getElementById('loading');
+        const gridElement = document.getElementById('fish-grid');
+        const paginationControls = document.getElementById('pagination-controls');
+
+        loadingElement.textContent = `Loading favorites... ⭐`;
+        loadingElement.style.display = 'block';
+        loadingElement.classList.add('loading');
+        gridElement.style.display = 'none';
+        paginationControls.style.display = 'none';
+
+        // Get user token
+        const userToken = localStorage.getItem('userToken');
+        if (!userToken) {
+            throw new Error('Please login to view favorites');
+        }
+
+        // Get favorites from API
+        const API_BASE = typeof BACKEND_URL !== 'undefined' ? BACKEND_URL : '';
+        const response = await fetch(`${API_BASE}/api/fish-api?action=my-tank`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${userToken}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to load favorites');
+        }
+
+        const data = await response.json();
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to load favorites');
+        }
+
+        // Filter only favorited fish
+        const favoritedFish = (data.fish || []).filter(f => f.is_favorited);
+        
+        if (favoritedFish.length === 0) {
+            // No favorites, show empty state
+            loadingElement.textContent = 'No favorites yet. Start adding fish to your favorites! ⭐';
+            loadingElement.classList.remove('loading');
+            gridElement.style.display = 'grid';
+            gridElement.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">No favorite fish yet. Go to the Rank page and click the star icon on fish you like!</div>';
+            paginationControls.style.display = 'none';
+            allFishData = [];
+            loadedCount = 0;
+            totalFishCount = 0;
+            totalPages = 1;
+            hasMoreFish = false;
+            isLoading = false;
+            return;
+        }
+        
+        // Map to fish format
+        const newFish = favoritedFish.map(fish => ({
+            ...fish,
+            docId: fish.id,
+            Artist: fish.artist,
+            CreatedAt: fish.created_at,
+            userId: fish.user_id,
+            image: fish.image_url, // Map image_url to image for compatibility
+            Image: fish.image_url
+        }));
+
+        // Filter to only fish with working images
+        loadingElement.textContent = `Validating ${newFish.length} favorite fish... ⭐`;
+        const validFish = await filterValidFish(newFish);
+
+        // Pagination
+        const offset = (page - 1) * pageSize;
+        const pageFish = validFish.slice(offset, offset + pageSize);
+        
+        totalFishCount = validFish.length;
+        totalPages = Math.ceil(totalFishCount / pageSize);
+        hasMoreFish = offset + pageSize < totalFishCount;
+
+        // Update allFishData for the current page
+        allFishData = pageFish;
+        loadedCount = allFishData.length;
+
+        // Hide loading and show grid
+        loadingElement.style.display = 'none';
+        loadingElement.classList.remove('loading');
+        gridElement.style.display = 'grid';
+        paginationControls.style.display = 'flex';
+        
+        displayFish(allFishData, false);
+        updatePaginationControls();
+        updateStatusMessage();
+
+        // Update page header
+        const pageHeader = document.querySelector('.page-header h1');
+        if (pageHeader) {
+            pageHeader.textContent = '⭐ My Favorites';
+        }
+
+        // Scroll to top when page changes
+        if (!isInitialLoad) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+    } catch (error) {
+        console.error('Error loading favorites:', error);
+        console.error('Error stack:', error.stack);
+        const loadingElement = document.getElementById('loading');
+        const gridElement = document.getElementById('fish-grid');
+        const paginationControls = document.getElementById('pagination-controls');
+        
+        loadingElement.textContent = error.message || 'Error loading favorites. Please try again.';
+        loadingElement.classList.remove('loading');
+        gridElement.style.display = 'grid';
+        gridElement.innerHTML = `<div style="text-align: center; padding: 40px; color: #ff6b6b;">
+            <p>Failed to load favorites</p>
+            <p style="font-size: 0.9em; color: #666;">${error.message || 'Please try again later'}</p>
+        </div>`;
+        paginationControls.style.display = 'none';
+    } finally {
+        isLoading = false;
+    }
+}
+
 // Initialize page
 window.addEventListener('DOMContentLoaded', async () => {
-    // Check for userId parameter in URL
+    // Check for URL parameters
     const urlParams = new URLSearchParams(window.location.search);
+    const showFavorites = urlParams.get('favorites') === 'true';
     currentUserId = urlParams.get('userId');
     
-    // Update page header if filtering by user
-    if (currentUserId) {
-        await updatePageHeaderForUser(currentUserId);
-    }
+    if (showFavorites) {
+        // Load favorite fish
+        await loadFavoriteFish();
+    } else {
+        // Update page header if filtering by user
+        if (currentUserId) {
+            await updatePageHeaderForUser(currentUserId);
+        }
     
     // Set up sort button event listeners
     document.querySelectorAll('.sort-btn').forEach(btn => {
@@ -661,8 +823,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Initialize button text with arrows
     updateSortButtonText();
 
-    // Load initial fish data
-    loadFishData();
+    // Load initial fish data (or favorites if requested)
+    if (!showFavorites) {
+        loadFishData();
+    }
     
     // Initialize favorite buttons if user is logged in
     initializeFavoriteButtons();
