@@ -844,6 +844,16 @@
       
       <div style="font-size: 12px; color: #666; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
         <span id="chat-status" style="color: #999;">Ready to chat</span>
+        <button 
+          id="clear-chat-btn" 
+          onclick="clearChatMessages()"
+          style="margin-left: auto; padding: 4px 12px; background: #f3f4f6; color: #666; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.2s ease;"
+          onmouseover="this.style.background='#e5e7eb'; this.style.color='#333';"
+          onmouseout="this.style.background='#f3f4f6'; this.style.color='#666';"
+          title="Clear all messages"
+        >
+          🗑️ Clear
+        </button>
       </div>
       
       <div id="chat-messages" style="flex: 1; overflow-y: auto; padding-right: 8px; margin-bottom: 15px;">

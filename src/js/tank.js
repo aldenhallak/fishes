@@ -3147,21 +3147,20 @@ async function sendUserChatMessage() {
         }
         
         const apiUrl = '/api/fish-api?action=user-chat-message';
+        
+        // 检查是否有鱼ID
+        if (currentTankFishIds.length === 0) {
+            throw new Error('无法发送消息：鱼缸中没有鱼。请先添加鱼到鱼缸，或等待鱼加载完成。');
+        }
+        
         const requestBody = {
             sessionId: sessionId, // 可能为null
             conversationId: currentConversationId, // Coze对话ID，用于保持上下文
             userMessage: message,
             userId: userInfo.userId,
-            userName: userInfo.userName
+            userName: userInfo.userName,
+            tankFishIds: currentTankFishIds  // 总是传递tankFishIds
         };
-        
-        // 如果没有sessionId，必须传递tankFishIds以便后端创建会话
-        if (!sessionId && currentTankFishIds.length > 0) {
-            requestBody.tankFishIds = currentTankFishIds;
-        } else if (!sessionId && currentTankFishIds.length === 0) {
-            // 如果没有sessionId且没有鱼ID，这是一个错误情况
-            throw new Error('无法创建聊天会话：鱼缸中没有鱼。请先添加鱼到鱼缸，或等待鱼加载完成。');
-        }
         
         console.log('[User Chat Frontend] 发送消息到API:', {
             action: 'user-chat-message',
@@ -3243,8 +3242,12 @@ async function sendUserChatMessage() {
         
         // 显示AI回复
         if (data.aiReplies && data.aiReplies.length > 0) {
-            data.aiReplies.forEach(reply => {
+            data.aiReplies.forEach((reply, index) => {
+                // 在聊天面板中显示
                 displayFishReply(reply);
+                
+                // 在鱼缸中显示气泡对话
+                displayFishBubble(reply, index);
             });
         } else {
             console.warn('No AI replies received');
@@ -3310,15 +3313,96 @@ function displayUserMessage(userName, message) {
         <div style="color: #333;">${escapeHtml(message)}</div>
     `;
     
-    // 插入到消息列表顶部
+    // 插入到消息列表底部（按时间顺序）
     const firstChild = chatMessages.firstChild;
     if (firstChild && firstChild.classList && firstChild.classList.contains('session-card')) {
         // 如果第一个元素是会话卡片，插入到卡片内部
         const messagesContainer = firstChild.querySelector('.session-messages') || firstChild;
         messagesContainer.appendChild(messageDiv);
     } else {
-        chatMessages.insertBefore(messageDiv, firstChild);
+        chatMessages.appendChild(messageDiv);
     }
+    
+    // 自动滚动到底部
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+/**
+ * 在鱼缸中显示气泡对话
+ */
+function displayFishBubble(reply, index) {
+    // 检查是否有tankLayoutManager
+    if (!window.tankLayoutManager) {
+        console.warn('[Fish Bubble] tankLayoutManager not available');
+        return;
+    }
+    
+    // 根据fishId或fishName找到对应的鱼
+    const fishId = reply.fishId || reply.fish_id;
+    const fishName = reply.fishName || reply.fish_name;
+    
+    // 在fishes数组中查找鱼
+    const fishArray = window.fishes || [];
+    let targetFish = null;
+    
+    if (fishId) {
+        targetFish = fishArray.find(f => f.id === fishId);
+    }
+    
+    if (!targetFish && fishName) {
+        targetFish = fishArray.find(f => f.fishName === fishName || f.fish_name === fishName);
+    }
+    
+    if (!targetFish) {
+        console.warn('[Fish Bubble] 找不到对应的鱼:', { fishId, fishName });
+        return;
+    }
+    
+    // 检查鱼是否有rowIndex，如果没有则分配一个
+    if (targetFish.rowIndex === undefined) {
+        console.log('[Fish Bubble] 鱼没有rowIndex，尝试分配...', {
+            fishId: targetFish.id,
+            fishName: targetFish.fishName || targetFish.fish_name,
+            hasLayoutManager: !!window.tankLayoutManager,
+            hasAssignMethod: !!(window.tankLayoutManager && window.tankLayoutManager.assignFishToRows)
+        });
+        
+        // 尝试将鱼分配到布局管理器
+        if (window.tankLayoutManager && window.tankLayoutManager.assignFishToRows) {
+            try {
+                // 使用assignFishToRows方法分配单条鱼
+                window.tankLayoutManager.assignFishToRows([targetFish], true);
+                console.log('[Fish Bubble] ✅ 为鱼分配行成功:', targetFish.rowIndex);
+            } catch (error) {
+                console.error('[Fish Bubble] ❌ 分配行失败:', error);
+                // 手动分配一个默认行
+                targetFish.rowIndex = Math.floor(Math.random() * 3); // 随机分配到0-2行
+                console.log('[Fish Bubble] 使用备用方案，随机分配行:', targetFish.rowIndex);
+            }
+        } else {
+            console.warn('[Fish Bubble] 布局管理器不可用，使用备用方案');
+            // 手动分配一个默认行
+            targetFish.rowIndex = Math.floor(Math.random() * 3); // 随机分配到0-2行
+            console.log('[Fish Bubble] 随机分配行:', targetFish.rowIndex);
+        }
+    }
+    
+    // 延迟显示，让气泡依次出现
+    const delay = index * 3000; // 每条消息间隔3秒
+    
+    setTimeout(() => {
+        const success = window.tankLayoutManager.showDialogue(
+            targetFish,
+            reply.message,
+            6000 // 显示6秒
+        );
+        
+        if (success) {
+            console.log('[Fish Bubble] ✅ 气泡显示成功:', fishName || fishId);
+        } else {
+            console.warn('[Fish Bubble] ⚠️ 气泡显示失败（可能行已满）');
+        }
+    }, delay);
 }
 
 /**
@@ -3348,21 +3432,27 @@ function displayFishReply(reply) {
     };
     const color = personalityColors[reply.personality] || '#666';
     
+    // 获取鱼名称（支持多种字段名）
+    const fishName = reply.fishName || reply.fish_name || 'Unknown Fish';
+    
     messageDiv.innerHTML = `
         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-            <span style="font-weight: 600; color: ${color}; font-size: 12px;">🐟 ${reply.fishName || 'Unknown'}</span>
+            <span style="font-weight: 600; color: ${color}; font-size: 12px;">🐟 ${fishName}</span>
         </div>
         <div style="color: #333;">${escapeHtml(reply.message)}</div>
     `;
     
-    // 插入到消息列表顶部
+    // 插入到消息列表底部（最新消息在下面）
     const firstChild = chatMessages.firstChild;
     if (firstChild && firstChild.classList && firstChild.classList.contains('session-card')) {
         const messagesContainer = firstChild.querySelector('.session-messages') || firstChild;
         messagesContainer.appendChild(messageDiv);
     } else {
-        chatMessages.insertBefore(messageDiv, firstChild);
+        chatMessages.appendChild(messageDiv);
     }
+    
+    // 自动滚动到底部
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 /**
@@ -3376,6 +3466,39 @@ function removeLastUserMessage() {
     if (userMessages.length > 0) {
         userMessages[userMessages.length - 1].remove();
     }
+}
+
+/**
+ * 清除所有聊天消息
+ */
+function clearChatMessages() {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) return;
+    
+    // 确认对话框
+    if (!confirm('确定要清除所有聊天消息吗？')) {
+        return;
+    }
+    
+    // 清除所有消息
+    chatMessages.innerHTML = '';
+    
+    // 显示占位符
+    const placeholder = document.createElement('div');
+    placeholder.id = 'chat-placeholder';
+    placeholder.style.cssText = 'text-align: center; color: #999; padding: 20px; font-size: 14px; display: block;';
+    placeholder.innerHTML = `
+        <p style="margin: 10px 0;">💬 Start chatting with the fish!</p>
+        <p style="margin: 10px 0; font-size: 12px;">Send a message to begin</p>
+    `;
+    chatMessages.appendChild(placeholder);
+    
+    // 重置conversationId（开始新对话）
+    if (typeof currentConversationId !== 'undefined') {
+        window.currentConversationId = null;
+    }
+    
+    console.log('[Chat] ✅ 所有消息已清除');
 }
 
 /**
