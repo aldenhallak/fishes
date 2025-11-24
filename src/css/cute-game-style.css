@@ -1362,6 +1362,8 @@ button.game-btn {
     margin: 20px;
     min-width: 0 !important; /* 移除固定最小宽度，允许在移动端自适应 */
     max-width: calc(100vw - 40px) !important; /* 确保有左右边距 */
+    max-height: 90vh; /* 限制最大高度 */
+    overflow-y: auto; /* 允许滚动 */
   }
   
   .modal-content.has-title-banner {
@@ -1371,14 +1373,33 @@ button.game-btn {
   }
   
   .modal-content:not(.has-title-banner) {
-    padding: 24px;
+    padding: 20px;
   }
   
   .modal-content-area {
-    padding: 24px;
-    padding-top: 20px;
+    padding: 20px;
+    padding-top: 16px;
     width: 100%;
     box-sizing: border-box;
+  }
+  
+  /* 移动端鱼信息弹窗优化 */
+  .modal-content .fish-info-modal {
+    padding: 16px !important;
+  }
+  
+  /* 移动端按钮组优化 */
+  .modal-content .voting-controls,
+  .modal-content .modal-controls {
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
+  
+  .modal-content .vote-btn,
+  .modal-content .add-to-tank-btn,
+  .modal-content .report-btn {
+    font-size: 12px !important;
+    padding: 10px 12px !important;
   }
   
   /* 确保 auth-modal-content 的 modal-content-area 在移动端占满宽度 */

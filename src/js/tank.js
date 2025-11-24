@@ -1640,9 +1640,17 @@ function showFishInfoModal(fish) {
         info += `<div style='margin-bottom: 16px; padding: 10px; background: linear-gradient(135deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border: 3px solid #BFA000; border-radius: 12px; color: #5D4E00; font-weight: 900; font-size: 13px; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2); text-align: center; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⭐ Your Fish</div>`;
     }
 
-    // Fish image (no frame, direct display)
-    info += `<div style="text-align: center; margin-bottom: 20px;">`;
-    info += `<img src='${imgDataUrl}' style='display:block;margin:0 auto;max-width:${modalWidth}px;max-height:${modalHeight}px;width:auto;height:auto;image-rendering: auto;object-fit: contain;' alt='Fish'>`;
+    // Fish image (no frame, direct display) - 移动端优化居中显示
+    const isMobile = window.innerWidth <= 768;
+    const imgContainerStyle = isMobile 
+        ? "display: flex; align-items: center; justify-content: center; margin-bottom: 20px; min-height: 200px;"
+        : "text-align: center; margin-bottom: 20px;";
+    const imgStyle = isMobile
+        ? `display: block; max-width: min(${modalWidth}px, 80vw); max-height: min(${modalHeight}px, 40vh); width: auto; height: auto; image-rendering: auto; object-fit: contain;`
+        : `display: block; margin: 0 auto; max-width: ${modalWidth}px; max-height: ${modalHeight}px; width: auto; height: auto; image-rendering: auto; object-fit: contain;`;
+    
+    info += `<div style="${imgContainerStyle}">`;
+    info += `<img src='${imgDataUrl}' style='${imgStyle}' alt='Fish'>`;
     info += `</div>`;
 
     // Fish info section (simplified, no background box)
@@ -1693,15 +1701,27 @@ function showFishInfoModal(fish) {
 
     showModal(info, () => { });
     
-    // Load messages after modal is shown
+    // Load messages after modal is shown (only if MessageUI is available)
     setTimeout(() => {
+        const messagesContainer = document.getElementById('fish-messages-container');
+        if (!messagesContainer) return;
+        
         if (typeof MessageUI !== 'undefined' && fish.docId) {
-            MessageUI.renderMessagesSection('fish-messages-container', 'to_fish', fish.docId, {
-                showForm: true,
-                showFishInfo: false,
-                showDeleteBtn: true,
-                title: '💬 Messages'
-            });
+            try {
+                MessageUI.renderMessagesSection('fish-messages-container', 'to_fish', fish.docId, {
+                    showForm: true,
+                    showFishInfo: false,
+                    showDeleteBtn: true,
+                    title: '💬 Messages'
+                });
+            } catch (error) {
+                console.warn('MessageUI error:', error);
+                // 隐藏消息容器，避免显示错误信息
+                messagesContainer.style.display = 'none';
+            }
+        } else {
+            // MessageUI 未加载或 fish.docId 不存在，隐藏消息容器
+            messagesContainer.style.display = 'none';
         }
     }, 100);
 }
@@ -2894,6 +2914,9 @@ if (communityChatManager) {
 // 当前活跃的群聊会话ID
 let currentActiveSessionId = null;
 
+// 当前活跃的Coze对话ID（用于保持对话上下文）
+let currentConversationId = null;
+
 /**
  * 获取当前用户信息
  * @returns {Promise<{userId: string, userName: string} | null>}
@@ -3126,6 +3149,7 @@ async function sendUserChatMessage() {
         const apiUrl = '/api/fish-api?action=user-chat-message';
         const requestBody = {
             sessionId: sessionId, // 可能为null
+            conversationId: currentConversationId, // Coze对话ID，用于保持上下文
             userMessage: message,
             userId: userInfo.userId,
             userName: userInfo.userName
@@ -3205,6 +3229,16 @@ async function sendUserChatMessage() {
         if (data.sessionId && data.sessionId !== currentActiveSessionId) {
             currentActiveSessionId = data.sessionId;
             console.log('[User Chat Frontend] ✅ 会话已创建/更新:', data.sessionId);
+        }
+        
+        // 更新conversationId（如果后端返回了conversationId）
+        if (data.conversationId) {
+            if (!currentConversationId) {
+                console.log('[User Chat Frontend] ✅ Coze对话已创建:', data.conversationId);
+            } else if (data.conversationId !== currentConversationId) {
+                console.log('[User Chat Frontend] ⚠️ Coze对话ID已更新:', data.conversationId);
+            }
+            currentConversationId = data.conversationId;
         }
         
         // 显示AI回复
