@@ -55,8 +55,7 @@ const server = http.createServer(async (req, res) => {
       }
       
       // 调试日志：显示请求详情
-      console.log(`[API] ${req.method} ${pathname}`);
-      console.log(`[API] Query params:`, parsedUrl.query);
+      // 隐藏日志
       
       // 检查是否为动态路由（如 /api/admin/tables/fish 或 /api/profile/userId）
       let dynamicMatch = null;
@@ -151,16 +150,7 @@ const server = http.createServer(async (req, res) => {
           return res;
         };
         
-        // 记录请求信息用于调试
-        console.log(`[API Handler] 调用处理器: ${apiFile}`);
-        if (dynamicMatch) {
-          console.log(`[API Handler] 动态路由匹配:`, dynamicMatch);
-        }
-        console.log(`[API Handler] Query参数:`, req.query);
-        console.log(`[API Handler] Content-Type: ${req.headers['content-type'] || 'N/A'}`);
-        if (req.body && Object.keys(req.body).length > 0) {
-          console.log(`[API Handler] Request Body:`, req.body);
-        }
+        // 隐藏日志
         
         await handler(req, res);
         return;

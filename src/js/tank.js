@@ -2648,6 +2648,11 @@ function updateChatUI(chatSession) {
     
     if (!chatMessages) return;
     
+    // 设置当前活跃会话ID
+    if (chatSession.sessionId) {
+        currentActiveSessionId = chatSession.sessionId;
+    }
+    
     // 更新状态
     if (chatStatus) {
         chatStatus.textContent = `${chatSession.topic} 🎭`;
@@ -2655,13 +2660,14 @@ function updateChatUI(chatSession) {
     }
     
     // 清空提示文本（首次聊天时）
-    const placeholder = chatMessages.querySelector('[style*="text-align: center"]');
+    const placeholder = document.getElementById('chat-placeholder');
     if (placeholder) {
-        placeholder.remove();
+        placeholder.style.display = 'none';
     }
     
     // 创建聊天会话卡片
     const sessionCard = document.createElement('div');
+    sessionCard.className = 'session-card';
     sessionCard.style.cssText = `
         background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%);
         border-radius: 12px;
@@ -2679,13 +2685,39 @@ function updateChatUI(chatSession) {
         justify-content: space-between;
         margin-bottom: 10px;
     `;
+    
+    // 计算消息总数（包括用户消息）
+    let totalMessages = chatSession.dialogues?.length || 0;
+    if (chatSession.userTalk) {
+        try {
+            const userTalkArray = typeof chatSession.userTalk === 'string' 
+                ? JSON.parse(chatSession.userTalk) 
+                : chatSession.userTalk;
+            if (Array.isArray(userTalkArray)) {
+                userTalkArray.forEach(userMsg => {
+                    totalMessages += 1; // 用户消息
+                    if (userMsg.aiReplies && Array.isArray(userMsg.aiReplies)) {
+                        totalMessages += userMsg.aiReplies.length; // AI回复
+                    }
+                });
+            }
+        } catch (error) {
+            console.warn('解析user_talk失败:', error);
+        }
+    }
+    
     titleDiv.innerHTML = `
         <span style="font-weight: 600; color: #6366F1; font-size: 14px;">💬 ${chatSession.topic}</span>
-        <span style="font-size: 11px; color: #999;">${chatSession.participantCount || chatSession.dialogues?.length || 0} messages</span>
+        <span style="font-size: 11px; color: #999;">${totalMessages} messages</span>
     `;
     sessionCard.appendChild(titleDiv);
     
-    // 消息列表
+    // 创建消息容器
+    const messagesContainer = document.createElement('div');
+    messagesContainer.className = 'session-messages';
+    sessionCard.appendChild(messagesContainer);
+    
+    // 显示鱼的群聊消息
     if (chatSession.dialogues && chatSession.dialogues.length > 0) {
         chatSession.dialogues.forEach((msg, index) => {
             const messageDiv = document.createElement('div');
@@ -2714,11 +2746,84 @@ function updateChatUI(chatSession) {
                     <span style="font-weight: 600; color: ${color}; font-size: 12px;">🐟 ${msg.fishName || 'Unknown'}</span>
                     <span style="font-size: 10px; color: #999;">${msg.sequence || index + 1}</span>
                 </div>
-                <div style="color: #333;">${msg.message}</div>
+                <div style="color: #333;">${escapeHtml(msg.message)}</div>
             `;
             
-            sessionCard.appendChild(messageDiv);
+            messagesContainer.appendChild(messageDiv);
         });
+    }
+    
+    // 显示用户对话消息
+    if (chatSession.userTalk) {
+        try {
+            const userTalkArray = typeof chatSession.userTalk === 'string' 
+                ? JSON.parse(chatSession.userTalk) 
+                : chatSession.userTalk;
+            
+            if (Array.isArray(userTalkArray)) {
+                userTalkArray.forEach((userMsg, userIndex) => {
+                    // 显示用户消息
+                    const userMessageDiv = document.createElement('div');
+                    userMessageDiv.className = 'user-chat-message';
+                    userMessageDiv.style.cssText = `
+                        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+                        border-radius: 8px;
+                        padding: 8px 12px;
+                        margin-bottom: 6px;
+                        font-size: 13px;
+                        line-height: 1.5;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                        border-left: 3px solid #6366F1;
+                        animation: fadeIn 0.3s ease;
+                    `;
+                    
+                    userMessageDiv.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                            <span style="font-weight: 600; color: #6366F1; font-size: 12px;">👤 ${escapeHtml(userMsg.userName || 'User')}</span>
+                        </div>
+                        <div style="color: #333;">${escapeHtml(userMsg.message)}</div>
+                    `;
+                    
+                    messagesContainer.appendChild(userMessageDiv);
+                    
+                    // 显示AI回复
+                    if (userMsg.aiReplies && Array.isArray(userMsg.aiReplies)) {
+                        userMsg.aiReplies.forEach((reply, replyIndex) => {
+                            const replyDiv = document.createElement('div');
+                            replyDiv.style.cssText = `
+                                background: white;
+                                border-radius: 8px;
+                                padding: 8px 12px;
+                                margin-bottom: 6px;
+                                font-size: 13px;
+                                line-height: 1.5;
+                                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                                animation: fadeIn 0.3s ease;
+                            `;
+                            
+                            const personalityColors = {
+                                cheerful: '#FF9800',
+                                shy: '#2196F3',
+                                brave: '#E91E63',
+                                lazy: '#9C27B0'
+                            };
+                            const color = personalityColors[reply.personality] || '#666';
+                            
+                            replyDiv.innerHTML = `
+                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                    <span style="font-weight: 600; color: ${color}; font-size: 12px;">🐟 ${escapeHtml(reply.fishName || 'Unknown')}</span>
+                                </div>
+                                <div style="color: #333;">${escapeHtml(reply.message)}</div>
+                            `;
+                            
+                            messagesContainer.appendChild(replyDiv);
+                        });
+                    }
+                });
+            }
+        } catch (error) {
+            console.warn('解析或显示user_talk失败:', error);
+        }
     }
     
     // 插入到顶部
@@ -2780,6 +2885,514 @@ if (communityChatManager) {
         // 调用原始方法
         return originalStartSession(chatSession);
     };
+}
+
+// ==========================================
+// User Chat Message Functions
+// ==========================================
+
+// 当前活跃的群聊会话ID
+let currentActiveSessionId = null;
+
+/**
+ * 获取当前用户信息
+ * @returns {Promise<{userId: string, userName: string} | null>}
+ */
+async function getCurrentUserInfo() {
+    try {
+        let userId = null;
+        let userName = 'User';
+        
+        // 优先使用Supabase获取用户
+        if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
+            try {
+                const user = await window.supabaseAuth.getCurrentUser();
+                if (user && user.id) {
+                    userId = user.id;
+                    userName = user.user_metadata?.name || 
+                              user.user_metadata?.nick_name || 
+                              user.user_metadata?.full_name ||
+                              user.email?.split('@')[0] || 
+                              'User';
+                    
+                    // 尝试从数据库获取feeder_name或nick_name
+                    try {
+                        const backendUrl = window.BACKEND_URL || '';
+                        const token = localStorage.getItem('userToken');
+                        if (token) {
+                            const profileResponse = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(userId)}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            });
+                            
+                            if (profileResponse.ok) {
+                                const profileData = await profileResponse.json();
+                                if (profileData.user) {
+                                    if (profileData.user.nick_name) {
+                                        userName = profileData.user.nick_name;
+                                    } else if (profileData.user.feeder_name) {
+                                        userName = profileData.user.feeder_name;
+                                    }
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.warn('⚠️ 获取用户profile失败，使用默认名称:', error);
+                    }
+                    
+                    return { userId, userName };
+                }
+            } catch (error) {
+                console.warn('⚠️ Supabase获取用户信息失败:', error);
+            }
+        }
+        
+        // 回退到localStorage
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+            try {
+                const parsed = JSON.parse(userData);
+                userId = parsed.userId || parsed.uid || parsed.id;
+                userName = parsed.name || parsed.nick_name || parsed.feeder_name || userName;
+            } catch (error) {
+                // Ignore error
+            }
+        }
+        
+        if (!userId) {
+            userId = localStorage.getItem('userId');
+        }
+        
+        return userId ? { userId, userName } : null;
+    } catch (error) {
+        console.error('获取用户信息失败:', error);
+        return null;
+    }
+}
+
+/**
+ * 更新用户输入区域的显示状态
+ */
+async function updateUserChatInputVisibility() {
+    const loginPrompt = document.getElementById('user-chat-login-prompt');
+    const inputContainer = document.getElementById('user-chat-input-container');
+    
+    if (!loginPrompt || !inputContainer) return;
+    
+    const userInfo = await getCurrentUserInfo();
+    
+    if (userInfo) {
+        // 用户已登录，显示输入框
+        loginPrompt.style.display = 'none';
+        inputContainer.style.display = 'block';
+    } else {
+        // 用户未登录，显示提示
+        loginPrompt.style.display = 'block';
+        inputContainer.style.display = 'none';
+    }
+}
+
+/**
+ * 发送用户消息
+ */
+async function sendUserChatMessage() {
+    const input = document.getElementById('user-chat-input');
+    const sendBtn = document.getElementById('user-chat-send-btn');
+    const errorDiv = document.getElementById('user-chat-error');
+    
+    if (!input || !sendBtn) return;
+    
+    const message = input.value.trim();
+    
+    // 验证消息
+    if (!message) {
+        if (errorDiv) {
+            errorDiv.textContent = 'Please enter a message';
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+        return;
+    }
+    
+    if (message.length > 200) {
+        if (errorDiv) {
+            errorDiv.textContent = 'Message is too long (max 200 characters)';
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+        return;
+    }
+    
+    // 获取用户信息
+    const userInfo = await getCurrentUserInfo();
+    if (!userInfo) {
+        if (errorDiv) {
+            errorDiv.textContent = 'Please log in to send messages';
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+        return;
+    }
+    
+    // 禁用输入和按钮
+    input.disabled = true;
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending...';
+    
+    // 隐藏错误提示
+    if (errorDiv) {
+        errorDiv.style.display = 'none';
+    }
+    
+    try {
+        // 获取当前sessionId（可能为null，后端会自动创建）
+        const sessionId = currentActiveSessionId;
+        
+        // 立即显示用户消息（乐观更新）
+        displayUserMessage(userInfo.userName, message);
+        
+        // 更新按钮文本
+        sendBtn.textContent = 'Sending...';
+        
+        // 调用API发送消息（如果没有sessionId，后端会自动创建）
+        console.log('************用户发送聊天请求************');
+        console.log('[User Chat Frontend] 准备发送消息:', {
+            message: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
+            sessionId: sessionId || '(将自动创建)',
+            userId: userInfo.userId,
+            userName: userInfo.userName
+        });
+        
+        const token = localStorage.getItem('userToken');
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        
+        // 如果有token，添加到Authorization header
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        // 获取当前鱼缸中的鱼ID（用于后端自动创建会话）
+        // 使用与 community-chat-manager.js 相同的方式获取鱼ID
+        let currentTankFishIds = (fishes || window.fishes || [])
+            .filter(f => f && (f.id || f.docId))
+            .map(f => f.id || f.docId)
+            .filter(id => id !== null && id !== undefined);
+        
+        console.log('[User Chat Frontend] 获取到的鱼ID:', {
+            fishesLength: (fishes || window.fishes || []).length,
+            tankFishIdsCount: currentTankFishIds.length,
+            tankFishIds: currentTankFishIds.slice(0, 5) // 只显示前5个用于调试
+        });
+        
+        // 如果前端没有鱼ID，尝试从后端获取（可能是鱼还在加载中）
+        if (currentTankFishIds.length === 0 && !sessionId) {
+            console.log('[User Chat Frontend] 前端没有鱼ID，尝试从后端获取...');
+            try {
+                // 获取当前排序类型（默认 'recent'）
+                const sortSelect = document.getElementById('tank-sort') || document.getElementById('tank-sort-sidebar');
+                const sortType = sortSelect ? sortSelect.value : 'recent';
+                
+                // 从后端获取鱼数据
+                const fishDocs = await getFishBySort(sortType, maxTankCapacity || 20);
+                if (fishDocs && fishDocs.length > 0) {
+                    currentTankFishIds = fishDocs
+                        .map(doc => {
+                            const data = typeof doc.data === 'function' ? doc.data() : (doc.data || doc);
+                            return doc.id || data.id || data.fish_id;
+                        })
+                        .filter(id => id !== null && id !== undefined);
+                    
+                    console.log('[User Chat Frontend] 从后端获取到的鱼ID:', {
+                        fishDocsCount: fishDocs.length,
+                        tankFishIdsCount: currentTankFishIds.length,
+                        tankFishIds: currentTankFishIds.slice(0, 5)
+                    });
+                }
+            } catch (error) {
+                console.warn('[User Chat Frontend] 从后端获取鱼ID失败:', error);
+            }
+        }
+        
+        const apiUrl = '/api/fish-api?action=user-chat-message';
+        const requestBody = {
+            sessionId: sessionId, // 可能为null
+            userMessage: message,
+            userId: userInfo.userId,
+            userName: userInfo.userName
+        };
+        
+        // 如果没有sessionId，必须传递tankFishIds以便后端创建会话
+        if (!sessionId && currentTankFishIds.length > 0) {
+            requestBody.tankFishIds = currentTankFishIds;
+        } else if (!sessionId && currentTankFishIds.length === 0) {
+            // 如果没有sessionId且没有鱼ID，这是一个错误情况
+            throw new Error('无法创建聊天会话：鱼缸中没有鱼。请先添加鱼到鱼缸，或等待鱼加载完成。');
+        }
+        
+        console.log('[User Chat Frontend] 发送消息到API:', {
+            action: 'user-chat-message',
+            url: apiUrl,
+            sessionId: sessionId || '(将自动创建)',
+            userId: userInfo.userId,
+            userName: userInfo.userName,
+            hasToken: !!token,
+            messageLength: message.length,
+            tankFishCount: currentTankFishIds.length
+        });
+        
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(requestBody)
+        });
+        
+        console.log('[User Chat Frontend] API响应状态:', response.status, response.statusText);
+        
+        // 检查响应状态
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[User Chat Frontend] API错误响应:', errorText);
+            throw new Error(`API错误: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('[User Chat Frontend] API响应数据:', data);
+        
+        // 如果有调试信息，输出到浏览器console
+        if (data.debug) {
+            console.log(data.debug.message);
+            console.log('[Parameters Test] 发送聊天请求（带parameters）');
+            console.log(JSON.stringify(data.debug.cozeApiRequest, null, 2));
+            if (data.debug.cozeApiResponse) {
+                console.log('[Coze API Response]');
+                console.log('Status:', data.debug.cozeApiResponse.status);
+                console.log(JSON.stringify(data.debug.cozeApiResponse.body, null, 2));
+            }
+        }
+        
+        if (!response.ok) {
+            // Handle HTTP errors
+            if (response.status === 401) {
+                throw new Error('Please log in to send messages');
+            } else if (response.status === 404) {
+                // Session not found - this shouldn't happen if we just created it
+                // But if it does, reset session ID so next message will create a new one
+                console.warn('Chat session not found, resetting session ID');
+                currentActiveSessionId = null;
+                throw new Error('Chat session expired. Please try sending your message again.');
+            } else if (response.status === 403) {
+                throw new Error('Permission denied');
+            } else {
+                throw new Error(data.error || data.message || `Server error: ${response.status}`);
+            }
+        }
+        
+        if (!data.success) {
+            throw new Error(data.error || data.message || 'Failed to send message');
+        }
+        
+        // 更新sessionId（如果后端创建了新会话）
+        if (data.sessionId && data.sessionId !== currentActiveSessionId) {
+            currentActiveSessionId = data.sessionId;
+            console.log('[User Chat Frontend] ✅ 会话已创建/更新:', data.sessionId);
+        }
+        
+        // 显示AI回复
+        if (data.aiReplies && data.aiReplies.length > 0) {
+            data.aiReplies.forEach(reply => {
+                displayFishReply(reply);
+            });
+        } else {
+            console.warn('No AI replies received');
+        }
+        
+        // 清空输入框
+        input.value = '';
+        
+    } catch (error) {
+        console.error('发送消息失败:', error);
+        if (errorDiv) {
+            let errorMessage = 'Failed to send message. Please try again.';
+            if (error.message) {
+                errorMessage = error.message;
+            } else if (error.response) {
+                // Handle HTTP error responses
+                try {
+                    const errorData = await error.response.json();
+                    errorMessage = errorData.error || errorData.message || errorMessage;
+                } catch (e) {
+                    errorMessage = `Server error: ${error.response.status}`;
+                }
+            }
+            errorDiv.textContent = errorMessage;
+            errorDiv.style.display = 'block';
+        }
+        // 移除已显示的用户消息（因为发送失败）
+        removeLastUserMessage();
+    } finally {
+        // 恢复输入和按钮
+        input.disabled = false;
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send';
+        input.focus();
+    }
+}
+
+/**
+ * 显示用户消息
+ */
+function displayUserMessage(userName, message) {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'user-chat-message';
+    messageDiv.style.cssText = `
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-bottom: 6px;
+        font-size: 13px;
+        line-height: 1.5;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border-left: 3px solid #6366F1;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    messageDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+            <span style="font-weight: 600; color: #6366F1; font-size: 12px;">👤 ${userName}</span>
+        </div>
+        <div style="color: #333;">${escapeHtml(message)}</div>
+    `;
+    
+    // 插入到消息列表顶部
+    const firstChild = chatMessages.firstChild;
+    if (firstChild && firstChild.classList && firstChild.classList.contains('session-card')) {
+        // 如果第一个元素是会话卡片，插入到卡片内部
+        const messagesContainer = firstChild.querySelector('.session-messages') || firstChild;
+        messagesContainer.appendChild(messageDiv);
+    } else {
+        chatMessages.insertBefore(messageDiv, firstChild);
+    }
+}
+
+/**
+ * 显示鱼的回复
+ */
+function displayFishReply(reply) {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.style.cssText = `
+        background: white;
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-bottom: 6px;
+        font-size: 13px;
+        line-height: 1.5;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    const personalityColors = {
+        cheerful: '#FF9800',
+        shy: '#2196F3',
+        brave: '#E91E63',
+        lazy: '#9C27B0'
+    };
+    const color = personalityColors[reply.personality] || '#666';
+    
+    messageDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+            <span style="font-weight: 600; color: ${color}; font-size: 12px;">🐟 ${reply.fishName || 'Unknown'}</span>
+        </div>
+        <div style="color: #333;">${escapeHtml(reply.message)}</div>
+    `;
+    
+    // 插入到消息列表顶部
+    const firstChild = chatMessages.firstChild;
+    if (firstChild && firstChild.classList && firstChild.classList.contains('session-card')) {
+        const messagesContainer = firstChild.querySelector('.session-messages') || firstChild;
+        messagesContainer.appendChild(messageDiv);
+    } else {
+        chatMessages.insertBefore(messageDiv, firstChild);
+    }
+}
+
+/**
+ * 移除最后一条用户消息（用于错误回滚）
+ */
+function removeLastUserMessage() {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) return;
+    
+    const userMessages = chatMessages.querySelectorAll('.user-chat-message');
+    if (userMessages.length > 0) {
+        userMessages[userMessages.length - 1].remove();
+    }
+}
+
+/**
+ * HTML转义函数
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 初始化用户输入区域显示状态 - 立即显示，不等待
+function initializeUserChatInput() {
+    const loginPrompt = document.getElementById('user-chat-login-prompt');
+    const inputContainer = document.getElementById('user-chat-input-container');
+    
+    if (!loginPrompt || !inputContainer) return;
+    
+    // 立即检查并显示（异步更新登录状态）
+    updateUserChatInputVisibility();
+    
+    // 默认显示输入框（如果用户已登录，会通过updateUserChatInputVisibility更新）
+    // 这样可以立即显示，不需要等待
+    const userData = localStorage.getItem('userData');
+    const userId = localStorage.getItem('userId');
+    
+    if (userData || userId) {
+        // 可能已登录，先显示输入框
+        loginPrompt.style.display = 'none';
+        inputContainer.style.display = 'block';
+        // 异步验证并更新状态
+        updateUserChatInputVisibility();
+    } else {
+        // 未登录，显示提示
+        loginPrompt.style.display = 'block';
+        inputContainer.style.display = 'none';
+    }
+}
+
+// 立即初始化用户输入区域
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeUserChatInput);
+} else {
+    initializeUserChatInput();
+}
+
+// 监听登录状态变化
+if (window.supabaseAuth) {
+    window.supabaseAuth.onAuthStateChange(() => {
+        updateUserChatInputVisibility();
+    });
 }
 
 /**

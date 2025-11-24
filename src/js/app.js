@@ -428,8 +428,8 @@ function showUserAlert(options) {
             background: linear-gradient(180deg, #FFF9E6 0%, #FFF4D6 100%);
             border-radius: 32px;
             padding: 0;
-            width: 480px;
-            max-width: 90vw;
+            width: ${isMobile ? 'calc(100vw - 40px)' : '480px'};
+            max-width: ${isMobile ? 'calc(100vw - 40px)' : '90vw'};
             max-height: 90vh;
             overflow-y: auto;
             font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
@@ -1213,7 +1213,29 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
         });
         
         console.log('  提交响应状态:', submitResp.status);
-        const submitResult = await submitResp.json();
+        
+        // 检查响应状态，非200时先尝试解析错误信息
+        let submitResult;
+        if (!submitResp.ok) {
+            try {
+                const errorText = await submitResp.text();
+                console.log('  错误响应内容:', errorText);
+                // 尝试解析JSON错误信息
+                try {
+                    submitResult = JSON.parse(errorText);
+                } catch (parseError) {
+                    // 如果解析失败，构造错误对象并抛出，让catch块处理
+                    console.error('  无法解析错误响应:', parseError);
+                    throw new Error(`图片上传失败: ${submitResp.status}`);
+                }
+            } catch (error) {
+                // 如果读取响应失败，抛出错误
+                console.error('  读取错误响应失败:', error);
+                throw new Error(`图片上传失败: ${submitResp.status}`);
+            }
+        } else {
+            submitResult = await submitResp.json();
+        }
         console.log('  提交结果:', submitResult);
         
         // Remove spinner and re-enable button
@@ -1305,19 +1327,26 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
         
         // 显示错误提示
         let errorMessage = err.message || '上传失败，请稍后重试。';
+        let errorTitle = '上传失败';
         
         // 处理网络错误
         if (err.message && err.message.includes('Failed to fetch')) {
             errorMessage = '网络连接失败，请检查您的网络连接后重试。';
         } else if (err.message && err.message.includes('403')) {
-            errorMessage = '权限不足，请检查您的登录状态。';
+            // 403可能是限制错误，尝试显示更友好的提示
+            errorTitle = 'Daily Limit Reached';
+            errorMessage = '您已达到今日画鱼限制，请明天再试或升级会员以增加限制。';
         } else if (err.message && err.message.includes('401')) {
             errorMessage = '未授权，请重新登录。';
+        } else if (err.message && err.message.includes('404')) {
+            // 404可能是API路径错误，但更可能是限制错误导致的
+            errorTitle = '提交失败';
+            errorMessage = '提交失败，可能是已达到限制或网络问题，请稍后重试。';
         }
         
         showUserAlert({
             type: 'error',
-            title: '上传失败',
+            title: errorTitle,
             message: errorMessage,
             buttons: [{ text: '确定', action: 'close' }]
         });

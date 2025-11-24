@@ -20,9 +20,7 @@ function loadHandler(relativePath) {
   try {
     // 使用绝对路径，确保在不同环境下都能正确加载
     const handlerPath = path.resolve(__dirname, relativePath);
-    console.log(`[Config API] Loading handler from: ${handlerPath}`);
     const handler = require(handlerPath);
-    console.log(`[Config API] ✅ Handler loaded successfully: ${relativePath}`);
     return handler;
   } catch (error) {
     console.error(`[Config API] ❌ Failed to load handler: ${relativePath}`);
@@ -35,14 +33,8 @@ function loadHandler(relativePath) {
 module.exports = async function handler(req, res) {
   const { action } = req.query;
   
-  console.log(`[Config API] Request received: action=${action}`);
-  console.log(`[Config API] Query params:`, req.query);
-  console.log(`[Config API] __dirname:`, __dirname);
-  console.log(`[Config API] NODE_ENV:`, process.env.NODE_ENV);
-  
   // 动态加载 handlers（延迟加载，避免启动错误）
   // 在 Serverless 环境中，每次都重新加载以确保最新状态
-  console.log('[Config API] Initializing handlers...');
   backendHandler = loadHandler('../lib/api_handlers/config/backend.js');
   supabaseHandler = loadHandler('../lib/api_handlers/config/supabase.js');
   loginModeHandler = loadHandler('../lib/api_handlers/config/login-mode.js');
@@ -51,16 +43,6 @@ module.exports = async function handler(req, res) {
   chatCostSavingHandler = loadHandler('../lib/api_handlers/config/chat-cost-saving.js');
   testCredentialsHandler = loadHandler('../lib/api_handlers/config/test-credentials.js');
   hasuraHandler = loadHandler('../lib/api_handlers/config/hasura.js');
-  console.log('[Config API] Handler initialization complete');
-  console.log('[Config API] Handler status:', {
-    backend: !!backendHandler,
-    supabase: !!supabaseHandler,
-    loginMode: !!loginModeHandler,
-    groupChat: !!groupChatHandler,
-    monoChat: !!monoChatHandler,
-    chatCostSaving: !!chatCostSavingHandler,
-    testCredentials: !!testCredentialsHandler
-  });
   
   try {
     switch (action) {

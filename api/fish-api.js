@@ -26,13 +26,12 @@ const path = require('path');
 let listHandler, submitHandler, myTankHandler, favoriteHandler, unfavoriteHandler, uploadHandler;
 let updateInfoHandler, updateChatSettingsHandler, getBattleFishHandler, communityChatHandler;
 let groupChatHandler, monologueHandler, chatUsageHandler, moderationCheckHandler, createHandler;
+let userChatMessageHandler;
 
 function loadHandler(relativePath) {
   try {
     const handlerPath = path.resolve(__dirname, relativePath);
-    console.log(`[Fish API] Loading handler from: ${handlerPath}`);
     const handler = require(handlerPath);
-    console.log(`[Fish API] ✅ Handler loaded successfully: ${relativePath}`);
     return handler;
   } catch (error) {
     console.error(`[Fish API] ❌ Failed to load handler: ${relativePath}`);
@@ -45,12 +44,18 @@ function loadHandler(relativePath) {
 module.exports = async function handler(req, res) {
   const { action } = req.query;
   
-  console.log(`[Fish API] Request received: action=${action}`);
-  console.log(`[Fish API] Query params:`, req.query);
+  // 调试日志：记录所有请求
+  if (action === 'user-chat-message') {
+    console.log('************用户发送聊天请求************');
+    console.log('[Fish API] 收到用户聊天消息请求');
+    console.log('[Fish API] Request method:', req.method);
+    console.log('[Fish API] Request body:', JSON.stringify(req.body, null, 2));
+    console.log('[Fish API] Has Authorization header:', !!req.headers.authorization);
+    console.log('[Fish API] Query params:', req.query);
+  }
   
   // 动态加载 handlers（延迟加载，避免启动错误）
   if (!listHandler) {
-    console.log('[Fish API] Initializing handlers...');
     listHandler = loadHandler('../lib/api_handlers/fish/list.js');
     submitHandler = loadHandler('../lib/api_handlers/fish/submit.js');
     myTankHandler = loadHandler('../lib/api_handlers/fish/my-tank.js');
@@ -66,7 +71,7 @@ module.exports = async function handler(req, res) {
     chatUsageHandler = loadHandler('../lib/api_handlers/fish/chat/usage.js');
     moderationCheckHandler = loadHandler('../lib/api_handlers/fish/moderation/check.js');
     createHandler = loadHandler('../lib/api_handlers/fish/create.js');
-    console.log('[Fish API] Handler initialization complete');
+    userChatMessageHandler = loadHandler('../lib/api_handlers/fish/chat/user-message.js');
   }
   
   // 路由分发
@@ -117,6 +122,14 @@ module.exports = async function handler(req, res) {
       case 'moderation-check':
         if (!moderationCheckHandler) return res.status(500).json({ error: 'Moderation check handler not available' });
         return await moderationCheckHandler(req, res);
+      case 'user-chat-message':
+        console.log('[Fish API] 路由到 user-chat-message handler');
+        if (!userChatMessageHandler) {
+          console.error('[Fish API] ❌ userChatMessageHandler not loaded!');
+          return res.status(500).json({ error: 'User chat message handler not available' });
+        }
+        console.log('[Fish API] ✅ userChatMessageHandler loaded, calling...');
+        return await userChatMessageHandler(req, res);
       default:
         return res.status(400).json({ 
           error: 'Invalid action',

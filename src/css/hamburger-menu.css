@@ -103,6 +103,7 @@
 .sidebar-nav {
   padding: 20px 0;
   flex: 1;
+  padding-bottom: 40px; /* 确保最后一个选项在移动端完全可见 */
 }
 
 .sidebar-link {
@@ -179,6 +180,10 @@
     width: 260px;
   }
   
+  .sidebar-nav {
+    padding-bottom: 50px; /* 移动端增加底部间距 */
+  }
+  
   /* 确保导航栏在移动端正确布局 */
   .game-nav {
     justify-content: flex-start !important;
@@ -229,6 +234,10 @@
   .sidebar-icon {
     font-size: 20px;
     width: 28px;
+  }
+  
+  .sidebar-nav {
+    padding-bottom: 60px; /* 移动端增加更多底部间距 */
   }
 }
 

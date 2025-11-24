@@ -562,6 +562,28 @@
             transition: transform 0.3s ease;
         }
         
+        /* Join Fish Chat Switch Styles */
+        #join-fish-chat-switch:checked ~ .switch-slider {
+            background-color: #6366F1 !important;
+        }
+        
+        #join-fish-chat-switch:checked ~ .switch-thumb {
+            transform: translateX(24px) !important;
+        }
+        
+        #join-fish-chat-switch ~ .switch-slider {
+            background-color: #ccc;
+            transition: background-color 0.3s ease;
+        }
+        
+        #join-fish-chat-switch ~ .switch-thumb {
+            transition: transform 0.3s ease;
+        }
+        
+        #join-fish-chat-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
         /* Chat Box Switch Styles */
         #toggle-chat-btn-sidebar {
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -740,6 +762,18 @@
           <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
         </label>
       </div>
+      <!-- Join Fish Chat Toggle (Switch Style) -->
+      <div class="sidebar-link" id="join-fish-chat-toggle" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="sidebar-icon">💬</span>
+          <span>Join Fish Chat</span>
+        </div>
+        <label style="position: relative; display: inline-block; width: 50px; height: 26px; margin: 0;">
+          <input type="checkbox" id="join-fish-chat-switch" style="opacity: 0; width: 0; height: 0;">
+          <span class="switch-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px;"></span>
+          <span class="switch-thumb" style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+        </label>
+      </div>
       
       <!-- Tank Controls Section -->
       <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 8px; padding-top: 12px;">
@@ -809,13 +843,42 @@
       </div>
       
       <div style="font-size: 12px; color: #666; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-        <span id="chat-status" style="color: #999;">Waiting...</span>
+        <span id="chat-status" style="color: #999;">Ready to chat</span>
       </div>
       
-      <div id="chat-messages" style="flex: 1; overflow-y: auto; padding-right: 8px;">
-        <div style="text-align: center; color: #999; padding: 40px 20px; font-size: 14px;">
-          <p style="margin: 10px 0;">🐟 Fish are preparing to chat...</p>
-          <p id="chat-interval-text" style="margin: 10px 0; font-size: 12px;">New conversations every 5 minutes</p>
+      <div id="chat-messages" style="flex: 1; overflow-y: auto; padding-right: 8px; margin-bottom: 15px;">
+        <div id="chat-placeholder" style="text-align: center; color: #999; padding: 20px; font-size: 14px; display: block;">
+          <p style="margin: 10px 0;">💬 Start chatting with the fish!</p>
+          <p id="chat-interval-text" style="margin: 10px 0; font-size: 12px;">Send a message to begin</p>
+        </div>
+      </div>
+      
+      <!-- 用户输入区域 -->
+      <div id="user-chat-input-area" style="border-top: 2px solid rgba(99, 102, 241, 0.1); padding-top: 15px;">
+        <div id="user-chat-login-prompt" style="text-align: center; color: #999; font-size: 12px; padding: 10px; display: none;">
+          Please log in to join the conversation
+        </div>
+        <div id="user-chat-input-container" style="display: none;">
+          <div style="display: flex; gap: 8px; align-items: flex-end;">
+            <input 
+              type="text" 
+              id="user-chat-input" 
+              placeholder="Type your message..." 
+              maxlength="200"
+              style="flex: 1; padding: 10px 12px; border: 2px solid rgba(99, 102, 241, 0.2); border-radius: 8px; font-size: 13px; outline: none; transition: border-color 0.3s ease;"
+              onkeypress="if(event.key === 'Enter') { sendUserChatMessage(); }"
+            />
+            <button 
+              id="user-chat-send-btn" 
+              onclick="sendUserChatMessage()"
+              style="padding: 10px 20px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);"
+              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(99, 102, 241, 0.4)';"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(99, 102, 241, 0.3)';"
+            >
+              Send
+            </button>
+          </div>
+          <div id="user-chat-error" style="color: #E91E63; font-size: 11px; margin-top: 6px; display: none;"></div>
         </div>
       </div>
     </div>
@@ -1339,6 +1402,66 @@
             if (e.target !== chatBoxSwitch && !e.target.closest('label')) {
               chatBoxSwitch.checked = !chatBoxSwitch.checked;
               chatBoxSwitch.dispatchEvent(new Event('change'));
+            }
+          });
+        }
+        
+        // Join Fish Chat switch - toggle chat panel
+        const joinFishChatSwitch = document.getElementById('join-fish-chat-switch');
+        const joinFishChatToggle = document.getElementById('join-fish-chat-toggle');
+        
+        if (joinFishChatSwitch && joinFishChatToggle) {
+          const chatPanel = document.getElementById('chat-panel');
+          const tankWrapper = document.getElementById('tank-wrapper-main');
+          
+          // Load saved preference from localStorage
+          const savedPreference = localStorage.getItem('joinFishChatEnabled');
+          const isEnabled = savedPreference === 'true';
+          joinFishChatSwitch.checked = isEnabled;
+          
+          // Initialize chat panel state based on saved preference
+          if (chatPanel && isEnabled) {
+            chatPanel.style.display = 'flex';
+            chatPanel.style.visibility = 'visible';
+            chatPanel.style.right = '0';
+            if (tankWrapper) tankWrapper.style.marginRight = '0';
+          }
+          
+          // Toggle function
+          const toggleJoinFishChat = () => {
+            const isOpen = joinFishChatSwitch.checked;
+            
+            // Save preference to localStorage
+            localStorage.setItem('joinFishChatEnabled', isOpen ? 'true' : 'false');
+            
+            if (isOpen) {
+              // Show chat panel
+              chatPanel.style.display = 'flex';
+              chatPanel.style.visibility = 'visible';
+              chatPanel.style.right = '0';
+              if (tankWrapper) tankWrapper.style.marginRight = '0';
+            } else {
+              // Hide chat panel
+              chatPanel.style.right = '-350px';
+              if (tankWrapper) tankWrapper.style.marginRight = '0';
+              setTimeout(() => {
+                chatPanel.style.display = 'none';
+                chatPanel.style.visibility = 'hidden';
+              }, 300);
+            }
+          };
+          
+          // When switch is toggled
+          joinFishChatSwitch.addEventListener('change', (e) => {
+            e.stopPropagation();
+            toggleJoinFishChat();
+          });
+          
+          // Also allow clicking the entire toggle area
+          joinFishChatToggle.addEventListener('click', (e) => {
+            if (e.target !== joinFishChatSwitch && !e.target.closest('label')) {
+              joinFishChatSwitch.checked = !joinFishChatSwitch.checked;
+              joinFishChatSwitch.dispatchEvent(new Event('change'));
             }
           });
         }

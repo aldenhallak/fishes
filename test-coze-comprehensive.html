@@ -573,6 +573,30 @@
               <option value="Korean">Korean</option>
             </select>
           </div>
+          <div class="form-group">
+            <label for="params-user-talk">用户消息 (User Talk):</label>
+            <input 
+              type="text" 
+              id="params-user-talk" 
+              placeholder="输入用户消息，例如：Hello everyone!"
+              style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;"
+            />
+            <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+              可选：用户参与聊天时发送的消息内容
+            </small>
+          </div>
+          <div class="form-group">
+            <label for="params-user-name">用户名称 (User Name):</label>
+            <input 
+              type="text" 
+              id="params-user-name" 
+              placeholder="输入用户名称，例如：Alice"
+              style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;"
+            />
+            <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+              可选：参与聊天的用户名称
+            </small>
+          </div>
           <div class="btn-group">
             <button class="btn btn-success" onclick="testParametersChat()" id="test-params-btn">
               🚀 发送带Parameters的请求
@@ -1426,6 +1450,9 @@
         // 2. 发送带parameters的消息
         // 根据Coze API文档，使用parameters字段传递参数给Bot
         const outputLanguage = document.getElementById('params-language').value.trim();
+        const userTalk = document.getElementById('params-user-talk').value.trim();
+        const userName = document.getElementById('params-user-name').value.trim();
+        
         const parameters = {
           fish_array: fishArray  // 直接传递对象数组
         };
@@ -1433,6 +1460,16 @@
         // 如果选择了语言，添加到parameters
         if (outputLanguage) {
           parameters.output_language = outputLanguage;
+        }
+        
+        // 如果输入了用户消息，添加到parameters
+        if (userTalk) {
+          parameters.user_talk = userTalk;
+        }
+        
+        // 如果输入了用户名称，添加到parameters
+        if (userName) {
+          parameters.user_name = userName;
         }
         
         const chatPayload = {
@@ -1449,6 +1486,9 @@
         };
         
         console.log('Fish array parameters:', JSON.stringify(fishArray, null, 2));
+        if (userTalk || userName) {
+          console.log('User parameters:', { user_talk: userTalk || '(empty)', user_name: userName || '(empty)' });
+        }
 
         addLog('[Parameters Test] 发送聊天请求（带parameters）', chatPayload, 'coze-request');
 

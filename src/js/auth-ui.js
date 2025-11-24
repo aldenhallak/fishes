@@ -613,8 +613,10 @@ class AuthUI {
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10001; backdrop-filter: blur(4px);';
     
+    // 在移动端使用响应式宽度，避免占满屏幕
+    const isMobile = window.innerWidth <= 768;
     const modal = document.createElement('div');
-    modal.style.cssText = 'background: white; padding: 30px; border-radius: 16px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);';
+    modal.style.cssText = `background: white; padding: 30px; border-radius: 16px; max-width: ${isMobile ? 'calc(100vw - 40px)' : '500px'}; width: ${isMobile ? 'calc(100vw - 40px)' : '90%'}; box-shadow: 0 20px 60px rgba(0,0,0,0.3); box-sizing: border-box;`;
     
     modal.innerHTML = `
       <h2 style="color: #1f2937; margin-bottom: 16px; font-size: 20px;">${title}</h2>

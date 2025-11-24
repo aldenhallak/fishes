@@ -492,8 +492,10 @@
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px);';
       
+      // 在移动端使用响应式宽度，避免占满屏幕
+      const isMobile = window.innerWidth <= 768;
       const modal = document.createElement('div');
-      modal.style.cssText = 'background: white; padding: 40px; border-radius: 16px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center;';
+      modal.style.cssText = `background: white; padding: 40px; border-radius: 16px; max-width: ${isMobile ? 'calc(100vw - 40px)' : '500px'}; width: ${isMobile ? 'calc(100vw - 40px)' : '90%'}; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; box-sizing: border-box;`;
       
       modal.innerHTML = `
         <h2 style="color: #6366F1; margin-bottom: 20px; font-size: 28px;">🐟 FishTalk AI</h2>

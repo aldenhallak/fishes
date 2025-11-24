@@ -713,17 +713,20 @@ function showEditProfileModal() {
     `;
 
     // Create modal content
+    // 在移动端使用响应式宽度，避免占满屏幕
+    const isMobile = window.innerWidth <= 768;
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
     modalContent.style.cssText = `
         background: white;
         padding: 30px;
         border-radius: 10px;
-        max-width: 500px;
-        width: 90%;
+        max-width: ${isMobile ? 'calc(100vw - 40px)' : '500px'};
+        width: ${isMobile ? 'calc(100vw - 40px)' : '90%'};
         max-height: 90vh;
         overflow-y: auto;
         box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        box-sizing: border-box;
     `;
 
     modalContent.innerHTML = `

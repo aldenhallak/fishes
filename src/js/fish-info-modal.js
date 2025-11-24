@@ -34,16 +34,19 @@ async function showFishInfoModal(fishId, imageUrl, onComplete) {
         backdrop-filter: blur(5px);
     `;
 
+    // 在移动端使用响应式宽度，避免占满屏幕
+    const isMobile = window.innerWidth <= 768;
     const modalHTML = `
         <div class="fish-info-modal" style="
             background: white;
             border-radius: 20px;
             padding: 40px;
-            max-width: 500px;
-            width: 90%;
+            max-width: ${isMobile ? 'calc(100vw - 40px)' : '500px'};
+            width: ${isMobile ? 'calc(100vw - 40px)' : '90%'};
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
         ">
             <div style="text-align: center; margin-bottom: 30px;">
                 <div style="font-size: 60px; margin-bottom: 15px;">🎉</div>

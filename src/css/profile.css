@@ -92,6 +92,22 @@
     .profile-info {
         grid-template-columns: 1fr;
     }
+    
+    /* 确保会员信息在移动端也保持单行显示 */
+    .profile-membership {
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        gap: 6px; /* 减小间距以适应移动端 */
+        overflow: hidden; /* 防止内容溢出 */
+    }
+    
+    #membership-text {
+        font-size: 12px; /* 移动端稍微减小字体 */
+    }
+    
+    #membership-badge {
+        flex-shrink: 0; /* 防止图标被压缩 */
+    }
 }
 
 .profile-basic {
@@ -153,7 +169,8 @@
     justify-content: center;
     gap: 8px;
     margin: 10px 0;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* 移动端也保持单行显示 */
+    white-space: nowrap; /* 防止文字换行 */
 }
 
 #membership-badge {

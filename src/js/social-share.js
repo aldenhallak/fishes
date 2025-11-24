@@ -212,14 +212,16 @@ class SocialShare {
     `;
     
     // 3D游戏风格的弹窗容器
+    // 在移动端使用响应式宽度，避免占满屏幕
+    const isMobile = window.innerWidth <= 768;
     const modal = document.createElement('div');
     modal.style.cssText = `
       background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
       padding: 32px;
       border-radius: 24px;
-      min-width: 400px;
-      max-width: 500px;
-      width: 90%;
+      min-width: ${isMobile ? '0' : '400px'};
+      max-width: ${isMobile ? 'calc(100vw - 40px)' : '500px'};
+      width: ${isMobile ? 'calc(100vw - 40px)' : '90%'};
       max-height: 90vh;
       overflow-y: auto;
       box-shadow: 
@@ -230,6 +232,7 @@ class SocialShare {
       animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
       text-align: center;
+      box-sizing: border-box;
     `;
     
     // 顶部彩色条
