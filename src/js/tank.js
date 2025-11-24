@@ -1765,9 +1765,9 @@ async function handleAddToMyTank(fishId, event) {
     const button = document.getElementById(`add-tank-btn-${fishId}`);
     if (!button) return;
     
-    // Check if user is logged in
-    const userToken = localStorage.getItem('userToken');
-    if (!userToken) {
+    // Check if user is logged in - 使用缓存快速检测
+    const isLoggedIn = window.authCache && window.authCache.isLoggedIn();
+    if (!isLoggedIn) {
         if (typeof FishTankFavorites !== 'undefined' && FishTankFavorites.showToast) {
             FishTankFavorites.showToast('Please login to add fish to your tank', 'info');
         } else {
@@ -1775,6 +1775,9 @@ async function handleAddToMyTank(fishId, event) {
         }
         return;
     }
+    
+    // 获取 token（如果缓存检测通过，token 应该存在）
+    const userToken = localStorage.getItem('userToken');
     
     try {
         button.disabled = true;
@@ -3240,11 +3243,16 @@ async function sendUserChatMessage() {
             currentConversationId = data.conversationId;
         }
         
-        // 显示AI回复
+        // 显示AI回复（与气泡同步，一条一条出现）
         if (data.aiReplies && data.aiReplies.length > 0) {
             data.aiReplies.forEach((reply, index) => {
-                // 在聊天面板中显示
-                displayFishReply(reply);
+                // 延迟显示，与气泡同步
+                const delay = index * 3000; // 每条消息间隔3秒
+                
+                setTimeout(() => {
+                    // 在聊天面板中显示
+                    displayFishReply(reply);
+                }, delay);
                 
                 // 在鱼缸中显示气泡对话
                 displayFishBubble(reply, index);
@@ -3510,32 +3518,28 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// 初始化用户输入区域显示状态 - 立即显示，不等待
+// 初始化用户输入区域显示状态 - 使用缓存立即显示
 function initializeUserChatInput() {
     const loginPrompt = document.getElementById('user-chat-login-prompt');
     const inputContainer = document.getElementById('user-chat-input-container');
     
     if (!loginPrompt || !inputContainer) return;
     
-    // 立即检查并显示（异步更新登录状态）
-    updateUserChatInputVisibility();
+    // 使用缓存同步检查登录状态（无网络延迟）
+    const isLoggedIn = window.authCache && window.authCache.isLoggedIn();
     
-    // 默认显示输入框（如果用户已登录，会通过updateUserChatInputVisibility更新）
-    // 这样可以立即显示，不需要等待
-    const userData = localStorage.getItem('userData');
-    const userId = localStorage.getItem('userId');
-    
-    if (userData || userId) {
-        // 可能已登录，先显示输入框
+    if (isLoggedIn) {
+        // 用户已登录，立即显示输入框
         loginPrompt.style.display = 'none';
         inputContainer.style.display = 'block';
-        // 异步验证并更新状态
-        updateUserChatInputVisibility();
     } else {
-        // 未登录，显示提示
+        // 用户未登录，显示提示
         loginPrompt.style.display = 'block';
         inputContainer.style.display = 'none';
     }
+    
+    // 异步验证并更新状态（确保准确性）
+    updateUserChatInputVisibility();
 }
 
 // 立即初始化用户输入区域

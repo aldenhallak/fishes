@@ -866,9 +866,9 @@ async function handleFavoriteClick(fishId, event) {
     const button = document.getElementById(`fav-btn-${fishId}`);
     if (!button) return;
     
-    // Check if user is logged in
-    const userToken = localStorage.getItem('userToken');
-    if (!userToken) {
+    // Check if user is logged in - 使用缓存快速检测
+    const isLoggedIn = window.authCache && window.authCache.isLoggedIn();
+    if (!isLoggedIn) {
         FishTankFavorites.showToast('Please login to favorite fish', 'info');
         return;
     }

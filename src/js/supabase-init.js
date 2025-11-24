@@ -174,14 +174,24 @@ async function signInWithOAuth(provider) {
 
 /**
  * 获取当前登录用户
+ * @param {boolean} forceRefresh - 强制刷新（跳过缓存）
  * @returns {Promise<User|null>}
  */
-async function getCurrentUser() {
+async function getCurrentUser(forceRefresh = false) {
   if (!supabase) return null;
+  
+  // 优先使用缓存
+  if (window.authCache && !forceRefresh) {
+    const cachedUser = window.authCache.getCachedUser();
+    if (cachedUser) {
+      return cachedUser;
+    }
+  }
   
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) throw error;
+    
     return user;
   } catch (error) {
     console.error('❌ 获取用户失败:', error.message);
@@ -191,14 +201,24 @@ async function getCurrentUser() {
 
 /**
  * 获取当前会话
+ * @param {boolean} forceRefresh - 强制刷新（跳过缓存）
  * @returns {Promise<Session|null>}
  */
-async function getSession() {
+async function getSession(forceRefresh = false) {
   if (!supabase) return null;
+  
+  // 优先使用缓存
+  if (window.authCache && !forceRefresh) {
+    const cachedSession = window.authCache.getCachedSession();
+    if (cachedSession) {
+      return cachedSession;
+    }
+  }
   
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
     if (error) throw error;
+    
     return session;
   } catch (error) {
     console.error('❌ 获取会话失败:', error.message);
@@ -219,6 +239,22 @@ function onAuthStateChange(callback) {
   
   const { data } = supabase.auth.onAuthStateChange((event, session) => {
     console.log('🔔 认证状态变化:', event, session?.user?.email);
+    
+    // 更新缓存
+    if (window.authCache) {
+      if (session && session.user) {
+        // 直接更新缓存，避免触发新的认证状态变化
+        window.authCache.cache.user = session.user;
+        window.authCache.cache.session = session;
+        window.authCache.cache.timestamp = Date.now();
+        window.authCache.cache.isValid = true;
+        window.authCache.saveToStorage();
+        window.authCache.syncLegacyStorage(session.user, session);
+      } else if (event === 'SIGNED_OUT') {
+        window.authCache.clear();
+      }
+    }
+    
     callback(event, session);
   });
   
@@ -286,9 +322,16 @@ async function getAccessToken() {
 
 /**
  * 检查用户是否已登录
+ * @param {boolean} useCache - 使用缓存（默认 true）
  * @returns {Promise<boolean>}
  */
-async function isLoggedIn() {
+async function isLoggedIn(useCache = true) {
+  // 优先使用缓存（同步检查）
+  if (useCache && window.authCache) {
+    return window.authCache.isLoggedIn();
+  }
+  
+  // 异步检查
   const user = await getCurrentUser();
   return !!user;
 }
