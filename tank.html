@@ -644,6 +644,20 @@
             opacity: 1 !important;
         }
         
+        /* 聊天重新打开按钮动画 */
+        #chat-reopen-btn {
+            animation: chatBtnPulse 2s infinite;
+        }
+        
+        @keyframes chatBtnPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        #chat-reopen-btn:hover {
+            animation: none;
+        }
+        
         /* Ensure the tank controls section is visible */
         #sidebar-menu .sidebar-nav > div:last-child {
             display: block !important;
@@ -834,8 +848,8 @@
       </div>
     </div>
     
-    <!-- 聊天面板 (默认完全隐藏) -->
-    <div class="chat-panel" id="chat-panel" style="position: fixed; right: -420px; top: 50%; transform: translateY(-50%); width: 400px; max-height: 90vh; background: linear-gradient(#FFF9E6 0%, #FFF4D6 100%); border-radius: 32px 0 0 32px; padding: 0; box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2), 0 16px 40px rgba(0, 0, 0, 0.4); border: 3px solid #A5B4FC; border-right: none; display: none; flex-direction: column; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 999; visibility: hidden; overflow: hidden;">
+    <!-- 聊天面板 (右下角位置) -->
+    <div class="chat-panel" id="chat-panel" style="position: fixed; right: -420px; bottom: 20px; width: 400px; max-height: 70vh; background: linear-gradient(#FFF9E6 0%, #FFF4D6 100%); border-radius: 16px; padding: 0; box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2), 0 16px 40px rgba(0, 0, 0, 0.4); border: 3px solid #A5B4FC; display: none; flex-direction: column; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 999; visibility: hidden; overflow: hidden;">
       <!-- 深色标题栏 -->
       <div style="background: linear-gradient(#1A1A1D 0%, #0F0F0F 50%, #050505 100%); padding: 16px 24px; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 4px inset rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 12px;">
         <div style="font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));">💬</div>
@@ -862,10 +876,6 @@
       </div>
       
       <div id="chat-messages" style="flex: 1; overflow-y: auto; padding-right: 8px; margin-bottom: 15px;">
-        <div id="chat-placeholder" style="text-align: center; color: #999; padding: 20px; font-size: 14px; display: block;">
-          <p style="margin: 10px 0;">💬 Start chatting with the fish!</p>
-          <p id="chat-interval-text" style="margin: 10px 0; font-size: 12px;">Send a message to begin</p>
-        </div>
       </div>
       
       <!-- 用户输入区域 -->
@@ -900,6 +910,11 @@
         </div>
       </div>
       </div>
+    </div>
+    
+    <!-- 聊天面板重新打开按钮 -->
+    <div id="chat-reopen-btn" style="position: fixed; right: 20px; bottom: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2), 0 8px 20px rgba(0, 0, 0, 0.3); transition: all 0.3s ease; z-index: 998; border: 3px solid #A5B4FC;" title="Open Chat Panel">
+      <div style="font-size: 28px; color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);">💬</div>
     </div>
   </div>
   

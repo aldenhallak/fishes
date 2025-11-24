@@ -515,7 +515,7 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
             }
 
             fishes.push(fishObj);
-            console.log(`🐠 Added fish to tank (ID: ${fishId}, Total: ${fishes.length})`);
+            // console.log(`🐠 Added fish to tank (ID: ${fishId}, Total: ${fishes.length})`);
 
             if (onDone) onDone(fishObj);
         } else {
@@ -1633,47 +1633,48 @@ function showFishInfoModal(fish) {
         ? `<a href="profile.html?userId=${encodeURIComponent(userId)}" target="_blank" style="color: #4A90E2; text-decoration: none; font-weight: 700;">${escapeHtml(artistName)}</a>`
         : escapeHtml(artistName);
 
-    let info = `<div class="fish-info-modal" style="background: linear-gradient(180deg, #F8F9FA 0%, #E8E8E8 100%); padding: 24px; border-radius: 16px;">`;
+    let info = `<div class="fish-info-modal" style="background: linear-gradient(180deg, #F8F9FA 0%, #E8E8E8 100%); padding: 16px; border-radius: 12px;">`;
 
-    // Add highlighting if this is the user's fish
+    // Add highlighting if this is the user's fish - 压缩尺寸
     if (isCurrentUserFish) {
-        info += `<div style='margin-bottom: 16px; padding: 10px; background: linear-gradient(135deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border: 3px solid #BFA000; border-radius: 12px; color: #5D4E00; font-weight: 900; font-size: 13px; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2); text-align: center; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⭐ Your Fish</div>`;
+        info += `<div style='margin-bottom: 10px; padding: 6px; background: linear-gradient(135deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border: 2px solid #BFA000; border-radius: 8px; color: #5D4E00; font-weight: 900; font-size: 11px; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2); text-align: center; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⭐ Your Fish</div>`;
     }
 
-    // Fish image (no frame, direct display) - 移动端优化居中显示
+    // Fish image (no frame, direct display) - 压缩尺寸优化
     const isMobile = window.innerWidth <= 768;
     const imgContainerStyle = isMobile 
-        ? "display: flex; align-items: center; justify-content: center; margin-bottom: 20px; min-height: 200px;"
-        : "text-align: center; margin-bottom: 20px;";
+        ? "display: flex; align-items: center; justify-content: center; margin-bottom: 12px; min-height: 120px;"
+        : "text-align: center; margin-bottom: 15px;";
     const imgStyle = isMobile
-        ? `display: block; max-width: min(${modalWidth}px, 80vw); max-height: min(${modalHeight}px, 40vh); width: auto; height: auto; image-rendering: auto; object-fit: contain;`
-        : `display: block; margin: 0 auto; max-width: ${modalWidth}px; max-height: ${modalHeight}px; width: auto; height: auto; image-rendering: auto; object-fit: contain;`;
+        ? `display: block; margin: 0 auto; max-width: min(${Math.min(modalWidth, 350)}px, 70vw); max-height: min(${Math.min(modalHeight, 200)}px, 25vh); width: auto; height: auto; image-rendering: auto; object-fit: contain;`
+        : `display: block; margin: 0 auto; max-width: ${Math.min(modalWidth, 400)}px; max-height: ${Math.min(modalHeight, 250)}px; width: auto; height: auto; image-rendering: auto; object-fit: contain;`;
     
     info += `<div style="${imgContainerStyle}">`;
     info += `<img src='${imgDataUrl}' style='${imgStyle}' alt='Fish'>`;
     info += `</div>`;
 
-    // Fish info section (simplified, no background box)
-    info += `<div style='margin-bottom: 12px; font-size: 13px; color: #666;'><strong style='color: #333;'>Artist:</strong> ${artistLink}</div>`;
+    // Fish info section with fish name and artist - 压缩间距
+    const fishName = fish.name || fish.title || `Fish #${fish.docId?.substring(0, 8) || 'Unknown'}`;
+    info += `<div style='margin-bottom: 8px; font-size: 12px; color: #666; line-height: 1.3;'><strong style='color: #333;'>${escapeHtml(fishName)}</strong> • <strong style='color: #333;'>Artist:</strong> ${artistLink}</div>`;
 
-    // Action buttons: Like, Favorite, Report (并列，样式一致)
-    info += `<div class="voting-controls modal-controls" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 20px;">`;
+    // Action buttons: Like, Favorite, Report (并列，样式一致) - 压缩间距
+    info += `<div class="voting-controls modal-controls" style="display: flex; gap: 8px; justify-content: center; margin-bottom: 12px;">`;
     
-    // Like button
-    info += `<button class="vote-btn upvote-btn" onclick="handleVote('${fish.docId}', 'up', this)" style="flex: 1; padding: 12px 16px; border: none; border-radius: 12px; background: linear-gradient(180deg, #6FE77D 0%, #4CD964 50%, #3CB54A 100%); border-bottom: 3px solid #2E8B3A; color: white; cursor: pointer; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 6px;">`;
+    // Like button - 压缩尺寸
+    info += `<button class="vote-btn upvote-btn" onclick="handleVote('${fish.docId}', 'up', this)" style="flex: 1; padding: 8px 12px; border: none; border-radius: 8px; background: linear-gradient(180deg, #6FE77D 0%, #4CD964 50%, #3CB54A 100%); border-bottom: 2px solid #2E8B3A; color: white; cursor: pointer; font-size: 12px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 4px;">`;
     info += `👍 <span class="vote-count upvote-count">${fish.upvotes || 0}</span>`;
     info += `</button>`;
     
     // Add to My Tank button (only show if user is logged in and not their own fish)
     if (showFavoriteButton) {
-        info += `<button class="add-to-tank-btn" id="add-tank-btn-${fish.docId}" onclick="if(typeof handleAddToMyTank === 'function') handleAddToMyTank('${fish.docId}', event); else alert('Add to My Tank feature not yet implemented');" style="flex: 1; padding: 12px 16px; border: none; border-radius: 12px; background: linear-gradient(180deg, #4A90E2 0%, #357ABD 50%, #2C5F8F 100%); border-bottom: 3px solid #1E4A6F; color: white; cursor: pointer; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Add this fish to your personal tank">`;
-        info += `🐟 Add to My Tank`;
+        info += `<button class="add-to-tank-btn" id="add-tank-btn-${fish.docId}" onclick="if(typeof handleAddToMyTank === 'function') handleAddToMyTank('${fish.docId}', event); else alert('Add to My Tank feature not yet implemented');" style="flex: 1; padding: 8px 12px; border: none; border-radius: 8px; background: linear-gradient(180deg, #4A90E2 0%, #357ABD 50%, #2C5F8F 100%); border-bottom: 2px solid #1E4A6F; color: white; cursor: pointer; font-size: 12px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 4px;" title="Add this fish to your personal tank">`;
+        info += `🐠 Add to Tank`;
         info += `</button>`;
     }
     
-    // Report button
-    info += `<button class="report-btn" onclick="handleReport('${fish.docId}', this)" style="flex: 1; padding: 12px 16px; border: none; border-radius: 12px; background: linear-gradient(180deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border-bottom: 3px solid #BFA000; color: #5D4E00; cursor: pointer; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Report inappropriate content">`;
-    info += `🚩 Report`;
+    // Report button - 压缩尺寸
+    info += `<button class="report-btn" onclick="handleReport('${fish.docId}')" style="flex: 1; padding: 8px 12px; border: none; border-radius: 8px; background: linear-gradient(180deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border-bottom: 2px solid #BFA000; color: #5D4E00; cursor: pointer; font-size: 12px; font-weight: 700; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 4px;" title="Report inappropriate content">`;
+    info += `⚠️ Report`;
     info += `</button>`;
     
     info += `</div>`;
@@ -1694,12 +1695,13 @@ function showFishInfoModal(fish) {
         }
     </style>`;
 
-    // Add messages section placeholder
-    info += `<div id="fish-messages-container" style="margin-top: 20px; text-align: left;"></div>`;
+    // Add messages section placeholder - 压缩间距
+    info += `<div id="fish-messages-container" style="margin-top: 12px; text-align: left;"></div>`;
 
     info += `</div>`;
 
-    showModal(info, () => { });
+    // 为鱼信息模态框添加更大的宽度类
+    showModal(info, () => { }, { addWideClass: true });
     
     // Load messages after modal is shown (only if MessageUI is available)
     setTimeout(() => {
@@ -2009,6 +2011,11 @@ function showModal(html, onClose, options = {}) {
     modal.addEventListener('click', (e) => {
         if (e.target === modal) close();
     });
+    
+    // 如果需要添加宽模态框类
+    if (options.addWideClass) {
+        modalContent.classList.add('wide');
+    }
     
     document.body.appendChild(modal);
     return { close, modal };
@@ -2682,11 +2689,6 @@ function updateChatUI(chatSession) {
         chatStatus.style.color = '#6366F1';
     }
     
-    // 清空提示文本（首次聊天时）
-    const placeholder = document.getElementById('chat-placeholder');
-    if (placeholder) {
-        placeholder.style.display = 'none';
-    }
     
     // 创建聊天会话卡片
     const sessionCard = document.createElement('div');
@@ -3491,16 +3493,6 @@ function clearChatMessages() {
     // 清除所有消息
     chatMessages.innerHTML = '';
     
-    // 显示占位符
-    const placeholder = document.createElement('div');
-    placeholder.id = 'chat-placeholder';
-    placeholder.style.cssText = 'text-align: center; color: #999; padding: 20px; font-size: 14px; display: block;';
-    placeholder.innerHTML = `
-        <p style="margin: 10px 0;">💬 Start chatting with the fish!</p>
-        <p style="margin: 10px 0; font-size: 12px;">Send a message to begin</p>
-    `;
-    chatMessages.appendChild(placeholder);
-    
     // 重置conversationId（开始新对话）
     if (typeof currentConversationId !== 'undefined') {
         window.currentConversationId = null;
@@ -3979,6 +3971,7 @@ const chatPanel = document.getElementById('chat-panel');
 const toggleChatBtn = document.getElementById('toggle-chat-btn');
 const toggleGroupChatBtn = document.getElementById('toggle-group-chat-btn');
 const closeChatBtn = document.getElementById('close-chat-panel');
+const chatReopenBtn = document.getElementById('chat-reopen-btn');
 const tankWrapper = document.getElementById('tank-wrapper-main');
 
 let isChatPanelOpen = false;
@@ -3987,27 +3980,33 @@ function toggleChatPanel() {
     isChatPanelOpen = !isChatPanelOpen;
     
     if (isChatPanelOpen) {
-        // 显示聊天面板
+        // 显示聊天面板（右下角）
         chatPanel.style.display = 'flex';
         chatPanel.style.visibility = 'visible';
-        chatPanel.style.right = '0';
-        tankWrapper.style.marginRight = '0';
+        chatPanel.style.right = '20px';
+        // 隐藏重新打开按钮
+        if (chatReopenBtn) {
+            chatReopenBtn.style.display = 'none';
+        }
         // 更新按钮文本（保持图标和文本结构）
-        const textSpan = toggleChatBtn.querySelector('span:last-child');
+        const textSpan = toggleChatBtn?.querySelector('span:last-child');
         if (textSpan) {
             textSpan.textContent = 'Close';
         }
     } else {
         // 隐藏聊天面板
-        chatPanel.style.right = '-350px';
-        tankWrapper.style.marginRight = '0';
+        chatPanel.style.right = '-420px';
+        // 显示重新打开按钮
+        if (chatReopenBtn) {
+            chatReopenBtn.style.display = 'flex';
+        }
         // 延迟隐藏，等待动画完成
         setTimeout(() => {
             chatPanel.style.display = 'none';
             chatPanel.style.visibility = 'hidden';
-        }, 300);
+        }, 400);
         // 恢复按钮文本
-        const textSpan = toggleChatBtn.querySelector('span:last-child');
+        const textSpan = toggleChatBtn?.querySelector('span:last-child');
         if (textSpan) {
             textSpan.textContent = 'Chat Box';
         }
@@ -4028,6 +4027,34 @@ if (toggleGroupChatBtn) {
 
 if (closeChatBtn) {
     closeChatBtn.addEventListener('click', toggleChatPanel);
+}
+
+// 重新打开按钮事件
+if (chatReopenBtn) {
+    chatReopenBtn.addEventListener('click', () => {
+        if (!isChatPanelOpen) {
+            toggleChatPanel();
+        }
+    });
+    
+    // 添加悬停效果
+    chatReopenBtn.addEventListener('mouseenter', () => {
+        chatReopenBtn.style.transform = 'scale(1.1)';
+        chatReopenBtn.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.2), 0 12px 30px rgba(0, 0, 0, 0.4)';
+    });
+    
+    chatReopenBtn.addEventListener('mouseleave', () => {
+        chatReopenBtn.style.transform = 'scale(1)';
+        chatReopenBtn.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.2), 0 8px 20px rgba(0, 0, 0, 0.3)';
+    });
+    
+    chatReopenBtn.addEventListener('mousedown', () => {
+        chatReopenBtn.style.transform = 'scale(0.95)';
+    });
+    
+    chatReopenBtn.addEventListener('mouseup', () => {
+        chatReopenBtn.style.transform = 'scale(1.1)';
+    });
 }
 
 // 导出函数供全局使用

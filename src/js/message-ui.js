@@ -14,11 +14,7 @@ const MessageUI = {
     const { showFishInfo = false, showDeleteBtn = false, groupByType = false } = options;
 
     if (!messages || messages.length === 0) {
-      return `
-        <div class="messages-empty">
-          No messages yet
-        </div>
-      `;
+      return '';
     }
 
     // 如果需要分组显示（用于profile页面）
@@ -86,11 +82,7 @@ const MessageUI = {
 
       // 如果过滤后两个数组都为空，显示空状态
       if (!html || html.trim() === '') {
-        return `
-          <div class="messages-empty">
-            No messages yet
-          </div>
-        `;
+        return '';
       }
 
       return `

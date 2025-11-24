@@ -1067,17 +1067,17 @@ button.game-btn {
   background: linear-gradient(180deg, #FFF9E6 0%, #FFF4D6 100%);
   border-radius: var(--radius-xl);
   padding: 0;
-  width: 420px;
-  min-width: 420px;
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 
-    0 8px 0 rgba(0, 0, 0, 0.2),
-    0 16px 40px rgba(0, 0, 0, 0.4);
-  border: 3px solid #A5B4FC;
   position: relative;
-  animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  min-width: 350px;
+  width: auto;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 8px 0 rgba(0, 0, 0, 0.2),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  border: 3px solid #A5B4FC;
 }
 
 /* 有标题横幅的弹窗使用更大的最小宽度 */
@@ -1086,9 +1086,9 @@ button.game-btn {
   width: auto;
 }
 
-/* 弹窗内容区域（当没有标题横幅时使用padding） */
+/* 弹窗内容区域（当没有标题横幅时使用padding） - 压缩内边距 */
 .modal-content:not(.has-title-banner) {
-  padding: 32px;
+  padding: 20px;
 }
 
 /* 弹窗顶部光泽效果 */
@@ -1133,15 +1133,15 @@ button.game-btn {
   min-width: 0; /* 允许flex收缩 */
 }
 
-/* 弹窗内容区域（有标题横幅时） */
+/* 弹窗内容区域（有标题横幅时） - 压缩内边距 */
 .modal-content-area {
-  padding: 40px;
-  padding-top: 32px;
+  padding: 24px;
+  padding-top: 20px;
   position: relative;
   z-index: 1;
 }
 
-/* 宽弹窗样式 */
+/* 宽弹窗样式 - 压缩PC端宽度 */
 .modal-content.wide {
   width: 600px;
   max-width: 90vw;
@@ -1358,48 +1358,64 @@ button.game-btn {
 /* 响应式弹窗 */
 @media (max-width: 768px) {
   .modal-content {
-    width: 90vw;
-    margin: 20px;
+    width: 85vw;
+    margin: 15px;
     min-width: 0 !important; /* 移除固定最小宽度，允许在移动端自适应 */
-    max-width: calc(100vw - 40px) !important; /* 确保有左右边距 */
-    max-height: 90vh; /* 限制最大高度 */
+    max-width: calc(100vw - 30px) !important; /* 减少边距，节省空间 */
+    max-height: 75vh; /* 减少最大高度 */
     overflow-y: auto; /* 允许滚动 */
   }
   
   .modal-content.has-title-banner {
     min-width: 0 !important; /* 覆盖固定最小宽度 */
-    width: calc(100vw - 40px) !important; /* 确保有左右边距 */
-    max-width: calc(100vw - 40px) !important;
+    width: calc(100vw - 30px) !important; /* 减少边距 */
+    max-width: calc(100vw - 30px) !important;
   }
   
   .modal-content:not(.has-title-banner) {
-    padding: 20px;
+    padding: 16px;
   }
   
   .modal-content-area {
-    padding: 20px;
-    padding-top: 16px;
+    padding: 16px;
+    padding-top: 12px;
     width: 100%;
     box-sizing: border-box;
   }
   
   /* 移动端鱼信息弹窗优化 */
   .modal-content .fish-info-modal {
-    padding: 16px !important;
+    padding: 12px !important;
   }
   
-  /* 移动端按钮组优化 */
+  /* 移动端鱼信息弹窗图片容器优化 - 进一步压缩 */
+  .modal-content .fish-info-modal > div:first-child {
+    min-height: 100px !important;
+    margin-bottom: 10px !important;
+  }
+  
+  /* 移动端鱼信息弹窗图片优化 - 进一步压缩 */
+  .modal-content .fish-info-modal img {
+    max-width: min(300px, 65vw) !important;
+    max-height: min(180px, 22vh) !important;
+  }
+  
+  /* 移动端按钮组优化 - 进一步压缩 */
   .modal-content .voting-controls,
   .modal-content .modal-controls {
     flex-wrap: wrap;
-    gap: 8px !important;
+    gap: 6px !important;
+    margin-bottom: 8px !important;
   }
   
   .modal-content .vote-btn,
   .modal-content .add-to-tank-btn,
   .modal-content .report-btn {
-    font-size: 12px !important;
-    padding: 10px 12px !important;
+    font-size: 11px !important;
+    padding: 6px 8px !important;
+    border-radius: 6px !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25) !important;
   }
   
   /* 确保 auth-modal-content 的 modal-content-area 在移动端占满宽度 */
