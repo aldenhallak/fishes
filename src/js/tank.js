@@ -816,10 +816,34 @@ async function loadInitialFish(sortType = 'recent') {
     fishes.length = 0;
 
     try {
-        // Load initial fish from Firestore using shared utility
-        console.log(`🐠 Loading ${maxTankCapacity} fish with sort type: ${sortType}`);
-        const allFishDocs = await getFishBySort(sortType, maxTankCapacity); // Load based on current capacity
+        // 新逻辑：优先保证显示足够数量的鱼，然后再限制用户自己的鱼数量
+        // Load more fish than needed to account for filtering
+        const loadAmount = Math.ceil(maxTankCapacity * 1.5); // 加载1.5倍的数量
+        console.log(`🐠 Loading ${loadAmount} fish (target: ${maxTankCapacity}) with sort type: ${sortType}`);
+        // IMPORTANT: In global tank mode, do NOT pass userId to getFishBySort
+        // This ensures we get fish from ALL users, not just the current user
+        const allFishDocs = await getFishBySort(sortType, loadAmount, null, 'desc', null);
         console.log(`🐠 Received ${allFishDocs ? allFishDocs.length : 0} fish documents`);
+        
+        // Debug: Check if we got fish from multiple users
+        if (allFishDocs && allFishDocs.length > 0) {
+            const userIds = new Set();
+            allFishDocs.forEach(doc => {
+                let data;
+                if (typeof doc.data === 'function') {
+                    data = doc.data();
+                } else if (doc.data && typeof doc.data === 'object') {
+                    data = doc.data;
+                } else {
+                    data = doc;
+                }
+                const fishUserId = data.user_id || data.UserId || data.userId || data.owner_id || data.ownerId;
+                if (fishUserId) {
+                    userIds.add(fishUserId);
+                }
+            });
+            console.log(`🐠 [Global Tank] Loaded fish from ${userIds.size} different users:`, Array.from(userIds).slice(0, 5));
+        }
 
         // Get current user ID to filter user's own fish
         let currentUserId = null;
@@ -831,12 +855,15 @@ async function loadInitialFish(sortType = 'recent') {
             console.warn('Failed to get current user ID:', error);
         }
 
-        // Filter user's own fish - keep only the newest one
+        // New filtering logic: Limit user's own fish while ensuring enough total fish
         let filteredFishDocs = allFishDocs;
         if (currentUserId) {
             const userFishDocs = [];
             const otherFishDocs = [];
 
+            // Debug: Log all fish user IDs to help diagnose the issue
+            const allFishUserIds = new Set();
+            
             allFishDocs.forEach(doc => {
                 // Handle different possible backend API formats
                 let data;
@@ -853,15 +880,42 @@ async function loadInitialFish(sortType = 'recent') {
 
                 // Check if this fish belongs to the current user
                 const fishUserId = data.user_id || data.UserId || data.userId || data.owner_id || data.ownerId;
+                
+                // Debug: Track all unique user IDs
+                if (fishUserId) {
+                    allFishUserIds.add(fishUserId);
+                }
+                
                 if (fishUserId === currentUserId) {
                     userFishDocs.push(doc);
                 } else {
                     otherFishDocs.push(doc);
                 }
             });
+            
+            // Debug: Log statistics
+            const stats = {
+                totalFish: allFishDocs.length,
+                currentUserId: currentUserId,
+                userFishCount: userFishDocs.length,
+                otherFishCount: otherFishDocs.length,
+                uniqueUserIds: Array.from(allFishUserIds),
+                uniqueUserCount: allFishUserIds.size
+            };
+            console.log(`🐠 [Global Tank] Fish filtering stats:`, stats);
+            
+            // Warn if we only got fish from very few users (might indicate a backend issue)
+            if (stats.uniqueUserCount < 3 && stats.totalFish >= 10) {
+                console.warn(`⚠️ [Global Tank] WARNING: Only ${stats.uniqueUserCount} users in ${stats.totalFish} fish. This might indicate a backend query issue. Expected more diverse users.`);
+            }
 
-            // If user has multiple fish, keep only the newest one
-            if (userFishDocs.length > 1) {
+            // New logic: Dynamically determine how many user fish to keep
+            // Priority 1: Ensure we have enough total fish (target: maxTankCapacity)
+            // Priority 2: Limit user's own fish to a reasonable number
+            const maxUserFishAllowed = Math.max(3, Math.floor(maxTankCapacity * 0.2)); // 最多保留20%或3条，取较大值
+            
+            let userFishToKeep = [];
+            if (userFishDocs.length > 0) {
                 // Sort user's fish by creation date (newest first)
                 userFishDocs.sort((a, b) => {
                     let aData, bData;
@@ -894,13 +948,38 @@ async function loadInitialFish(sortType = 'recent') {
                     return bTime - aTime; // Newest first
                 });
 
-                // Keep only the newest user fish
-                const newestUserFish = userFishDocs[0];
-                console.log(`🐠 User has ${userFishDocs.length} fish, keeping only the newest one`);
-                filteredFishDocs = [newestUserFish, ...otherFishDocs];
-            } else {
-                // User has 0 or 1 fish, no filtering needed
-                filteredFishDocs = allFishDocs;
+                // 新逻辑：根据其他用户的鱼数量动态决定保留多少用户自己的鱼
+                // 如果其他用户的鱼足够多，限制用户自己的鱼；如果不够，允许更多用户自己的鱼
+                const availableOtherFish = otherFishDocs.length;
+                
+                if (availableOtherFish >= maxTankCapacity) {
+                    // 其他用户的鱼已经足够，严格限制用户自己的鱼
+                    userFishToKeep = userFishDocs.slice(0, Math.min(maxUserFishAllowed, userFishDocs.length));
+                    console.log(`🐠 Enough other fish (${availableOtherFish}), limiting user fish to ${userFishToKeep.length}`);
+                } else {
+                    // 其他用户的鱼不够，需要用户自己的鱼来填充
+                    const neededUserFish = Math.min(
+                        maxTankCapacity - availableOtherFish,
+                        userFishDocs.length
+                    );
+                    userFishToKeep = userFishDocs.slice(0, neededUserFish);
+                    console.log(`🐠 Need more fish to reach ${maxTankCapacity}, keeping ${userFishToKeep.length} user fish (have ${availableOtherFish} other fish)`);
+                }
+            }
+            
+            // Combine filtered fish: other users' fish + limited user fish
+            filteredFishDocs = [...otherFishDocs, ...userFishToKeep];
+            
+            // Take only the required amount
+            if (filteredFishDocs.length > maxTankCapacity) {
+                filteredFishDocs = filteredFishDocs.slice(0, maxTankCapacity);
+            }
+            
+            console.log(`🐠 Final filtered: ${filteredFishDocs.length} fish (${userFishToKeep.length} from user, ${Math.min(otherFishDocs.length, maxTankCapacity - userFishToKeep.length)} from others)`);
+        } else {
+            // No user ID, just take the required amount
+            if (filteredFishDocs.length > maxTankCapacity) {
+                filteredFishDocs = filteredFishDocs.slice(0, maxTankCapacity);
             }
         }
 
@@ -1079,8 +1158,16 @@ async function loadInitialFish(sortType = 'recent') {
 }
 
 // Filter user's fish to keep only the newest one
+// IMPORTANT: This function should ONLY filter the current user's fish, never other users' fish
 async function filterUserFishToNewestOnly() {
     try {
+        // Only run this filter in global tank mode, not in private tank mode
+        // In private tank mode, we want to show all user's fish
+        if (VIEW_MODE === 'my') {
+            console.log('🐠 Private tank mode - skipping user fish filtering (show all user fish)');
+            return;
+        }
+        
         // Get current user ID from multiple sources
         let currentUserId = null;
         
@@ -1128,7 +1215,15 @@ async function filterUserFishToNewestOnly() {
             return; // User not logged in, no filtering needed
         }
         
+        // Debug: Log total fish count before filtering
+        const totalFishBefore = fishes.length;
+        const otherUsersFishBefore = fishes.filter(f => {
+            const fUserId = f.userId || f.user_id || f.UserId || f.owner_id || f.ownerId;
+            return fUserId !== currentUserId;
+        }).length;
+        
         console.log('🐠 Filtering user fish, currentUserId:', currentUserId);
+        console.log(`🐠 [Global Tank] Before filtering: ${totalFishBefore} total fish, ${otherUsersFishBefore} from other users`);
         
         // Find all user's fish in the tank (including those that are dying)
         const userFish = fishes.filter(f => {
@@ -1139,58 +1234,100 @@ async function filterUserFishToNewestOnly() {
         // Filter out already dying fish
         const aliveUserFish = userFish.filter(f => !f.isDying);
         
-        // If user has multiple alive fish, keep only the newest one
-        if (aliveUserFish.length > 1) {
-            // Sort by creation date (newest first)
-            aliveUserFish.sort((a, b) => {
-                const aDate = a.createdAt;
-                const bDate = b.createdAt;
-                
-                // Handle Firestore timestamp format
-                let aTime, bTime;
-                if (aDate && aDate._seconds) {
-                    aTime = aDate._seconds * 1000 + (aDate._nanoseconds || 0) / 1000000;
-                } else if (aDate instanceof Date) {
-                    aTime = aDate.getTime();
-                } else if (aDate) {
-                    aTime = new Date(aDate).getTime();
-                } else {
-                    aTime = 0;
-                }
-                
-                if (bDate && bDate._seconds) {
-                    bTime = bDate._seconds * 1000 + (bDate._nanoseconds || 0) / 1000000;
-                } else if (bDate instanceof Date) {
-                    bTime = bDate.getTime();
-                } else if (bDate) {
-                    bTime = new Date(bDate).getTime();
-                } else {
-                    bTime = 0;
-                }
-                
-                return bTime - aTime; // Newest first
+        // New logic: Apply the same filtering logic as loadInitialFish
+        // Priority 1: Ensure we have enough total fish
+        // Priority 2: Limit user's own fish to a reasonable number
+        if (aliveUserFish.length > 0) {
+            // Count other users' fish
+            const otherUsersFish = fishes.filter(f => {
+                const fUserId = f.userId || f.user_id || f.UserId || f.owner_id || f.ownerId;
+                return fUserId !== currentUserId && !f.isDying;
             });
             
-            // Keep only the newest one, remove the rest
-            const newestUserFish = aliveUserFish[0];
-            const fishToRemove = aliveUserFish.slice(1);
+            // Dynamically determine how many user fish to keep
+            const maxUserFishAllowed = Math.max(3, Math.floor(maxTankCapacity * 0.2)); // 最多保留20%或3条
+            const availableOtherFish = otherUsersFish.length;
             
-            console.log(`🐠 User has ${aliveUserFish.length} alive fish, keeping only the newest one (ID: ${newestUserFish.docId || newestUserFish.id})`);
+            let targetUserFishCount;
+            if (availableOtherFish >= maxTankCapacity) {
+                // 其他用户的鱼已经足够，严格限制用户自己的鱼
+                targetUserFishCount = Math.min(maxUserFishAllowed, aliveUserFish.length);
+                console.log(`🐠 Enough other fish (${availableOtherFish}), limiting user fish to ${targetUserFishCount}`);
+            } else {
+                // 其他用户的鱼不够，需要用户自己的鱼来填充
+                targetUserFishCount = Math.min(
+                    maxTankCapacity - availableOtherFish,
+                    aliveUserFish.length
+                );
+                console.log(`🐠 Need more fish to reach ${maxTankCapacity}, keeping ${targetUserFishCount} user fish (have ${availableOtherFish} other fish)`);
+            }
             
-            // Remove old user fish with death animation
-            fishToRemove.forEach((oldFish, index) => {
-                setTimeout(() => {
-                    const oldFishIndex = fishes.indexOf(oldFish);
-                    if (oldFishIndex !== -1 && !oldFish.isDying) {
-                        console.log(`🐠 Removing duplicate user fish (ID: ${oldFish.docId || oldFish.id})`);
-                        animateFishDeath(oldFishIndex);
+            // If we need to remove some user fish
+            if (aliveUserFish.length > targetUserFishCount) {
+                // Sort by creation date (newest first)
+                aliveUserFish.sort((a, b) => {
+                    const aDate = a.createdAt;
+                    const bDate = b.createdAt;
+                    
+                    // Handle Firestore timestamp format
+                    let aTime, bTime;
+                    if (aDate && aDate._seconds) {
+                        aTime = aDate._seconds * 1000 + (aDate._nanoseconds || 0) / 1000000;
+                    } else if (aDate instanceof Date) {
+                        aTime = aDate.getTime();
+                    } else if (aDate) {
+                        aTime = new Date(aDate).getTime();
+                    } else {
+                        aTime = 0;
                     }
-                }, index * 200); // Stagger the death animations
-            });
-        } else if (aliveUserFish.length === 1) {
-            console.log(`🐠 User has exactly 1 fish (ID: ${aliveUserFish[0].docId || aliveUserFish[0].id}), no filtering needed`);
+                    
+                    if (bDate && bDate._seconds) {
+                        bTime = bDate._seconds * 1000 + (bDate._nanoseconds || 0) / 1000000;
+                    } else if (bDate instanceof Date) {
+                        bTime = bDate.getTime();
+                    } else if (bDate) {
+                        bTime = new Date(bDate).getTime();
+                    } else {
+                        bTime = 0;
+                    }
+                    
+                    return bTime - aTime; // Newest first
+                });
+                
+                // Keep only the target number, remove the rest
+                const fishToKeep = aliveUserFish.slice(0, targetUserFishCount);
+                const fishToRemove = aliveUserFish.slice(targetUserFishCount);
+                
+                console.log(`🐠 User has ${aliveUserFish.length} alive fish, keeping ${targetUserFishCount} newest (IDs: ${fishToKeep.map(f => f.docId || f.id).join(', ')})`);
+                
+                // Remove excess user fish with death animation
+                fishToRemove.forEach((oldFish, index) => {
+                    setTimeout(() => {
+                        const oldFishIndex = fishes.indexOf(oldFish);
+                        if (oldFishIndex !== -1 && !oldFish.isDying) {
+                            console.log(`🐠 Removing duplicate user fish (ID: ${oldFish.docId || oldFish.id})`);
+                            animateFishDeath(oldFishIndex);
+                        }
+                    }, index * 200); // Stagger the death animations
+                });
+            } else {
+                console.log(`🐠 User has ${aliveUserFish.length} fish, no filtering needed (within limit)`);
+            }
         } else {
             console.log('🐠 User has no fish in tank');
+        }
+        
+        // Debug: Log total fish count after filtering
+        const totalFishAfter = fishes.length;
+        const otherUsersFishAfter = fishes.filter(f => {
+            const fUserId = f.userId || f.user_id || f.UserId || f.owner_id || f.ownerId;
+            return fUserId !== currentUserId;
+        }).length;
+        
+        console.log(`🐠 [Global Tank] After filtering: ${totalFishAfter} total fish, ${otherUsersFishAfter} from other users`);
+        
+        if (otherUsersFishAfter < otherUsersFishBefore) {
+            console.warn(`⚠️ [Global Tank] WARNING: Other users' fish count decreased from ${otherUsersFishBefore} to ${otherUsersFishAfter}! This should not happen in global tank mode.`);
         }
     } catch (error) {
         console.error('Error filtering user fish:', error);
