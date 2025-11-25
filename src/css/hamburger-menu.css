@@ -110,7 +110,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px 20px;
+  padding: 11px 20px;
   color: white;
   text-decoration: none;
   font-size: 18px;
@@ -228,7 +228,7 @@
   
   .sidebar-link {
     font-size: 16px;
-    padding: 14px 18px;
+    padding: 9px 18px;
   }
   
   .sidebar-icon {

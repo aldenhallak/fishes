@@ -250,18 +250,18 @@ function calculateFishSize() {
     const baseDimension = Math.min(tankWidth, tankHeight);
 
     // Fish width should be roughly 8-12% of the smaller tank dimension
-    // For mobile, double the size (20% instead of 10%)
-    const basePercentage = isMobile ? 0.2 : 0.1;
+    // 🔧 修复：移动端鱼尺寸缩小一半，从20%降到10%
+    const basePercentage = isMobile ? 0.1 : 0.1;
     const fishWidth = Math.floor(baseDimension * basePercentage);
     const fishHeight = Math.floor(fishWidth * 0.6); // Maintain 3:5 aspect ratio
 
-    // Set reasonable bounds: 
-    // - Mobile: 60px - 300px wide (doubled from desktop)
+    // 🔧 修复：调整移动端尺寸边界，缩小一半
+    // - Mobile: 30px - 150px wide (与桌面端相同)
     // - Desktop: 30px - 150px wide
-    const minWidth = isMobile ? 60 : 30;
-    const maxWidth = isMobile ? 300 : 150;
-    const minHeight = isMobile ? 36 : 18;
-    const maxHeight = isMobile ? 180 : 90;
+    const minWidth = 30;
+    const maxWidth = 150;
+    const minHeight = 18;
+    const maxHeight = 90;
     
     const finalWidth = Math.max(minWidth, Math.min(maxWidth, fishWidth));
     const finalHeight = Math.max(minHeight, Math.min(maxHeight, fishHeight));
@@ -1969,13 +1969,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     // 缩放绘图上下文以匹配设备像素比
     swimCtx.scale(devicePixelRatio, devicePixelRatio);
     
+    // 🔧 修复：标准化Canvas逻辑尺寸，确保两个鱼缸的游泳空间一致
+    // 使用显示尺寸作为逻辑坐标系，而不是实际像素尺寸
+    swimCanvas.logicalWidth = displayWidth;
+    swimCanvas.logicalHeight = displayHeight;
+    
     // 🔍 调试：详细记录Canvas信息
     console.log('✅ Canvas initialized with DPI fix:', {
         displaySize: `${displayWidth}x${displayHeight}`,
         canvasSize: `${swimCanvas.width}x${swimCanvas.height}`,
         devicePixelRatio: devicePixelRatio,
         scaleFactor: devicePixelRatio,
-        viewMode: VIEW_MODE
+        viewMode: VIEW_MODE,
+        canvasStyle: {
+            width: swimCanvas.style.width,
+            height: swimCanvas.style.height
+        },
+        actualRatio: `${swimCanvas.width / displayWidth}x${swimCanvas.height / displayHeight}`
     });
     
     // Variables are already initialized at top level, no need to reinitialize
@@ -2917,6 +2927,10 @@ function resizeForMobile() {
     if (swimCtx) {
         swimCtx.scale(devicePixelRatio, devicePixelRatio);
     }
+    
+    // 🔧 修复：设置逻辑尺寸，确保两个鱼缸的游泳空间一致
+    swimCanvas.logicalWidth = viewportWidth;
+    swimCanvas.logicalHeight = viewportHeight;
 
     console.log(`🐠 Canvas resized with DPI fix: display ${viewportWidth}x${viewportHeight}, actual ${swimCanvas.width}x${swimCanvas.height} (${isMobile ? 'mobile' : 'desktop'}, DPR: ${devicePixelRatio})`);
 
@@ -3115,8 +3129,11 @@ function animateFishes() {
                 if (!fish.vx) fish.vx = 0;
                 if (!fish.vy) fish.vy = 0;
 
-                // Always apply base swimming movement
-                fish.vx += fish.speed * fish.direction * 0.1; // Continuous base movement
+                // 🔧 修复：改为目标速度而不是累加速度，避免速度无限增长
+                const targetVx = fish.speed * fish.direction * 0.6; // 速度加1倍：从0.3到0.6
+                const vxDiff = targetVx - fish.vx;
+                fish.vx += vxDiff * 0.4; // 收敛速度也加1倍：从0.2到0.4
+                
 
                 // Apply food attraction using cached data
                 if (foodDetectionData.nearestFood) {
@@ -3147,14 +3164,18 @@ function animateFishes() {
                 // Handle edge collisions BEFORE applying friction
                 let hitEdge = false;
 
+                // 🔧 修复：使用逻辑尺寸进行边界检测，确保两个鱼缸的游泳空间一致
+                const logicalWidth = swimCanvas.logicalWidth || swimCanvas.width;
+                const logicalHeight = swimCanvas.logicalHeight || swimCanvas.height;
+                
                 // Left and right edges
                 if (fish.x <= 0) {
                     fish.x = 0;
                     fish.direction = 1; // Face right
                     fish.vx = Math.abs(fish.vx); // Ensure velocity points right
                     hitEdge = true;
-                } else if (fish.x >= swimCanvas.width - fish.width) {
-                    fish.x = swimCanvas.width - fish.width;
+                } else if (fish.x >= logicalWidth - fish.width) {
+                    fish.x = logicalWidth - fish.width;
                     fish.direction = -1; // Face left
                     fish.vx = -Math.abs(fish.vx); // Ensure velocity points left
                     hitEdge = true;
@@ -3165,8 +3186,8 @@ function animateFishes() {
                     fish.y = 0;
                     fish.vy = Math.abs(fish.vy) * 0.5; // Bounce off top, but gently
                     hitEdge = true;
-                } else if (fish.y >= swimCanvas.height - fish.height) {
-                    fish.y = swimCanvas.height - fish.height;
+                } else if (fish.y >= logicalHeight - fish.height) {
+                    fish.y = logicalHeight - fish.height;
                     fish.vy = -Math.abs(fish.vy) * 0.5; // Bounce off bottom, but gently
                     hitEdge = true;
                 }
@@ -3176,24 +3197,25 @@ function animateFishes() {
                 fish.vx *= frictionFactor;
                 fish.vy *= frictionFactor;
 
-                // Limit velocity to prevent fish from moving too fast
-                const maxVel = fish.speed * 2;
+                // 🔧 修复：调整最大速度限制到合理范围
+                const maxVel = fish.speed * 2.0; // 速度加1倍：从1.0到2.0
                 const velMag = Math.sqrt(fish.vx * fish.vx + fish.vy * fish.vy);
                 if (velMag > maxVel) {
                     fish.vx = (fish.vx / velMag) * maxVel;
                     fish.vy = (fish.vy / velMag) * maxVel;
                 }
 
-                // Ensure minimum movement to prevent complete stops
-                if (Math.abs(fish.vx) < 0.1) {
-                    fish.vx = fish.speed * fish.direction * 0.1;
+                // 🔧 修复：调整最小速度保证，与目标速度系统一致
+                const minVx = fish.speed * fish.direction * 0.3; // 速度加1倍：从0.15到0.3
+                if (Math.abs(fish.vx) < Math.abs(minVx)) {
+                    fish.vx = minVx;
                 }
 
-                // If fish hit an edge, give it a small push away from the edge
+                // 🔧 修复：调整边缘推力到合理范围
                 if (hitEdge) {
-                    fish.vx += fish.speed * fish.direction * 0.2;
+                    fish.vx += fish.speed * fish.direction * 0.2; // 速度加1倍：从0.1到0.2
                     // Add small random vertical component to avoid getting stuck
-                    fish.vy += (Math.random() - 0.5) * 0.3;
+                    fish.vy += (Math.random() - 0.5) * 0.4; // 速度加1倍：从0.2到0.4
                 }
             }
         }
@@ -4398,14 +4420,26 @@ async function initializeGroupChat() {
             updateGroupChatButton(false);
             updateFishTalkToggle(false);
             
-            // 独白使用默认设置（允许启用）
-            // 从环境变量或 localStorage 读取独白配置
+            // 🔧 修复：未登录用户的独白也受fish_talk字段控制
+            // 未登录用户默认禁用独白，需要通过Fish Talk开关启用
             let monologueEnabled = false;
-            const userMonologuePreference = localStorage.getItem('monologueEnabled');
-            if (userMonologuePreference !== null) {
-                monologueEnabled = userMonologuePreference === 'true';
-                console.log(`Monologue: Using user preference: ${monologueEnabled ? 'ON' : 'OFF'}`);
+            const groupChatEnabled = localStorage.getItem('groupChatEnabled') === 'true';
+            
+            // 独白现在受Fish Talk开关控制
+            if (groupChatEnabled) {
+                const userMonologuePreference = localStorage.getItem('monologueEnabled');
+                if (userMonologuePreference !== null) {
+                    monologueEnabled = userMonologuePreference === 'true';
+                    console.log(`Monologue: Using user preference: ${monologueEnabled ? 'ON' : 'OFF'} (Fish Talk enabled)`);
+                } else {
+                    // 如果Fish Talk启用但没有独白偏好，默认启用独白
+                    monologueEnabled = true;
+                    console.log(`Monologue: Default enabled (Fish Talk enabled)`);
+                }
+            } else {
+                console.log(`Monologue: Disabled (Fish Talk disabled)`);
             }
+            
             communityChatManager.setMonologueEnabled(monologueEnabled);
             
             return; // 不继续初始化群聊相关配置
@@ -4455,21 +4489,31 @@ async function initializeGroupChat() {
             }
         }
         
-        // 处理独白配置
+        // 🔧 修复：处理独白配置，现在受fish_talk字段控制
         let monologueEnabled = false;
-        if (monoChatResponse && monoChatResponse.ok) {
-            const monoChatConfig = await monoChatResponse.json();
-            const defaultMonologueEnabled = monoChatConfig.enabled || false;
         
-        // 检查用户是否手动设置过（用户设置优先）
-            const userPreference = localStorage.getItem('monologueEnabled');
-        if (userPreference !== null) {
-                monologueEnabled = userPreference === 'true';
-                console.log(`Monologue: Using user preference: ${monologueEnabled ? 'ON' : 'OFF'}`);
+        // 独白现在受Fish Talk开关控制
+        if (groupChatEnabled) {
+            if (monoChatResponse && monoChatResponse.ok) {
+                const monoChatConfig = await monoChatResponse.json();
+                const defaultMonologueEnabled = monoChatConfig.enabled || false;
+            
+            // 检查用户是否手动设置过（用户设置优先）
+                const userPreference = localStorage.getItem('monologueEnabled');
+            if (userPreference !== null) {
+                    monologueEnabled = userPreference === 'true';
+                    console.log(`Monologue: Using user preference: ${monologueEnabled ? 'ON' : 'OFF'} (Fish Talk enabled)`);
+            } else {
+                    monologueEnabled = defaultMonologueEnabled;
+                    console.log(`Monologue: Using environment default: ${monologueEnabled ? 'ON' : 'OFF'} (Fish Talk enabled)`);
+            }
+            } else {
+                // 如果Fish Talk启用但无法获取配置，默认启用独白
+                monologueEnabled = true;
+                console.log(`Monologue: Default enabled (Fish Talk enabled, no config)`);
+            }
         } else {
-                monologueEnabled = defaultMonologueEnabled;
-                console.log(`Monologue: Using environment default: ${monologueEnabled ? 'ON' : 'OFF'}`);
-        }
+            console.log(`Monologue: Disabled (Fish Talk disabled)`);
         }
         
         // 设置群聊间隔时间（先设置间隔，再启用，确保使用正确的间隔）
@@ -4860,9 +4904,32 @@ function setupFishTalkToggle() {
         
         // 同步到localStorage（向后兼容）
         localStorage.setItem('groupChatEnabled', fishTalkEnabled ? 'true' : 'false');
+        
+        // 初始化聊天面板的显示状态
+        if (typeof window.updateChatPanelVisibility === 'function') {
+            setTimeout(() => {
+                window.updateChatPanelVisibility();
+            }, 200);
+        }
     })();
 
-    // Handle toggle click
+    // 阻止Fish Talk开关区域的mousedown事件冒泡
+    toggleContainer.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+    });
+    
+    // 为开关本身也添加事件阻止
+    if (toggleSwitch) {
+        toggleSwitch.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        toggleSwitch.addEventListener('change', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    // Handle toggle click - 合并点击处理和事件阻止
     toggleContainer.addEventListener('click', async function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -4939,6 +5006,20 @@ function setupFishTalkToggle() {
         // Update chat manager
         if (communityChatManager) {
             communityChatManager.setGroupChatEnabled(newState);
+            
+            // 🔧 修复：同时更新独白状态，受Fish Talk开关控制
+            if (newState) {
+                // Fish Talk启用时，检查独白偏好或使用默认值
+                const userMonologuePreference = localStorage.getItem('monologueEnabled');
+                const monologueEnabled = userMonologuePreference !== null ? 
+                    userMonologuePreference === 'true' : true; // 默认启用独白
+                communityChatManager.setMonologueEnabled(monologueEnabled);
+                console.log(`🗣️ Monologue ${monologueEnabled ? 'enabled' : 'disabled'} (Fish Talk enabled)`);
+            } else {
+                // Fish Talk禁用时，同时禁用独白
+                communityChatManager.setMonologueEnabled(false);
+                console.log(`🗣️ Monologue disabled (Fish Talk disabled)`);
+            }
         }
         
         // Save preference to localStorage (向后兼容)
@@ -4951,6 +5032,13 @@ function setupFishTalkToggle() {
         window.dispatchEvent(new CustomEvent('groupChatEnabledChanged', {
             detail: { enabled: newState }
         }));
+        
+        // 更新聊天面板的显示状态
+        if (typeof window.updateChatPanelVisibility === 'function') {
+            setTimeout(() => {
+                window.updateChatPanelVisibility();
+            }, 100);
+        }
         
         console.log(`Fish Talk ${newState ? 'enabled' : 'disabled'} (global)`);
     });
@@ -4965,10 +5053,31 @@ function setupFishTalkToggle() {
             // Update chat manager
             if (communityChatManager) {
                 communityChatManager.setGroupChatEnabled(newState);
+                
+                // 🔧 修复：同时更新独白状态，受Fish Talk开关控制
+                if (newState) {
+                    // Fish Talk启用时，检查独白偏好或使用默认值
+                    const userMonologuePreference = localStorage.getItem('monologueEnabled');
+                    const monologueEnabled = userMonologuePreference !== null ? 
+                        userMonologuePreference === 'true' : true; // 默认启用独白
+                    communityChatManager.setMonologueEnabled(monologueEnabled);
+                    console.log(`🗣️ Monologue ${monologueEnabled ? 'enabled' : 'disabled'} (Fish Talk cross-tab sync)`);
+                } else {
+                    // Fish Talk禁用时，同时禁用独白
+                    communityChatManager.setMonologueEnabled(false);
+                    console.log(`🗣️ Monologue disabled (Fish Talk cross-tab sync)`);
+                }
             }
             
             // Also update the control bar button if it exists
             updateGroupChatButton(newState);
+            
+            // 更新聊天面板的显示状态
+            if (typeof window.updateChatPanelVisibility === 'function') {
+                setTimeout(() => {
+                    window.updateChatPanelVisibility();
+                }, 100);
+            }
             
             console.log(`Fish Talk ${newState ? 'enabled' : 'disabled'} (synced from other tab)`);
         }
@@ -4983,10 +5092,31 @@ function setupFishTalkToggle() {
         // Update chat manager
         if (communityChatManager) {
             communityChatManager.setGroupChatEnabled(newState);
+            
+            // 🔧 修复：同时更新独白状态，受Fish Talk开关控制
+            if (newState) {
+                // Fish Talk启用时，检查独白偏好或使用默认值
+                const userMonologuePreference = localStorage.getItem('monologueEnabled');
+                const monologueEnabled = userMonologuePreference !== null ? 
+                    userMonologuePreference === 'true' : true; // 默认启用独白
+                communityChatManager.setMonologueEnabled(monologueEnabled);
+                console.log(`🗣️ Monologue ${monologueEnabled ? 'enabled' : 'disabled'} (Fish Talk synced)`);
+            } else {
+                // Fish Talk禁用时，同时禁用独白
+                communityChatManager.setMonologueEnabled(false);
+                console.log(`🗣️ Monologue disabled (Fish Talk synced)`);
+            }
         }
         
         // Also update the control bar button if it exists
         updateGroupChatButton(newState);
+        
+        // 更新聊天面板的显示状态
+        if (typeof window.updateChatPanelVisibility === 'function') {
+            setTimeout(() => {
+                window.updateChatPanelVisibility();
+            }, 100);
+        }
     });
 }
 

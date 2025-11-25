@@ -47,8 +47,8 @@
     // 点击遮罩层关闭
     sidebarOverlay.addEventListener('click', closeSidebar);
 
-    // 点击侧边栏内的链接后关闭（除了分享按钮）
-    const sidebarLinks = sidebarMenu.querySelectorAll('.sidebar-link:not(#sidebar-share-btn)');
+    // 点击侧边栏内的链接后关闭（除了分享按钮、Fish Talk开关和语言选择）
+    const sidebarLinks = sidebarMenu.querySelectorAll('.sidebar-link:not(#sidebar-share-btn):not(#fish-talk-toggle):not(#language-selection-container)');
     sidebarLinks.forEach(link => {
       link.addEventListener('click', function() {
         // 延迟关闭，让链接跳转有时间执行
