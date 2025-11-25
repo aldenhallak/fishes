@@ -238,6 +238,10 @@ function generateBatchDeleteMutation(tableName, pkValues) {
   const pkField = tableInfo.fields.find(f => f.name === pkFieldName);
   const pkType = pkField ? pkField.type : 'bigint';
 
+  // 调试日志
+  console.log(`[BatchDelete] Table: ${tableName}, PK Field: ${pkFieldName}, PK Type: ${pkType}`);
+  console.log(`[BatchDelete] PK Values:`, pkValues);
+
   const mutation = `
     mutation BatchDelete${capitalizeFirst(tableName)}($pkValues: [${pkType}!]!) {
       delete_${tableName}(where: {${pkFieldName}: {_in: $pkValues}}) {
@@ -249,9 +253,13 @@ function generateBatchDeleteMutation(tableName, pkValues) {
     }
   `;
 
+  const convertedValues = pkValues.map(pk => convertId(pk, pkType));
+  console.log(`[BatchDelete] Converted Values:`, convertedValues);
+  console.log(`[BatchDelete] Generated Mutation:`, mutation);
+
   return {
     mutation,
-    variables: { pkValues: pkValues.map(pk => convertId(pk, pkType)) }
+    variables: { pkValues: convertedValues }
   };
 }
 

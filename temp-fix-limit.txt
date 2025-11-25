@@ -1,0 +1,11 @@
+-- 临时修复 SQL 脚本
+-- 这个文件包含了需要执行的 SQL 命令
+
+-- 如果你需要执行 SQL 命令，可以将以下内容复制到数据库管理工具中执行
+-- 或者重命名此文件为 .sql 扩展名后使用
+
+-- 示例 SQL 命令（请根据实际需求修改）:
+-- SELECT * FROM your_table LIMIT 10;
+-- UPDATE your_table SET column_name = 'value' WHERE condition;
+
+-- 请在这里添加你需要的具体 SQL 命令

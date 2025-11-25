@@ -5,6 +5,7 @@
 
 // 表名到中文名的映射
 const tableDisplayNames = {
+  'users': '用户表',
   'fish': '鱼表',
   'votes': '投票表',
   'reports': '举报表',
@@ -90,6 +91,7 @@ const defaultPermissions = {
 
 // 特定表的权限配置
 const tablePermissionsConfig = {
+  'users': { update: true, delete: true },
   'fish': { update: true, delete: true },
   'votes': { update: true, delete: true },
   'reports': { update: true, delete: true },
@@ -102,7 +104,7 @@ const tablePermissionsConfig = {
   'battle_config': { update: true, delete: false },
   'member_types': { update: true, delete: false },
   'group_chat': { update: true, delete: true },
-  'global_params': { update: true, delete: false },
+  'global_params': { update: true, delete: true },
 };
 
 function getTableDisplayName(tableName) {

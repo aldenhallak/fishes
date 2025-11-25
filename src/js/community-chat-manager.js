@@ -150,7 +150,9 @@ class CommunityChatManager {
       console.log('Current tank fish IDs:', currentTankFishIds.length);
       
       // Get current user ID to pass to backend
+      // Language will be determined by backend from database
       let currentUserId = null;
+      
       if (typeof getCurrentUserId === 'function') {
         try {
           currentUserId = await getCurrentUserId();
@@ -182,16 +184,21 @@ class CommunityChatManager {
       
       // Call backend API for group chat (using Coze AI)
       // Pass current tank fish IDs to ensure only fish in the tank are selected
+      // Backend will determine language from database based on userId
+      const requestBody = {
+        prompt: `Generate a "${topic}" conversation`,
+        tankFishIds: currentTankFishIds, // Pass current tank fish IDs
+        userId: currentUserId // Pass current user ID for initiator_user_id and language lookup
+      };
+      
+      console.log('🌐 [Community Chat] Backend will determine language from database for user:', currentUserId);
+      
       const response = await fetch('/api/fish-api?action=group-chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          prompt: `Generate a "${topic}" conversation`,
-          tankFishIds: currentTankFishIds, // Pass current tank fish IDs
-          userId: currentUserId // Pass current user ID for initiator_user_id
-        })
+        body: JSON.stringify(requestBody)
       });
       
       if (!response.ok) {

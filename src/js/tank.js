@@ -2694,11 +2694,10 @@ function updateChatUI(chatSession) {
     const sessionCard = document.createElement('div');
     sessionCard.className = 'session-card';
     sessionCard.style.cssText = `
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%);
+        background: transparent;
         border-radius: 12px;
         padding: 15px;
         margin-bottom: 12px;
-        border-left: 3px solid #6366F1;
         animation: slideIn 0.5s ease;
     `;
     
@@ -2732,7 +2731,7 @@ function updateChatUI(chatSession) {
     }
     
     titleDiv.innerHTML = `
-        <span style="font-weight: 600; color: #6366F1; font-size: 14px;">💬 ${chatSession.topic}</span>
+        <span style="font-weight: 600; color: #6366F1; font-size: 14px;">${chatSession.topic}</span>
         <span style="font-size: 11px; color: #999;">${totalMessages} messages</span>
     `;
     sessionCard.appendChild(titleDiv);
@@ -2742,39 +2741,55 @@ function updateChatUI(chatSession) {
     messagesContainer.className = 'session-messages';
     sessionCard.appendChild(messagesContainer);
     
-    // 显示鱼的群聊消息
+    // 显示鱼的群聊消息 - 逐个添加以实现动画效果
     if (chatSession.dialogues && chatSession.dialogues.length > 0) {
-        chatSession.dialogues.forEach((msg, index) => {
-            const messageDiv = document.createElement('div');
-            messageDiv.style.cssText = `
-                background: white;
-                border-radius: 8px;
-                padding: 8px 12px;
-                margin-bottom: 6px;
-                font-size: 13px;
-                line-height: 1.5;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-                animation: fadeIn 0.3s ease ${index * 0.1}s both;
-            `;
-            
-            // 根据personality设置颜色
-            const personalityColors = {
-                cheerful: '#FF9800',
-                shy: '#2196F3',
-                brave: '#E91E63',
-                lazy: '#9C27B0'
-            };
-            const color = personalityColors[msg.personality] || '#666';
-            
-            messageDiv.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                    <span style="font-weight: 600; color: ${color}; font-size: 12px;">🐟 ${msg.fishName || 'Unknown'}</span>
-                    <span style="font-size: 10px; color: #999;">${msg.sequence || index + 1}</span>
-                </div>
-                <div style="color: #333;">${escapeHtml(msg.message)}</div>
-            `;
-            
-            messagesContainer.appendChild(messageDiv);
+        // 按sequence排序，确保消息按正确顺序显示
+        const sortedDialogues = [...chatSession.dialogues].sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+        sortedDialogues.forEach((msg, index) => {
+            // 使用setTimeout来逐个添加消息，与气泡消息同步
+            setTimeout(() => {
+                const messageDiv = document.createElement('div');
+                messageDiv.style.cssText = `
+                    background: white;
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                    margin-bottom: 6px;
+                    font-size: 13px;
+                    line-height: 1.5;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                    opacity: 0;
+                    transform: translateY(10px);
+                    transition: all 0.3s ease;
+                `;
+                
+                // 根据personality设置颜色
+                const personalityColors = {
+                    cheerful: '#FF9800',
+                    shy: '#2196F3',
+                    brave: '#E91E63',
+                    lazy: '#9C27B0'
+                };
+                const color = personalityColors[msg.personality] || '#666';
+                
+                messageDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                        <span style="font-weight: 600; color: ${color}; font-size: 12px;">🐟 ${msg.fishName || 'Unknown'}</span>
+                        <span style="font-size: 10px; color: #999;">${msg.sequence || index + 1}</span>
+                    </div>
+                    <div style="color: #333;">${escapeHtml(msg.message)}</div>
+                `;
+                
+                messagesContainer.appendChild(messageDiv);
+                
+                // 触发动画
+                requestAnimationFrame(() => {
+                    messageDiv.style.opacity = '1';
+                    messageDiv.style.transform = 'translateY(0)';
+                    
+                    // 每次添加消息后自动滚动到底部
+                    scrollChatToBottom();
+                });
+            }, index * 6000); // 每条消息间隔6000ms，与气泡消息同步
         });
     }
     
@@ -2851,13 +2866,16 @@ function updateChatUI(chatSession) {
         }
     }
     
-    // 插入到顶部
-    chatMessages.insertBefore(sessionCard, chatMessages.firstChild);
+    // 插入到底部，让新消息按时间顺序显示
+    chatMessages.appendChild(sessionCard);
     
-    // 限制显示最多3个会话
+    // 限制显示最多3个会话，删除最旧的消息
     while (chatMessages.children.length > 3) {
-        chatMessages.removeChild(chatMessages.lastChild);
+        chatMessages.removeChild(chatMessages.firstChild);
     }
+    
+    // 自动滚动到底部，确保新消息可见
+    scrollChatToBottom();
     
     // 添加动画样式（如果还没有）
     if (!document.getElementById('chat-animations')) {
@@ -3266,6 +3284,11 @@ async function sendUserChatMessage() {
         // 清空输入框
         input.value = '';
         
+        // 确保滚动到底部显示最新消息
+        setTimeout(() => {
+            scrollChatToBottom();
+        }, 100);
+        
     } catch (error) {
         console.error('发送消息失败:', error);
         if (errorDiv) {
@@ -3300,10 +3323,21 @@ async function sendUserChatMessage() {
  */
 function displayUserMessage(userName, message) {
     const chatMessages = document.getElementById('chat-messages');
-    if (!chatMessages) return;
+    if (!chatMessages) {
+        console.error('[displayUserMessage] ❌ chat-messages container not found!');
+        return;
+    }
+    
+    // 确保chat-messages容器可见
+    if (chatMessages.style.display === 'none') {
+        chatMessages.style.display = 'block';
+    }
+    chatMessages.style.visibility = 'visible';
+    chatMessages.style.opacity = '1';
     
     const messageDiv = document.createElement('div');
     messageDiv.className = 'user-chat-message';
+    // 确保消息立即可见，不使用可能延迟的动画
     messageDiv.style.cssText = `
         background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
         border-radius: 8px;
@@ -3313,7 +3347,12 @@ function displayUserMessage(userName, message) {
         line-height: 1.5;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         border-left: 3px solid #6366F1;
-        animation: fadeIn 0.3s ease;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative;
+        width: 100%;
+        box-sizing: border-box;
     `;
     
     messageDiv.innerHTML = `
@@ -3323,18 +3362,36 @@ function displayUserMessage(userName, message) {
         <div style="color: #333;">${escapeHtml(message)}</div>
     `;
     
-    // 插入到消息列表底部（按时间顺序）
-    const firstChild = chatMessages.firstChild;
-    if (firstChild && firstChild.classList && firstChild.classList.contains('session-card')) {
-        // 如果第一个元素是会话卡片，插入到卡片内部
-        const messagesContainer = firstChild.querySelector('.session-messages') || firstChild;
-        messagesContainer.appendChild(messageDiv);
-    } else {
+    // 直接添加到chat-messages容器，不插入到session-card内部
+    // 这样可以确保消息总是可见的
+    chatMessages.appendChild(messageDiv);
+    console.log('[displayUserMessage] ✅ Message added directly to chat-messages container');
+    
+    // 强制浏览器重新计算布局，确保消息立即可见
+    const height = messageDiv.offsetHeight; // 触发重排
+    console.log('[displayUserMessage] Message height:', height, 'px');
+    
+    // 确保消息在DOM中
+    if (!chatMessages.contains(messageDiv)) {
+        console.error('[displayUserMessage] ❌ Message not in DOM!');
         chatMessages.appendChild(messageDiv);
     }
     
-    // 自动滚动到底部
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    // 立即滚动到底部，使用多个延迟确保消息完全渲染
+    scrollChatToBottom();
+    
+    // 额外的滚动确保，防止消息被延迟显示
+    requestAnimationFrame(() => {
+        scrollChatToBottom();
+        setTimeout(() => {
+            scrollChatToBottom();
+            // 再次检查消息是否可见
+            const rect = messageDiv.getBoundingClientRect();
+            console.log('[displayUserMessage] Message position:', rect);
+        }, 50);
+        setTimeout(scrollChatToBottom, 150);
+        setTimeout(scrollChatToBottom, 300);
+    });
 }
 
 /**
@@ -3420,9 +3477,20 @@ function displayFishBubble(reply, index) {
  */
 function displayFishReply(reply) {
     const chatMessages = document.getElementById('chat-messages');
-    if (!chatMessages) return;
+    if (!chatMessages) {
+        console.error('[displayFishReply] ❌ chat-messages container not found!');
+        return;
+    }
+    
+    // 确保chat-messages容器可见
+    if (chatMessages.style.display === 'none') {
+        chatMessages.style.display = 'block';
+    }
+    chatMessages.style.visibility = 'visible';
+    chatMessages.style.opacity = '1';
     
     const messageDiv = document.createElement('div');
+    // 确保消息立即可见，不使用可能延迟的动画
     messageDiv.style.cssText = `
         background: white;
         border-radius: 8px;
@@ -3431,7 +3499,12 @@ function displayFishReply(reply) {
         font-size: 13px;
         line-height: 1.5;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        animation: fadeIn 0.3s ease;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative;
+        width: 100%;
+        box-sizing: border-box;
     `;
     
     const personalityColors = {
@@ -3452,17 +3525,35 @@ function displayFishReply(reply) {
         <div style="color: #333;">${escapeHtml(reply.message)}</div>
     `;
     
-    // 插入到消息列表底部（最新消息在下面）
-    const firstChild = chatMessages.firstChild;
-    if (firstChild && firstChild.classList && firstChild.classList.contains('session-card')) {
-        const messagesContainer = firstChild.querySelector('.session-messages') || firstChild;
-        messagesContainer.appendChild(messageDiv);
-    } else {
+    // 直接添加到chat-messages容器，不插入到session-card内部
+    chatMessages.appendChild(messageDiv);
+    console.log('[displayFishReply] ✅ Message added directly to chat-messages container');
+    
+    // 强制浏览器重新计算布局，确保消息立即可见
+    const height = messageDiv.offsetHeight; // 触发重排
+    console.log('[displayFishReply] Message height:', height, 'px');
+    
+    // 确保消息在DOM中
+    if (!chatMessages.contains(messageDiv)) {
+        console.error('[displayFishReply] ❌ Message not in DOM!');
         chatMessages.appendChild(messageDiv);
     }
     
-    // 自动滚动到底部
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    // 立即滚动到底部，使用多个延迟确保消息完全渲染
+    scrollChatToBottom();
+    
+    // 额外的滚动确保，防止消息被延迟显示
+    requestAnimationFrame(() => {
+        scrollChatToBottom();
+        setTimeout(() => {
+            scrollChatToBottom();
+            // 再次检查消息是否可见
+            const rect = messageDiv.getBoundingClientRect();
+            console.log('[displayFishReply] Message position:', rect);
+        }, 50);
+        setTimeout(scrollChatToBottom, 150);
+        setTimeout(scrollChatToBottom, 300);
+    });
 }
 
 /**
@@ -3983,7 +4074,10 @@ function toggleChatPanel() {
         // 显示聊天面板（右下角）
         chatPanel.style.display = 'flex';
         chatPanel.style.visibility = 'visible';
-        chatPanel.style.right = '20px';
+        // 使用setTimeout确保display先生效
+        setTimeout(() => {
+            chatPanel.style.right = '0';
+        }, 10);
         // 隐藏重新打开按钮
         if (chatReopenBtn) {
             chatReopenBtn.style.display = 'none';
@@ -3993,6 +4087,10 @@ function toggleChatPanel() {
         if (textSpan) {
             textSpan.textContent = 'Close';
         }
+        // 滚动到底部
+        setTimeout(() => {
+            scrollChatToBottom();
+        }, 100);
     } else {
         // 隐藏聊天面板
         chatPanel.style.right = '-420px';
@@ -4287,3 +4385,48 @@ createBackgroundBubbles();
 
 // Continue the animation loop
 requestAnimationFrame(animateFishes);
+
+/**
+ * 滚动聊天面板到底部 - 强化版
+ */
+function scrollChatToBottom() {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) return;
+    
+    // 使用auto behavior进行立即滚动
+    const scrollToEnd = () => {
+        // 强制计算scrollHeight
+        const scrollHeight = chatMessages.scrollHeight;
+        const clientHeight = chatMessages.clientHeight;
+        const maxScroll = scrollHeight - clientHeight;
+        
+        // 使用scrollTo方法
+        chatMessages.scrollTo({
+            top: scrollHeight,
+            behavior: 'auto'
+        });
+        
+        // 备用方法，直接设置scrollTop
+        chatMessages.scrollTop = scrollHeight;
+        
+        // 额外的强制滚动，确保到达底部
+        if (chatMessages.scrollTop < maxScroll - 1) {
+            chatMessages.scrollTop = scrollHeight;
+        }
+    };
+    
+    // 立即滚动一次
+    scrollToEnd();
+    
+    // 使用requestAnimationFrame确保DOM更新后再滚动
+    requestAnimationFrame(() => {
+        scrollToEnd();
+        
+        // 多次延迟滚动以确保消息完全渲染
+        setTimeout(scrollToEnd, 10);
+        setTimeout(scrollToEnd, 50);
+        setTimeout(scrollToEnd, 100);
+        setTimeout(scrollToEnd, 200);
+    });
+}
+

@@ -15,6 +15,7 @@ yarn-error.log*
 # 测试数据
 test-data/
 *.sql
+!temp-*.sql
 fish-images/
 
 # IDE

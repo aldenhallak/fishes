@@ -858,9 +858,10 @@
       </div>
       
       <!-- 内容区域 -->
-      <div style="padding: 20px 24px; display: flex; flex-direction: column; height: calc(100% - 72px);">
+      <div style="padding: 20px 24px; display: flex; flex-direction: column; height: calc(100% - 72px); position: relative; overflow: hidden;">
       
-      <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+      <!-- 顶部状态栏 -->
+      <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
         <span id="chat-status" style="color: #8B7355; font-weight: 600; font-size: 13px; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);">Ready to chat ✨</span>
         <button 
           id="clear-chat-btn" 
@@ -875,15 +876,17 @@
         </button>
       </div>
       
-      <div id="chat-messages" style="flex: 1; overflow-y: auto; padding-right: 8px; margin-bottom: 15px;">
+      <!-- 消息显示区域 -->
+      <div id="chat-messages" style="flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 8px; padding-bottom: 160px; min-height: 100px; display: block !important; visibility: visible !important;">
       </div>
       
-      <!-- 用户输入区域 -->
-      <div id="user-chat-input-area" style="border-top: 2px solid rgba(139, 115, 85, 0.2); padding-top: 16px; margin-top: auto;">
+      <!-- 用户输入区域 - 固定在底部 -->
+      <div id="user-chat-input-area" style="position: absolute !important; bottom: 0 !important; left: 24px !important; right: 24px !important; border-top: 2px solid rgba(139, 115, 85, 0.2); padding: 16px 0; background: linear-gradient(#FFF9E6 0%, #FFF4D6 100%); z-index: 100 !important; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); display: block !important; visibility: visible !important;">
+        <div style="padding: 0 4px;">
         <div id="user-chat-login-prompt" style="text-align: center; color: #8B7355; font-size: 13px; font-weight: 600; padding: 16px; background: rgba(255, 255, 255, 0.6); border-radius: 16px; border: 2px solid rgba(139, 115, 85, 0.3); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1); display: none;">
           🔐 Please log in to join the conversation
         </div>
-        <div id="user-chat-input-container" style="display: none;">
+        <div id="user-chat-input-container" style="display: block;">
           <div style="display: flex; gap: 12px; align-items: stretch;">
             <input 
               type="text" 
@@ -907,6 +910,7 @@
             </button>
           </div>
           <div id="user-chat-error" style="color: #C0392B; font-size: 12px; font-weight: 600; margin-top: 10px; padding: 12px 16px; background: rgba(252, 92, 101, 0.1); border-radius: 12px; border: 2px solid rgba(192, 57, 43, 0.3); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1); display: none;"></div>
+        </div>
         </div>
       </div>
       </div>
@@ -1458,8 +1462,18 @@
           if (chatPanel && isEnabled) {
             chatPanel.style.display = 'flex';
             chatPanel.style.visibility = 'visible';
-            chatPanel.style.right = '0';
+            // 使用setTimeout确保display先生效
+            setTimeout(() => {
+              chatPanel.style.right = '0';
+            }, 10);
             if (tankWrapper) tankWrapper.style.marginRight = '0';
+            // 滚动到底部
+            setTimeout(() => {
+              const chatMessages = document.getElementById('chat-messages');
+              if (chatMessages) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+              }
+            }, 150);
           }
           
           // Toggle function
@@ -1473,16 +1487,26 @@
               // Show chat panel
               chatPanel.style.display = 'flex';
               chatPanel.style.visibility = 'visible';
-              chatPanel.style.right = '0';
+              // 使用setTimeout确保display先生效
+              setTimeout(() => {
+                chatPanel.style.right = '0';
+              }, 10);
               if (tankWrapper) tankWrapper.style.marginRight = '0';
+              // 滚动到底部
+              setTimeout(() => {
+                const chatMessages = document.getElementById('chat-messages');
+                if (chatMessages) {
+                  chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+              }, 150);
             } else {
               // Hide chat panel
-              chatPanel.style.right = '-350px';
+              chatPanel.style.right = '-420px';
               if (tankWrapper) tankWrapper.style.marginRight = '0';
               setTimeout(() => {
                 chatPanel.style.display = 'none';
                 chatPanel.style.visibility = 'hidden';
-              }, 300);
+              }, 400);
             }
           };
           
