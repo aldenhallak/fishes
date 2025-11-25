@@ -217,7 +217,7 @@ function updateActionButtons(profile, profileUserId, isCurrentUser, isLoggedIn =
 
     if (isCurrentUser) {
         // For current user, show their private tank
-        visitTankBtn.href = 'mytank.html';
+        visitTankBtn.href = 'tank.html?view=my';
         visitTankBtn.textContent = 'My Tank';
 
         // Show edit profile button for current user only if logged in

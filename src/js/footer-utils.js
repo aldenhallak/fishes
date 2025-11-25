@@ -37,7 +37,7 @@ function createSpecialFooter() {
         <a href="index.html" style="color: #0066cc; text-decoration: underline;">draw</a>
         | <a href="tank.html" style="color: #0066cc; text-decoration: underline;">public tank</a>
         | <a href="rank.html" style="color: #0066cc; text-decoration: underline;">rankings</a>
-        | <a href="mytank.html" id="my-tanks-link" style="color: #0066cc; text-decoration: underline;">my tank</a>
+        | <a href="tank.html?view=my" id="my-tanks-link" style="color: #0066cc; text-decoration: underline;">my tank</a>
         | <a href="login.html" id="auth-link" style="color: #0066cc; text-decoration: underline;">login</a>
         <br><br>
         🎨 Based on <a href="https://github.com/aldenhallak/fishes" style="color: #0066cc; text-decoration: underline;" target="_blank" rel="noopener">DrawAFish</a> by <a href="https://github.com/aldenhallak" style="color: #0066cc; text-decoration: underline;" target="_blank" rel="noopener">aldenhallak</a> | 

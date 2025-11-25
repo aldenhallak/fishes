@@ -266,10 +266,22 @@ function calculateFishSize() {
     const finalWidth = Math.max(minWidth, Math.min(maxWidth, fishWidth));
     const finalHeight = Math.max(minHeight, Math.min(maxHeight, fishHeight));
 
-    return {
+    // 🔍 调试：记录鱼尺寸计算结果
+    const result = {
         width: finalWidth,
         height: finalHeight
     };
+    console.log('🔍 Fish size calculated:', {
+        tankDimensions: `${tankWidth}x${tankHeight}`,
+        isMobile,
+        baseDimension,
+        basePercentage,
+        calculatedSize: `${fishWidth}x${fishHeight}`,
+        finalSize: `${finalWidth}x${finalHeight}`,
+        viewMode: VIEW_MODE
+    });
+    
+    return result;
 }
 
 // Rescale all existing fish to maintain consistency
@@ -509,7 +521,7 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
                 y,
                 direction: direction,
                 phase: fishData.phase || 0,
-                amplitude: fishData.amplitude || 32,
+                amplitude: fishData.amplitude || 24, // 🔧 修复：与createFishObject默认值保持一致
                 speed: speed,
                 vx: speed * direction * 0.1, // Initialize with base velocity
                 vy: (Math.random() - 0.5) * 0.5, // Small random vertical velocity
@@ -761,10 +773,17 @@ async function loadAdditionalFish(sortType, count) {
                 continue;
             }
 
-            loadFishImageToTank(imageUrl, {
+            // 🔧 修复：为loadAdditionalFish也预设游动参数默认值
+            const normalizedAdditionalFishData = {
                 ...data,
-                docId: fishId
-            });
+                docId: fishId,
+                speed: data.speed || 2,
+                phase: data.phase || 0,
+                amplitude: data.amplitude || 24,
+                peduncle: data.peduncle || 0.4
+            };
+
+            loadFishImageToTank(imageUrl, normalizedAdditionalFishData);
 
             addedCount++;
         }
@@ -1160,14 +1179,32 @@ async function loadInitialFish(sortType = 'recent') {
 
             // Try multiple possible field names for image URL (support different API formats)
             const imageUrl = data.image || data.Image || data.image_url || data.imageUrl;
+            
+            // 🔍 调试：记录全局鱼缸的图片URL格式
+            console.log('🔍 Global tank image URL:', imageUrl, 'from data:', {
+                image: data.image,
+                Image: data.Image,
+                image_url: data.image_url,
+                imageUrl: data.imageUrl
+            });
+            
             if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.startsWith('http')) {
                 console.warn('Skipping fish with invalid image:', fishId, data);
                 return;
             }
-            loadFishImageToTank(imageUrl, {
+            
+            // 🔧 修复：为全局鱼缸也预设游动参数默认值，确保与私人鱼缸一致
+            const normalizedGlobalFishData = {
                 ...data,
-                docId: fishId
-            });
+                docId: fishId,
+                // 确保游动参数与私人鱼缸完全一致
+                speed: data.speed || 2,
+                phase: data.phase || 0,
+                amplitude: data.amplitude || 24,  // 与私人鱼缸相同的默认值
+                peduncle: data.peduncle || 0.4
+            };
+            
+            loadFishImageToTank(imageUrl, normalizedGlobalFishData);
         });
     } catch (error) {
         console.error('Error loading initial fish:', error);
@@ -1558,30 +1595,48 @@ async function checkForNewFish() {
                     if (oldestFishIndex !== -1) {
                         animateFishDeath(oldestFishIndex, () => {
                             // After death animation completes, add new fish
-                            loadFishImageToTank(imageUrl, {
+                            // 🔧 修复：为checkForNewFish也预设游动参数默认值
+                            const normalizedNewFishData1 = {
                                 ...fishData,
-                                docId: fishId
-                            }, (newFish) => {
+                                docId: fishId,
+                                speed: fishData.speed || 2,
+                                phase: fishData.phase || 0,
+                                amplitude: fishData.amplitude || 24,
+                                peduncle: fishData.peduncle || 0.4
+                            };
+                            loadFishImageToTank(imageUrl, normalizedNewFishData1, (newFish) => {
                                 // Show subtle notification
                                 showNewFishNotification(fishData.Artist || fishData.artist || 'Anonymous');
                             });
                         });
                     } else {
                         // No fish to remove, but we're at capacity - add anyway (user's old fish were already removed)
-                        loadFishImageToTank(imageUrl, {
+                        // 🔧 修复：为checkForNewFish也预设游动参数默认值
+                        const normalizedNewFishData2 = {
                             ...fishData,
-                            docId: fishId
-                        }, (newFish) => {
+                            docId: fishId,
+                            speed: fishData.speed || 2,
+                            phase: fishData.phase || 0,
+                            amplitude: fishData.amplitude || 24,
+                            peduncle: fishData.peduncle || 0.4
+                        };
+                        loadFishImageToTank(imageUrl, normalizedNewFishData2, (newFish) => {
                             // Show subtle notification
                             showNewFishNotification(fishData.Artist || fishData.artist || 'Anonymous');
                         });
                     }
                 } else {
                     // Tank not at capacity, add fish immediately
-                    loadFishImageToTank(imageUrl, {
+                    // 🔧 修复：为checkForNewFish也预设游动参数默认值
+                    const normalizedNewFishData3 = {
                         ...fishData,
-                        docId: fishId
-                    }, (newFish) => {
+                        docId: fishId,
+                        speed: fishData.speed || 2,
+                        phase: fishData.phase || 0,
+                        amplitude: fishData.amplitude || 24,
+                        peduncle: fishData.peduncle || 0.4
+                    };
+                    loadFishImageToTank(imageUrl, normalizedNewFishData3, (newFish) => {
                         // Show subtle notification
                         showNewFishNotification(fishData.Artist || fishData.artist || 'Anonymous');
                     });
@@ -1763,6 +1818,14 @@ async function createPrivateFishObject(fishData) {
         // 尝试多种可能的图片URL字段名（与全局鱼缸保持一致）
         const imageUrl = fishData.image_url || fishData.imageUrl || fishData.image || fishData.Image;
         
+        // 🔍 调试：记录私人鱼缸的图片URL格式
+        console.log('🔍 Private tank image URL:', imageUrl, 'from data:', {
+            image_url: fishData.image_url,
+            imageUrl: fishData.imageUrl, 
+            image: fishData.image,
+            Image: fishData.Image
+        });
+        
         if (!imageUrl) {
             console.warn('Fish data missing image URL:', fishData);
             return null;
@@ -1780,10 +1843,10 @@ async function createPrivateFishObject(fishData) {
                 Image: imageUrl,
                 image_url: imageUrl,
                 imageUrl: imageUrl,
-                // 确保游动参数与全局鱼缸完全一致（使用相同的默认值）
+                // 🔧 修复：确保游动参数与全局鱼缸完全一致（使用相同的默认值）
                 speed: fishData.speed || 2,  // 与全局鱼缸相同
                 phase: fishData.phase || 0,  // 与全局鱼缸相同
-                amplitude: fishData.amplitude || 32,  // 与全局鱼缸相同（不是默认的24）
+                amplitude: fishData.amplitude || 24,  // 🔧 修复：使用与全局鱼缸相同的默认值24，不是32
                 peduncle: fishData.peduncle || 0.4,  // 与全局鱼缸相同
                 // 保留私人鱼缸特有字段
                 is_own: fishData.is_own || fishData.isOwn || false,
@@ -1813,11 +1876,13 @@ async function createPrivateFishObject(fishData) {
                     fishObj.isFavorited = fishData.is_favorited || fishData.isFavorited || false;
                     fishObj.is_alive = fishData.is_alive !== false;
                     
-                    // Dead fish swim slower
-                    if (!fishObj.is_alive) {
-                        fishObj.vx *= 0.3;
-                        fishObj.vy = Math.abs(fishObj.vy) * 0.2;
-                    }
+                    // 🔧 修复：确保游动参数与全局鱼缸100%一致，强制覆盖任何可能的差异
+                    fishObj.speed = 2;
+                    fishObj.phase = 0;
+                    fishObj.amplitude = 24;  // 与全局鱼缸createFishObject中的默认值一致
+                    fishObj.peduncle = 0.4;
+                    
+                    console.log(`🔧 私人鱼缸鱼游动参数已统一: speed=${fishObj.speed}, amplitude=${fishObj.amplitude}, phase=${fishObj.phase}, peduncle=${fishObj.peduncle}`);
                 }
                 resolve(fishObj || null);
             });
@@ -1877,7 +1942,30 @@ window.addEventListener('DOMContentLoaded', async () => {
         console.error('❌ Could not get canvas context!');
         return;
     }
-    console.log('✅ Canvas initialized:', swimCanvas.width, 'x', swimCanvas.height);
+    // 🔧 修复：设置Canvas的实际像素尺寸与显示尺寸匹配，确保图片清晰度
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    const displayWidth = swimCanvas.clientWidth;
+    const displayHeight = swimCanvas.clientHeight;
+    
+    // 设置Canvas的实际像素尺寸为显示尺寸 * 设备像素比
+    swimCanvas.width = displayWidth * devicePixelRatio;
+    swimCanvas.height = displayHeight * devicePixelRatio;
+    
+    // 设置Canvas的CSS显示尺寸
+    swimCanvas.style.width = displayWidth + 'px';
+    swimCanvas.style.height = displayHeight + 'px';
+    
+    // 缩放绘图上下文以匹配设备像素比
+    swimCtx.scale(devicePixelRatio, devicePixelRatio);
+    
+    // 🔍 调试：详细记录Canvas信息
+    console.log('✅ Canvas initialized with DPI fix:', {
+        displaySize: `${displayWidth}x${displayHeight}`,
+        canvasSize: `${swimCanvas.width}x${swimCanvas.height}`,
+        devicePixelRatio: devicePixelRatio,
+        scaleFactor: devicePixelRatio,
+        viewMode: VIEW_MODE
+    });
     
     // Variables are already initialized at top level, no need to reinitialize
     
@@ -2800,16 +2888,26 @@ function resizeForMobile() {
         viewportWidth = window.visualViewport.width;
     }
 
-    // Set canvas to full viewport
-    swimCanvas.width = viewportWidth;
-    swimCanvas.height = viewportHeight;
+    // 🔧 修复：应用DPI修复到resize函数，确保图片清晰度
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    
+    // Set canvas actual pixel size with DPI scaling
+    swimCanvas.width = viewportWidth * devicePixelRatio;
+    swimCanvas.height = viewportHeight * devicePixelRatio;
+    
+    // Set canvas CSS display size
     swimCanvas.style.width = viewportWidth + 'px';
     swimCanvas.style.height = viewportHeight + 'px';
     swimCanvas.style.position = 'fixed';
     swimCanvas.style.top = '0';
     swimCanvas.style.left = '0';
+    
+    // Scale drawing context to match device pixel ratio
+    if (swimCtx) {
+        swimCtx.scale(devicePixelRatio, devicePixelRatio);
+    }
 
-    console.log(`🐠 Canvas resized to ${swimCanvas.width}x${swimCanvas.height} (${isMobile ? 'mobile' : 'desktop'}, viewport: ${viewportWidth}x${viewportHeight})`);
+    console.log(`🐠 Canvas resized with DPI fix: display ${viewportWidth}x${viewportHeight}, actual ${swimCanvas.width}x${swimCanvas.height} (${isMobile ? 'mobile' : 'desktop'}, DPR: ${devicePixelRatio})`);
 
     // If canvas size changed significantly, rescale all fish
     if (oldWidth > 0 && oldHeight > 0) {
@@ -2855,6 +2953,10 @@ function animateFishes() {
     if (typeof window.cacheUpdateCounter === 'undefined') {
         window.cacheUpdateCounter = 0;
     }
+    
+    // 🔧 修复：在每次动画帧开始时设置高质量渲染，确保图片清晰度
+    swimCtx.imageSmoothingEnabled = true;
+    swimCtx.imageSmoothingQuality = 'high';
     
     // Draw ocean gradient background directly on canvas
     const gradient = swimCtx.createLinearGradient(0, 0, 0, swimCanvas.height);
@@ -3153,6 +3255,10 @@ function drawWigglingFish(fish, x, y, direction, time, phase) {
     // 移除用户自己的鱼的金光效果（两个鱼缸都不显示）
     // const isCurrentUserFish = isUserFish(fish);
     // 金光效果已移除，所有鱼统一显示
+
+    // 启用高质量图片平滑，确保清晰度
+    swimCtx.imageSmoothingEnabled = true;
+    swimCtx.imageSmoothingQuality = 'high';
 
     // Set opacity for dying or entering fish
     if ((fish.isDying || fish.isEntering) && fish.opacity !== undefined) {

@@ -2384,28 +2384,62 @@ function cropCanvasToContent(srcCanvas) {
 
 // Helper to crop, scale, and center a fish image into a display canvas
 function makeDisplayFishCanvas(img, width = 80, height = 48) {
+    // 使用高分辨率渲染（2倍）以提高清晰度
+    const devicePixelRatio = window.devicePixelRatio || 2;
+    const scaleFactor = Math.max(2, devicePixelRatio); // 至少2倍，确保清晰度
+    
     const displayCanvas = document.createElement('canvas');
+    // 设置实际显示尺寸
     displayCanvas.width = width;
     displayCanvas.height = height;
-    const displayCtx = displayCanvas.getContext('2d');
+    
+    // 创建高分辨率canvas用于渲染
+    const highResCanvas = document.createElement('canvas');
+    highResCanvas.width = width * scaleFactor;
+    highResCanvas.height = height * scaleFactor;
+    const highResCtx = highResCanvas.getContext('2d');
     
     // Enable high-quality image smoothing
-    displayCtx.imageSmoothingEnabled = true;
-    displayCtx.imageSmoothingQuality = 'high';
+    highResCtx.imageSmoothingEnabled = true;
+    highResCtx.imageSmoothingQuality = 'high';
     
-    // Draw image to temp canvas at its natural size
+    // 在临时canvas上绘制原图
     const temp = document.createElement('canvas');
     temp.width = img.width;
     temp.height = img.height;
-    temp.getContext('2d').drawImage(img, 0, 0);
+    const tempCtx = temp.getContext('2d');
+    tempCtx.imageSmoothingEnabled = true;
+    tempCtx.imageSmoothingQuality = 'high';
+    tempCtx.drawImage(img, 0, 0);
+    
+    // 裁剪到内容区域
     const cropped = cropCanvasToContent(temp);
-    displayCtx.clearRect(0, 0, width, height);
-    const scale = Math.min(width / cropped.width, height / cropped.height);
+    
+    // 在高分辨率canvas上绘制
+    highResCtx.clearRect(0, 0, highResCanvas.width, highResCanvas.height);
+    const scale = Math.min(
+        (width * scaleFactor) / cropped.width, 
+        (height * scaleFactor) / cropped.height
+    );
     const drawW = cropped.width * scale;
     const drawH = cropped.height * scale;
-    const dx = (width - drawW) / 2;
-    const dy = (height - drawH) / 2;
-    displayCtx.drawImage(cropped, 0, 0, cropped.width, cropped.height, dx, dy, drawW, drawH);
+    const dx = (highResCanvas.width - drawW) / 2;
+    const dy = (highResCanvas.height - drawH) / 2;
+    
+    // 在高分辨率canvas上绘制
+    highResCtx.drawImage(
+        cropped, 
+        0, 0, cropped.width, cropped.height, 
+        dx, dy, drawW, drawH
+    );
+    
+    // 将高分辨率canvas缩放回显示尺寸（使用高质量缩放）
+    const displayCtx = displayCanvas.getContext('2d');
+    displayCtx.imageSmoothingEnabled = true;
+    displayCtx.imageSmoothingQuality = 'high';
+    displayCtx.clearRect(0, 0, width, height);
+    displayCtx.drawImage(highResCanvas, 0, 0, width, height);
+    
     return displayCanvas;
 }
 

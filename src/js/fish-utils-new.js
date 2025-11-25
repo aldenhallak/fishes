@@ -472,9 +472,9 @@ async function updateAuthenticationUI() {
         myTanksLink.style.display = loggedIn ? 'inline' : 'none';
         
         // If logged in, get default tank and update link to go directly to it
-        // Always link to mytank.html (simplified tank architecture)
+        // Always link to private tank (unified tank architecture)
         if (loggedIn) {
-            myTanksLink.href = 'mytank.html';
+            myTanksLink.href = 'tank.html?view=my';
         }
     }
     

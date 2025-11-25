@@ -77,9 +77,9 @@
 
     <div class="test-box">
         <h2>2. 测试访问我的鱼缸</h2>
-        <p>点击下面的按钮测试访问 fishtanks.html</p>
+        <p>点击下面的按钮测试访问私人鱼缸</p>
         <button onclick="testAccess()">访问我的鱼缸</button>
-        <button onclick="window.open('fishtanks.html', '_blank')">在新窗口打开</button>
+        <button onclick="window.open('tank.html?view=my', '_blank')">在新窗口打开</button>
         <div id="access-status" class="status info" style="display: none;"></div>
     </div>
 
@@ -175,7 +175,7 @@
             statusDiv.className = 'status info';
             
             setTimeout(() => {
-                window.location.href = 'fishtanks.html';
+                window.location.href = 'tank.html?view=my';
             }, 500);
         }
 

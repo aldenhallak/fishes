@@ -287,7 +287,7 @@ class ModalManager {
                 <div class="no-tanks-message">
                     <h3>No tanks found</h3>
                     <p>You don't have any tanks yet. Create your first tank to start collecting fish!</p>
-                    <a href="fishtanks.html" class="btn">Create First Tank</a>
+                    <a href="tank.html?view=my" class="btn">View My Tank</a>
                 </div>
             `;
         } else {

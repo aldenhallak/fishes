@@ -122,12 +122,12 @@ function showAlreadyLoggedInUI(user) {
 // Navigate to tanks page
 async function goToTanks() {
   try {
-    // Redirect to user's private tank (simplified architecture)
-    window.location.href = 'mytank.html';
+    // Redirect to user's private tank (unified architecture)
+    window.location.href = 'tank.html?view=my';
   } catch (error) {
     console.log('Error redirecting to tank:', error);
-    // Fallback: redirect to mytank anyway
-    window.location.href = 'mytank.html';
+    // Fallback: redirect to private tank anyway
+    window.location.href = 'tank.html?view=my';
   }
 }
 

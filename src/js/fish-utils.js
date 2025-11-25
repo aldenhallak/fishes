@@ -663,8 +663,8 @@ async function updateAuthenticationUI() {
         
         // If logged in, get default tank and update link to go directly to it
         if (isLoggedIn && window.FishTankFavorites) {
-            // Always link to mytank.html (simplified tank architecture)
-            myTanksLink.href = 'mytank.html';
+            // Always link to private tank (unified tank architecture)
+            myTanksLink.href = 'tank.html?view=my';
         }
     }
     // Update auth link (login/logout)

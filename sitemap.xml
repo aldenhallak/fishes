@@ -28,13 +28,8 @@
         <lastmod>2025-10-30</lastmod>
     </url>
     
-    <!-- Fish tanks page -->
-    <url>
-        <loc>https://fishtalk.app/mytank.html</loc>
-        <changefreq>daily</changefreq>
-        <priority>0.8</priority>
-        <lastmod>2025-08-05</lastmod>
-    </url>
+    <!-- Private Tank (unified with tank.html) -->
+    <!-- Access via: https://fishtalk.app/tank.html?view=my -->
     
     <!-- Profile page -->
     <url>

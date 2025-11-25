@@ -5,7 +5,6 @@ Allow: /
 Allow: /index.html
 Allow: /tank.html
 Allow: /rank.html
-Allow: /mytank.html
 Allow: /profile.html
 Allow: /login.html
 
