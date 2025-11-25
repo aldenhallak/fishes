@@ -345,27 +345,62 @@ function cropCanvasToContent(srcCanvas) {
 }
 
 function makeDisplayFishCanvas(img, width = 80, height = 48) {
+    // 使用高分辨率渲染（2倍）以提高清晰度
+    const devicePixelRatio = window.devicePixelRatio || 2;
+    const scaleFactor = Math.max(2, devicePixelRatio); // 至少2倍，确保清晰度
+    
     const displayCanvas = document.createElement('canvas');
+    // 设置实际显示尺寸
     displayCanvas.width = width;
     displayCanvas.height = height;
-    const displayCtx = displayCanvas.getContext('2d');
+    
+    // 创建高分辨率canvas用于渲染
+    const highResCanvas = document.createElement('canvas');
+    highResCanvas.width = width * scaleFactor;
+    highResCanvas.height = height * scaleFactor;
+    const highResCtx = highResCanvas.getContext('2d');
     
     // Enable high-quality image smoothing
-    displayCtx.imageSmoothingEnabled = true;
-    displayCtx.imageSmoothingQuality = 'high';
+    highResCtx.imageSmoothingEnabled = true;
+    highResCtx.imageSmoothingQuality = 'high';
     
+    // 在临时canvas上绘制原图
     const temp = document.createElement('canvas');
     temp.width = img.width;
     temp.height = img.height;
-    temp.getContext('2d').drawImage(img, 0, 0);
+    const tempCtx = temp.getContext('2d');
+    tempCtx.imageSmoothingEnabled = true;
+    tempCtx.imageSmoothingQuality = 'high';
+    tempCtx.drawImage(img, 0, 0);
+    
+    // 裁剪到内容区域
     const cropped = cropCanvasToContent(temp);
-    displayCtx.clearRect(0, 0, width, height);
-    const scale = Math.min(width / cropped.width, height / cropped.height);
+    
+    // 在高分辨率canvas上绘制
+    highResCtx.clearRect(0, 0, highResCanvas.width, highResCanvas.height);
+    const scale = Math.min(
+        (width * scaleFactor) / cropped.width, 
+        (height * scaleFactor) / cropped.height
+    );
     const drawW = cropped.width * scale;
     const drawH = cropped.height * scale;
-    const dx = (width - drawW) / 2;
-    const dy = (height - drawH) / 2;
-    displayCtx.drawImage(cropped, 0, 0, cropped.width, cropped.height, dx, dy, drawW, drawH);
+    const dx = (highResCanvas.width - drawW) / 2;
+    const dy = (highResCanvas.height - drawH) / 2;
+    
+    // 在高分辨率canvas上绘制
+    highResCtx.drawImage(
+        cropped, 
+        0, 0, cropped.width, cropped.height, 
+        dx, dy, drawW, drawH
+    );
+    
+    // 将高分辨率canvas缩放回显示尺寸（使用高质量缩放）
+    const displayCtx = displayCanvas.getContext('2d');
+    displayCtx.imageSmoothingEnabled = true;
+    displayCtx.imageSmoothingQuality = 'high';
+    displayCtx.clearRect(0, 0, width, height);
+    displayCtx.drawImage(highResCanvas, 0, 0, width, height);
+    
     return displayCanvas;
 }
 
@@ -647,12 +682,19 @@ async function updateTankCapacity(newCapacity) {
     }
     // If capacity increased, try to add more fish (if available from current sort)
     else if (newCapacity > fishes.length && newCapacity > oldCapacity) {
-        const sortSelect = document.getElementById('tank-sort');
-        const currentSort = sortSelect ? sortSelect.value : 'recent';
-        const neededCount = newCapacity - fishes.length;
+        if (VIEW_MODE === 'my') {
+            // 私人鱼缸模式：重新加载鱼缸
+            console.log('🔄 Private tank capacity increased, reloading fish...');
+            await loadPrivateFish();
+        } else {
+            // 全局鱼缸模式：加载额外的鱼
+            const sortSelect = document.getElementById('tank-sort') || document.getElementById('tank-sort-sidebar');
+            const currentSort = sortSelect ? sortSelect.value : 'recent';
+            const neededCount = newCapacity - fishes.length;
 
-        // Load additional fish
-        await loadAdditionalFish(currentSort, neededCount);
+            // Load additional fish
+            await loadAdditionalFish(currentSort, neededCount);
+        }
     }
 
     // Hide loading indicator
@@ -1116,7 +1158,8 @@ async function loadInitialFish(sortType = 'recent') {
                 return;
             }
 
-            const imageUrl = data.image || data.Image; // Try lowercase first, then uppercase
+            // Try multiple possible field names for image URL (support different API formats)
+            const imageUrl = data.image || data.Image || data.image_url || data.imageUrl;
             if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.startsWith('http')) {
                 console.warn('Skipping fish with invalid image:', fishId, data);
                 return;
@@ -1561,7 +1604,10 @@ async function loadPrivateFish() {
     const loadingEl = document.getElementById('loading-indicator');
     
     try {
-        if (loadingEl) loadingEl.style.display = 'block';
+        if (loadingEl) {
+            loadingEl.style.display = 'block';
+            loadingEl.textContent = 'Loading...';
+        }
         console.log('🐠 Loading private fish...');
 
         const token = localStorage.getItem('userToken');
@@ -1570,6 +1616,8 @@ async function loadPrivateFish() {
         }
 
         const BACKEND_URL = window.location.origin;
+        console.log('🌐 Fetching from:', `${BACKEND_URL}/api/fish-api?action=my-tank`);
+        
         const response = await fetch(`${BACKEND_URL}/api/fish-api?action=my-tank`, {
             method: 'GET',
             headers: {
@@ -1577,6 +1625,8 @@ async function loadPrivateFish() {
                 'Content-Type': 'application/json'
             }
         });
+
+        console.log('📡 Response status:', response.status, response.statusText);
 
         if (!response.ok) {
             let errorData;
@@ -1600,41 +1650,65 @@ async function loadPrivateFish() {
         }
 
         const result = await response.json();
+        console.log('📦 API result:', { success: result.success, fishCount: result.fish?.length, stats: result.stats });
 
         if (!result.success) {
             console.error('❌ API returned success=false:', result);
             throw new Error(result.error || result.message || 'Failed to load fish');
         }
 
-        const myFish = result.fish || [];
-        console.log(`✅ Loaded ${myFish.length} fish from API`);
+        const allMyFish = result.fish || [];
+        console.log(`✅ Loaded ${allMyFish.length} fish from API`);
+
+        // 应用鱼数量限制 - 私人鱼缸也应该受限于 maxTankCapacity 参数
+        const fishToLoad = allMyFish.slice(0, maxTankCapacity);
+        console.log(`🎯 Limited to ${fishToLoad.length} fish based on tank capacity (${maxTankCapacity})`);
+
+        // Update loading text
+        if (loadingEl && fishToLoad.length > 0) {
+            loadingEl.textContent = `Loading ${fishToLoad.length} fish...`;
+        }
 
         updatePrivateTankStats(result.stats);
 
         fishes.length = 0;
 
-        console.log(`🔨 开始创建 ${myFish.length} 个鱼对象...`);
+        console.log(`🔨 开始创建 ${fishToLoad.length} 个鱼对象...`);
         let successCount = 0;
         let failCount = 0;
         
-        for (let i = 0; i < myFish.length; i++) {
-            const fishData = myFish[i];
+        // 限制并发加载数量，避免卡死
+        const batchSize = 5;
+        for (let i = 0; i < fishToLoad.length; i += batchSize) {
+            const batch = fishToLoad.slice(i, i + batchSize);
+            console.log(`🔨 Loading batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(fishToLoad.length / batchSize)} (${batch.length} fish)...`);
             
-            try {
-                const fishObj = await createPrivateFishObject(fishData);
-                if (fishObj) {
-                    fishes.push(fishObj);
+            // Update loading text
+            if (loadingEl) {
+                loadingEl.textContent = `Loading ${i}/${fishToLoad.length} fish...`;
+            }
+            
+            const results = await Promise.allSettled(
+                batch.map(fishData => createPrivateFishObject(fishData))
+            );
+            
+            results.forEach((result, idx) => {
+                if (result.status === 'fulfilled' && result.value) {
+                    fishes.push(result.value);
                     successCount++;
                 } else {
                     failCount++;
+                    const fishData = batch[idx];
+                    if (result.status === 'rejected') {
+                        console.error(`❌ 创建鱼对象 #${i + idx + 1} 失败:`, result.reason, fishData?.id || fishData);
+                    } else {
+                        console.warn(`⚠️ 鱼对象 #${i + idx + 1} 返回 null:`, fishData?.id || fishData);
+                    }
                 }
-            } catch (error) {
-                failCount++;
-                console.error(`❌ 创建鱼对象 #${i + 1} 失败:`, error);
-            }
+            });
         }
 
-        console.log(`🐟 创建完成: ${successCount} 成功, ${failCount} 失败`);
+        console.log(`🐟 创建完成: ${successCount} 成功, ${failCount} 失败, 总计 ${fishes.length} 条鱼在鱼缸中`);
 
         // Assign fish to rows for dialogue system
         if (tankLayoutManager && fishes.length > 0) {
@@ -1644,110 +1718,110 @@ async function loadPrivateFish() {
             }, 500);
         }
 
-        if (loadingEl) loadingEl.style.display = 'none';
-
         if (fishes.length === 0) {
-            console.log('ℹ️ No fish in private tank yet');
+            console.log('ℹ️ No fish successfully loaded in private tank');
+            if (loadingEl) {
+                loadingEl.textContent = 'No fish to display';
+                setTimeout(() => {
+                    loadingEl.style.display = 'none';
+                }, 2000);
+            }
+        } else {
+            if (loadingEl) loadingEl.style.display = 'none';
         }
 
     } catch (error) {
         console.error('❌ Error loading private fish:', error);
-        if (loadingEl) loadingEl.style.display = 'none';
+        console.error('❌ Error stack:', error.stack);
+        
+        if (loadingEl) {
+            loadingEl.textContent = `Error: ${error.message}`;
+            setTimeout(() => {
+                loadingEl.style.display = 'none';
+            }, 3000);
+        }
         
         // Show user-friendly error message
         if (error.message.includes('Not logged in')) {
             console.log('User not logged in, authentication required');
+            if (window.authUI && window.authUI.showLoginModal) {
+                window.authUI.showLoginModal();
+            }
+        } else {
+            // Show error in UI
+            alert(`Failed to load private tank: ${error.message}`);
         }
     }
 }
 
 /**
  * Create fish object from API data for Private Tank
+ * 使用与全局鱼缸相同的图片加载逻辑，确保清晰度一致
  */
 async function createPrivateFishObject(fishData) {
     try {
-        if (!fishData.image_url) {
-            console.warn('Fish data missing image_url:', fishData);
+        // 尝试多种可能的图片URL字段名（与全局鱼缸保持一致）
+        const imageUrl = fishData.image_url || fishData.imageUrl || fishData.image || fishData.Image;
+        
+        if (!imageUrl) {
+            console.warn('Fish data missing image URL:', fishData);
             return null;
         }
 
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        
-        await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => {
-                reject(new Error('Image load timeout'));
-            }, 10000);
-
-            img.onload = function() {
-                clearTimeout(timeout);
-                resolve();
+        // 使用与全局鱼缸完全相同的图片加载函数，确保处理逻辑100%一致
+        // 注意：这里直接调用 loadFishImageToTank，与全局鱼缸使用完全相同的代码路径
+        return new Promise((resolve) => {
+            // 构建与全局鱼缸完全相同的 fishData 对象
+            const normalizedFishData = {
+                ...fishData,
+                docId: fishData.id || fishData.docId,
+                // 确保所有图片URL字段名与全局鱼缸一致
+                image: imageUrl,
+                Image: imageUrl,
+                image_url: imageUrl,
+                imageUrl: imageUrl,
+                // 确保游动参数与全局鱼缸完全一致（使用相同的默认值）
+                speed: fishData.speed || 2,  // 与全局鱼缸相同
+                phase: fishData.phase || 0,  // 与全局鱼缸相同
+                amplitude: fishData.amplitude || 32,  // 与全局鱼缸相同（不是默认的24）
+                peduncle: fishData.peduncle || 0.4,  // 与全局鱼缸相同
+                // 保留私人鱼缸特有字段
+                is_own: fishData.is_own || fishData.isOwn || false,
+                is_favorited: fishData.is_favorited || fishData.isFavorited || false,
+                is_alive: fishData.is_alive !== false,
+                // 转换字段名以匹配全局鱼缸格式
+                artist: fishData.artist || 'Anonymous',
+                createdAt: fishData.created_at || fishData.createdAt || null,
+                CreatedAt: fishData.created_at || fishData.createdAt || null,
+                upvotes: fishData.upvotes || 0,
+                userId: fishData.user_id || fishData.userId || null,
+                user_id: fishData.user_id || fishData.userId || null,
+                fish_name: fishData.fish_name || fishData.fishName || null,
+                personality: fishData.personality || (['cheerful', 'funny', 'wise', 'shy', 'bold'][Math.floor(Math.random() * 5)]),
+                health: fishData.health || 100,
+                level: fishData.level || 1,
+                experience: fishData.experience || 0,
+                attack: fishData.attack || 10,
+                defense: fishData.defense || 5
             };
             
-            img.onerror = function(error) {
-                clearTimeout(timeout);
-                console.error('Image load error for:', fishData.image_url, error);
-                reject(new Error('Failed to load image'));
-            };
-            
-            img.src = fishData.image_url;
+            // 调用 loadFishImageToTank，传递回调函数
+            loadFishImageToTank(imageUrl, normalizedFishData, (fishObj) => {
+                if (fishObj) {
+                    // 添加私人鱼缸特有属性
+                    fishObj.isOwn = fishData.is_own || fishData.isOwn || false;
+                    fishObj.isFavorited = fishData.is_favorited || fishData.isFavorited || false;
+                    fishObj.is_alive = fishData.is_alive !== false;
+                    
+                    // Dead fish swim slower
+                    if (!fishObj.is_alive) {
+                        fishObj.vx *= 0.3;
+                        fishObj.vy = Math.abs(fishObj.vy) * 0.2;
+                    }
+                }
+                resolve(fishObj || null);
+            });
         });
-
-        const fishSize = calculateFishSize();
-        const displayCanvas = makeDisplayFishCanvas(img, fishSize.width, fishSize.height);
-        
-        if (!displayCanvas || !displayCanvas.width || !displayCanvas.height) {
-            console.warn('Fish image did not load or is blank:', fishData.image_url);
-            return null;
-        }
-
-        const maxX = Math.max(0, swimCanvas.width - fishSize.width);
-        const maxY = Math.max(0, swimCanvas.height - fishSize.height);
-        
-        const x = Math.floor(Math.random() * maxX);
-        const y = Math.floor(Math.random() * maxY);
-        const direction = Math.random() < 0.5 ? -1 : 1;
-        const speed = 2;
-        
-        const fishObj = {
-            fishCanvas: displayCanvas,
-            x,
-            y,
-            direction: direction,
-            phase: Math.random() * Math.PI * 2,
-            amplitude: 24,
-            speed: speed,
-            vx: speed * direction * 0.1,
-            vy: (Math.random() - 0.5) * 0.5,
-            width: fishSize.width,
-            height: fishSize.height,
-            artist: fishData.artist || 'Anonymous',
-            createdAt: fishData.created_at || fishData.createdAt || null,
-            docId: fishData.id || null,
-            peduncle: 0.4,
-            upvotes: fishData.upvotes || 0,
-            userId: fishData.user_id || fishData.userId || null,
-            id: fishData.id || fishData.docId || `fish_${Date.now()}_${Math.random()}`,
-            fishName: fishData.fish_name || fishData.fishName || fishData.artist || 'Unknown',
-            personality: fishData.personality || (['cheerful', 'funny', 'wise', 'shy', 'bold'][Math.floor(Math.random() * 5)]),
-            health: fishData.health || 100,
-            level: fishData.level || 1,
-            experience: fishData.experience || 0,
-            attack: fishData.attack || 10,
-            defense: fishData.defense || 5,
-            imageUrl: fishData.image_url,
-            isOwn: fishData.is_own || fishData.isOwn || false,
-            isFavorited: fishData.is_favorited || fishData.isFavorited || false,
-            is_alive: fishData.is_alive !== false
-        };
-
-        // Dead fish swim slower
-        if (!fishObj.is_alive) {
-            fishObj.vx *= 0.3;
-            fishObj.vy = Math.abs(fishObj.vy) * 0.2;
-        }
-
-        return fishObj;
     } catch (error) {
         console.error('Error creating private fish object:', error, fishData);
         return null;
@@ -2175,10 +2249,10 @@ function showFishInfoModal(fish) {
 
     let info = `<div class="fish-info-modal" style="background: linear-gradient(180deg, #F8F9FA 0%, #E8E8E8 100%); padding: 16px; border-radius: 12px;">`;
 
-    // Add highlighting if this is the user's fish - 压缩尺寸
-    if (isCurrentUserFish) {
-        info += `<div style='margin-bottom: 10px; padding: 6px; background: linear-gradient(135deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border: 2px solid #BFA000; border-radius: 8px; color: #5D4E00; font-weight: 900; font-size: 11px; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2); text-align: center; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⭐ Your Fish</div>`;
-    }
+    // 移除用户自己的鱼的金色标签（两个鱼缸都不显示）
+    // if (isCurrentUserFish) {
+    //     info += `<div style='margin-bottom: 10px; padding: 6px; background: linear-gradient(135deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border: 2px solid #BFA000; border-radius: 8px; color: #5D4E00; font-weight: 900; font-size: 11px; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2); text-align: center; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⭐ Your Fish</div>`;
+    // }
 
     // Fish image (no frame, direct display) - 压缩尺寸优化
     const isMobile = window.innerWidth <= 768;
@@ -3076,52 +3150,9 @@ function drawWigglingFish(fish, x, y, direction, time, phase) {
     const h = fish.height;
     const tailEnd = Math.floor(w * fish.peduncle);
 
-    // Check if this is the current user's fish
-    const isCurrentUserFish = isUserFish(fish);
-
-    // Add highlighting effect for user's fish
-    if (isCurrentUserFish && !fish.isDying) {
-        swimCtx.save();
-
-        // Draw explosive lines radiating from the fish
-        const centerX = x + w / 2;
-        const centerY = y + h / 2;
-        const maxRadius = Math.max(w, h) / 2 + 15;
-        const lineCount = 12;
-        const lineLength = 15;
-        const timeOffset = time * 0.002; // Slow rotation
-
-        swimCtx.strokeStyle = 'rgba(255, 215, 0, 0.8)'; // Bright gold
-        swimCtx.lineWidth = 2;
-        swimCtx.lineCap = 'round';
-
-        // Draw radiating lines with slight animation
-        for (let i = 0; i < lineCount; i++) {
-            const angle = (i / lineCount) * Math.PI * 2 + timeOffset;
-            const startRadius = maxRadius + 5;
-            const endRadius = startRadius + lineLength;
-
-            // Add some variation to line lengths
-            const lengthVariation = Math.sin(angle * 3 + timeOffset * 2) * 3;
-            const actualEndRadius = endRadius + lengthVariation;
-
-            const startX = centerX + Math.cos(angle) * startRadius;
-            const startY = centerY + Math.sin(angle) * startRadius;
-            const endX = centerX + Math.cos(angle) * actualEndRadius;
-            const endY = centerY + Math.sin(angle) * actualEndRadius;
-
-            // Fade out lines at the edges
-            const fadeAlpha = 0.8 - (i % 3) * 0.2;
-            swimCtx.strokeStyle = `rgba(255, 215, 0, ${fadeAlpha})`;
-
-            swimCtx.beginPath();
-            swimCtx.moveTo(startX, startY);
-            swimCtx.lineTo(endX, endY);
-            swimCtx.stroke();
-        }
-
-        swimCtx.restore();
-    }
+    // 移除用户自己的鱼的金光效果（两个鱼缸都不显示）
+    // const isCurrentUserFish = isUserFish(fish);
+    // 金光效果已移除，所有鱼统一显示
 
     // Set opacity for dying or entering fish
     if ((fish.isDying || fish.isEntering) && fish.opacity !== undefined) {
