@@ -1,38 +1,32 @@
 // Fish Tank Only JS
 // This file contains only the logic for displaying and animating the fish tank.
+// Now supports both Global Tank (default) and Private Tank (view=my) modes
 
-const swimCanvas = document.getElementById('swim-canvas');
-const swimCtx = swimCanvas.getContext('2d');
+// =====================================================
+// View Mode Detection
+// =====================================================
+// Use existing urlParams if already declared (e.g., by fish-utils.js), otherwise create new
+const tankUrlParams = window.urlParams || new URLSearchParams(window.location.search);
+const VIEW_MODE = tankUrlParams.get('view') || 'global'; // 'global' or 'my'
+console.log(`🎯 Tank View Mode: ${VIEW_MODE}`);
+
+// Canvas and fishes will be initialized in DOMContentLoaded
+// Don't access DOM elements here as they may not exist yet
+let swimCanvas = null;
+let swimCtx = null;
 const fishes = [];
 
-// Export fishes array to window for external access
+// Export fishes array and view mode to window for external access
 window.fishes = fishes;
 window.currentUser = null;
+window.VIEW_MODE = VIEW_MODE;
 
-// Initialize Fish Dialogue System (Phase 0)
+// Initialize Fish Dialogue System (Phase 0) - will be initialized in DOMContentLoaded
 let fishDialogueManager = null;
-if (typeof SimpleFishDialogueManager !== 'undefined') {
-    fishDialogueManager = new SimpleFishDialogueManager(swimCanvas, swimCtx);
-    console.log('✅ Fish dialogue system initialized');
-}
 
-// Initialize Tank Layout Manager (Community Chat System)
+// Initialize Tank Layout Manager (Community Chat System) - will be initialized in DOMContentLoaded
 let tankLayoutManager = null;
 let communityChatManager = null;
-if (typeof TankLayoutManager !== 'undefined') {
-    tankLayoutManager = new TankLayoutManager(swimCanvas, swimCtx);
-    communityChatManager = new CommunityChatManager(tankLayoutManager, fishes);
-    
-    // Export to window for testing and external access
-    window.tankLayoutManager = tankLayoutManager;
-    window.communityChatManager = communityChatManager;
-    
-    console.log('✅ Tank Layout Manager initialized');
-    console.log('✅ Community Chat Manager initialized');
-    
-    // Initialize group chat based on environment variable and user preference
-    initializeGroupChat();
-}
 
 // Food system
 const foodPellets = [];
@@ -533,14 +527,18 @@ let newFishListener = null;
 let maxTankCapacity = 20; // Dynamic tank capacity controlled by slider
 let isUpdatingCapacity = false; // Prevent multiple simultaneous updates
 
-// Update page title based on sort type
+// Update page title based on view mode and sort type
 function updatePageTitle(sortType) {
-    const titles = {
-        'recent': `Fish Tank - ${maxTankCapacity} Most Recent`,
-        'popular': `Fish Tank - ${maxTankCapacity} Most Popular`,
-        'random': `Fish Tank - ${maxTankCapacity} Random Fish`
-    };
-    document.title = titles[sortType] || 'Fish Tank';
+    if (VIEW_MODE === 'my') {
+        document.title = 'My Private Fish Tank | FishTalk.app';
+    } else {
+        const titles = {
+            'recent': `Fish Tank - ${maxTankCapacity} Most Recent`,
+            'popular': `Fish Tank - ${maxTankCapacity} Most Popular`,
+            'random': `Fish Tank - ${maxTankCapacity} Random Fish`
+        };
+        document.title = titles[sortType] || 'Fish Tank';
+    }
 }
 
 // Debounce function to prevent rapid-fire calls
@@ -604,8 +602,7 @@ async function updateTankCapacity(newCapacity) {
         updatePageTitle(sortSelect.value);
     } else {
         // Fallback to URL parameter or default
-        const urlParams = new URLSearchParams(window.location.search);
-        const sortParam = urlParams.get('sort') || 'recent';
+        const sortParam = tankUrlParams.get('sort') || 'recent';
         updatePageTitle(sortParam);
     }
 
@@ -1416,6 +1413,223 @@ async function checkForNewFish() {
     }
 }
 
+// =====================================================
+// Private Tank Functions (for view=my mode)
+// =====================================================
+
+/**
+ * Load private fish (own + favorited) for Private Tank mode
+ */
+async function loadPrivateFish() {
+    const loadingEl = document.getElementById('loading-indicator');
+    
+    try {
+        if (loadingEl) loadingEl.style.display = 'block';
+        console.log('🐠 Loading private fish...');
+
+        const token = localStorage.getItem('userToken');
+        if (!token) {
+            throw new Error('Not logged in - no token found');
+        }
+
+        const BACKEND_URL = window.location.origin;
+        const response = await fetch(`${BACKEND_URL}/api/fish-api?action=my-tank`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (e) {
+                const errorText = await response.text().catch(() => 'Unknown error');
+                console.error('❌ API error response (not JSON):', errorText);
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            console.error('❌ API error:', errorData);
+            const errorMessage = errorData.error || errorData.message || `HTTP ${response.status}: ${response.statusText}`;
+            const errorDetails = errorData.details || errorData.stack || '';
+            
+            if (errorDetails) {
+                console.error('❌ Error details:', errorDetails);
+            }
+            
+            throw new Error(errorMessage + (errorDetails ? `\nDetails: ${JSON.stringify(errorDetails)}` : ''));
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+            console.error('❌ API returned success=false:', result);
+            throw new Error(result.error || result.message || 'Failed to load fish');
+        }
+
+        const myFish = result.fish || [];
+        console.log(`✅ Loaded ${myFish.length} fish from API`);
+
+        updatePrivateTankStats(result.stats);
+
+        fishes.length = 0;
+
+        console.log(`🔨 开始创建 ${myFish.length} 个鱼对象...`);
+        let successCount = 0;
+        let failCount = 0;
+        
+        for (let i = 0; i < myFish.length; i++) {
+            const fishData = myFish[i];
+            
+            try {
+                const fishObj = await createPrivateFishObject(fishData);
+                if (fishObj) {
+                    fishes.push(fishObj);
+                    successCount++;
+                } else {
+                    failCount++;
+                }
+            } catch (error) {
+                failCount++;
+                console.error(`❌ 创建鱼对象 #${i + 1} 失败:`, error);
+            }
+        }
+
+        console.log(`🐟 创建完成: ${successCount} 成功, ${failCount} 失败`);
+
+        // Assign fish to rows for dialogue system
+        if (tankLayoutManager && fishes.length > 0) {
+            setTimeout(() => {
+                tankLayoutManager.assignFishToRows(fishes, true);
+                console.log(`✅ Assigned ${fishes.length} fish to rows for dialogue system`);
+            }, 500);
+        }
+
+        if (loadingEl) loadingEl.style.display = 'none';
+
+        if (fishes.length === 0) {
+            console.log('ℹ️ No fish in private tank yet');
+        }
+
+    } catch (error) {
+        console.error('❌ Error loading private fish:', error);
+        if (loadingEl) loadingEl.style.display = 'none';
+        
+        // Show user-friendly error message
+        if (error.message.includes('Not logged in')) {
+            console.log('User not logged in, authentication required');
+        }
+    }
+}
+
+/**
+ * Create fish object from API data for Private Tank
+ */
+async function createPrivateFishObject(fishData) {
+    try {
+        if (!fishData.image_url) {
+            console.warn('Fish data missing image_url:', fishData);
+            return null;
+        }
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                reject(new Error('Image load timeout'));
+            }, 10000);
+
+            img.onload = function() {
+                clearTimeout(timeout);
+                resolve();
+            };
+            
+            img.onerror = function(error) {
+                clearTimeout(timeout);
+                console.error('Image load error for:', fishData.image_url, error);
+                reject(new Error('Failed to load image'));
+            };
+            
+            img.src = fishData.image_url;
+        });
+
+        const fishSize = calculateFishSize();
+        const displayCanvas = makeDisplayFishCanvas(img, fishSize.width, fishSize.height);
+        
+        if (!displayCanvas || !displayCanvas.width || !displayCanvas.height) {
+            console.warn('Fish image did not load or is blank:', fishData.image_url);
+            return null;
+        }
+
+        const maxX = Math.max(0, swimCanvas.width - fishSize.width);
+        const maxY = Math.max(0, swimCanvas.height - fishSize.height);
+        
+        const x = Math.floor(Math.random() * maxX);
+        const y = Math.floor(Math.random() * maxY);
+        const direction = Math.random() < 0.5 ? -1 : 1;
+        const speed = 2;
+        
+        const fishObj = {
+            fishCanvas: displayCanvas,
+            x,
+            y,
+            direction: direction,
+            phase: Math.random() * Math.PI * 2,
+            amplitude: 24,
+            speed: speed,
+            vx: speed * direction * 0.1,
+            vy: (Math.random() - 0.5) * 0.5,
+            width: fishSize.width,
+            height: fishSize.height,
+            artist: fishData.artist || 'Anonymous',
+            createdAt: fishData.created_at || fishData.createdAt || null,
+            docId: fishData.id || null,
+            peduncle: 0.4,
+            upvotes: fishData.upvotes || 0,
+            userId: fishData.user_id || fishData.userId || null,
+            id: fishData.id || fishData.docId || `fish_${Date.now()}_${Math.random()}`,
+            fishName: fishData.fish_name || fishData.fishName || fishData.artist || 'Unknown',
+            personality: fishData.personality || (['cheerful', 'funny', 'wise', 'shy', 'bold'][Math.floor(Math.random() * 5)]),
+            health: fishData.health || 100,
+            level: fishData.level || 1,
+            experience: fishData.experience || 0,
+            attack: fishData.attack || 10,
+            defense: fishData.defense || 5,
+            imageUrl: fishData.image_url,
+            isOwn: fishData.is_own || fishData.isOwn || false,
+            isFavorited: fishData.is_favorited || fishData.isFavorited || false,
+            is_alive: fishData.is_alive !== false
+        };
+
+        // Dead fish swim slower
+        if (!fishObj.is_alive) {
+            fishObj.vx *= 0.3;
+            fishObj.vy = Math.abs(fishObj.vy) * 0.2;
+        }
+
+        return fishObj;
+    } catch (error) {
+        console.error('Error creating private fish object:', error, fishData);
+        return null;
+    }
+}
+
+/**
+ * Update stats display for Private Tank
+ */
+function updatePrivateTankStats(stats) {
+    console.log('📊 Private Tank Stats:', stats);
+    // Stats can be displayed in UI if needed
+    // For now, just log them
+}
+
+// =====================================================
+// End Private Tank Functions
+// =====================================================
+
 // Combined function to load tank with streaming capability
 async function loadFishIntoTank(sortType = 'recent') {
     // Load initial fish
@@ -1441,14 +1655,50 @@ async function loadFishIntoTank(sortType = 'recent') {
 window.loadFishIntoTank = loadFishIntoTank;
 
 window.addEventListener('DOMContentLoaded', async () => {
+    // Initialize canvas - must be done after DOM is loaded
+    swimCanvas = document.getElementById('swim-canvas');
+    if (!swimCanvas) {
+        console.error('❌ Canvas element not found!');
+        return;
+    }
+    swimCtx = swimCanvas.getContext('2d');
+    if (!swimCtx) {
+        console.error('❌ Could not get canvas context!');
+        return;
+    }
+    console.log('✅ Canvas initialized:', swimCanvas.width, 'x', swimCanvas.height);
+    
+    // Variables are already initialized at top level, no need to reinitialize
+    
+    // Initialize Fish Dialogue System (Phase 0)
+    if (typeof SimpleFishDialogueManager !== 'undefined') {
+        fishDialogueManager = new SimpleFishDialogueManager(swimCanvas, swimCtx);
+        console.log('✅ Fish dialogue system initialized');
+    }
+    
+    // Initialize Tank Layout Manager (Community Chat System)
+    if (typeof TankLayoutManager !== 'undefined') {
+        tankLayoutManager = new TankLayoutManager(swimCanvas, swimCtx);
+        communityChatManager = new CommunityChatManager(tankLayoutManager, fishes);
+        
+        // Export to window for testing and external access
+        window.tankLayoutManager = tankLayoutManager;
+        window.communityChatManager = communityChatManager;
+        
+        console.log('✅ Tank Layout Manager initialized');
+        console.log('✅ Community Chat Manager initialized');
+        
+        // Initialize group chat based on environment variable and user preference
+        initializeGroupChat();
+    }
+    
     // Try to get elements from bottom controls, fallback to sidebar
     const sortSelect = document.getElementById('tank-sort') || document.getElementById('tank-sort-sidebar');
     const refreshButton = document.getElementById('refresh-tank') || document.getElementById('refresh-tank-sidebar');
 
     // Check for URL parameters to set initial sort and capacity
-    const urlParams = new URLSearchParams(window.location.search);
-    const sortParam = urlParams.get('sort');
-    const capacityParam = urlParams.get('capacity');
+    const sortParam = tankUrlParams.get('sort');
+    const capacityParam = tankUrlParams.get('capacity');
     let initialSort = 'recent'; // default
 
     // Validate sort parameter and set dropdown
@@ -1501,11 +1751,46 @@ window.addEventListener('DOMContentLoaded', async () => {
     console.log(`🐠 Initialized tank capacity: ${maxTankCapacity}`);
     console.log(`🐠 About to load fish with capacity: ${maxTankCapacity}`);
 
-    // Update page title based on initial selection
+    // Update page title based on view mode and initial selection
     updatePageTitle(initialSort);
 
-    // Handle sort change (only if element exists)
-    if (sortSelect) {
+    // =====================================================
+    // Private Tank Mode: Hide/Disable Global Controls
+    // =====================================================
+    if (VIEW_MODE === 'my') {
+        console.log('🔧 Configuring UI for Private Tank mode...');
+        
+        // Hide sort selector (not applicable in private mode)
+        if (sortSelect) {
+            sortSelect.style.display = 'none';
+            const sortContainer = sortSelect.closest('div');
+            if (sortContainer) sortContainer.style.display = 'none';
+        }
+        
+        // Hide fish count selector (not applicable in private mode)
+        const fishCountSelector = document.getElementById('fish-count-selector-sidebar');
+        if (fishCountSelector) {
+            fishCountSelector.style.display = 'none';
+            const countContainer = fishCountSelector.closest('div');
+            if (countContainer) countContainer.style.display = 'none';
+        }
+        
+        // Hide fish count slider if exists
+        const fishCountSlider = document.getElementById('fish-count-slider');
+        if (fishCountSlider) {
+            fishCountSlider.style.display = 'none';
+            const sliderContainer = fishCountSlider.closest('div');
+            if (sliderContainer) sliderContainer.style.display = 'none';
+        }
+        
+        console.log('✅ Private Tank UI configured');
+    }
+    // =====================================================
+    // End Private Tank Mode Configuration
+    // =====================================================
+
+    // Handle sort change (only if element exists and not in private mode)
+    if (sortSelect && VIEW_MODE !== 'my') {
         sortSelect.addEventListener('change', () => {
             const selectedSort = sortSelect.value;
 
@@ -1530,8 +1815,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Handle refresh button (only if element exists)
     if (refreshButton) {
         refreshButton.addEventListener('click', () => {
-            const selectedSort = sortSelect ? sortSelect.value : initialSort;
-            loadFishIntoTank(selectedSort);
+            if (VIEW_MODE === 'my') {
+                // Private Tank mode - reload private fish
+                loadPrivateFish();
+            } else {
+                // Global Tank mode - reload with current sort
+                const selectedSort = sortSelect ? sortSelect.value : initialSort;
+                loadFishIntoTank(selectedSort);
+            }
         });
     }
 
@@ -1572,13 +1863,125 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Load initial fish based on URL parameter or default
-    await loadFishIntoTank(initialSort);
+    // Load initial fish based on view mode
+    if (VIEW_MODE === 'my') {
+        // Private Tank mode - require authentication
+        console.log('🔐 Private Tank mode - checking authentication...');
+        
+        // Check if user is logged in
+        if (typeof requireAuthentication === 'function') {
+            const isAuthenticated = await requireAuthentication();
+            if (!isAuthenticated) {
+                console.log('❌ Not authenticated, redirecting to login...');
+                return; // requireAuthentication will handle the redirect/modal
+            }
+        } else {
+            // Fallback authentication check
+            const token = localStorage.getItem('userToken');
+            if (!token) {
+                console.log('❌ No auth token found, showing login modal...');
+                if (window.authUI && window.authUI.showLoginModal) {
+                    window.authUI.showLoginModal();
+                    return;
+                }
+            }
+        }
+        
+        console.log('✅ Authenticated, loading private fish...');
+        await loadPrivateFish();
+    } else {
+        // Global Tank mode - normal loading
+        console.log('🌊 Global Tank mode - loading fish...');
+        await loadFishIntoTank(initialSort);
+    }
     
     // Update fish count display after initial load
     setTimeout(() => {
         updateCurrentFishCount();
     }, 1000); // Wait 1 second for images to load
+
+    // Resize canvas to full screen
+    resizeForMobile();
+    window.addEventListener('resize', resizeForMobile);
+    
+    // Also listen to visualViewport changes for mobile browsers
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', resizeForMobile);
+        window.visualViewport.addEventListener('scroll', resizeForMobile);
+    }
+    
+    // Force resize after a short delay to ensure proper initialization
+    setTimeout(() => {
+        resizeForMobile();
+    }, 100);
+    
+    // Initialize background bubbles
+    createBackgroundBubbles();
+    
+    // Set up canvas event listeners
+    if (swimCanvas) {
+        swimCanvas.addEventListener('mousedown', handleFishTap);
+        
+        // Add right-click support for feeding
+        swimCanvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault(); // Prevent context menu
+            handleTankTap(e);
+        });
+        
+        // Enhanced mobile touch support
+        swimCanvas.addEventListener('touchstart', (e) => {
+            touchStartTime = Date.now();
+            const rect = swimCanvas.getBoundingClientRect();
+            touchStartPos = {
+                x: e.touches[0].clientX - rect.left,
+                y: e.touches[0].clientY - rect.top
+            };
+        });
+        
+        swimCanvas.addEventListener('touchend', (e) => {
+            e.preventDefault(); // Prevent default mobile behavior
+            const currentTime = Date.now();
+            const touchDuration = currentTime - touchStartTime;
+            const rect = swimCanvas.getBoundingClientRect();
+            const tapX = e.changedTouches[0].clientX - rect.left;
+            const tapY = e.changedTouches[0].clientY - rect.top;
+
+            // Check if finger moved significantly during touch
+            const moveDistance = Math.sqrt(
+                Math.pow(tapX - touchStartPos.x, 2) +
+                Math.pow(tapY - touchStartPos.y, 2)
+            );
+
+            // Long press for feeding (500ms+ and minimal movement)
+            if (touchDuration >= 500 && moveDistance < 20) {
+                dropFoodPellet(tapX, tapY);
+                return;
+            }
+
+            // Double tap for feeding
+            if (currentTime - lastTapTime < 300 && moveDistance < 20) { // Double tap within 300ms
+                dropFoodPellet(tapX, tapY);
+                return;
+            }
+
+            // Single tap - check for fish interaction first, then handle tank tap
+            // Create a mock event for handleFishTap with correct coordinates
+            const mockEvent = {
+                clientX: rect.left + tapX,
+                clientY: rect.top + tapY,
+                touches: null // Indicate this is from touch end
+            };
+
+            handleFishTap(mockEvent);
+            lastTapTime = currentTime;
+        });
+        
+        console.log('✅ Canvas event listeners attached');
+    }
+    
+    // Start the animation loop
+    console.log('🎬 Starting animation loop...');
+    requestAnimationFrame(animateFishes);
 
     // Clean up listener when page is unloaded
     window.addEventListener('beforeunload', () => {
@@ -2135,7 +2538,7 @@ function handleFishTap(e) {
             let frozenSwimY = fish.y;
             
             if (!fish.isDying) {
-                const foodDetectionData = foodDetectionCache.get(fish.docId || `fish_${i}`);
+                const foodDetectionData = window.foodDetectionCache.get(fish.docId || `fish_${i}`);
                 const hasNearbyFood = foodDetectionData ? foodDetectionData.hasNearbyFood : false;
                 const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
                 frozenSwimY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
@@ -2155,72 +2558,22 @@ function handleFishTap(e) {
     handleTankTap(e);
 }
 
-swimCanvas.addEventListener('mousedown', handleFishTap);
-
-// Add right-click support for feeding
-swimCanvas.addEventListener('contextmenu', (e) => {
-    e.preventDefault(); // Prevent context menu
-    handleTankTap(e);
-});
+// Canvas event listeners will be set up in DOMContentLoaded after canvas is initialized
+// Do not add listeners here as canvas may not exist yet
 
 // Enhanced mobile touch support
 let lastTapTime = 0;
 let touchStartTime = 0;
 let touchStartPos = { x: 0, y: 0 };
 
-// Handle touch start for position tracking
-swimCanvas.addEventListener('touchstart', (e) => {
-    touchStartTime = Date.now();
-    const rect = swimCanvas.getBoundingClientRect();
-    touchStartPos = {
-        x: e.touches[0].clientX - rect.left,
-        y: e.touches[0].clientY - rect.top
-    };
-});
-
-// Handle touch end for fish interaction and feeding
-swimCanvas.addEventListener('touchend', (e) => {
-    e.preventDefault(); // Prevent default mobile behavior
-    const currentTime = Date.now();
-    const touchDuration = currentTime - touchStartTime;
-    const rect = swimCanvas.getBoundingClientRect();
-    const tapX = e.changedTouches[0].clientX - rect.left;
-    const tapY = e.changedTouches[0].clientY - rect.top;
-
-    // Debug logging for mobile touch issues
-
-    // Check if finger moved significantly during touch
-    const moveDistance = Math.sqrt(
-        Math.pow(tapX - touchStartPos.x, 2) +
-        Math.pow(tapY - touchStartPos.y, 2)
-    );
-
-    // Long press for feeding (500ms+ and minimal movement)
-    if (touchDuration >= 500 && moveDistance < 20) {
-        dropFoodPellet(tapX, tapY);
-        return;
-    }
-
-    // Double tap for feeding
-    if (currentTime - lastTapTime < 300 && moveDistance < 20) { // Double tap within 300ms
-        dropFoodPellet(tapX, tapY);
-        return;
-    }
-
-    // Single tap - check for fish interaction first, then handle tank tap
-    // Create a mock event for handleFishTap with correct coordinates
-    const mockEvent = {
-        clientX: rect.left + tapX,
-        clientY: rect.top + tapY,
-        touches: null // Indicate this is from touch end
-    };
-
-    handleFishTap(mockEvent);
-
-    lastTapTime = currentTime;
-});
+// Touch event listeners will be set up in DOMContentLoaded after canvas is initialized
 
 function resizeForMobile() {
+    if (!swimCanvas) {
+        console.warn('Cannot resize: canvas not initialized');
+        return;
+    }
+    
     const isMobile = window.innerWidth <= 768;
     const oldWidth = swimCanvas.width;
     const oldHeight = swimCanvas.height;
@@ -2258,28 +2611,40 @@ function resizeForMobile() {
         }
     }
 }
-window.addEventListener('resize', resizeForMobile);
-
-// Also listen to visualViewport changes for mobile browsers
-if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', resizeForMobile);
-    window.visualViewport.addEventListener('scroll', resizeForMobile);
-}
-
-// Initial resize
-resizeForMobile();
-
-// Force resize after a short delay to ensure proper initialization
-setTimeout(() => {
-    resizeForMobile();
-}, 100);
+// Canvas resize will be set up in DOMContentLoaded after canvas is initialized
+// Do not call resizeForMobile here as canvas may not exist yet
 
 // Optimize performance by caching food detection calculations
-let foodDetectionCache = new Map();
-let cacheUpdateCounter = 0;
-let lastFishCountUpdate = 0;
+// Initialize these at the top level to avoid TDZ issues
+// Use window object to ensure they're accessible everywhere
+window.foodDetectionCache = window.foodDetectionCache || new Map();
+window.cacheUpdateCounter = window.cacheUpdateCounter || 0;
+window.lastFishCountUpdate = window.lastFishCountUpdate || 0;
+
+let foodDetectionCache = window.foodDetectionCache;
+let cacheUpdateCounter = window.cacheUpdateCounter;
+let lastFishCountUpdate = window.lastFishCountUpdate;
 
 function animateFishes() {
+    // Check if canvas is initialized
+    if (!swimCanvas || !swimCtx || swimCanvas.width === 0 || swimCanvas.height === 0) {
+        console.warn('Canvas not initialized, skipping animation frame');
+        requestAnimationFrame(animateFishes);
+        return;
+    }
+    
+    // Use window object to ensure variables are accessible
+    // Initialize if not already done
+    if (typeof window.lastFishCountUpdate === 'undefined') {
+        window.lastFishCountUpdate = 0;
+    }
+    if (!window.foodDetectionCache) {
+        window.foodDetectionCache = new Map();
+    }
+    if (typeof window.cacheUpdateCounter === 'undefined') {
+        window.cacheUpdateCounter = 0;
+    }
+    
     // Draw ocean gradient background directly on canvas
     const gradient = swimCtx.createLinearGradient(0, 0, 0, swimCanvas.height);
     gradient.addColorStop(0, '#B2EBF2');
@@ -2293,18 +2658,18 @@ function animateFishes() {
     const currentTime = Date.now();
 
     // Update fish count display every 2 seconds
-    if (currentTime - lastFishCountUpdate > 2000) {
+    if (currentTime - window.lastFishCountUpdate > 2000) {
         updateCurrentFishCount();
-        lastFishCountUpdate = currentTime;
+        window.lastFishCountUpdate = currentTime;
     }
 
     // Update food pellets
     updateFoodPellets();
 
     // Clear food detection cache every few frames to prevent stale data
-    cacheUpdateCounter++;
-    if (cacheUpdateCounter % 5 === 0) {
-        foodDetectionCache.clear();
+    window.cacheUpdateCounter++;
+    if (window.cacheUpdateCounter % 5 === 0) {
+        window.foodDetectionCache.clear();
     }
 
     for (const fish of fishes) {
@@ -2376,7 +2741,7 @@ function animateFishes() {
                 // Normal fish behavior (only if not entering and not clicked)
                 // Use cached food detection to improve performance
                 const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
-                let foodDetectionData = foodDetectionCache.get(fishId);
+                let foodDetectionData = window.foodDetectionCache.get(fishId);
 
                 if (!foodDetectionData) {
                     // Calculate food detection data and cache it
@@ -2419,7 +2784,7 @@ function animateFishes() {
                         fishCenterY
                     };
 
-                    foodDetectionCache.set(fishId, foodDetectionData);
+                    window.foodDetectionCache.set(fishId, foodDetectionData);
                 }
 
                 // Initialize velocity if not set
@@ -2526,7 +2891,7 @@ function animateFishes() {
                 fish.frozenSwimY = null;
                 
                 const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
-                const foodDetectionData = foodDetectionCache.get(fishId);
+                const foodDetectionData = window.foodDetectionCache.get(fishId);
                 const hasNearbyFood = foodDetectionData ? foodDetectionData.hasNearbyFood : false;
                 const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
                 swimY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
@@ -2534,7 +2899,7 @@ function animateFishes() {
         } else {
             // Use cached food detection data for swim animation
             const fishId = fish.docId || `fish_${fishes.indexOf(fish)}`;
-            const foodDetectionData = foodDetectionCache.get(fishId);
+            const foodDetectionData = window.foodDetectionCache.get(fishId);
             const hasNearbyFood = foodDetectionData ? foodDetectionData.hasNearbyFood : false;
 
             // Reduce sine wave amplitude when attracted to food for more realistic movement
@@ -4380,11 +4745,8 @@ function createBackgroundBubbles() {
     }
 }
 
-// 页面加载时初始化气泡效果
-createBackgroundBubbles();
-
-// Continue the animation loop
-requestAnimationFrame(animateFishes);
+// Animation loop and background bubbles will be initialized in DOMContentLoaded
+// Do not call here as canvas may not be ready yet
 
 /**
  * 滚动聊天面板到底部 - 强化版
