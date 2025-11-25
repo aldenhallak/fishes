@@ -113,6 +113,481 @@ input bigint_comparison_exp {
   _nin: [bigint!]
 }
 
+"""Coze对话上下文管理表"""
+type conversations {
+  """Coze API返回的conversation ID"""
+  coze_conversation_id: String!
+
+  """创建时间"""
+  created_at: timestamptz
+
+  """过期时间（7天后，不主动检查）"""
+  expires_at: timestamptz
+
+  """主键UUID"""
+  id: uuid!
+
+  """最后一条消息时间"""
+  last_message_at: timestamptz
+
+  """消息计数"""
+  message_count: Int
+
+  """参与对话的鱼ID数组"""
+  participant_fish_ids: [uuid!]!
+
+  """状态：active-活跃, expired-已过期"""
+  status: String
+
+  """对话主题"""
+  topic: String
+
+  """最后更新时间"""
+  updated_at: timestamptz
+
+  """发起对话的用户ID"""
+  user_id: String
+}
+
+"""
+aggregated selection of "conversations"
+"""
+type conversations_aggregate {
+  aggregate: conversations_aggregate_fields
+  nodes: [conversations!]!
+}
+
+"""
+aggregate fields of "conversations"
+"""
+type conversations_aggregate_fields {
+  avg: conversations_avg_fields
+  count(columns: [conversations_select_column!], distinct: Boolean): Int!
+  max: conversations_max_fields
+  min: conversations_min_fields
+  stddev: conversations_stddev_fields
+  stddev_pop: conversations_stddev_pop_fields
+  stddev_samp: conversations_stddev_samp_fields
+  sum: conversations_sum_fields
+  var_pop: conversations_var_pop_fields
+  var_samp: conversations_var_samp_fields
+  variance: conversations_variance_fields
+}
+
+"""aggregate avg on columns"""
+type conversations_avg_fields {
+  """消息计数"""
+  message_count: Float
+}
+
+"""
+Boolean expression to filter rows from the table "conversations". All fields are combined with a logical 'AND'.
+"""
+input conversations_bool_exp {
+  _and: [conversations_bool_exp!]
+  _not: conversations_bool_exp
+  _or: [conversations_bool_exp!]
+  coze_conversation_id: String_comparison_exp
+  created_at: timestamptz_comparison_exp
+  expires_at: timestamptz_comparison_exp
+  id: uuid_comparison_exp
+  last_message_at: timestamptz_comparison_exp
+  message_count: Int_comparison_exp
+  participant_fish_ids: uuid_array_comparison_exp
+  status: String_comparison_exp
+  topic: String_comparison_exp
+  updated_at: timestamptz_comparison_exp
+  user_id: String_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "conversations"
+"""
+enum conversations_constraint {
+  """
+  unique or primary key constraint on columns "coze_conversation_id"
+  """
+  conversations_coze_conversation_id_key
+
+  """
+  unique or primary key constraint on columns "id"
+  """
+  conversations_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "conversations"
+"""
+input conversations_inc_input {
+  """消息计数"""
+  message_count: Int
+}
+
+"""
+input type for inserting data into table "conversations"
+"""
+input conversations_insert_input {
+  """Coze API返回的conversation ID"""
+  coze_conversation_id: String
+
+  """创建时间"""
+  created_at: timestamptz
+
+  """过期时间（7天后，不主动检查）"""
+  expires_at: timestamptz
+
+  """主键UUID"""
+  id: uuid
+
+  """最后一条消息时间"""
+  last_message_at: timestamptz
+
+  """消息计数"""
+  message_count: Int
+
+  """参与对话的鱼ID数组"""
+  participant_fish_ids: [uuid!]
+
+  """状态：active-活跃, expired-已过期"""
+  status: String
+
+  """对话主题"""
+  topic: String
+
+  """最后更新时间"""
+  updated_at: timestamptz
+
+  """发起对话的用户ID"""
+  user_id: String
+}
+
+"""aggregate max on columns"""
+type conversations_max_fields {
+  """Coze API返回的conversation ID"""
+  coze_conversation_id: String
+
+  """创建时间"""
+  created_at: timestamptz
+
+  """过期时间（7天后，不主动检查）"""
+  expires_at: timestamptz
+
+  """主键UUID"""
+  id: uuid
+
+  """最后一条消息时间"""
+  last_message_at: timestamptz
+
+  """消息计数"""
+  message_count: Int
+
+  """参与对话的鱼ID数组"""
+  participant_fish_ids: [uuid!]
+
+  """状态：active-活跃, expired-已过期"""
+  status: String
+
+  """对话主题"""
+  topic: String
+
+  """最后更新时间"""
+  updated_at: timestamptz
+
+  """发起对话的用户ID"""
+  user_id: String
+}
+
+"""aggregate min on columns"""
+type conversations_min_fields {
+  """Coze API返回的conversation ID"""
+  coze_conversation_id: String
+
+  """创建时间"""
+  created_at: timestamptz
+
+  """过期时间（7天后，不主动检查）"""
+  expires_at: timestamptz
+
+  """主键UUID"""
+  id: uuid
+
+  """最后一条消息时间"""
+  last_message_at: timestamptz
+
+  """消息计数"""
+  message_count: Int
+
+  """参与对话的鱼ID数组"""
+  participant_fish_ids: [uuid!]
+
+  """状态：active-活跃, expired-已过期"""
+  status: String
+
+  """对话主题"""
+  topic: String
+
+  """最后更新时间"""
+  updated_at: timestamptz
+
+  """发起对话的用户ID"""
+  user_id: String
+}
+
+"""
+response of any mutation on the table "conversations"
+"""
+type conversations_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [conversations!]!
+}
+
+"""
+on_conflict condition type for table "conversations"
+"""
+input conversations_on_conflict {
+  constraint: conversations_constraint!
+  update_columns: [conversations_update_column!]! = []
+  where: conversations_bool_exp
+}
+
+"""Ordering options when selecting data from "conversations"."""
+input conversations_order_by {
+  coze_conversation_id: order_by
+  created_at: order_by
+  expires_at: order_by
+  id: order_by
+  last_message_at: order_by
+  message_count: order_by
+  participant_fish_ids: order_by
+  status: order_by
+  topic: order_by
+  updated_at: order_by
+  user_id: order_by
+}
+
+"""primary key columns input for table: conversations"""
+input conversations_pk_columns_input {
+  """主键UUID"""
+  id: uuid!
+}
+
+"""
+select columns of table "conversations"
+"""
+enum conversations_select_column {
+  """column name"""
+  coze_conversation_id
+
+  """column name"""
+  created_at
+
+  """column name"""
+  expires_at
+
+  """column name"""
+  id
+
+  """column name"""
+  last_message_at
+
+  """column name"""
+  message_count
+
+  """column name"""
+  participant_fish_ids
+
+  """column name"""
+  status
+
+  """column name"""
+  topic
+
+  """column name"""
+  updated_at
+
+  """column name"""
+  user_id
+}
+
+"""
+input type for updating data in table "conversations"
+"""
+input conversations_set_input {
+  """Coze API返回的conversation ID"""
+  coze_conversation_id: String
+
+  """创建时间"""
+  created_at: timestamptz
+
+  """过期时间（7天后，不主动检查）"""
+  expires_at: timestamptz
+
+  """主键UUID"""
+  id: uuid
+
+  """最后一条消息时间"""
+  last_message_at: timestamptz
+
+  """消息计数"""
+  message_count: Int
+
+  """参与对话的鱼ID数组"""
+  participant_fish_ids: [uuid!]
+
+  """状态：active-活跃, expired-已过期"""
+  status: String
+
+  """对话主题"""
+  topic: String
+
+  """最后更新时间"""
+  updated_at: timestamptz
+
+  """发起对话的用户ID"""
+  user_id: String
+}
+
+"""aggregate stddev on columns"""
+type conversations_stddev_fields {
+  """消息计数"""
+  message_count: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type conversations_stddev_pop_fields {
+  """消息计数"""
+  message_count: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type conversations_stddev_samp_fields {
+  """消息计数"""
+  message_count: Float
+}
+
+"""
+Streaming cursor of the table "conversations"
+"""
+input conversations_stream_cursor_input {
+  """Stream column input with initial value"""
+  initial_value: conversations_stream_cursor_value_input!
+
+  """cursor ordering"""
+  ordering: cursor_ordering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input conversations_stream_cursor_value_input {
+  """Coze API返回的conversation ID"""
+  coze_conversation_id: String
+
+  """创建时间"""
+  created_at: timestamptz
+
+  """过期时间（7天后，不主动检查）"""
+  expires_at: timestamptz
+
+  """主键UUID"""
+  id: uuid
+
+  """最后一条消息时间"""
+  last_message_at: timestamptz
+
+  """消息计数"""
+  message_count: Int
+
+  """参与对话的鱼ID数组"""
+  participant_fish_ids: [uuid!]
+
+  """状态：active-活跃, expired-已过期"""
+  status: String
+
+  """对话主题"""
+  topic: String
+
+  """最后更新时间"""
+  updated_at: timestamptz
+
+  """发起对话的用户ID"""
+  user_id: String
+}
+
+"""aggregate sum on columns"""
+type conversations_sum_fields {
+  """消息计数"""
+  message_count: Int
+}
+
+"""
+update columns of table "conversations"
+"""
+enum conversations_update_column {
+  """column name"""
+  coze_conversation_id
+
+  """column name"""
+  created_at
+
+  """column name"""
+  expires_at
+
+  """column name"""
+  id
+
+  """column name"""
+  last_message_at
+
+  """column name"""
+  message_count
+
+  """column name"""
+  participant_fish_ids
+
+  """column name"""
+  status
+
+  """column name"""
+  topic
+
+  """column name"""
+  updated_at
+
+  """column name"""
+  user_id
+}
+
+input conversations_updates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: conversations_inc_input
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: conversations_set_input
+
+  """filter the rows which have to be updated"""
+  where: conversations_bool_exp!
+}
+
+"""aggregate var_pop on columns"""
+type conversations_var_pop_fields {
+  """消息计数"""
+  message_count: Float
+}
+
+"""aggregate var_samp on columns"""
+type conversations_var_samp_fields {
+  """消息计数"""
+  message_count: Float
+}
+
+"""aggregate variance on columns"""
+type conversations_variance_fields {
+  """消息计数"""
+  message_count: Float
+}
+
 """ordering argument of a cursor"""
 enum cursor_ordering {
   """ascending ordering of the cursor"""
@@ -1979,62 +2454,10 @@ input global_params_updates {
   where: global_params_bool_exp!
 }
 
-"""Manages COZE conversation contexts for maintaining dialogue history"""
-type conversations {
-  id: uuid!
-  coze_conversation_id: String!
-  user_id: String
-  participant_fish_ids: [uuid!]!
-  topic: String
-  status: String!
-  message_count: Int!
-  created_at: timestamptz!
-  updated_at: timestamptz!
-  last_message_at: timestamptz
-  expires_at: timestamptz!
-  
-  """An object relationship"""
-  user: users
-  
-  """An array relationship"""
-  group_chats(
-    """distinct select on columns"""
-    distinct_on: [group_chat_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [group_chat_order_by!]
-
-    """filter the rows returned"""
-    where: group_chat_bool_exp
-  ): [group_chat!]!
-  
-  """An aggregate relationship"""
-  group_chats_aggregate(
-    """distinct select on columns"""
-    distinct_on: [group_chat_select_column!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    order_by: [group_chat_order_by!]
-
-    """filter the rows returned"""
-    where: group_chat_bool_exp
-  ): group_chat_aggregate!
-}
-
 """Stores batch dialogues generated by COZE AI for community chat"""
 type group_chat {
+  """关联的conversation ID（可选）"""
+  conversation_id: uuid
   created_at: timestamp
 
   """
@@ -2067,12 +2490,6 @@ type group_chat {
   """An object relationship"""
   user: users
   user_talk: String
-  
-  """Conversation ID for maintaining context"""
-  conversation_id: uuid
-  
-  """An object relationship"""
-  conversation: conversations
 }
 
 """
@@ -2167,6 +2584,7 @@ input group_chat_bool_exp {
   _and: [group_chat_bool_exp!]
   _not: group_chat_bool_exp
   _or: [group_chat_bool_exp!]
+  conversation_id: uuid_comparison_exp
   created_at: timestamp_comparison_exp
   dialogues: jsonb_comparison_exp
   display_duration: Int_comparison_exp
@@ -2232,6 +2650,8 @@ input group_chat_inc_input {
 input type for inserting data into table "group_chat"
 """
 input group_chat_insert_input {
+  """关联的conversation ID（可选）"""
+  conversation_id: uuid
   created_at: timestamp
 
   """
@@ -2263,6 +2683,8 @@ input group_chat_insert_input {
 
 """aggregate max on columns"""
 type group_chat_max_fields {
+  """关联的conversation ID（可选）"""
+  conversation_id: uuid
   created_at: timestamp
 
   """Total playback duration in seconds (messages × 6)"""
@@ -2290,6 +2712,8 @@ type group_chat_max_fields {
 order by max() on columns of table "group_chat"
 """
 input group_chat_max_order_by {
+  """关联的conversation ID（可选）"""
+  conversation_id: order_by
   created_at: order_by
 
   """Total playback duration in seconds (messages × 6)"""
@@ -2315,6 +2739,8 @@ input group_chat_max_order_by {
 
 """aggregate min on columns"""
 type group_chat_min_fields {
+  """关联的conversation ID（可选）"""
+  conversation_id: uuid
   created_at: timestamp
 
   """Total playback duration in seconds (messages × 6)"""
@@ -2342,6 +2768,8 @@ type group_chat_min_fields {
 order by min() on columns of table "group_chat"
 """
 input group_chat_min_order_by {
+  """关联的conversation ID（可选）"""
+  conversation_id: order_by
   created_at: order_by
 
   """Total playback duration in seconds (messages × 6)"""
@@ -2387,6 +2815,7 @@ input group_chat_on_conflict {
 
 """Ordering options when selecting data from "group_chat"."""
 input group_chat_order_by {
+  conversation_id: order_by
   created_at: order_by
   dialogues: order_by
   display_duration: order_by
@@ -2417,6 +2846,9 @@ input group_chat_prepend_input {
 select columns of table "group_chat"
 """
 enum group_chat_select_column {
+  """column name"""
+  conversation_id
+
   """column name"""
   created_at
 
@@ -2452,6 +2884,8 @@ enum group_chat_select_column {
 input type for updating data in table "group_chat"
 """
 input group_chat_set_input {
+  """关联的conversation ID（可选）"""
+  conversation_id: uuid
   created_at: timestamp
 
   """
@@ -2535,6 +2969,8 @@ input group_chat_stream_cursor_input {
 
 """Initial value of the column from where the streaming should start"""
 input group_chat_stream_cursor_value_input {
+  """关联的conversation ID（可选）"""
+  conversation_id: uuid
   created_at: timestamp
 
   """
@@ -2581,6 +3017,9 @@ input group_chat_sum_order_by {
 update columns of table "group_chat"
 """
 enum group_chat_update_column {
+  """column name"""
+  conversation_id
+
   """column name"""
   created_at
 
@@ -3769,6 +4208,22 @@ input messages_updates {
 """mutation root"""
 type mutation_root {
   """
+  delete data from the table: "conversations"
+  """
+  delete_conversations(
+    """filter the rows which have to be deleted"""
+    where: conversations_bool_exp!
+  ): conversations_mutation_response
+
+  """
+  delete single row from the table: "conversations"
+  """
+  delete_conversations_by_pk(
+    """主键UUID"""
+    id: uuid!
+  ): conversations
+
+  """
   delete data from the table: "fish"
   """
   delete_fish(
@@ -3953,6 +4408,28 @@ type mutation_root {
   delete single row from the table: "votes"
   """
   delete_votes_by_pk(id: uuid!): votes
+
+  """
+  insert data into the table: "conversations"
+  """
+  insert_conversations(
+    """the rows to be inserted"""
+    objects: [conversations_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: conversations_on_conflict
+  ): conversations_mutation_response
+
+  """
+  insert a single row into the table: "conversations"
+  """
+  insert_conversations_one(
+    """the row to be inserted"""
+    object: conversations_insert_input!
+
+    """upsert condition"""
+    on_conflict: conversations_on_conflict
+  ): conversations
 
   """
   insert data into the table: "fish"
@@ -4265,6 +4742,40 @@ type mutation_root {
     """upsert condition"""
     on_conflict: votes_on_conflict
   ): votes
+
+  """
+  update data of the table: "conversations"
+  """
+  update_conversations(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: conversations_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: conversations_set_input
+
+    """filter the rows which have to be updated"""
+    where: conversations_bool_exp!
+  ): conversations_mutation_response
+
+  """
+  update single row of the table: "conversations"
+  """
+  update_conversations_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: conversations_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: conversations_set_input
+    pk_columns: conversations_pk_columns_input!
+  ): conversations
+
+  """
+  update multiples rows of table: "conversations"
+  """
+  update_conversations_many(
+    """updates to execute, in order"""
+    updates: [conversations_updates!]!
+  ): [conversations_mutation_response]
 
   """
   update data of the table: "fish"
@@ -4963,6 +5474,52 @@ input public_messages_view_updates {
 }
 
 type query_root {
+  """
+  fetch data from the table: "conversations"
+  """
+  conversations(
+    """distinct select on columns"""
+    distinct_on: [conversations_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [conversations_order_by!]
+
+    """filter the rows returned"""
+    where: conversations_bool_exp
+  ): [conversations!]!
+
+  """
+  fetch aggregated fields from the table: "conversations"
+  """
+  conversations_aggregate(
+    """distinct select on columns"""
+    distinct_on: [conversations_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [conversations_order_by!]
+
+    """filter the rows returned"""
+    where: conversations_bool_exp
+  ): conversations_aggregate!
+
+  """fetch data from the table: "conversations" using primary key columns"""
+  conversations_by_pk(
+    """主键UUID"""
+    id: uuid!
+  ): conversations
+
   """
   fetch data from the table: "fish"
   """
@@ -6174,6 +6731,66 @@ input reports_updates {
 }
 
 type subscription_root {
+  """
+  fetch data from the table: "conversations"
+  """
+  conversations(
+    """distinct select on columns"""
+    distinct_on: [conversations_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [conversations_order_by!]
+
+    """filter the rows returned"""
+    where: conversations_bool_exp
+  ): [conversations!]!
+
+  """
+  fetch aggregated fields from the table: "conversations"
+  """
+  conversations_aggregate(
+    """distinct select on columns"""
+    distinct_on: [conversations_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [conversations_order_by!]
+
+    """filter the rows returned"""
+    where: conversations_bool_exp
+  ): conversations_aggregate!
+
+  """fetch data from the table: "conversations" using primary key columns"""
+  conversations_by_pk(
+    """主键UUID"""
+    id: uuid!
+  ): conversations
+
+  """
+  fetch data from the table in a streaming manner: "conversations"
+  """
+  conversations_stream(
+    """maximum number of rows returned in a single batch"""
+    batch_size: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [conversations_stream_cursor_input]!
+
+    """filter the rows returned"""
+    where: conversations_bool_exp
+  ): [conversations!]!
+
   """
   fetch data from the table: "fish"
   """

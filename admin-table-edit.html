@@ -199,7 +199,7 @@
 
     .table-scroll {
       overflow-x: auto;
-      max-height: calc(100vh - 400px);
+      max-height: calc(100vh - 200px);
       overflow-y: auto;
     }
 
@@ -354,31 +354,6 @@
       margin: 1rem 0;
     }
 
-    .table-footer {
-      padding: 1rem;
-      background: #f7fafc;
-      border-top: 1px solid #e2e8f0;
-      font-size: 0.75rem;
-      color: #718096;
-    }
-
-    .footer-legend {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-    }
-
-    .legend-color {
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-      margin-right: 0.5rem;
-    }
   </style>
   <script src="public/supabase-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -476,23 +451,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
-      <div class="table-footer">
-        <div class="footer-legend">
-          <div class="legend-item">
-            <div class="legend-color" style="background: #fef5e7; border: 1px solid #f59e0b;"></div>
-            <span>待保存更改</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color" style="background: #ebf8ff; border: 1px solid #667eea;"></div>
-            <span>编辑中</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color" style="background: #f7fafc;"></div>
-            <span>只读字段</span>
-          </div>
-        </div>
-        <p style="margin-top: 0.5rem;">💡 点击单元格编辑，Enter保存，Esc取消</p>
       </div>
     </div>
   </div>

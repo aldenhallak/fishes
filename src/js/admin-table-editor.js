@@ -62,12 +62,43 @@ async function init() {
   document.getElementById('table-display-name').textContent = displayName;
   document.getElementById('table-name').textContent = currentTable;
 
+  // 对于 group_chat 表，设置默认排序为按创建时间倒序
+  if (currentTable === 'group_chat') {
+    sortColumn = 'created_at';
+    sortDirection = 'desc';
+  }
+
   // 绑定事件
-  document.getElementById('refresh-btn').addEventListener('click', handleRefresh);
-  document.getElementById('save-btn').addEventListener('click', handleSave);
-  document.getElementById('discard-btn').addEventListener('click', handleDiscard);
-  document.getElementById('clear-selection-btn').addEventListener('click', clearSelection);
-  document.getElementById('batch-delete-btn').addEventListener('click', handleBatchDelete);
+  const refreshBtn = document.getElementById('refresh-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleRefresh();
+    });
+  } else {
+    console.error('刷新按钮未找到');
+  }
+  
+  const saveBtn = document.getElementById('save-btn');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', handleSave);
+  }
+  
+  const discardBtn = document.getElementById('discard-btn');
+  if (discardBtn) {
+    discardBtn.addEventListener('click', handleDiscard);
+  }
+  
+  const clearSelectionBtn = document.getElementById('clear-selection-btn');
+  if (clearSelectionBtn) {
+    clearSelectionBtn.addEventListener('click', clearSelection);
+  }
+  
+  const batchDeleteBtn = document.getElementById('batch-delete-btn');
+  if (batchDeleteBtn) {
+    batchDeleteBtn.addEventListener('click', handleBatchDelete);
+  }
 
   // 加载数据
   await loadTableData();
@@ -121,6 +152,10 @@ function getRowPrimaryKey(row, columns) {
 
 // 获取默认排序字段
 function getDefaultSortColumn(columns) {
+  // 对于 group_chat 表，默认按创建时间倒序排列
+  if (currentTable === 'group_chat') {
+    return 'created_at';
+  }
   return getPrimaryKeyField(columns);
 }
 
@@ -158,12 +193,19 @@ function sortColumnsForDisplay(columns) {
 }
 
 // 加载表数据
-async function loadTableData() {
+async function loadTableData(clearCache = false) {
   try {
     // 如果还没有设置排序字段，先获取表结构来确定默认排序字段
     if (!sortColumn) {
       // 先获取一次数据来确定列结构
-      const tempResponse = await fetch(`/api/admin/tables/${currentTable}?limit=1&offset=0`);
+      const tempParams = new URLSearchParams({
+        limit: '1',
+        offset: '0'
+      });
+      if (clearCache) {
+        tempParams.append('clearCache', 'true');
+      }
+      const tempResponse = await fetch(`/api/admin/tables/${currentTable}?${tempParams}`);
       const tempResult = await tempResponse.json();
       
       if (tempResult.success && tempResult.data.columns) {
@@ -179,6 +221,10 @@ async function loadTableData() {
       order_by: sortColumn,
       order_direction: sortDirection
     });
+    
+    if (clearCache) {
+      params.append('clearCache', 'true');
+    }
 
     const response = await fetch(`/api/admin/tables/${currentTable}?${params}`);
     const result = await response.json();
@@ -378,6 +424,16 @@ function formatColumnName(col) {
     'group_chat_daily_limit': '每日群聊限制',
     'fee_per_month': '月度费用',
     'add_to_my_tank_limit': '添加到我的鱼缸限制',
+    // group_chat 表字段
+    'dialogues': '对话内容',
+    'user_talk': '用户发言',
+    'conversation_id': '会话ID',
+    'display_duration': '显示时长',
+    'expires_at': '过期时间',
+    'initiator_user_id': '发起用户ID',
+    'participant_fish_ids': '参与鱼ID列表',
+    'time_of_day': '时间段',
+    'topic': '话题',
   };
   
   return names[col] || col;
@@ -581,14 +637,53 @@ window.handleSort = function(column) {
 
 // 处理刷新
 async function handleRefresh() {
-  if (Object.keys(pendingUpdates).length > 0) {
-    if (!confirm('有未保存的更改，确定要刷新数据吗？')) {
+  try {
+    const refreshBtn = document.getElementById('refresh-btn');
+    if (!refreshBtn) {
+      console.error('刷新按钮未找到');
       return;
     }
+
+    // 如果有未保存的更改，先确认
+    if (Object.keys(pendingUpdates).length > 0) {
+      if (!confirm('有未保存的更改，确定要刷新数据吗？')) {
+        return;
+      }
+    }
+
+    // 禁用按钮并显示加载状态
+    refreshBtn.disabled = true;
+    const originalText = refreshBtn.textContent;
+    refreshBtn.textContent = '刷新中...';
+
+    pendingUpdates = {};
+    selectedRows.clear();
+    
+    // 对于 group_chat 表，保持按 created_at 倒序排列
+    if (currentTable === 'group_chat') {
+      sortColumn = 'created_at';
+      sortDirection = 'desc';
+    } else {
+      // 其他表清除排序状态，重新获取表结构
+      sortColumn = null;
+    }
+    
+    await loadTableData(true); // 传入 true 表示清除缓存
+    updateChangesIndicator();
+    updateBatchActions();
+
+    // 恢复按钮状态
+    refreshBtn.disabled = false;
+    refreshBtn.textContent = originalText;
+  } catch (error) {
+    console.error('刷新失败:', error);
+    alert('刷新失败：' + error.message);
+    const refreshBtn = document.getElementById('refresh-btn');
+    if (refreshBtn) {
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = '🔄 刷新';
+    }
   }
-  pendingUpdates = {};
-  await loadTableData();
-  updateChangesIndicator();
 }
 
 // 处理保存
@@ -735,8 +830,15 @@ function showError(message) {
   `;
 }
 
-// 初始化
-init();
+// 初始化 - 确保 DOM 加载完成后再执行
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    init();
+  });
+} else {
+  // DOM 已经加载完成
+  init();
+}
 
 
 

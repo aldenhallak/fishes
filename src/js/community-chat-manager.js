@@ -245,6 +245,15 @@ class CommunityChatManager {
         topic: data.topic
       });
       
+      // 群聊生成成功后，立即更新使用情况统计
+      // 延迟一小段时间确保数据库已保存
+      setTimeout(async () => {
+        const updatedUsage = await this.displayGroupChatUsage();
+        if (updatedUsage) {
+          console.log(`🔄 群聊使用情况已更新: ${updatedUsage.usage}/${updatedUsage.limit || 'unlimited'}`);
+        }
+      }, 1000);
+      
       // Map dialogues to expected format and verify fish exist
       const dialogues = (data.dialogues || []).map((d, index) => {
         // Try to find the fish in current tank to verify it exists
@@ -564,6 +573,12 @@ class CommunityChatManager {
     const session = await this.generateChatSession();
     
     if (session) {
+      // 检查是否是fallback模式（没有sessionId）
+      if (!session.sessionId) {
+        console.warn('⚠️ 群聊使用了fallback模式，未保存到数据库，不会计入使用统计');
+      } else {
+        console.log('✅ 群聊已保存到数据库，sessionId:', session.sessionId);
+      }
       this.startSession(session);
     } else {
       console.error('Failed to start chat session');

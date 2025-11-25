@@ -92,6 +92,389 @@ export type Bigint_Comparison_Exp = {
   _nin?: InputMaybe<Array<Scalars['bigint']['input']>>;
 };
 
+/** Coze对话上下文管理表 */
+export type Conversations = {
+  __typename?: 'conversations';
+  /** Coze API返回的conversation ID */
+  coze_conversation_id: Scalars['String']['output'];
+  /** 创建时间 */
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 过期时间（7天后，不主动检查） */
+  expires_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 主键UUID */
+  id: Scalars['uuid']['output'];
+  /** 最后一条消息时间 */
+  last_message_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 消息计数 */
+  message_count?: Maybe<Scalars['Int']['output']>;
+  /** 参与对话的鱼ID数组 */
+  participant_fish_ids: Array<Scalars['uuid']['output']>;
+  /** 状态：active-活跃, expired-已过期 */
+  status?: Maybe<Scalars['String']['output']>;
+  /** 对话主题 */
+  topic?: Maybe<Scalars['String']['output']>;
+  /** 最后更新时间 */
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 发起对话的用户ID */
+  user_id?: Maybe<Scalars['String']['output']>;
+};
+
+/** aggregated selection of "conversations" */
+export type Conversations_Aggregate = {
+  __typename?: 'conversations_aggregate';
+  aggregate?: Maybe<Conversations_Aggregate_Fields>;
+  nodes: Array<Conversations>;
+};
+
+/** aggregate fields of "conversations" */
+export type Conversations_Aggregate_Fields = {
+  __typename?: 'conversations_aggregate_fields';
+  avg?: Maybe<Conversations_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Conversations_Max_Fields>;
+  min?: Maybe<Conversations_Min_Fields>;
+  stddev?: Maybe<Conversations_Stddev_Fields>;
+  stddev_pop?: Maybe<Conversations_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Conversations_Stddev_Samp_Fields>;
+  sum?: Maybe<Conversations_Sum_Fields>;
+  var_pop?: Maybe<Conversations_Var_Pop_Fields>;
+  var_samp?: Maybe<Conversations_Var_Samp_Fields>;
+  variance?: Maybe<Conversations_Variance_Fields>;
+};
+
+
+/** aggregate fields of "conversations" */
+export type Conversations_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Conversations_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Conversations_Avg_Fields = {
+  __typename?: 'conversations_avg_fields';
+  /** 消息计数 */
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "conversations". All fields are combined with a logical 'AND'. */
+export type Conversations_Bool_Exp = {
+  _and?: InputMaybe<Array<Conversations_Bool_Exp>>;
+  _not?: InputMaybe<Conversations_Bool_Exp>;
+  _or?: InputMaybe<Array<Conversations_Bool_Exp>>;
+  coze_conversation_id?: InputMaybe<String_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  expires_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  last_message_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  message_count?: InputMaybe<Int_Comparison_Exp>;
+  participant_fish_ids?: InputMaybe<Uuid_Array_Comparison_Exp>;
+  status?: InputMaybe<String_Comparison_Exp>;
+  topic?: InputMaybe<String_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  user_id?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "conversations" */
+export enum Conversations_Constraint {
+  /** unique or primary key constraint on columns "coze_conversation_id" */
+  ConversationsCozeConversationIdKey = 'conversations_coze_conversation_id_key',
+  /** unique or primary key constraint on columns "id" */
+  ConversationsPkey = 'conversations_pkey'
+}
+
+/** input type for incrementing numeric columns in table "conversations" */
+export type Conversations_Inc_Input = {
+  /** 消息计数 */
+  message_count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** input type for inserting data into table "conversations" */
+export type Conversations_Insert_Input = {
+  /** Coze API返回的conversation ID */
+  coze_conversation_id?: InputMaybe<Scalars['String']['input']>;
+  /** 创建时间 */
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 过期时间（7天后，不主动检查） */
+  expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 主键UUID */
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** 最后一条消息时间 */
+  last_message_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 消息计数 */
+  message_count?: InputMaybe<Scalars['Int']['input']>;
+  /** 参与对话的鱼ID数组 */
+  participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  /** 状态：active-活跃, expired-已过期 */
+  status?: InputMaybe<Scalars['String']['input']>;
+  /** 对话主题 */
+  topic?: InputMaybe<Scalars['String']['input']>;
+  /** 最后更新时间 */
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 发起对话的用户ID */
+  user_id?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate max on columns */
+export type Conversations_Max_Fields = {
+  __typename?: 'conversations_max_fields';
+  /** Coze API返回的conversation ID */
+  coze_conversation_id?: Maybe<Scalars['String']['output']>;
+  /** 创建时间 */
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 过期时间（7天后，不主动检查） */
+  expires_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 主键UUID */
+  id?: Maybe<Scalars['uuid']['output']>;
+  /** 最后一条消息时间 */
+  last_message_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 消息计数 */
+  message_count?: Maybe<Scalars['Int']['output']>;
+  /** 参与对话的鱼ID数组 */
+  participant_fish_ids?: Maybe<Array<Scalars['uuid']['output']>>;
+  /** 状态：active-活跃, expired-已过期 */
+  status?: Maybe<Scalars['String']['output']>;
+  /** 对话主题 */
+  topic?: Maybe<Scalars['String']['output']>;
+  /** 最后更新时间 */
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 发起对话的用户ID */
+  user_id?: Maybe<Scalars['String']['output']>;
+};
+
+/** aggregate min on columns */
+export type Conversations_Min_Fields = {
+  __typename?: 'conversations_min_fields';
+  /** Coze API返回的conversation ID */
+  coze_conversation_id?: Maybe<Scalars['String']['output']>;
+  /** 创建时间 */
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 过期时间（7天后，不主动检查） */
+  expires_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 主键UUID */
+  id?: Maybe<Scalars['uuid']['output']>;
+  /** 最后一条消息时间 */
+  last_message_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 消息计数 */
+  message_count?: Maybe<Scalars['Int']['output']>;
+  /** 参与对话的鱼ID数组 */
+  participant_fish_ids?: Maybe<Array<Scalars['uuid']['output']>>;
+  /** 状态：active-活跃, expired-已过期 */
+  status?: Maybe<Scalars['String']['output']>;
+  /** 对话主题 */
+  topic?: Maybe<Scalars['String']['output']>;
+  /** 最后更新时间 */
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** 发起对话的用户ID */
+  user_id?: Maybe<Scalars['String']['output']>;
+};
+
+/** response of any mutation on the table "conversations" */
+export type Conversations_Mutation_Response = {
+  __typename?: 'conversations_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Conversations>;
+};
+
+/** on_conflict condition type for table "conversations" */
+export type Conversations_On_Conflict = {
+  constraint: Conversations_Constraint;
+  update_columns?: Array<Conversations_Update_Column>;
+  where?: InputMaybe<Conversations_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "conversations". */
+export type Conversations_Order_By = {
+  coze_conversation_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  expires_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  last_message_at?: InputMaybe<Order_By>;
+  message_count?: InputMaybe<Order_By>;
+  participant_fish_ids?: InputMaybe<Order_By>;
+  status?: InputMaybe<Order_By>;
+  topic?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: conversations */
+export type Conversations_Pk_Columns_Input = {
+  /** 主键UUID */
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "conversations" */
+export enum Conversations_Select_Column {
+  /** column name */
+  CozeConversationId = 'coze_conversation_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  ExpiresAt = 'expires_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  LastMessageAt = 'last_message_at',
+  /** column name */
+  MessageCount = 'message_count',
+  /** column name */
+  ParticipantFishIds = 'participant_fish_ids',
+  /** column name */
+  Status = 'status',
+  /** column name */
+  Topic = 'topic',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "conversations" */
+export type Conversations_Set_Input = {
+  /** Coze API返回的conversation ID */
+  coze_conversation_id?: InputMaybe<Scalars['String']['input']>;
+  /** 创建时间 */
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 过期时间（7天后，不主动检查） */
+  expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 主键UUID */
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** 最后一条消息时间 */
+  last_message_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 消息计数 */
+  message_count?: InputMaybe<Scalars['Int']['input']>;
+  /** 参与对话的鱼ID数组 */
+  participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  /** 状态：active-活跃, expired-已过期 */
+  status?: InputMaybe<Scalars['String']['input']>;
+  /** 对话主题 */
+  topic?: InputMaybe<Scalars['String']['input']>;
+  /** 最后更新时间 */
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 发起对话的用户ID */
+  user_id?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Conversations_Stddev_Fields = {
+  __typename?: 'conversations_stddev_fields';
+  /** 消息计数 */
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Conversations_Stddev_Pop_Fields = {
+  __typename?: 'conversations_stddev_pop_fields';
+  /** 消息计数 */
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Conversations_Stddev_Samp_Fields = {
+  __typename?: 'conversations_stddev_samp_fields';
+  /** 消息计数 */
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "conversations" */
+export type Conversations_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Conversations_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Conversations_Stream_Cursor_Value_Input = {
+  /** Coze API返回的conversation ID */
+  coze_conversation_id?: InputMaybe<Scalars['String']['input']>;
+  /** 创建时间 */
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 过期时间（7天后，不主动检查） */
+  expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 主键UUID */
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** 最后一条消息时间 */
+  last_message_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 消息计数 */
+  message_count?: InputMaybe<Scalars['Int']['input']>;
+  /** 参与对话的鱼ID数组 */
+  participant_fish_ids?: InputMaybe<Array<Scalars['uuid']['input']>>;
+  /** 状态：active-活跃, expired-已过期 */
+  status?: InputMaybe<Scalars['String']['input']>;
+  /** 对话主题 */
+  topic?: InputMaybe<Scalars['String']['input']>;
+  /** 最后更新时间 */
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** 发起对话的用户ID */
+  user_id?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Conversations_Sum_Fields = {
+  __typename?: 'conversations_sum_fields';
+  /** 消息计数 */
+  message_count?: Maybe<Scalars['Int']['output']>;
+};
+
+/** update columns of table "conversations" */
+export enum Conversations_Update_Column {
+  /** column name */
+  CozeConversationId = 'coze_conversation_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  ExpiresAt = 'expires_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  LastMessageAt = 'last_message_at',
+  /** column name */
+  MessageCount = 'message_count',
+  /** column name */
+  ParticipantFishIds = 'participant_fish_ids',
+  /** column name */
+  Status = 'status',
+  /** column name */
+  Topic = 'topic',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Conversations_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Conversations_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Conversations_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Conversations_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Conversations_Var_Pop_Fields = {
+  __typename?: 'conversations_var_pop_fields';
+  /** 消息计数 */
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Conversations_Var_Samp_Fields = {
+  __typename?: 'conversations_var_samp_fields';
+  /** 消息计数 */
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Conversations_Variance_Fields = {
+  __typename?: 'conversations_variance_fields';
+  /** 消息计数 */
+  message_count?: Maybe<Scalars['Float']['output']>;
+};
+
 /** ordering argument of a cursor */
 export enum Cursor_Ordering {
   /** ascending ordering of the cursor */
@@ -1657,6 +2040,8 @@ export type Global_Params_Updates = {
 /** Stores batch dialogues generated by COZE AI for community chat */
 export type Group_Chat = {
   __typename?: 'group_chat';
+  /** 关联的conversation ID（可选） */
+  conversation_id?: Maybe<Scalars['uuid']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
   /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
   dialogues: Scalars['jsonb']['output'];
@@ -1770,6 +2155,7 @@ export type Group_Chat_Bool_Exp = {
   _and?: InputMaybe<Array<Group_Chat_Bool_Exp>>;
   _not?: InputMaybe<Group_Chat_Bool_Exp>;
   _or?: InputMaybe<Array<Group_Chat_Bool_Exp>>;
+  conversation_id?: InputMaybe<Uuid_Comparison_Exp>;
   created_at?: InputMaybe<Timestamp_Comparison_Exp>;
   dialogues?: InputMaybe<Jsonb_Comparison_Exp>;
   display_duration?: InputMaybe<Int_Comparison_Exp>;
@@ -1815,6 +2201,8 @@ export type Group_Chat_Inc_Input = {
 
 /** input type for inserting data into table "group_chat" */
 export type Group_Chat_Insert_Input = {
+  /** 关联的conversation ID（可选） */
+  conversation_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
   /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
   dialogues?: InputMaybe<Scalars['jsonb']['input']>;
@@ -1837,6 +2225,8 @@ export type Group_Chat_Insert_Input = {
 /** aggregate max on columns */
 export type Group_Chat_Max_Fields = {
   __typename?: 'group_chat_max_fields';
+  /** 关联的conversation ID（可选） */
+  conversation_id?: Maybe<Scalars['uuid']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
   /** Total playback duration in seconds (messages × 6) */
   display_duration?: Maybe<Scalars['Int']['output']>;
@@ -1855,6 +2245,8 @@ export type Group_Chat_Max_Fields = {
 
 /** order by max() on columns of table "group_chat" */
 export type Group_Chat_Max_Order_By = {
+  /** 关联的conversation ID（可选） */
+  conversation_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   /** Total playback duration in seconds (messages × 6) */
   display_duration?: InputMaybe<Order_By>;
@@ -1874,6 +2266,8 @@ export type Group_Chat_Max_Order_By = {
 /** aggregate min on columns */
 export type Group_Chat_Min_Fields = {
   __typename?: 'group_chat_min_fields';
+  /** 关联的conversation ID（可选） */
+  conversation_id?: Maybe<Scalars['uuid']['output']>;
   created_at?: Maybe<Scalars['timestamp']['output']>;
   /** Total playback duration in seconds (messages × 6) */
   display_duration?: Maybe<Scalars['Int']['output']>;
@@ -1892,6 +2286,8 @@ export type Group_Chat_Min_Fields = {
 
 /** order by min() on columns of table "group_chat" */
 export type Group_Chat_Min_Order_By = {
+  /** 关联的conversation ID（可选） */
+  conversation_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   /** Total playback duration in seconds (messages × 6) */
   display_duration?: InputMaybe<Order_By>;
@@ -1926,6 +2322,7 @@ export type Group_Chat_On_Conflict = {
 
 /** Ordering options when selecting data from "group_chat". */
 export type Group_Chat_Order_By = {
+  conversation_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   dialogues?: InputMaybe<Order_By>;
   display_duration?: InputMaybe<Order_By>;
@@ -1953,6 +2350,8 @@ export type Group_Chat_Prepend_Input = {
 /** select columns of table "group_chat" */
 export enum Group_Chat_Select_Column {
   /** column name */
+  ConversationId = 'conversation_id',
+  /** column name */
   CreatedAt = 'created_at',
   /** column name */
   Dialogues = 'dialogues',
@@ -1976,6 +2375,8 @@ export enum Group_Chat_Select_Column {
 
 /** input type for updating data in table "group_chat" */
 export type Group_Chat_Set_Input = {
+  /** 关联的conversation ID（可选） */
+  conversation_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
   /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
   dialogues?: InputMaybe<Scalars['jsonb']['input']>;
@@ -2043,6 +2444,8 @@ export type Group_Chat_Stream_Cursor_Input = {
 
 /** Initial value of the column from where the streaming should start */
 export type Group_Chat_Stream_Cursor_Value_Input = {
+  /** 关联的conversation ID（可选） */
+  conversation_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamp']['input']>;
   /** Full dialogue JSON: {messages: [{fishId, fishName, message, sequence}]} */
   dialogues?: InputMaybe<Scalars['jsonb']['input']>;
@@ -2076,6 +2479,8 @@ export type Group_Chat_Sum_Order_By = {
 
 /** update columns of table "group_chat" */
 export enum Group_Chat_Update_Column {
+  /** column name */
+  ConversationId = 'conversation_id',
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
@@ -3023,6 +3428,10 @@ export type Messages_Updates = {
 /** mutation root */
 export type Mutation_Root = {
   __typename?: 'mutation_root';
+  /** delete data from the table: "conversations" */
+  delete_conversations?: Maybe<Conversations_Mutation_Response>;
+  /** delete single row from the table: "conversations" */
+  delete_conversations_by_pk?: Maybe<Conversations>;
   /** delete data from the table: "fish" */
   delete_fish?: Maybe<Fish_Mutation_Response>;
   /** delete single row from the table: "fish" */
@@ -3077,6 +3486,10 @@ export type Mutation_Root = {
   delete_votes?: Maybe<Votes_Mutation_Response>;
   /** delete single row from the table: "votes" */
   delete_votes_by_pk?: Maybe<Votes>;
+  /** insert data into the table: "conversations" */
+  insert_conversations?: Maybe<Conversations_Mutation_Response>;
+  /** insert a single row into the table: "conversations" */
+  insert_conversations_one?: Maybe<Conversations>;
   /** insert data into the table: "fish" */
   insert_fish?: Maybe<Fish_Mutation_Response>;
   /** insert data into the table: "fish_favorites" */
@@ -3137,6 +3550,12 @@ export type Mutation_Root = {
   insert_votes?: Maybe<Votes_Mutation_Response>;
   /** insert a single row into the table: "votes" */
   insert_votes_one?: Maybe<Votes>;
+  /** update data of the table: "conversations" */
+  update_conversations?: Maybe<Conversations_Mutation_Response>;
+  /** update single row of the table: "conversations" */
+  update_conversations_by_pk?: Maybe<Conversations>;
+  /** update multiples rows of table: "conversations" */
+  update_conversations_many?: Maybe<Array<Maybe<Conversations_Mutation_Response>>>;
   /** update data of the table: "fish" */
   update_fish?: Maybe<Fish_Mutation_Response>;
   /** update single row of the table: "fish" */
@@ -3221,6 +3640,18 @@ export type Mutation_Root = {
   update_votes_by_pk?: Maybe<Votes>;
   /** update multiples rows of table: "votes" */
   update_votes_many?: Maybe<Array<Maybe<Votes_Mutation_Response>>>;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_ConversationsArgs = {
+  where: Conversations_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Conversations_By_PkArgs = {
+  id: Scalars['uuid']['input'];
 };
 
 
@@ -3383,6 +3814,20 @@ export type Mutation_RootDelete_VotesArgs = {
 /** mutation root */
 export type Mutation_RootDelete_Votes_By_PkArgs = {
   id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_ConversationsArgs = {
+  objects: Array<Conversations_Insert_Input>;
+  on_conflict?: InputMaybe<Conversations_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Conversations_OneArgs = {
+  object: Conversations_Insert_Input;
+  on_conflict?: InputMaybe<Conversations_On_Conflict>;
 };
 
 
@@ -3587,6 +4032,28 @@ export type Mutation_RootInsert_VotesArgs = {
 export type Mutation_RootInsert_Votes_OneArgs = {
   object: Votes_Insert_Input;
   on_conflict?: InputMaybe<Votes_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_ConversationsArgs = {
+  _inc?: InputMaybe<Conversations_Inc_Input>;
+  _set?: InputMaybe<Conversations_Set_Input>;
+  where: Conversations_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Conversations_By_PkArgs = {
+  _inc?: InputMaybe<Conversations_Inc_Input>;
+  _set?: InputMaybe<Conversations_Set_Input>;
+  pk_columns: Conversations_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Conversations_ManyArgs = {
+  updates: Array<Conversations_Updates>;
 };
 
 
@@ -4090,6 +4557,12 @@ export type Public_Messages_View_Updates = {
 
 export type Query_Root = {
   __typename?: 'query_root';
+  /** fetch data from the table: "conversations" */
+  conversations: Array<Conversations>;
+  /** fetch aggregated fields from the table: "conversations" */
+  conversations_aggregate: Conversations_Aggregate;
+  /** fetch data from the table: "conversations" using primary key columns */
+  conversations_by_pk?: Maybe<Conversations>;
   /** fetch data from the table: "fish" */
   fish: Array<Fish>;
   /** fetch aggregated fields from the table: "fish" */
@@ -4174,6 +4647,29 @@ export type Query_Root = {
   votes_aggregate: Votes_Aggregate;
   /** fetch data from the table: "votes" using primary key columns */
   votes_by_pk?: Maybe<Votes>;
+};
+
+
+export type Query_RootConversationsArgs = {
+  distinct_on?: InputMaybe<Array<Conversations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Conversations_Order_By>>;
+  where?: InputMaybe<Conversations_Bool_Exp>;
+};
+
+
+export type Query_RootConversations_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Conversations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Conversations_Order_By>>;
+  where?: InputMaybe<Conversations_Bool_Exp>;
+};
+
+
+export type Query_RootConversations_By_PkArgs = {
+  id: Scalars['uuid']['input'];
 };
 
 
@@ -5045,6 +5541,14 @@ export type Reports_Updates = {
 
 export type Subscription_Root = {
   __typename?: 'subscription_root';
+  /** fetch data from the table: "conversations" */
+  conversations: Array<Conversations>;
+  /** fetch aggregated fields from the table: "conversations" */
+  conversations_aggregate: Conversations_Aggregate;
+  /** fetch data from the table: "conversations" using primary key columns */
+  conversations_by_pk?: Maybe<Conversations>;
+  /** fetch data from the table in a streaming manner: "conversations" */
+  conversations_stream: Array<Conversations>;
   /** fetch data from the table: "fish" */
   fish: Array<Fish>;
   /** fetch aggregated fields from the table: "fish" */
@@ -5159,6 +5663,36 @@ export type Subscription_Root = {
   votes_by_pk?: Maybe<Votes>;
   /** fetch data from the table in a streaming manner: "votes" */
   votes_stream: Array<Votes>;
+};
+
+
+export type Subscription_RootConversationsArgs = {
+  distinct_on?: InputMaybe<Array<Conversations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Conversations_Order_By>>;
+  where?: InputMaybe<Conversations_Bool_Exp>;
+};
+
+
+export type Subscription_RootConversations_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Conversations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Conversations_Order_By>>;
+  where?: InputMaybe<Conversations_Bool_Exp>;
+};
+
+
+export type Subscription_RootConversations_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootConversations_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Conversations_Stream_Cursor_Input>>;
+  where?: InputMaybe<Conversations_Bool_Exp>;
 };
 
 

@@ -26,18 +26,12 @@ function parseTypeFields(typeDefinition) {
   const lines = typeDefinition.split('\n');
   
   let currentDescription = '';
-  let skipUntilCloseParen = false;
+  let fieldBuffer = ''; // 用于累积带参数的字段定义
   
   for (const line of lines) {
     const trimmed = line.trim();
     
-    if (skipUntilCloseParen) {
-      if (trimmed.includes('): ')) {
-        skipUntilCloseParen = false;
-      }
-      continue;
-    }
-    
+    // 处理多行注释
     if (trimmed.startsWith('"""')) {
       const desc = trimmed.replace(/"""/g, '').trim();
       if (desc) currentDescription = desc;
@@ -48,12 +42,56 @@ function parseTypeFields(typeDefinition) {
       continue;
     }
     
+    // 检查是否是带参数的字段（如 dialogues(path: String): jsonb!）
     if (trimmed.match(/^\w+\(/)) {
-      skipUntilCloseParen = true;
-      currentDescription = '';
+      // 开始累积带参数的字段定义
+      fieldBuffer = trimmed;
       continue;
     }
     
+    // 如果正在累积带参数的字段，继续累积直到找到返回类型
+    if (fieldBuffer) {
+      fieldBuffer += ' ' + trimmed;
+      // 检查是否找到了返回类型（包含 ): 的行）
+      if (trimmed.includes('): ')) {
+        // 解析带参数的字段：提取字段名和返回类型
+        const fieldMatch = fieldBuffer.match(/^(\w+)\([^)]*\):\s*(\[?)([\w!]+)(\]?)(!?)/);
+        if (fieldMatch) {
+          const [, name, arrayStart, rawType, arrayEnd, notNull] = fieldMatch;
+          
+          const type = rawType.replace('!', '');
+          const isArray = arrayStart === '[' && arrayEnd === ']';
+          const isNullable = notNull !== '!';
+          
+          const scalarTypes = [
+            'String', 'Int', 'Float', 'Boolean', 'ID',
+            'bigint', 'float8', 'numeric', 'smallint',
+            'timestamptz', 'timestamp', 'date', 'time', 'timetz',
+            'uuid', 'jsonb', 'json', 'bytea', 'inet', 'cidr'
+          ];
+          
+          const isRelation = 
+            !scalarTypes.includes(type) ||
+            name.includes('_aggregate') ||
+            name.includes('_connection');
+          
+          fields.push({
+            name,
+            type,
+            isNullable,
+            isArray,
+            isRelation,
+            description: currentDescription || undefined,
+          });
+          
+          currentDescription = '';
+        }
+        fieldBuffer = '';
+      }
+      continue;
+    }
+    
+    // 处理普通字段（不带参数）
     const fieldMatch = trimmed.match(/^(\w+):\s*(\[?)([\w!]+)(\]?)(!?)/);
     if (fieldMatch) {
       const [, name, arrayStart, rawType, arrayEnd, notNull] = fieldMatch;
