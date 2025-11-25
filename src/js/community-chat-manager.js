@@ -125,21 +125,44 @@ class CommunityChatManager {
    */
   async generateChatSession() {
     try {
+      console.log('🔍 [DEBUG] Starting generateChatSession', {
+        fishesCount: this.fishes?.length || 0,
+        hasLayoutManager: !!this.layoutManager,
+        groupChatEnabled: this.groupChatEnabled
+      });
+
       // Get current tank fish IDs (only fish that are actually in the tank)
       const currentTankFishIds = this.fishes
         .filter(f => f.id || f.docId)
         .map(f => f.id || f.docId)
         .filter(id => id !== null);
       
+      console.log('🔍 [DEBUG] Tank fish analysis', {
+        totalFishes: this.fishes?.length || 0,
+        fishesWithIds: currentTankFishIds.length,
+        fishIds: currentTankFishIds.slice(0, 5) // Show first 5 IDs for debugging
+      });
+      
       if (currentTankFishIds.length < 2) {
-        console.error('Not enough fish in tank for chat (need at least 2)');
+        console.error('❌ Not enough fish in tank for chat (need at least 2)', {
+          currentCount: currentTankFishIds.length,
+          totalFishes: this.fishes?.length || 0
+        });
         return null;
       }
       
       const participants = this.selectParticipants();
       
+      console.log('🔍 [DEBUG] Participants selection', {
+        participantsCount: participants.length,
+        participants: participants.map(p => ({ id: p.id, name: p.fishName, personality: p.personality }))
+      });
+      
       if (participants.length < 2) {
-        console.error('Not enough participants for chat');
+        console.error('❌ Not enough participants for chat (need at least 2)', {
+          participantsCount: participants.length,
+          eligibleFish: this.fishes.filter(f => f.fishName && f.personality).length
+        });
         return null;
       }
       
@@ -176,10 +199,10 @@ class CommunityChatManager {
         }
       }
       
-      // If user is not logged in, use fallback instead of calling API
+      // If user is not logged in, return null instead of using fallback
       if (!currentUserId) {
-        console.log('❌ User not logged in, cannot generate AI group chat. Using fallback.');
-        return this.generateFallbackSession();
+        console.log('❌ User not logged in, cannot generate AI group chat. Fallback disabled.');
+        return null;
       }
       
       // Call backend API for group chat (using Coze AI)
@@ -202,10 +225,10 @@ class CommunityChatManager {
       });
       
       if (!response.ok) {
-        // If 403 or other error, use fallback
+        // If 403 or other error, return null (fallback disabled)
         if (response.status === 403) {
-          console.warn('API returned 403, using fallback chat');
-          return this.generateFallbackSession();
+          console.warn('API returned 403, fallback disabled');
+          return null;
         }
         throw new Error(`API error: ${response.statusText}`);
       }
@@ -213,9 +236,9 @@ class CommunityChatManager {
       const data = await response.json();
       
       if (!data.success) {
-        // If API suggests using fallback, use it
+        // If API suggests using fallback, return null (fallback disabled)
         if (data.useFallback) {
-          console.warn('API suggests using fallback:', data.message);
+          console.warn('API suggests using fallback, but fallback is disabled:', data.message);
           
           // Show upgrade prompt if it's a daily limit issue
           // But first verify that the limit is actually reached by checking current usage
@@ -230,12 +253,12 @@ class CommunityChatManager {
                 console.log(`⚠️ API reported limit reached, but current usage (${currentUsageInfo.usage}/${currentUsageInfo.limit}) shows limit not reached. Skipping upgrade prompt.`);
               }
             } else {
-              // If we can't verify, show the prompt anyway (fallback behavior)
+              // If we can't verify, show the prompt anyway
               this.showUpgradePrompt(data.message, data.upgradeSuggestion, data.limitInfo);
             }
           }
           
-          return this.generateFallbackSession();
+          return null;
         }
         throw new Error(data.error || 'Failed to generate chat');
       }
@@ -289,8 +312,16 @@ class CommunityChatManager {
       };
       
     } catch (error) {
-      console.error('Failed to generate chat session:', error);
-      return this.generateFallbackSession();
+      console.error('Failed to generate chat session:', {
+        error: error,
+        message: error?.message || 'Unknown error',
+        stack: error?.stack || 'No stack trace',
+        name: error?.name || 'Unknown error type',
+        fishCount: this.fishes?.length || 0,
+        hasLayoutManager: !!this.layoutManager
+      });
+      console.log('❌ Fallback disabled, returning null instead of fallback session');
+      return null;
     }
   }
   
@@ -421,14 +452,95 @@ class CommunityChatManager {
     
     console.log(`[${this.playbackIndex}/${this.messageQueue.length}] ${fish.fishName || 'Unknown'}: ${dialogue.message}`);
     
-    // Display dialogue through layout manager
+    // Display dialogue through layout manager (气泡消息)
     const success = this.layoutManager.showDialogue(fish, dialogue.message, this.timeBetweenMessages - 1000);
+    
+    // 同时显示在聊天面板
+    this.displayGroupChatMessageInPanel(fish, dialogue.message);
     
     if (success) {
       this.stats.messagesDisplayed++;
     }
   }
   
+  /**
+   * 在聊天面板中显示群聊消息（自动群聊和用户发起的群聊）
+   * @param {Object} fish - 发言的鱼
+   * @param {string} message - 消息内容
+   */
+  displayGroupChatMessageInPanel(fish, message) {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) {
+      console.log('聊天面板不存在，跳过面板消息显示');
+      return;
+    }
+
+    // 确保聊天面板容器可见
+    if (chatMessages.style.display === 'none') {
+      chatMessages.style.display = 'block';
+    }
+    chatMessages.style.opacity = '1';
+
+    // 创建群聊消息元素
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'group-chat-message';
+    messageDiv.style.cssText = `
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin: 8px 0;
+      border-left: 4px solid #10B981;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+    `;
+
+    // 转义HTML以防止XSS
+    const escapeHtml = (text) => {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    };
+
+    // 获取鱼的图片URL
+    const fishImageUrl = fish.imageUrl || fish.image_url || fish.fishImageUrl || 'https://cdn.fishart.online/fishart_web/icon/fish-default.svg';
+
+    messageDiv.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+        <div style="width: 24px; height: 24px; border-radius: 50%; overflow: hidden; border: 2px solid #10B981; flex-shrink: 0;">
+          <img src="${fishImageUrl}" alt="${escapeHtml(fish.fishName || 'Fish')}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://cdn.fishart.online/fishart_web/icon/fish-default.svg'">
+        </div>
+        <div style="font-weight: 600; color: #059669; font-size: 14px;">${escapeHtml(fish.fishName || 'Unknown Fish')}</div>
+        <div style="font-size: 11px; color: #6B7280; margin-left: auto;">${new Date().toLocaleTimeString()}</div>
+      </div>
+      <div style="color: #374151; font-size: 14px; line-height: 1.4; margin-left: 32px; text-align: left;">${escapeHtml(message)}</div>
+    `;
+
+    // 添加到聊天面板
+    chatMessages.appendChild(messageDiv);
+
+    // 触发动画
+    requestAnimationFrame(() => {
+      messageDiv.style.opacity = '1';
+      messageDiv.style.transform = 'translateY(0)';
+    });
+
+    // 滚动到底部
+    if (typeof scrollChatToBottom === 'function') {
+      setTimeout(() => {
+        scrollChatToBottom();
+      }, 100);
+    } else {
+      // 备用滚动方法
+      setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 100);
+    }
+
+    console.log(`💬 [群聊面板] ${fish.fishName || 'Unknown'}: ${message}`);
+  }
+
   /**
    * Stop the current session
    */
@@ -573,15 +685,10 @@ class CommunityChatManager {
     const session = await this.generateChatSession();
     
     if (session) {
-      // 检查是否是fallback模式（没有sessionId）
-      if (!session.sessionId) {
-        console.warn('⚠️ 群聊使用了fallback模式，未保存到数据库，不会计入使用统计');
-      } else {
-        console.log('✅ 群聊已保存到数据库，sessionId:', session.sessionId);
-      }
+      console.log('✅ 群聊已保存到数据库，sessionId:', session.sessionId);
       this.startSession(session);
     } else {
-      console.error('Failed to start chat session');
+      console.log('❌ 群聊生成失败，fallback已禁用');
     }
   }
   
@@ -790,7 +897,7 @@ class CommunityChatManager {
       return;
     }
     
-    // Display the monologue
+    // Display the monologue (气泡消息)
     const success = this.layoutManager.showDialogue(
       fish, 
       monologue.message, 

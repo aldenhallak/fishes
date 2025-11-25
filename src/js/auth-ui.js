@@ -330,10 +330,19 @@ class AuthUI {
    * 创建用户菜单
    */
   createUserMenu() {
-    // 获取导航栏 - 支持两种类名
-    const navLinks = document.querySelector('.game-nav-links') || document.querySelector('.nav-links');
+    // 检查是否为tank页面，如果是则不创建用户菜单
+    if (window.location.pathname.includes('tank.html') || 
+        window.location.pathname.endsWith('/tank') ||
+        document.title.includes('Fish Tank')) {
+      console.log('🐟 Tank page detected, skipping user menu creation');
+      return;
+    }
+    
+    // 获取导航栏 - 支持多种类名和结构
+    const navLinks = document.querySelector('.game-nav-links') || 
+                     document.querySelector('.nav-links');
     if (!navLinks) {
-      console.error('❌ 未找到导航栏元素');
+      console.log('ℹ️ 未找到用户菜单容器，跳过用户菜单创建');
       return;
     }
     

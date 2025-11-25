@@ -851,49 +851,43 @@
     <!-- 聊天面板 (右下角位置) -->
     <div class="chat-panel" id="chat-panel" style="position: fixed; right: -420px; bottom: 20px; width: 400px; max-height: 70vh; background: linear-gradient(#FFF9E6 0%, #FFF4D6 100%); border-radius: 16px; padding: 0; box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2), 0 16px 40px rgba(0, 0, 0, 0.4); border: 3px solid #A5B4FC; display: none; flex-direction: column; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 999; visibility: hidden; overflow: hidden;">
       <!-- 深色标题栏 -->
-      <div style="background: linear-gradient(#1A1A1D 0%, #0F0F0F 50%, #050505 100%); padding: 16px 24px; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 4px inset rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 12px;">
-        <div style="font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));">💬</div>
-        <h3 style="margin: 0; color: #FFFFFF; font-size: 24px; font-weight: 900; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2); letter-spacing: 1px; flex: 1;">Fish Group Chat</h3>
-        <button id="close-chat-panel" style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(#FC5C65 0%, #EB3B5A 50%, #C0392B 100%); border: none; border-bottom: 3px solid #A93226; color: white; font-size: 24px; font-weight: bold; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2); display: flex; align-items: center; justify-content: center; line-height: 1;" onmousedown="this.style.transform='translateY(2px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.3)';" onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2)';" onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2)';" title="Close">×</button>
+      <div style="background: linear-gradient(#1A1A1D 0%, #0F0F0F 50%, #050505 100%); padding: 8px 16px; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 4px inset rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 8px;">
+        <div style="font-size: 20px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));">💬</div>
+        <h3 style="margin: 0; color: #FFFFFF; font-size: 16px; font-weight: 900; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2); letter-spacing: 1px; flex: 1;">Fish Group Chat</h3>
+        <button id="close-chat-panel" style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(#FC5C65 0%, #EB3B5A 50%, #C0392B 100%); border: none; border-bottom: 2px solid #A93226; color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2); display: flex; align-items: center; justify-content: center; line-height: 1;" onmousedown="this.style.transform='translateY(1px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.3)';" onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2)';" onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2)';" title="Close">×</button>
       </div>
       
       <!-- 内容区域 -->
-      <div style="padding: 20px 24px; display: flex; flex-direction: column; height: calc(100% - 72px); position: relative; overflow: hidden;">
-      
-      <!-- 顶部状态栏 -->
-      <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
-        <span id="chat-status" style="color: #8B7355; font-weight: 600; font-size: 13px; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);">Ready to chat ✨</span>
-        <button 
-          id="clear-chat-btn" 
-          onclick="clearChatMessages()"
-          style="margin-left: auto; padding: 8px 16px; background: linear-gradient(#FC5C65 0%, #EB3B5A 50%, #C0392B 100%); color: white; border: none; border-bottom: 3px solid #A93226; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.1s ease; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);"
-          onmousedown="this.style.transform='translateY(2px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.2)';"
-          onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15)';"
-          onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15)';"
-          title="Clear all messages"
-        >
-          🗑️ Clear
-        </button>
-      </div>
+      <div style="padding: 20px 24px; display: flex; flex-direction: column; height: calc(100% - 48px); position: relative; overflow: hidden;">
       
       <!-- 消息显示区域 -->
       <div id="chat-messages" style="flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 8px; padding-bottom: 160px; min-height: 100px; display: block !important; visibility: visible !important;">
       </div>
       
       <!-- 用户输入区域 - 固定在底部 -->
-      <div id="user-chat-input-area" style="position: absolute !important; bottom: 0 !important; left: 24px !important; right: 24px !important; border-top: 2px solid rgba(139, 115, 85, 0.2); padding: 16px 0; background: linear-gradient(#FFF9E6 0%, #FFF4D6 100%); z-index: 100 !important; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); display: block !important; visibility: visible !important;">
+      <div id="user-chat-input-area" style="position: absolute !important; bottom: 0 !important; left: 24px !important; right: 24px !important; border-top: 2px solid rgba(139, 115, 85, 0.2); padding: 16px 0; background: transparent; z-index: 100 !important; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); display: block !important; visibility: visible !important;">
         <div style="padding: 0 4px;">
         <div id="user-chat-login-prompt" style="text-align: center; color: #8B7355; font-size: 13px; font-weight: 600; padding: 16px; background: rgba(255, 255, 255, 0.6); border-radius: 16px; border: 2px solid rgba(139, 115, 85, 0.3); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1); display: none;">
           🔐 Please log in to join the conversation
         </div>
         <div id="user-chat-input-container" style="display: block;">
           <div style="display: flex; gap: 12px; align-items: stretch;">
+            <button 
+              id="clear-chat-btn" 
+              onclick="clearChatMessages()"
+              style="padding: 6px 12px; background: linear-gradient(#FC5C65 0%, #EB3B5A 50%, #C0392B 100%); color: white; border: none; border-bottom: 2px solid #A93226; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.1s ease; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); white-space: nowrap; flex-shrink: 0;"
+              onmousedown="this.style.transform='translateY(1px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.2)';"
+              onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15)';"
+              onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15)';"
+              title="Clear all messages">
+              🗑️ Clear
+            </button>
             <input 
               type="text" 
               id="user-chat-input" 
               placeholder="Type your message..." 
               maxlength="200"
-              style="flex: 1; padding: 14px 18px; border: 3px solid #D4A574; border-radius: 16px; font-size: 14px; font-weight: 500; outline: none; background: white; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 2px 0 rgba(255, 255, 255, 0.8); transition: all 0.2s ease;"
+              style="flex: 1; padding: 10px 14px; border: 2px solid #D4A574; border-radius: 12px; font-size: 14px; font-weight: 500; outline: none; background: white; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 2px 0 rgba(255, 255, 255, 0.8); transition: all 0.2s ease;"
               onfocus="this.style.borderColor='#6366F1'; this.style.boxShadow='inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(99, 102, 241, 0.2)'"
               onblur="this.style.borderColor='#D4A574'; this.style.boxShadow='inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 2px 0 rgba(255, 255, 255, 0.8)'"
               onkeypress="if(event.key === 'Enter') { sendUserChatMessage(); }"
@@ -901,10 +895,10 @@
             <button 
               id="user-chat-send-btn" 
               onclick="sendUserChatMessage()"
-              style="padding: 14px 28px; background: linear-gradient(#4CD964 0%, #3CB54A 50%, #2E8B3A 100%); color: white; border: none; border-bottom: 4px solid #1F6B2A; border-radius: 16px; font-size: 15px; font-weight: 900; cursor: pointer; transition: all 0.1s ease; box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15); white-space: nowrap; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); letter-spacing: 0.5px;"
-              onmousedown="this.style.transform='translateY(3px)'; this.style.boxShadow='0 3px 0 rgba(0, 0, 0, 0.2)';"
-              onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 0 rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15)';"
-              onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 0 rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15)';"
+              style="padding: 10px 16px; background: linear-gradient(#4CD964 0%, #3CB54A 50%, #2E8B3A 100%); color: white; border: none; border-bottom: 3px solid #1F6B2A; border-radius: 12px; font-size: 13px; font-weight: 900; cursor: pointer; transition: all 0.1s ease; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px rgba(0, 0, 0, 0.15); white-space: nowrap; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); letter-spacing: 0.5px; flex-shrink: 0;"
+              onmousedown="this.style.transform='translateY(2px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.2)';"
+              onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px rgba(0, 0, 0, 0.15)';"
+              onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px rgba(0, 0, 0, 0.15)';"
             >
               SEND ✨
             </button>
@@ -913,6 +907,7 @@
         </div>
         </div>
       </div>
+      
       </div>
     </div>
     
@@ -935,7 +930,7 @@
   <script src="src/js/fish-utils.js"></script>
   <script src="src/js/fishtank-favorites.js"></script>
   <script src="src/js/membership-icons.js?v=1.0"></script>
-  <script src="src/js/auth-ui.js"></script>
+  <script src="src/js/auth-ui.js?v=2.6"></script>
   <script src="src/js/modal-utils.js"></script>
   <script src="src/js/social-config.js?v=2.1"></script>
   <script src="src/js/social-share.js?v=2.1"></script>
@@ -947,8 +942,8 @@
   <script src="src/js/fish-dialogue-simple.js"></script>
   <!-- Community Chat System (New) -->
   <script src="src/js/tank-layout-manager.js?v=1.3"></script>
-  <script src="src/js/community-chat-manager.js?v=2.0"></script>
-    <script src="src/js/tank.js?v=4.5"></script>
+  <script src="src/js/community-chat-manager.js?v=2.6"></script>
+    <script src="src/js/tank.js?v=4.6"></script>
     <script>
       // Initialize navigation authentication
       if (typeof initializeAuthNavigation === 'function') {

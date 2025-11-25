@@ -556,7 +556,9 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
             }
 
             fishes.push(fishObj);
-            // console.log(`🐠 Added fish to tank (ID: ${fishId}, Total: ${fishes.length})`);
+            
+            // 🔍 调试：记录全局鱼缸鱼的游动参数
+            console.log(`🔍 全局鱼缸鱼游动参数: speed=${fishObj.speed}, amplitude=${fishObj.amplitude}, phase=${fishObj.phase}, peduncle=${fishObj.peduncle}, docId=${fishObj.docId}`);
 
             if (onDone) onDone(fishObj);
         } else {
@@ -1818,12 +1820,21 @@ async function createPrivateFishObject(fishData) {
         // 尝试多种可能的图片URL字段名（与全局鱼缸保持一致）
         const imageUrl = fishData.image_url || fishData.imageUrl || fishData.image || fishData.Image;
         
-        // 🔍 调试：记录私人鱼缸的图片URL格式
+        // 🔍 调试：记录私人鱼缸的图片URL格式和游动参数
         console.log('🔍 Private tank image URL:', imageUrl, 'from data:', {
             image_url: fishData.image_url,
             imageUrl: fishData.imageUrl, 
             image: fishData.image,
             Image: fishData.Image
+        });
+        
+        // 🔍 调试：记录私人鱼缸API返回的原始游动参数
+        console.log('🔍 Private tank API原始游动参数:', {
+            speed: fishData.speed,
+            amplitude: fishData.amplitude,
+            phase: fishData.phase,
+            peduncle: fishData.peduncle,
+            docId: fishData.id || fishData.docId
         });
         
         if (!imageUrl) {
@@ -1843,11 +1854,11 @@ async function createPrivateFishObject(fishData) {
                 Image: imageUrl,
                 image_url: imageUrl,
                 imageUrl: imageUrl,
-                // 🔧 修复：确保游动参数与全局鱼缸完全一致（使用相同的默认值）
-                speed: fishData.speed || 2,  // 与全局鱼缸相同
-                phase: fishData.phase || 0,  // 与全局鱼缸相同
-                amplitude: fishData.amplitude || 24,  // 🔧 修复：使用与全局鱼缸相同的默认值24，不是32
-                peduncle: fishData.peduncle || 0.4,  // 与全局鱼缸相同
+                // 🔧 修复：强制设置游动参数为固定值，确保与全局鱼缸完全一致
+                speed: 2,  // 强制设置为2，忽略API返回值
+                phase: 0,  // 强制设置为0，忽略API返回值
+                amplitude: 24,  // 强制设置为24，忽略API返回值
+                peduncle: 0.4,  // 强制设置为0.4，忽略API返回值
                 // 保留私人鱼缸特有字段
                 is_own: fishData.is_own || fishData.isOwn || false,
                 is_favorited: fishData.is_favorited || fishData.isFavorited || false,
