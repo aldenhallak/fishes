@@ -3426,7 +3426,7 @@ function updateChatUI(chatSession) {
                         <span style="font-weight: 600; color: ${color}; font-size: 12px;">🐟 ${msg.fishName || 'Unknown'}</span>
                         <span style="font-size: 10px; color: #999;">${msg.sequence || index + 1}</span>
                     </div>
-                    <div style="color: #333;">${escapeHtml(msg.message)}</div>
+                    <div style="color: #333; text-align: left;">${escapeHtml(msg.message)}</div>
                 `;
                 
                 messagesContainer.appendChild(messageDiv);
@@ -3471,7 +3471,7 @@ function updateChatUI(chatSession) {
                         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
                             <span style="font-weight: 600; color: #6366F1; font-size: 12px;">👤 ${escapeHtml(userMsg.userName || 'User')}</span>
                         </div>
-                        <div style="color: #333;">${escapeHtml(userMsg.message)}</div>
+                        <div style="color: #333; text-align: left;">${escapeHtml(userMsg.message)}</div>
                     `;
                     
                     messagesContainer.appendChild(userMessageDiv);
@@ -3503,7 +3503,7 @@ function updateChatUI(chatSession) {
                                 <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
                                     <span style="font-weight: 600; color: ${color}; font-size: 12px;">🐟 ${escapeHtml(reply.fishName || 'Unknown')}</span>
                                 </div>
-                                <div style="color: #333;">${escapeHtml(reply.message)}</div>
+                                <div style="color: #333; text-align: left;">${escapeHtml(reply.message)}</div>
                             `;
                             
                             messagesContainer.appendChild(replyDiv);
@@ -4009,7 +4009,7 @@ function displayUserMessage(userName, message) {
         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
             <span style="font-weight: 600; color: #6366F1; font-size: 12px;">👤 ${userName}</span>
         </div>
-        <div style="color: #333;">${escapeHtml(message)}</div>
+        <div style="color: #333; text-align: left;">${escapeHtml(message)}</div>
     `;
     
     // 直接添加到chat-messages容器，不插入到session-card内部
@@ -4172,7 +4172,7 @@ function displayFishReply(reply) {
         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
             <span style="font-weight: 600; color: ${color}; font-size: 12px;">🐟 ${fishName}</span>
         </div>
-        <div style="color: #333;">${escapeHtml(reply.message)}</div>
+        <div style="color: #333; text-align: left;">${escapeHtml(reply.message)}</div>
     `;
     
     // 直接添加到chat-messages容器，不插入到session-card内部

@@ -503,14 +503,9 @@ class CommunityChatManager {
       return div.innerHTML;
     };
 
-    // 获取鱼的图片URL
-    const fishImageUrl = fish.imageUrl || fish.image_url || fish.fishImageUrl || 'https://cdn.fishart.online/fishart_web/icon/fish-default.svg';
-
     messageDiv.innerHTML = `
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-        <div style="width: 24px; height: 24px; border-radius: 50%; overflow: hidden; border: 2px solid #10B981; flex-shrink: 0;">
-          <img src="${fishImageUrl}" alt="${escapeHtml(fish.fishName || 'Fish')}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://cdn.fishart.online/fishart_web/icon/fish-default.svg'">
-        </div>
+        <div style="width: 24px; height: 24px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">🐟</div>
         <div style="font-weight: 600; color: #059669; font-size: 14px;">${escapeHtml(fish.fishName || 'Unknown Fish')}</div>
         <div style="font-size: 11px; color: #6B7280; margin-left: auto;">${new Date().toLocaleTimeString()}</div>
       </div>
