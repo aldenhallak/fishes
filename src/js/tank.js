@@ -4817,37 +4817,50 @@ function setupFishTalkToggle() {
         return;
     }
 
-    // Load saved preference (shared with my tank page)
-    // 但只有在用户已登录时才应用保存的偏好
-    const savedPreference = localStorage.getItem('groupChatEnabled');
-    if (savedPreference === 'true') {
-        // 异步检查登录状态
-        (async () => {
-            let isLoggedIn = false;
-            try {
-                if (window.supabaseAuth && typeof window.supabaseAuth.isLoggedIn === 'function') {
-                    isLoggedIn = await window.supabaseAuth.isLoggedIn();
-                } else if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
-                    const user = await window.supabaseAuth.getCurrentUser();
-                    isLoggedIn = !!user;
+    // 初始化Fish Talk开关状态（从数据库获取）
+    (async () => {
+        let isLoggedIn = false;
+        let fishTalkEnabled = false;
+        
+        try {
+            if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
+                const user = await window.supabaseAuth.getCurrentUser();
+                isLoggedIn = !!user;
+                
+                if (isLoggedIn) {
+                    // 从数据库获取fish_talk状态
+                    const backendUrl = window.BACKEND_URL || '';
+                    const token = localStorage.getItem('userToken');
+                    if (token) {
+                        const profileResponse = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(user.id)}`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        if (profileResponse.ok) {
+                            const profileData = await profileResponse.json();
+                            fishTalkEnabled = profileData.user?.fish_talk || false;
+                            console.log('🔄 从数据库加载Fish Talk状态:', fishTalkEnabled);
+                        }
+                    }
                 }
-            } catch (error) {
-                console.error('检查登录状态时出错:', error);
-                isLoggedIn = false;
             }
-            
-            // 只有登录用户才恢复保存的偏好
-            if (isLoggedIn) {
-                toggleSwitch.checked = true;
-                updateToggleStyle(toggleSwitch, true);
-            } else {
-                // 未登录用户，清除保存的偏好并禁用开关
-                toggleSwitch.checked = false;
-                updateToggleStyle(toggleSwitch, false);
-                localStorage.setItem('groupChatEnabled', 'false');
-            }
-        })();
-    }
+        } catch (error) {
+            console.error('初始化Fish Talk状态时出错:', error);
+            // 回退到localStorage
+            const savedPreference = localStorage.getItem('groupChatEnabled');
+            fishTalkEnabled = savedPreference === 'true';
+        }
+        
+        // 设置开关状态
+        toggleSwitch.checked = fishTalkEnabled;
+        updateToggleStyle(toggleSwitch, fishTalkEnabled);
+        
+        // 同步到localStorage（向后兼容）
+        localStorage.setItem('groupChatEnabled', fishTalkEnabled ? 'true' : 'false');
+    })();
 
     // Handle toggle click
     toggleContainer.addEventListener('click', async function(e) {
@@ -4894,12 +4907,41 @@ function setupFishTalkToggle() {
         toggleSwitch.checked = newState;
         updateToggleStyle(toggleSwitch, newState);
         
+        // 保存到数据库
+        try {
+            const user = await window.supabaseAuth.getCurrentUser();
+            if (user) {
+                const backendUrl = window.BACKEND_URL || '';
+                const token = localStorage.getItem('userToken');
+                if (token) {
+                    const response = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(user.id)}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            fish_talk: newState
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        console.log('✅ Fish Talk状态已保存到数据库:', newState);
+                    } else {
+                        console.error('❌ 保存Fish Talk状态失败:', response.status);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('保存Fish Talk状态时出错:', error);
+        }
+        
         // Update chat manager
         if (communityChatManager) {
             communityChatManager.setGroupChatEnabled(newState);
         }
         
-        // Save preference (shared with my tank page)
+        // Save preference to localStorage (向后兼容)
         localStorage.setItem('groupChatEnabled', newState ? 'true' : 'false');
         
         // Also update the control bar button if it exists
