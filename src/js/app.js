@@ -1405,9 +1405,7 @@ swimBtn.addEventListener('click', async () => {
                 if (profileResponse.ok) {
                     const profileData = await profileResponse.json();
                     if (profileData.user) {
-                        if (profileData.user.feeder_name) {
-                            defaultName = profileData.user.feeder_name;
-                        } else if (profileData.user.nick_name) {
+                        if (profileData.user.nick_name) {
                             defaultName = profileData.user.nick_name;
                         }
                         // Load about_me as default value for user-info
@@ -2881,9 +2879,7 @@ async function setupAuthListener() {
                                 if (profileResponse.ok) {
                                     const profileData = await profileResponse.json();
                                     if (profileData.user) {
-                                        if (profileData.user.feeder_name) {
-                                            defaultName = profileData.user.feeder_name;
-                                        } else if (profileData.user.nick_name) {
+                                        if (profileData.user.nick_name) {
                                             defaultName = profileData.user.nick_name;
                                         }
                                         // Load about_me as default value for user-info

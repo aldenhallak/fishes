@@ -241,8 +241,8 @@ async function showFishInfoModal(fishId, imageUrl, onComplete) {
             console.log('[Fish Info] Checking content moderation...');
             const moderationResult = await checkContentModeration({
                 personality,
-                feeder_name: feederName,
-                feeder_info: feederInfo
+                nick_name: feederName,
+                about_me: feederInfo
             });
 
             if (!moderationResult.is_compliant) {

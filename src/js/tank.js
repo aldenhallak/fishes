@@ -3611,7 +3611,7 @@ async function getCurrentUserInfo() {
                               user.email?.split('@')[0] || 
                               'User';
                     
-                    // 尝试从数据库获取feeder_name或nick_name
+                    // 尝试从数据库获取nick_name
                     try {
                         const backendUrl = window.BACKEND_URL || '';
                         const token = localStorage.getItem('userToken');
@@ -3628,8 +3628,6 @@ async function getCurrentUserInfo() {
                                 if (profileData.user) {
                                     if (profileData.user.nick_name) {
                                         userName = profileData.user.nick_name;
-                                    } else if (profileData.user.feeder_name) {
-                                        userName = profileData.user.feeder_name;
                                     }
                                 }
                             }
@@ -3651,7 +3649,7 @@ async function getCurrentUserInfo() {
             try {
                 const parsed = JSON.parse(userData);
                 userId = parsed.userId || parsed.uid || parsed.id;
-                userName = parsed.name || parsed.nick_name || parsed.feeder_name || userName;
+                userName = parsed.name || parsed.nick_name || userName;
             } catch (error) {
                 // Ignore error
             }

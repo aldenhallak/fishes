@@ -893,19 +893,27 @@ class AuthUI {
   async showUserMenu(user) {
     if (!this.userContainer) return;
     
-    // 获取用户信息 - 优先从数据库获取feeder_name
+    // 获取用户信息 - 优先从数据库获取nick_name
     let userName = user.user_metadata?.name || 
                    user.user_metadata?.full_name || 
                    user.user_metadata?.nick_name ||
                    user.email?.split('@')[0] || 
                    'User';
     
-    // 尝试从数据库获取最新的feeder_name
+    // 尝试从数据库获取最新的nick_name
     if (user && user.id) {
       try {
         const backendUrl = window.BACKEND_URL || '';
         const token = localStorage.getItem('userToken');
         if (token) {
+          console.log('📝 获取用户profile:', {
+            url: `${backendUrl}/api/profile/${encodeURIComponent(user.id)}`,
+            userId: user.id,
+            hasToken: !!token,
+            tokenLength: token ? token.length : 0,
+            tokenPrefix: token ? token.substring(0, 30) + '...' : 'null'
+          });
+          
           const profileResponse = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(user.id)}`, {
             method: 'GET',
             headers: {
@@ -913,16 +921,23 @@ class AuthUI {
             }
           });
           
+          console.log('📝 Profile响应状态:', profileResponse.status, profileResponse.statusText);
+          
           if (profileResponse.ok) {
             const profileData = await profileResponse.json();
-            // 优先使用 nick_name，然后是 feeder_name
+            console.log('📝 Profile响应数据:', profileData);
+            // 使用 nick_name
             if (profileData.user && profileData.user.nick_name) {
               userName = profileData.user.nick_name;
               console.log('✅ 从数据库获取昵称 (nick_name):', userName);
-            } else if (profileData.user && profileData.user.feeder_name) {
-              userName = profileData.user.feeder_name;
-              console.log('✅ 从数据库获取用户名 (feeder_name):', userName);
             }
+          } else {
+            const errorText = await profileResponse.text();
+            console.error('❌ Profile请求失败:', {
+              status: profileResponse.status,
+              statusText: profileResponse.statusText,
+              errorText: errorText
+            });
           }
         }
       } catch (error) {

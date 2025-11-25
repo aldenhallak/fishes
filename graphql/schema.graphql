@@ -8355,12 +8355,7 @@ type users {
   banned_until: timestamp
   created_at: timestamp
   email: String!
-
-  """主人信息描述 - 用于鱼聊天时了解主人背景"""
-  feeder_info: String
-
-  """主人昵称 - 用于鱼聊天时提及主人"""
-  feeder_name: String
+  fish_talk: Boolean
 
   """An array relationship"""
   fishes(
@@ -8673,8 +8668,7 @@ input users_bool_exp {
   banned_until: timestamp_comparison_exp
   created_at: timestamp_comparison_exp
   email: String_comparison_exp
-  feeder_info: String_comparison_exp
-  feeder_name: String_comparison_exp
+  fish_talk: Boolean_comparison_exp
   fishes: fish_bool_exp
   fishes_aggregate: fish_aggregate_bool_exp
   group_chat: group_chat_bool_exp
@@ -8734,12 +8728,7 @@ input users_insert_input {
   banned_until: timestamp
   created_at: timestamp
   email: String
-
-  """主人信息描述 - 用于鱼聊天时了解主人背景"""
-  feeder_info: String
-
-  """主人昵称 - 用于鱼聊天时提及主人"""
-  feeder_name: String
+  fish_talk: Boolean
   fishes: fish_arr_rel_insert_input
   group_chat: group_chat_arr_rel_insert_input
   id: String
@@ -8770,12 +8759,6 @@ type users_max_fields {
   banned_until: timestamp
   created_at: timestamp
   email: String
-
-  """主人信息描述 - 用于鱼聊天时了解主人背景"""
-  feeder_info: String
-
-  """主人昵称 - 用于鱼聊天时提及主人"""
-  feeder_name: String
   id: String
   last_active: timestamp
   nick_name: String
@@ -8798,12 +8781,6 @@ type users_min_fields {
   banned_until: timestamp
   created_at: timestamp
   email: String
-
-  """主人信息描述 - 用于鱼聊天时了解主人背景"""
-  feeder_info: String
-
-  """主人昵称 - 用于鱼聊天时提及主人"""
-  feeder_name: String
   id: String
   last_active: timestamp
   nick_name: String
@@ -8856,8 +8833,7 @@ input users_order_by {
   banned_until: order_by
   created_at: order_by
   email: order_by
-  feeder_info: order_by
-  feeder_name: order_by
+  fish_talk: order_by
   fishes_aggregate: fish_aggregate_order_by
   group_chat_aggregate: group_chat_aggregate_order_by
   id: order_by
@@ -8904,10 +8880,7 @@ enum users_select_column {
   email
 
   """column name"""
-  feeder_info
-
-  """column name"""
-  feeder_name
+  fish_talk
 
   """column name"""
   id
@@ -8947,12 +8920,7 @@ input users_set_input {
   banned_until: timestamp
   created_at: timestamp
   email: String
-
-  """主人信息描述 - 用于鱼聊天时了解主人背景"""
-  feeder_info: String
-
-  """主人昵称 - 用于鱼聊天时提及主人"""
-  feeder_name: String
+  fish_talk: Boolean
   id: String
   is_banned: Boolean
   last_active: timestamp
@@ -9008,12 +8976,7 @@ input users_stream_cursor_value_input {
   banned_until: timestamp
   created_at: timestamp
   email: String
-
-  """主人信息描述 - 用于鱼聊天时了解主人背景"""
-  feeder_info: String
-
-  """主人昵称 - 用于鱼聊天时提及主人"""
-  feeder_name: String
+  fish_talk: Boolean
   id: String
   is_banned: Boolean
   last_active: timestamp
@@ -9059,10 +9022,7 @@ enum users_update_column {
   email
 
   """column name"""
-  feeder_info
-
-  """column name"""
-  feeder_name
+  fish_talk
 
   """column name"""
   id

@@ -13,9 +13,9 @@ async function getUserProfileFromHasura(userId) {
                     created_at
                     total_fish_created
                     reputation_score
-                    feeder_name
                     user_language
                     about_me
+                    fish_talk
                     user_subscriptions(
                         order_by: { created_at: desc }
                         limit: 5
@@ -172,7 +172,7 @@ async function getUserProfileFromHasura(userId) {
             userId: user.id,
             displayName: user.nick_name,
             artistName: user.nick_name,
-            nickName: user.nick_name, // 添加 nickName 字段，优先使用
+            nickName: user.nick_name || '', // 用户昵称
             email: user.email,
             avatarUrl: user.avatar_url,
             createdAt: user.created_at,
@@ -181,9 +181,9 @@ async function getUserProfileFromHasura(userId) {
             totalUpvotes: user.fishes_aggregate.aggregate.sum?.upvotes || 0,
             reputationScore: user.reputation_score || 0,
             favoriteCount: favoriteCount,
-            feederName: user.feeder_name || '',
             userLanguage: user.user_language || '',
             aboutMe: user.about_me || '',
+            fishTalk: user.fish_talk || false,
             membershipTier: membershipTier,
             membershipName: membershipName
         };
@@ -656,7 +656,7 @@ function showEditProfileButton() {
     if (!editBtn) {
         editBtn = document.createElement('button');
         editBtn.id = 'edit-profile-btn';
-        editBtn.textContent = 'Edit Profile';
+        editBtn.textContent = 'Settings';
         editBtn.className = 'action-btn';
         editBtn.onclick = toggleEditProfile;
         profileActions.appendChild(editBtn);
@@ -678,10 +678,11 @@ function toggleEditProfile() {
 
 // Show edit profile modal
 function showEditProfileModal() {
-    // Get current values - 优先从 nick_name 获取，然后是 feeder_name
-    const currentName = currentProfile.nickName || currentProfile.feederName || currentProfile.displayName || currentProfile.aboutMe || currentProfile.artistName || '';
+    // Get current values
+    const currentName = currentProfile.nickName || currentProfile.displayName || currentProfile.artistName || '';
     const currentLanguage = currentProfile.userLanguage || '';
     const currentAboutMe = currentProfile.aboutMe || '';
+    const currentFishTalk = currentProfile.fishTalk || false;
 
     // Supported languages
     const languages = [
@@ -730,7 +731,7 @@ function showEditProfileModal() {
     `;
 
     modalContent.innerHTML = `
-        <h2 style="margin-top: 0; margin-bottom: 20px; color: #333;">Edit Profile</h2>
+        <h2 style="margin-top: 0; margin-bottom: 20px; color: #333;">Settings</h2>
         <form id="edit-profile-form">
             <div style="margin-bottom: 20px;">
                 <label for="edit-feeder-name" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
@@ -745,6 +746,32 @@ function showEditProfileModal() {
                     placeholder="Enter your nickname"
                     style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; background: white; color: #000000;"
                 >
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label for="edit-about-me" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                    About Me
+                </label>
+                <textarea 
+                    id="edit-about-me" 
+                    class="edit-textarea"
+                    maxlength="200" 
+                    rows="2"
+                    placeholder="A brief introduction about yourself, your fish will talk about you..."
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; background: white; color: #000000; resize: vertical; min-height: 50px; font-family: inherit;"
+                >${escapeHtml(currentAboutMe)}</textarea>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="icons/chat.svg" alt="Chat" style="width: 20px; height: 20px; object-fit: contain;">
+                        <span style="font-weight: 600; color: #555;">Fish Talk</span>
+                    </div>
+                    <label style="position: relative; display: inline-block; width: 50px; height: 26px; margin: 0;">
+                        <input type="checkbox" id="fish-talk-switch-profile" style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px;"></span>
+                        <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                    </label>
+                </div>
             </div>
             <div style="margin-bottom: 25px;">
                 <label for="edit-user-language" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
@@ -764,20 +791,6 @@ function showEditProfileModal() {
                     <option value="Japanese" ${currentLanguage === 'Japanese' ? 'selected' : ''} style="color: #000000;">Japanese</option>
                     <option value="Korean" ${currentLanguage === 'Korean' ? 'selected' : ''} style="color: #000000;">Korean</option>
                 </select>
-            </div>
-            <div style="margin-bottom: 25px;">
-                <label for="edit-about-me" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
-                    About Me
-                </label>
-                <textarea 
-                    id="edit-about-me" 
-                    class="edit-textarea"
-                    maxlength="200" 
-                    rows="4"
-                    placeholder="Tell us about yourself..."
-                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; background: white; color: #000000; resize: vertical; min-height: 80px; font-family: inherit;"
-                >${escapeHtml(currentAboutMe)}</textarea>
-                <small style="color: #64748b; font-size: 12px; margin-top: 6px; display: block;">A brief introduction about yourself (optional)</small>
             </div>
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                 <button 
@@ -803,6 +816,9 @@ function showEditProfileModal() {
     modalOverlay.appendChild(modalContent);
     document.body.appendChild(modalOverlay);
 
+    // Initialize Fish Talk toggle
+    initializeFishTalkToggle();
+
     // Close modal when clicking overlay
     modalOverlay.addEventListener('click', function(e) {
         if (e.target === modalOverlay) {
@@ -817,6 +833,103 @@ function showEditProfileModal() {
             input.focus();
         }
     }, 100);
+}
+
+// Initialize Fish Talk toggle in profile modal
+function initializeFishTalkToggle() {
+    const toggleSwitch = document.getElementById('fish-talk-switch-profile');
+    const toggleContainer = toggleSwitch?.parentElement?.parentElement;
+    
+    if (!toggleSwitch || !toggleContainer) {
+        console.warn('Fish Talk toggle elements not found in profile modal');
+        return;
+    }
+
+    // Load from database fish_talk field, fallback to localStorage
+    const dbFishTalk = currentProfile?.fishTalk;
+    const savedPreference = localStorage.getItem('groupChatEnabled');
+    const isEnabled = dbFishTalk !== undefined ? dbFishTalk : (savedPreference === 'true');
+    
+    // Set initial state
+    toggleSwitch.checked = isEnabled;
+    updateProfileToggleStyle(toggleSwitch, isEnabled);
+
+    // Handle toggle click
+    toggleContainer.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const newState = !toggleSwitch.checked;
+        
+        // 如果尝试启用 Fish Talk，需要检查登录状态
+        if (newState) {
+            // 检查用户是否已登录
+            let isLoggedIn = false;
+            try {
+                if (window.supabaseAuth && typeof window.supabaseAuth.isLoggedIn === 'function') {
+                    isLoggedIn = await window.supabaseAuth.isLoggedIn();
+                } else if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
+                    const user = await window.supabaseAuth.getCurrentUser();
+                    isLoggedIn = !!user;
+                }
+            } catch (error) {
+                console.error('检查登录状态时出错:', error);
+                isLoggedIn = false;
+            }
+            
+            // 如果未登录，阻止启用并显示登录提示
+            if (!isLoggedIn) {
+                console.log('❌ 未登录用户无法启用 Fish Talk');
+                // 恢复开关状态
+                toggleSwitch.checked = false;
+                updateProfileToggleStyle(toggleSwitch, false);
+                
+                // 显示登录提示
+                if (window.authUI && window.authUI.showLoginModal) {
+                    window.authUI.showLoginModal();
+                } else {
+                    // Fallback: 使用 alert
+                    alert('请先登录以使用 Fish Talk 功能');
+                }
+                return;
+            }
+        }
+        
+        // 已登录或禁用操作，继续执行
+        toggleSwitch.checked = newState;
+        updateProfileToggleStyle(toggleSwitch, newState);
+        
+        // Save preference immediately to localStorage
+        localStorage.setItem('groupChatEnabled', newState ? 'true' : 'false');
+        
+        // Update current profile data
+        if (currentProfile) {
+            currentProfile.fishTalk = newState;
+        }
+        
+        // Trigger custom event for same-tab sync
+        window.dispatchEvent(new CustomEvent('groupChatEnabledChanged', {
+            detail: { enabled: newState }
+        }));
+        
+        console.log(`Fish Talk ${newState ? 'enabled' : 'disabled'} (from profile settings)`);
+    });
+}
+
+// Update Fish Talk toggle visual style in profile modal
+function updateProfileToggleStyle(toggleSwitch, enabled) {
+    const slider = toggleSwitch.nextElementSibling;
+    const thumb = slider ? slider.nextElementSibling : null;
+    
+    if (slider && thumb) {
+        if (enabled) {
+            slider.style.backgroundColor = '#6366F1';
+            thumb.style.transform = 'translateX(24px)';
+        } else {
+            slider.style.backgroundColor = '#ccc';
+            thumb.style.transform = 'translateX(0)';
+        }
+    }
 }
 
 // Close edit profile modal
@@ -880,7 +993,7 @@ function exitEditMode() {
 
     // Restore edit button
     const editBtn = document.getElementById('edit-profile-btn');
-    editBtn.innerHTML = 'Edit Profile';
+    editBtn.innerHTML = 'Settings';
     editBtn.style.display = 'inline-block';
     editBtn.onclick = toggleEditProfile;
 }
@@ -895,16 +1008,35 @@ async function saveProfileFromModal() {
     const nameInput = document.getElementById('edit-feeder-name');
     const languageSelect = document.getElementById('edit-user-language');
     const aboutMeTextarea = document.getElementById('edit-about-me');
+    const fishTalkSwitch = document.getElementById('fish-talk-switch-profile');
     
-    const newFeederName = nameInput.value.trim();
+    const newNickName = nameInput.value.trim();
     const newUserLanguage = languageSelect.value.trim();
     const newAboutMe = aboutMeTextarea ? aboutMeTextarea.value.trim() : '';
+    const newFishTalk = fishTalkSwitch ? fishTalkSwitch.checked : false;
 
-    // Check if user is logged in
-    const token = localStorage.getItem('userToken');
+    // Check if user is logged in and get fresh token
+    let token = localStorage.getItem('userToken');
     if (!token) {
         alert('You must be logged in to edit your profile');
         return;
+    }
+    
+    // 尝试获取最新的token
+    try {
+        if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
+            const user = await window.supabaseAuth.getCurrentUser();
+            if (user && window.supabaseAuth.getSession) {
+                const session = await window.supabaseAuth.getSession();
+                if (session?.data?.session?.access_token) {
+                    token = session.data.session.access_token;
+                    localStorage.setItem('userToken', token);
+                    console.log('🔄 已更新token');
+                }
+            }
+        }
+    } catch (error) {
+        console.warn('⚠️ 获取最新token失败，使用缓存token:', error);
     }
 
     try {
@@ -927,18 +1059,29 @@ async function saveProfileFromModal() {
 
         // Update profile via API endpoint (uses admin secret, avoids JWT issues)
         const backendUrl = window.BACKEND_URL || '';
+        const requestBody = {
+            nick_name: newNickName,
+            user_language: newUserLanguage,
+            about_me: newAboutMe,
+            fish_talk: newFishTalk
+        };
+        
+        console.log('📝 发送profile更新请求:', {
+            url: `${backendUrl}/api/profile/${encodeURIComponent(userId)}`,
+            method: 'PUT',
+            body: requestBody,
+            hasToken: !!token,
+            tokenLength: token ? token.length : 0,
+            tokenPrefix: token ? token.substring(0, 30) + '...' : 'null'
+        });
+        
         const response = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(userId)}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                nickName: newFeederName || null, // 保存到 nick_name 字段
-                feederName: newFeederName || null,
-                userLanguage: newUserLanguage || null,
-                aboutMe: newAboutMe || null
-            })
+            body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {
@@ -961,24 +1104,23 @@ async function saveProfileFromModal() {
 
         // Update local profile data
         if (result.user) {
-            currentProfile.feederName = result.user.feeder_name || newFeederName;
+            currentProfile.nickName = result.user.nick_name || newNickName;
             currentProfile.userLanguage = result.user.user_language || newUserLanguage;
-            // 优先使用 nick_name，如果没有则使用 feeder_name
-            currentProfile.nickName = result.user.nick_name || result.user.feeder_name || newFeederName;
-            currentProfile.displayName = result.user.nick_name || result.user.feeder_name || newFeederName || currentProfile.displayName;
+            currentProfile.displayName = result.user.nick_name || newNickName || currentProfile.displayName;
             currentProfile.aboutMe = result.user.about_me || newAboutMe || '';
+            currentProfile.fishTalk = result.user.fish_talk !== undefined ? result.user.fish_talk : newFishTalk;
         } else {
-            currentProfile.feederName = newFeederName;
+            currentProfile.nickName = newNickName;
             currentProfile.userLanguage = newUserLanguage;
-            currentProfile.nickName = newFeederName;
-            currentProfile.displayName = newFeederName || currentProfile.displayName;
+            currentProfile.displayName = newNickName || currentProfile.displayName;
             currentProfile.aboutMe = newAboutMe || '';
+            currentProfile.fishTalk = newFishTalk;
         }
 
         // Update profile name display immediately
         const profileNameElement = document.getElementById('profile-name');
         if (profileNameElement) {
-            const displayName = currentProfile.displayName || currentProfile.feederName || currentProfile.artistName || 'Anonymous User';
+            const displayName = currentProfile.displayName || currentProfile.nickName || currentProfile.artistName || 'Anonymous User';
             profileNameElement.textContent = displayName;
             
             // Update avatar with membership icon instead of initial
@@ -1020,9 +1162,9 @@ async function saveProfileFromModal() {
 
         // Update navigation bar user name
         const userNameElement = document.querySelector('.user-name');
-        if (userNameElement && newFeederName) {
-            userNameElement.textContent = newFeederName;
-            console.log('✅ 已更新导航栏用户名:', newFeederName);
+        if (userNameElement && newNickName) {
+            userNameElement.textContent = newNickName;
+            console.log('✅ 已更新导航栏用户名:', newNickName);
         }
 
         // Update auth UI to refresh user menu with latest profile data
@@ -1049,9 +1191,9 @@ async function saveProfileFromModal() {
                                     ...user,
                                     user_metadata: {
                                         ...user.user_metadata,
-                                        // 优先使用 nick_name
-                                        name: profileData.user.nick_name || profileData.user.feeder_name || user.user_metadata?.name,
-                                        nick_name: profileData.user.nick_name || profileData.user.feeder_name || user.user_metadata?.nick_name
+                                        // 使用 nick_name
+                                        name: profileData.user.nick_name || user.user_metadata?.name,
+                                        nick_name: profileData.user.nick_name || user.user_metadata?.nick_name
                                     }
                                 };
                                 // 更新auth UI
@@ -1064,14 +1206,20 @@ async function saveProfileFromModal() {
             } catch (error) {
                 console.warn('⚠️ 更新Auth UI失败，但profile已更新:', error);
                 // 即使更新Auth UI失败，也直接更新导航栏用户名
-                if (userNameElement && newFeederName) {
-                    userNameElement.textContent = newFeederName;
+                if (userNameElement && newNickName) {
+                    userNameElement.textContent = newNickName;
                 }
             }
-        } else if (userNameElement && newFeederName) {
+        } else if (userNameElement && newNickName) {
             // 如果authUI不可用，直接更新导航栏用户名
-            userNameElement.textContent = newFeederName;
+            userNameElement.textContent = newNickName;
         }
+
+        // Sync Fish Talk state to localStorage and trigger events
+        localStorage.setItem('groupChatEnabled', newFishTalk ? 'true' : 'false');
+        window.dispatchEvent(new CustomEvent('groupChatEnabledChanged', {
+            detail: { enabled: newFishTalk }
+        }));
 
         // Close modal
         closeEditProfileModal();

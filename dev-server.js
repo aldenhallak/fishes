@@ -98,8 +98,9 @@ const server = http.createServer(async (req, res) => {
       }
       
       if (fs.existsSync(apiFile)) {
-        // 清除缓存，确保每次都加载最新版本
+        // 清除模块缓存以确保使用最新版本
         delete require.cache[require.resolve(apiFile)];
+        console.log('🔄 清除缓存并重新加载:', apiFile);
         const handler = require(apiFile);
         
         // 确保 req.query 已初始化
