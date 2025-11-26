@@ -1168,8 +1168,8 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
         // }
         
         // 第一步：上传图片
-        console.log('📷 开始上传图片到:', `${window.BACKEND_URL}/api/fish/upload`);
-        const uploadResp = await fetch(`${window.BACKEND_URL}/api/fish/upload`, {
+        console.log('📷 开始上传图片到:', `${window.BACKEND_URL}/api/fish-api?action=upload`);
+        const uploadResp = await fetch(`${window.BACKEND_URL}/api/fish-api?action=upload`, {
             method: 'POST',
             headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
             body: formData

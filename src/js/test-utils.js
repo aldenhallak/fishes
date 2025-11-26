@@ -114,7 +114,7 @@ async function uploadFileToQiniu(file) {
   const formData = new FormData();
   formData.append('image', file);
   
-  return await apiCall('/api/fish/upload', {
+  return await apiCall('/api/fish-api?action=upload', {
     method: 'POST',
     body: formData
   });

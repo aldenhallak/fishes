@@ -98,7 +98,7 @@ async function runTests() {
   // 测试图片上传API (需要认证，这里测试404即可)
   await testEndpoint(
     '图片上传端点存在',
-    '/api/fish/upload',
+    '/api/fish-api?action=upload',
     { 
       method: 'POST',
       expectStatus: 400 // 没有文件会返回400

@@ -82,7 +82,7 @@
         formData.append('image', file);
 
         console.log('发送上传请求...');
-        const response = await fetch('/api/fish/upload', {
+        const response = await fetch('/api/fish-api?action=upload', {
           method: 'POST',
           body: formData
         });
@@ -122,7 +122,7 @@
       resultDiv.className = 'result';
 
       try {
-        const response = await fetch('/api/fish/upload', {
+        const response = await fetch('/api/fish-api?action=upload', {
           method: 'POST'
         });
 
