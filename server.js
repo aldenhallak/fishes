@@ -62,7 +62,7 @@ const server = http.createServer(async (req, res) => {
   
   // 静态文件服务
   let filePath = pathname === '/' ? '/index.html' : pathname;
-  filePath = path.join(__dirname, 'public', filePath);
+  filePath = path.join(__dirname, filePath);
   
   // 如果文件不存在，尝试添加 .html
   if (!fs.existsSync(filePath)) {
