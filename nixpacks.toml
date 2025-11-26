@@ -1,14 +1,12 @@
 # Railway Nixpacks 配置
-# 指定构建和部署配置
+# 强制使用 npm install 而不是 npm ci
 
 [phases.setup]
 nixPkgs = ["nodejs_22"]
 
 [phases.install]
-cmds = ["npm install"]
-
-[phases.build]
-cmds = ["echo 'Build complete'"]
+dependsOn = ["setup"]
+cmds = ["npm install --legacy-peer-deps"]
 
 [start]
 cmd = "npm run start"
