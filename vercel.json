@@ -7,7 +7,7 @@
     "api/**/*.js": {
       "memory": 512,
       "maxDuration": 10,
-      "includeFiles": "lib/**"
+      "includeFiles": "**"
     }
   },
   "headers": [
