@@ -3,6 +3,8 @@
  * 提供静态文件和 API 路由
  */
 
+require('dotenv').config({ path: '.env.local' });
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -29,6 +31,24 @@ const mimeTypes = {
   '.wasm': 'application/wasm'
 };
 
+// 解析请求体
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch (error) {
+        resolve({});
+      }
+    });
+    req.on('error', reject);
+  });
+}
+
 const server = http.createServer(async (req, res) => {
   console.log(`${req.method} ${req.url}`);
   
@@ -38,17 +58,72 @@ const server = http.createServer(async (req, res) => {
   // API 路由
   if (pathname.startsWith('/api/')) {
     try {
+      // 解析请求体
+      if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+        req.body = await parseBody(req);
+      }
+      
+      // 添加 query 到 req 对象
+      req.query = parsedUrl.query;
+      
       // 动态加载 API handler
       const apiPath = pathname.slice(5); // 移除 '/api/'
-      const handlerFile = `./api/${apiPath}.js`;
+      let handlerFile = `./api/${apiPath}.js`;
       
+      // 检查直接路径
       if (fs.existsSync(handlerFile)) {
         const handler = require(handlerFile);
+        
+        // 包装响应对象以支持 Express 风格的方法
+        res.status = (code) => {
+          res.statusCode = code;
+          return res;
+        };
+        res.json = (data) => {
+          res.writeHead(res.statusCode || 200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(data));
+          return res;
+        };
+        
         return await handler(req, res);
-      } else {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'API endpoint not found' }));
       }
+      
+      // 检查动态路由 (例如 /api/profile/[userId])
+      const pathParts = apiPath.split('/');
+      if (pathParts.length >= 2) {
+        const basePath = pathParts.slice(0, -1).join('/');
+        const dynamicParam = pathParts[pathParts.length - 1];
+        const dynamicHandlerFile = `./api/${basePath}/[${pathParts[0] === 'profile' ? 'userId' : 'id'}].js`;
+        
+        if (fs.existsSync(dynamicHandlerFile)) {
+          const handler = require(dynamicHandlerFile);
+          
+          // 添加动态参数到 req.query
+          req.query = req.query || {};
+          if (pathParts[0] === 'profile') {
+            req.query.userId = dynamicParam;
+          } else {
+            req.query.id = dynamicParam;
+          }
+          
+          // 包装响应对象
+          res.status = (code) => {
+            res.statusCode = code;
+            return res;
+          };
+          res.json = (data) => {
+            res.writeHead(res.statusCode || 200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(data));
+            return res;
+          };
+          
+          return await handler(req, res);
+        }
+      }
+      
+      // 未找到处理器
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'API endpoint not found' }));
     } catch (error) {
       console.error('API Error:', error);
       res.writeHead(500, { 'Content-Type': 'application/json' });
