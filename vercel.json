@@ -1,12 +1,14 @@
 {
-  "buildCommand": "",
+  "buildCommand": "npm install",
+  "installCommand": "npm install",
   "outputDirectory": ".",
   "framework": null,
   "functions": {
     "api/**/*.js": {
       "memory": 512,
       "maxDuration": 10,
-      "includeFiles": "lib/**"
+      "includeFiles": "lib/**",
+      "runtime": "nodejs24.x"
     }
   },
   "headers": [
