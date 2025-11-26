@@ -432,6 +432,9 @@ function displayProfile(profile, searchedUserId = null) {
     if (typeof MessageUI !== 'undefined' && profileUserId) {
         loadUserMessages(profileUserId);
     }
+    
+    // Handle #messages hash - scroll to messages section if present
+    handleMessagesHashOnLoad();
 }
 
 // Show loading state
@@ -1498,11 +1501,13 @@ async function loadUserMessages(userId) {
         const messagesCount = document.getElementById('profile-messages-count');
         
         if (!messagesSection || !messagesContainer) {
+            console.warn('⚠️ Messages section or container not found');
             return;
         }
 
         // 显示留言区域
         messagesSection.style.display = 'block';
+        console.log('✅ Messages section displayed');
 
         // 使用 MessageUI 渲染留言
         if (typeof MessageUI !== 'undefined') {
@@ -1518,11 +1523,13 @@ async function loadUserMessages(userId) {
             if (messagesCount) {
                 messagesCount.textContent = messages.length;
             }
+            console.log(`✅ Loaded ${messages.length} messages`);
         } else {
+            console.warn('⚠️ MessageUI not available');
             messagesContainer.innerHTML = '<div class="messages-empty">Loading messages...</div>';
         }
     } catch (error) {
-        console.error('Load user messages error:', error);
+        console.error('❌ Load user messages error:', error);
         const messagesContainer = document.getElementById('profile-messages-container');
         if (messagesContainer) {
             messagesContainer.innerHTML = `
@@ -1533,3 +1540,54 @@ async function loadUserMessages(userId) {
         }
     }
 }
+
+/**
+ * 处理 #messages hash - 在页面加载时滚动到消息区域
+ */
+function handleMessagesHashOnLoad() {
+    // 检查URL hash
+    if (window.location.hash === '#messages') {
+        console.log('🎯 Hash #messages detected, scrolling to messages section');
+        setTimeout(() => {
+            const messagesSection = document.getElementById('profile-messages-section');
+            if (messagesSection) {
+                // 确保消息区域可见
+                messagesSection.style.display = 'block';
+                
+                // 滚动到消息区域
+                messagesSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+                
+                // 展开所有消息分组
+                const groupTitles = messagesSection.querySelectorAll('.messages-group-title.collapsed');
+                groupTitles.forEach(title => {
+                    const group = title.closest('.messages-group');
+                    const list = group.querySelector('.messages-group-list');
+                    const icon = title.querySelector('.group-icon');
+                    
+                    if (list && list.style.display === 'none') {
+                        list.style.display = 'flex';
+                        title.classList.remove('collapsed');
+                        if (icon) icon.textContent = '▼';
+                    }
+                });
+                
+                console.log('✅ Scrolled to messages section and expanded groups');
+            } else {
+                console.warn('⚠️ Messages section not found for scrolling');
+            }
+        }, 500); // 等待消息加载完成
+    }
+}
+
+// 监听 hash 变化
+window.addEventListener('hashchange', function() {
+    if (window.location.hash === '#messages') {
+        handleMessagesHashOnLoad();
+    }
+});
+
+// Export showEditProfileModal globally for use in other modules
+window.showEditProfileModal = showEditProfileModal;

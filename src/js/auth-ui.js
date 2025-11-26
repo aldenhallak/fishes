@@ -383,6 +383,14 @@ class AuthUI {
           </svg>
           Messages
         </a>
+        <button class="user-dropdown-item" id="settings-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3"></path>
+            <path d="M19.07 4.93l-1.41 1.41m-11.32 0L4.93 4.93m12.73 14.14l-1.41-1.41m-11.32 0l-1.41 1.41"></path>
+          </svg>
+          Settings
+        </button>
         <button class="user-dropdown-item" id="logout-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -470,6 +478,12 @@ class AuthUI {
       dropdown.onclick = (e) => {
         e.stopPropagation();
       };
+    }
+    
+    // 设置按钮
+    const settingsBtn = this.userContainer.querySelector('#settings-btn');
+    if (settingsBtn) {
+      settingsBtn.onclick = () => this.showSettingsModal();
     }
     
     // 退出登录按钮
@@ -669,6 +683,29 @@ class AuthUI {
         console.log('✅ Signed out successfully');
         await this.updateAuthUI();
       }
+    }
+  }
+
+  /**
+   * 显示设置弹窗（使用 profile.js 中的现有弹窗）
+   */
+  async showSettingsModal() {
+    // 检查用户是否登录
+    const user = await window.supabaseAuth?.getCurrentUser();
+    if (!user) {
+      console.log('User not logged in, showing login modal');
+      this.showLoginModal();
+      return;
+    }
+
+    // 检查是否在 profile 页面或者 showEditProfileModal 函数是否可用
+    if (typeof window.showEditProfileModal === 'function') {
+      // 如果函数已加载，直接调用
+      window.showEditProfileModal();
+    } else {
+      // 如果函数不可用，跳转到 profile 页面
+      console.log('Redirecting to profile page for settings');
+      window.location.href = 'profile.html';
     }
   }
 

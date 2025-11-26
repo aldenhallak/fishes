@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "node dev-server.js",
     "dev:vercel": "vercel dev",
+    "check:env": "node scripts/check-env.js",
     "test:hasura": "node scripts/test-hasura-connection.js",
     "test:redis": "node scripts/test-redis-connection.js",
     "test:api": "node scripts/test-api-endpoints.js",

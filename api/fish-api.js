@@ -31,12 +31,16 @@ let userChatMessageHandler;
 function loadHandler(relativePath) {
   try {
     const handlerPath = path.resolve(__dirname, relativePath);
+    console.log(`[Fish API] Loading handler from: ${handlerPath}`);
     const handler = require(handlerPath);
+    console.log(`[Fish API] ✅ Handler loaded successfully: ${relativePath}`);
     return handler;
   } catch (error) {
     console.error(`[Fish API] ❌ Failed to load handler: ${relativePath}`);
+    console.error(`[Fish API] Error name: ${error.name}`);
     console.error(`[Fish API] Error message: ${error.message}`);
     console.error(`[Fish API] Error stack: ${error.stack}`);
+    console.error(`[Fish API] Error code: ${error.code}`);
     return null;
   }
 }
@@ -96,7 +100,13 @@ module.exports = async function handler(req, res) {
         if (!unfavoriteHandler) return res.status(500).json({ error: 'Unfavorite handler not available' });
         return await unfavoriteHandler(req, res);
       case 'upload':
-        if (!uploadHandler) return res.status(500).json({ error: 'Upload handler not available' });
+        if (!uploadHandler) {
+          console.error('[Fish API] Upload handler is null/undefined');
+          return res.status(500).json({ 
+            error: 'Upload handler not available',
+            details: 'Handler failed to load during initialization. Check server logs for details.'
+          });
+        }
         return await uploadHandler(req, res);
       case 'update-info':
         if (!updateInfoHandler) return res.status(500).json({ error: 'Update info handler not available' });

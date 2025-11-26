@@ -24,8 +24,10 @@ function loadHandler(relativePath) {
     return handler;
   } catch (error) {
     console.error(`[Message API] ❌ Failed to load handler: ${relativePath}`);
+    console.error(`[Message API] Error name: ${error.name}`);
     console.error(`[Message API] Error message: ${error.message}`);
     console.error(`[Message API] Error stack: ${error.stack}`);
+    console.error(`[Message API] Error code: ${error.code}`);
     return null;
   }
 }
@@ -67,7 +69,11 @@ module.exports = async function handler(req, res) {
         return await markReadHandler(req, res);
       case 'unread-count':
         if (!unreadCountHandler) {
-          return res.status(500).json({ error: 'Unread count handler not available' });
+          console.error('[Message API] Unread count handler is null/undefined');
+          return res.status(500).json({ 
+            error: 'Unread count handler not available',
+            details: 'Handler failed to load during initialization. Check server logs for details.'
+          });
         }
         return await unreadCountHandler(req, res);
       case 'user-messages':

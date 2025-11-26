@@ -515,3 +515,60 @@
     cursor: not-allowed !important;
     opacity: 0.6;
 }
+
+/* Profile Messages Section */
+.profile-messages-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 24px;
+    box-shadow: 
+        0 6px 0 rgba(0, 0, 0, 0.2),
+        0 10px 24px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 顶部彩色条 */
+.profile-messages-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, 
+        #FF9500 0%, 
+        #FFD700 25%, 
+        #4CD964 50%, 
+        #4A90E2 75%, 
+        #9B59B6 100%);
+    border-radius: 24px 24px 0 0;
+}
+
+/* 顶部光泽效果 */
+.profile-messages-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+    border-radius: 24px 24px 0 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+#profile-messages-container {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    .profile-messages-section {
+        padding: 15px;
+        margin-top: 20px;
+    }
+}
