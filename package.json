@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "Fish Art Battle System - 鱼画战斗系统",
   "scripts": {
+    "start": "node server.js",
     "dev": "node dev-server.js",
     "dev:vercel": "vercel dev",
     "check:env": "node scripts/check-env.js",
