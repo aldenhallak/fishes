@@ -12,7 +12,8 @@
     "test:all": "npm run test:hasura && npm run test:redis && npm run test:api",
     "download:fish": "node scripts/download-fish-data.js",
     "download:schema": "graphql-codegen --config codegen.json",
-    "migrate": "echo '请在Hasura Console中执行 scripts/migrate-database.sql'"
+    "migrate": "echo '请在Hasura Console中执行 scripts/migrate-database.sql'",
+    "postinstall": "echo 'Dependencies installed successfully'"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.79.0",

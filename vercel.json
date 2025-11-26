@@ -1,6 +1,4 @@
 {
-  "buildCommand": "npm install",
-  "installCommand": "npm install",
   "outputDirectory": ".",
   "framework": null,
   "functions": {
