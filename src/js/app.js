@@ -1170,9 +1170,9 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
         // 第一步：上传图片
         console.log('📷 开始上传图片到:', `${window.BACKEND_URL}/api/fish-api?action=upload`);
         
-        // 添加30秒超时控制
+        // 添加60秒超时控制（Render免费计划可能较慢）
         const uploadController = new AbortController();
-        const uploadTimeoutId = setTimeout(() => uploadController.abort(), 30000);
+        const uploadTimeoutId = setTimeout(() => uploadController.abort(), 60000);
         
         let uploadResult; // 声明在外部，确保后续代码可以访问
         try {
@@ -1219,9 +1219,9 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
         };
         console.log('🐟 开始提交鱼数据:', submitData);
         
-        // 添加30秒超时控制
+        // 添加60秒超时控制（Render免费计划可能较慢）
         const submitController = new AbortController();
-        const submitTimeoutId = setTimeout(() => submitController.abort(), 30000);
+        const submitTimeoutId = setTimeout(() => submitController.abort(), 60000);
         
         let submitResp;
         try {

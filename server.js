@@ -58,13 +58,20 @@ const server = http.createServer(async (req, res) => {
   // API 路由
   if (pathname.startsWith('/api/')) {
     try {
-      // 解析请求体
-      if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
-        req.body = await parseBody(req);
-      }
-      
       // 添加 query 到 req 对象
       req.query = parsedUrl.query;
+      
+      // 解析请求体（跳过 multipart/form-data，让 formidable 处理）
+      const contentType = req.headers['content-type'] || '';
+      const isMultipart = contentType.includes('multipart/form-data');
+      
+      if ((req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') && !isMultipart) {
+        req.body = await parseBody(req);
+      } else if (isMultipart) {
+        // multipart请求不解析body，保留原始流给formidable处理
+        console.log('[Server] 跳过multipart请求的body解析，保留给formidable处理');
+        req.body = {}; // 设置空对象避免undefined
+      }
       
       // 动态加载 API handler
       const apiPath = pathname.slice(5); // 移除 '/api/'
