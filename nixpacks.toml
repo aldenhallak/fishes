@@ -1,0 +1,15 @@
+# Railway Nixpacks 配置
+# 指定构建和部署配置
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["echo 'Build complete'"]
+
+[start]
+cmd = "npm run start"
+
