@@ -1169,24 +1169,40 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
         
         // 第一步：上传图片
         console.log('📷 开始上传图片到:', `${window.BACKEND_URL}/api/fish-api?action=upload`);
-        const uploadResp = await fetch(`${window.BACKEND_URL}/api/fish-api?action=upload`, {
-            method: 'POST',
-            headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
-            body: formData
-        });
         
-        console.log('  上传响应状态:', uploadResp.status);
-        if (!uploadResp.ok) {
-            const errorText = await uploadResp.text();
-            console.error('  上传失败:', errorText);
-            throw new Error('图片上传失败: ' + uploadResp.status);
-        }
+        // 添加30秒超时控制
+        const uploadController = new AbortController();
+        const uploadTimeoutId = setTimeout(() => uploadController.abort(), 30000);
         
-        const uploadResult = await uploadResp.json();
-        console.log('  上传结果:', uploadResult);
-        
-        if (!uploadResult.success || !uploadResult.imageUrl) {
-            throw new Error('获取图片URL失败');
+        let uploadResult; // 声明在外部，确保后续代码可以访问
+        try {
+            const uploadResp = await fetch(`${window.BACKEND_URL}/api/fish-api?action=upload`, {
+                method: 'POST',
+                headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
+                body: formData,
+                signal: uploadController.signal
+            });
+            clearTimeout(uploadTimeoutId);
+            
+            console.log('  上传响应状态:', uploadResp.status);
+            if (!uploadResp.ok) {
+                const errorText = await uploadResp.text();
+                console.error('  上传失败:', errorText);
+                throw new Error('图片上传失败: ' + uploadResp.status);
+            }
+            
+            uploadResult = await uploadResp.json(); // 赋值而不是声明
+            console.log('  上传结果:', uploadResult);
+            
+            if (!uploadResult.success || !uploadResult.imageUrl) {
+                throw new Error('获取图片URL失败');
+            }
+        } catch (uploadError) {
+            clearTimeout(uploadTimeoutId);
+            if (uploadError.name === 'AbortError') {
+                throw new Error('图片上传超时，请检查网络连接后重试');
+            }
+            throw uploadError;
         }
         
         // 第二步：提交鱼数据
@@ -1203,14 +1219,29 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
         };
         console.log('🐟 开始提交鱼数据:', submitData);
         
-        const submitResp = await fetch(`${window.BACKEND_URL}/api/fish/submit`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
-            },
-            body: JSON.stringify(submitData)
-        });
+        // 添加30秒超时控制
+        const submitController = new AbortController();
+        const submitTimeoutId = setTimeout(() => submitController.abort(), 30000);
+        
+        let submitResp;
+        try {
+            submitResp = await fetch(`${window.BACKEND_URL}/api/fish/submit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+                },
+                body: JSON.stringify(submitData),
+                signal: submitController.signal
+            });
+            clearTimeout(submitTimeoutId);
+        } catch (submitError) {
+            clearTimeout(submitTimeoutId);
+            if (submitError.name === 'AbortError') {
+                throw new Error('提交超时，请检查网络连接后重试');
+            }
+            throw submitError;
+        }
         
         console.log('  提交响应状态:', submitResp.status);
         
@@ -1996,77 +2027,114 @@ swimBtn.addEventListener('click', async () => {
     }, 100);
     
     document.getElementById('submit-fish').onclick = async () => {
-        const fishName = document.getElementById('fish-name').value.trim();
-        const artist = document.getElementById('artist-name').value.trim() || 'Anonymous';
-        const userInfo = document.getElementById('user-info')?.value.trim() || '';
-        const personalityRadio = document.querySelector('input[name="personality"]:checked');
-        let personality = personalityRadio ? personalityRadio.value : 'random';
-        
-        // 如果选择random或未选择，随机分配一个个性
-        if (!personality || personality === 'random') {
-            const personalities = ['funny', 'cheerful', 'brave', 'playful', 'curious', 'energetic', 'calm', 'gentle'];
-            personality = personalities[Math.floor(Math.random() * personalities.length)];
-        }
-        
-        // Validate fish name
-        if (!fishName) {
-            showUserAlert({
-                type: 'warning',
-                title: '请输入鱼名',
-                message: '请为您的鱼起一个名字！',
-                buttons: [{
-                    text: '确定',
-                    action: () => {
-                        document.getElementById('fish-name')?.focus();
-                    },
-                    closeAfterAction: true
-                }]
-            });
-            return;
-        }
-        
-        // Save artist name and user info to localStorage for future use
-        localStorage.setItem('artistName', artist);
-        if (userInfo) {
-            localStorage.setItem('userInfo', userInfo);
-        }
-        
-        // Save user-info to user profile about_me if logged in
-        if (userInfo && window.supabaseAuth) {
-            try {
-                const user = await window.supabaseAuth.getUser();
-                if (user) {
-                    const backendUrl = window.BACKEND_URL || '';
-                    const userId = user.id;
-                    const token = localStorage.getItem('userToken');
-                    if (token) {
-                        await fetch(`${backendUrl}/api/profile/${encodeURIComponent(userId)}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({
-                                aboutMe: userInfo
-                            })
-                        });
-                    }
-                }
-            } catch (error) {
-                console.log('Could not save user-info to about_me:', error);
+        try {
+            const fishName = document.getElementById('fish-name').value.trim();
+            const artist = document.getElementById('artist-name').value.trim() || 'Anonymous';
+            const userInfo = document.getElementById('user-info')?.value.trim() || '';
+            const personalityRadio = document.querySelector('input[name="personality"]:checked');
+            let personality = personalityRadio ? personalityRadio.value : 'random';
+            
+            // 如果选择random或未选择，随机分配一个个性
+            if (!personality || personality === 'random') {
+                const personalities = ['funny', 'cheerful', 'brave', 'playful', 'curious', 'energetic', 'calm', 'gentle'];
+                personality = personalities[Math.floor(Math.random() * personalities.length)];
             }
+            
+            // Validate fish name
+            if (!fishName) {
+                showUserAlert({
+                    type: 'warning',
+                    title: '请输入鱼名',
+                    message: '请为您的鱼起一个名字！',
+                    buttons: [{
+                        text: '确定',
+                        action: () => {
+                            document.getElementById('fish-name')?.focus();
+                        },
+                        closeAfterAction: true
+                    }]
+                });
+                return;
+            }
+            
+            // Save artist name and user info to localStorage for future use
+            localStorage.setItem('artistName', artist);
+            if (userInfo) {
+                localStorage.setItem('userInfo', userInfo);
+            }
+            
+            // Save user-info to user profile about_me if logged in
+            if (userInfo && window.supabaseAuth) {
+                try {
+                    const user = await window.supabaseAuth.getUser();
+                    if (user) {
+                        const backendUrl = window.BACKEND_URL || '';
+                        const userId = user.id;
+                        const token = localStorage.getItem('userToken');
+                        if (token) {
+                            // 添加超时和错误处理
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒超时
+                            
+                        try {
+                            const response = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(userId)}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({
+                                    about_me: userInfo  // 修复：使用下划线命名，匹配后端API
+                                }),
+                                signal: controller.signal
+                            });
+                            clearTimeout(timeoutId);
+                            
+                            if (!response.ok) {
+                                const errorData = await response.json().catch(() => ({}));
+                                console.log('Profile update failed:', response.status, errorData);
+                            } else {
+                                console.log('✅ Profile updated successfully');
+                            }
+                        } catch (fetchError) {
+                            clearTimeout(timeoutId);
+                            console.log('Could not save user-info to about_me (fetch error):', fetchError);
+                        }
+                        }
+                    }
+                } catch (error) {
+                    console.log('Could not save user-info to about_me:', error);
+                }
+            }
+            
+            console.log('🚀 开始提交鱼');
+            console.log('  鱼名:', fishName);
+            console.log('  个性:', personality);
+            console.log('  艺术家:', artist);
+            
+            await submitFish(artist, !isFish, fishName, personality, userInfo); // Pass name, personality, and userInfo
+            console.log('✅ submitFish 完成');
+            
+            // 关闭modal
+            document.querySelector('.modal')?.remove();
+        } catch (error) {
+            // 顶层错误处理 - 确保按钮状态恢复
+            console.error('❌ Submit fish onclick handler error:', error);
+            
+            const submitBtn = document.getElementById('submit-fish');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Fish';
+            }
+            
+            // 显示错误提示
+            showUserAlert({
+                type: 'error',
+                title: 'Submission Error',
+                message: error.message || 'An unexpected error occurred. Please try again.',
+                buttons: [{ text: 'OK', action: 'close' }]
+            });
         }
-        
-        console.log('🚀 开始提交鱼');
-        console.log('  鱼名:', fishName);
-        console.log('  个性:', personality);
-        console.log('  艺术家:', artist);
-        
-        await submitFish(artist, !isFish, fishName, personality, userInfo); // Pass name, personality, and userInfo
-        console.log('✅ submitFish 完成');
-        
-        // 关闭modal
-        document.querySelector('.modal')?.remove();
     };
     document.getElementById('cancel-fish').onclick = () => {
         document.querySelector('.modal')?.remove();
