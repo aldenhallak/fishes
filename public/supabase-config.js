@@ -14,15 +14,19 @@ window.supabaseConfigReady = false;
 
 (async function loadSupabaseConfig() {
   try {
-    // 尝试从API获取配置（开发环境）
-    const response = await fetch('/api/config-api?action=supabase');
+    // 尝试从API获取配置
+    const response = await fetch('/api/test-supabase');
     if (response.ok) {
       const config = await response.json();
-      window.SUPABASE_URL = config.url;
-      window.SUPABASE_ANON_KEY = config.anonKey;
-      console.log('✅ Supabase config loaded from API');
-      window.supabaseConfigReady = true;
-      window.dispatchEvent(new Event('supabaseConfigReady'));
+      if (config.success) {
+        window.SUPABASE_URL = config.url;
+        window.SUPABASE_ANON_KEY = config.anonKey;
+        console.log('✅ Supabase config loaded from API');
+        window.supabaseConfigReady = true;
+        window.dispatchEvent(new Event('supabaseConfigReady'));
+      } else {
+        throw new Error('API returned unsuccessful response');
+      }
     } else {
       throw new Error('Failed to load config from API');
     }
