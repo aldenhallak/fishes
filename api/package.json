@@ -1,0 +1,16 @@
+{
+  "name": "fish-art-api",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.79.0",
+    "dotenv": "^16.6.1",
+    "form-data": "^4.0.4",
+    "formidable": "^3.5.0",
+    "ioredis": "^5.8.2",
+    "node-fetch": "^2.7.0",
+    "qiniu": "^7.12.0",
+    "stripe": "^14.0.0"
+  }
+}
+
