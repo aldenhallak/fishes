@@ -1225,7 +1225,7 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
         
         let submitResp;
         try {
-            submitResp = await fetch(`${window.BACKEND_URL}/api/fish/submit`, {
+            submitResp = await fetch(`${window.BACKEND_URL}/api/fish-api?action=submit`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
