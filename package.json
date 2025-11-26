@@ -1,6 +1,6 @@
 {
   "name": "fish-art-battle",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Fish Art Battle System - 鱼画战斗系统",
   "scripts": {
     "dev": "node dev-server.js",
