@@ -152,10 +152,17 @@ function getRowPrimaryKey(row, columns) {
 
 // 获取默认排序字段
 function getDefaultSortColumn(columns) {
-  // 对于 group_chat 表，默认按创建时间倒序排列
-  if (currentTable === 'group_chat') {
+  // 检查是否有 created_at 字段，如果有则优先使用（所有表都按创建时间倒序排列）
+  const hasCreatedAt = columns.some(col => {
+    const colName = typeof col === 'string' ? col : col.name;
+    return colName === 'created_at';
+  });
+  
+  if (hasCreatedAt) {
     return 'created_at';
   }
+  
+  // 如果没有 created_at 字段，则使用主键
   return getPrimaryKeyField(columns);
 }
 
@@ -377,7 +384,26 @@ function formatValue(value, column) {
   }
 
   if (column.includes('_at') && value) {
-    return new Date(value).toLocaleString('zh-CN');
+    // 显示为北京时间 (UTC+8)
+    // 如果数据库存储的是UTC时间，我们需要正确转换
+    const date = new Date(value);
+    
+    // 检查时间是否合理（避免显示错误的时间）
+    if (isNaN(date.getTime())) {
+      return '<span class="null-badge">Invalid Date</span>';
+    }
+    
+    // 强制转换为北京时间显示
+    return date.toLocaleString('zh-CN', {
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
   }
 
   if (typeof value === 'object') {
@@ -815,7 +841,16 @@ function updateStats() {
   document.getElementById('row-count').textContent = tableData.rows.length;
   document.getElementById('display-range').textContent = 
     `${tableData.pagination.offset + 1} - ${tableData.pagination.offset + tableData.rows.length}`;
-  document.getElementById('update-time').textContent = new Date().toLocaleString('zh-CN');
+  document.getElementById('update-time').textContent = new Date().toLocaleString('zh-CN', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
 }
 
 // 显示错误
