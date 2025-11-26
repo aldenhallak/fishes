@@ -1,12 +1,13 @@
 {
+  "installCommand": "npm install && cd api && npm install",
+  "buildCommand": "echo 'Build completed'",
   "outputDirectory": ".",
   "framework": null,
   "functions": {
     "api/**/*.js": {
       "memory": 512,
       "maxDuration": 10,
-      "includeFiles": "lib/**",
-      "excludeFiles": "node_modules/@vercel/**"
+      "includeFiles": "lib/**"
     }
   },
   "headers": [
