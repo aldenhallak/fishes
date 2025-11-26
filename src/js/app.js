@@ -1309,9 +1309,9 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
                 // 其他错误
                 showUserAlert({
                     type: 'error',
-                    title: '提交失败',
-                    message: submitResult.message || submitResult.error || '提交失败，请稍后重试。',
-                    buttons: [{ text: '确定', action: 'close' }]
+                    title: 'Submission Failed',
+                    message: submitResult.message || submitResult.error || 'Submission failed, please try again later.',
+                    buttons: [{ text: 'OK', action: 'close' }]
                 });
             }
             return; // 不抛出错误，因为已经显示了友好的提示
@@ -1326,29 +1326,29 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
         }
         
         // 显示错误提示
-        let errorMessage = err.message || '上传失败，请稍后重试。';
-        let errorTitle = '上传失败';
+        let errorMessage = err.message || 'Upload failed, please try again later.';
+        let errorTitle = 'Upload Failed';
         
         // 处理网络错误
         if (err.message && err.message.includes('Failed to fetch')) {
-            errorMessage = '网络连接失败，请检查您的网络连接后重试。';
+            errorMessage = 'Network connection failed, please check your network connection and try again.';
         } else if (err.message && err.message.includes('403')) {
             // 403可能是限制错误，尝试显示更友好的提示
             errorTitle = 'Daily Limit Reached';
-            errorMessage = '您已达到今日画鱼限制，请明天再试或升级会员以增加限制。';
+            errorMessage = 'You have reached today\'s fish drawing limit. Please try again tomorrow or upgrade your membership to increase the limit.';
         } else if (err.message && err.message.includes('401')) {
-            errorMessage = '未授权，请重新登录。';
+            errorMessage = 'Unauthorized, please log in again.';
         } else if (err.message && err.message.includes('404')) {
             // 404可能是API路径错误，但更可能是限制错误导致的
-            errorTitle = '提交失败';
-            errorMessage = '提交失败，可能是已达到限制或网络问题，请稍后重试。';
+            errorTitle = 'Submission Failed';
+            errorMessage = 'Submission failed, possibly due to reaching limits or network issues, please try again later.';
         }
         
         showUserAlert({
             type: 'error',
             title: errorTitle,
             message: errorMessage,
-            buttons: [{ text: '确定', action: 'close' }]
+            buttons: [{ text: 'OK', action: 'close' }]
         });
     }
 }
@@ -1363,15 +1363,19 @@ swimBtn.addEventListener('click', async () => {
         sessionStorage.setItem('pendingFishCanvas', canvasData);
         sessionStorage.setItem('pendingFishSubmit', 'true');
         
+        // 🔧 修复：设置登录后重定向回当前页面，以便处理画布数据
+        // 不设置loginRedirect，让用户登录后回到画鱼页面完成提交流程
+        localStorage.removeItem('loginRedirect'); // 确保清除任何现有的重定向
+        
         // 显示登录弹窗
         if (window.authUI && window.authUI.showLoginModal) {
             window.authUI.showLoginModal();
         } else {
             showUserAlert({
                 type: 'warning',
-                title: '需要登录',
-                message: '请刷新页面后重试，或检查登录功能是否正常加载。',
-                buttons: [{ text: '确定', action: 'close' }]
+                title: 'Login Required',
+                message: 'Please refresh the page and try again, or check if the login function is loading properly.',
+                buttons: [{ text: 'OK', action: 'close' }]
             });
         }
         return; // 中断流程
@@ -2821,7 +2825,60 @@ function showWelcomeBackMessage() {
 
 document.addEventListener('DOMContentLoaded', () => {
     // All startup checks disabled for better UX
+    
+    // 🔧 修复：检查是否有待恢复的画布数据（备用机制）
+    setTimeout(() => {
+        checkAndRestorePendingCanvas();
+    }, 1000); // 延迟1秒，确保所有初始化完成
 });
+
+// 🔧 修复：备用画布恢复机制
+async function checkAndRestorePendingCanvas() {
+    const pendingSubmit = sessionStorage.getItem('pendingFishSubmit');
+    const canvasData = sessionStorage.getItem('pendingFishCanvas');
+    
+    if (pendingSubmit === 'true' && canvasData) {
+        console.log('🔍 Found pending canvas data, checking if user is logged in...');
+        
+        // 检查用户是否已登录
+        const isLoggedIn = window.supabaseAuth ? await window.supabaseAuth.isLoggedIn() : false;
+        
+        if (isLoggedIn) {
+            console.log('✅ User is logged in, restoring canvas...');
+            
+            // 确保画布已初始化
+            if (canvas && ctx && canvas.width > 0 && canvas.height > 0) {
+                const img = new Image();
+                img.onload = () => {
+                    console.log('🎨 Restoring canvas from backup mechanism...');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    updateCanvasHint();
+                    saveToUndoStack();
+                    console.log('✅ Canvas restored via backup mechanism');
+                    
+                    // 清除存储的数据
+                    sessionStorage.removeItem('pendingFishCanvas');
+                    sessionStorage.removeItem('pendingFishSubmit');
+                    
+                    // 显示提示，让用户知道画布已恢复
+                    showUserAlert({
+                        type: 'info',
+                        title: 'Drawing Restored',
+                        message: 'Your drawing has been restored. You can now submit it!',
+                        buttons: [{ text: 'OK', action: 'close' }]
+                    });
+                };
+                img.onerror = () => {
+                    console.error('❌ Backup canvas restore failed');
+                    sessionStorage.removeItem('pendingFishCanvas');
+                    sessionStorage.removeItem('pendingFishSubmit');
+                };
+                img.src = canvasData;
+            }
+        }
+    }
+}
 
 // 监听登录状态变化，处理画布恢复
 // 等待 Supabase 初始化完成后再监听
@@ -2832,16 +2889,45 @@ async function setupAuthListener() {
     }
     
     window.supabaseAuth.onAuthStateChange(async (event, session) => {
+        console.log('🔐 Auth state changed:', event, 'Session:', !!session);
+        
         // 登录成功且有待提交的画布
         if (event === 'SIGNED_IN' && sessionStorage.getItem('pendingFishSubmit') === 'true') {
             const canvasData = sessionStorage.getItem('pendingFishCanvas');
+            console.log('🎨 Found pending fish canvas data:', !!canvasData);
             
             if (canvasData) {
+                // 🔧 修复：确保画布元素已经初始化
+                const waitForCanvas = () => {
+                    return new Promise((resolve) => {
+                        const checkCanvas = () => {
+                            if (canvas && ctx && canvas.width > 0 && canvas.height > 0) {
+                                console.log('✅ Canvas ready for restoration');
+                                resolve();
+                            } else {
+                                console.log('⏳ Waiting for canvas to be ready...');
+                                setTimeout(checkCanvas, 100);
+                            }
+                        };
+                        checkCanvas();
+                    });
+                };
+                
+                await waitForCanvas();
+                
                 // 恢复画布
                 const img = new Image();
                 img.onload = async () => {
+                    console.log('🎨 Restoring canvas from saved data...');
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0);
+                    console.log('✅ Canvas restored successfully');
+                    
+                    // 🔧 修复：更新画布提示状态
+                    updateCanvasHint();
+                    
+                    // 🔧 修复：保存到撤销栈，以便用户可以撤销
+                    saveToUndoStack();
                     
                     // 清除存储的数据
                     sessionStorage.removeItem('pendingFishCanvas');
@@ -3541,6 +3627,23 @@ async function setupAuthListener() {
                         };
                     }
                 };
+                
+                // 🔧 修复：添加图片加载错误处理
+                img.onerror = () => {
+                    console.error('❌ Failed to restore canvas from saved data');
+                    // 清除存储的数据，避免重复尝试
+                    sessionStorage.removeItem('pendingFishCanvas');
+                    sessionStorage.removeItem('pendingFishSubmit');
+                    
+                    // 显示错误提示
+                    showUserAlert({
+                        type: 'warning',
+                        title: 'Canvas Restore Failed',
+                        message: 'Unable to restore your drawing. Please try drawing again.',
+                        buttons: [{ text: 'OK', action: 'close' }]
+                    });
+                };
+                
                 img.src = canvasData;
             }
         }

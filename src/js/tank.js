@@ -2185,25 +2185,70 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // Load initial fish based on view mode
     if (VIEW_MODE === 'my') {
-        // Private Tank mode - require authentication
+        // Private Tank mode - require authentication with retry mechanism
         console.log('🔐 Private Tank mode - checking authentication...');
         
-        // Check if user is logged in
-        if (typeof requireAuthentication === 'function') {
-            const isAuthenticated = await requireAuthentication();
-            if (!isAuthenticated) {
-                console.log('❌ Not authenticated, redirecting to login...');
-                return; // requireAuthentication will handle the redirect/modal
+        // 🔧 修复：增加重试机制，解决登录后立即跳转时的时序问题
+        let isAuthenticated = false;
+        let retryCount = 0;
+        const maxRetries = 5;
+        const retryDelay = 500; // 500ms
+        
+        while (!isAuthenticated && retryCount < maxRetries) {
+            if (retryCount > 0) {
+                console.log(`🔄 Authentication check retry ${retryCount}/${maxRetries}...`);
+                await new Promise(resolve => setTimeout(resolve, retryDelay));
             }
-        } else {
-            // Fallback authentication check
-            const token = localStorage.getItem('userToken');
-            if (!token) {
-                console.log('❌ No auth token found, showing login modal...');
-                if (window.authUI && window.authUI.showLoginModal) {
-                    window.authUI.showLoginModal();
-                    return;
+            
+            // 优先使用auth-cache的同步检测
+            if (window.authCache && window.authCache.isLoggedIn) {
+                isAuthenticated = window.authCache.isLoggedIn();
+                if (isAuthenticated) {
+                    console.log('✅ Authentication confirmed via auth-cache');
+                    break;
                 }
+            }
+            
+            // 备用：使用requireAuthentication函数
+            if (typeof requireAuthentication === 'function') {
+                try {
+                    isAuthenticated = await requireAuthentication(false); // 不立即重定向
+                    if (isAuthenticated) {
+                        console.log('✅ Authentication confirmed via requireAuthentication');
+                        break;
+                    }
+                } catch (error) {
+                    console.log(`⚠️ Authentication check error (retry ${retryCount}):`, error);
+                }
+            }
+            
+            // 最后备用：检查localStorage token
+            const token = localStorage.getItem('userToken');
+            if (token && window.supabaseAuth) {
+                try {
+                    const user = await window.supabaseAuth.getCurrentUser();
+                    if (user) {
+                        isAuthenticated = true;
+                        console.log('✅ Authentication confirmed via Supabase getCurrentUser');
+                        break;
+                    }
+                } catch (error) {
+                    console.log(`⚠️ Supabase getCurrentUser error (retry ${retryCount}):`, error);
+                }
+            }
+            
+            retryCount++;
+        }
+        
+        if (!isAuthenticated) {
+            console.log('❌ Authentication failed after retries, showing login modal...');
+            if (window.authUI && window.authUI.showLoginModal) {
+                window.authUI.showLoginModal();
+                return;
+            } else {
+                // 备用：重定向到登录页面
+                window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+                return;
             }
         }
         
