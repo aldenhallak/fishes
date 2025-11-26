@@ -10,9 +10,11 @@ module.exports = async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Content-Type', 'application/json');
   
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    res.writeHead(200);
+    return res.end();
   }
   
   try {
@@ -23,24 +25,27 @@ module.exports = async function handler(req, res) {
     console.log('[Test Supabase] SUPABASE_ANON_KEY exists:', !!supabaseAnonKey);
     
     if (!supabaseUrl || !supabaseAnonKey) {
-      return res.status(500).json({
+      res.writeHead(500);
+      return res.end(JSON.stringify({
         error: 'Missing environment variables',
         hasUrl: !!supabaseUrl,
         hasKey: !!supabaseAnonKey
-      });
+      }));
     }
     
-    return res.status(200).json({
+    res.writeHead(200);
+    return res.end(JSON.stringify({
       url: supabaseUrl,
       anonKey: supabaseAnonKey,
       success: true
-    });
+    }));
   } catch (error) {
     console.error('[Test Supabase] Error:', error);
-    return res.status(500).json({
+    res.writeHead(500);
+    return res.end(JSON.stringify({
       error: error.message,
       stack: error.stack
-    });
+    }));
   }
 };
 
