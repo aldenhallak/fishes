@@ -13,7 +13,8 @@
     "download:fish": "node scripts/download-fish-data.js",
     "download:schema": "graphql-codegen --config codegen.json",
     "migrate": "echo '请在Hasura Console中执行 scripts/migrate-database.sql'",
-    "vercel-build": "echo 'Building for Vercel...'",
+    "prepare-vercel": "node scripts/prepare-vercel.js",
+    "vercel-build": "npm run prepare-vercel",
     "postinstall": "echo 'Dependencies installed successfully'"
   },
   "dependencies": {
