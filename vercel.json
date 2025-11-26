@@ -7,8 +7,7 @@
     "api/**/*.js": {
       "memory": 512,
       "maxDuration": 10,
-      "includeFiles": "lib/**",
-      "runtime": "nodejs24.x"
+      "includeFiles": "lib/**"
     }
   },
   "headers": [
