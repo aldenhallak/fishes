@@ -1509,6 +1509,9 @@ async function loadUserMessages(userId) {
         // 显示留言区域
         messagesSection.style.display = 'block';
         console.log('✅ Messages section displayed');
+        
+        // 显示加载状态
+        messagesContainer.innerHTML = '<div class="messages-loading" style="text-align: center; padding: 20px; color: #666;">Loading messages...</div>';
 
         // 使用 MessageUI 渲染留言
         if (typeof MessageUI !== 'undefined') {
@@ -1519,23 +1522,44 @@ async function loadUserMessages(userId) {
                 title: 'Received Messages'
             });
 
-            // 更新留言数量
+            // 检查是否有消息
             const messages = messagesContainer.querySelectorAll('.message-card');
+            if (messages.length === 0) {
+                // 如果没有消息，显示空状态
+                messagesContainer.innerHTML = `
+                    <div class="messages-empty" style="text-align: center; padding: 40px 20px; color: #999;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
+                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">No messages yet</div>
+                        <div style="font-size: 14px;">You haven't received any messages.</div>
+                    </div>
+                `;
+            }
+            
+            // 更新留言数量
             if (messagesCount) {
                 messagesCount.textContent = messages.length;
             }
             console.log(`✅ Loaded ${messages.length} messages`);
         } else {
             console.warn('⚠️ MessageUI not available');
-            messagesContainer.innerHTML = '<div class="messages-empty">Loading messages...</div>';
+            messagesContainer.innerHTML = `
+                <div class="messages-empty" style="text-align: center; padding: 40px 20px; color: #999;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Message system unavailable</div>
+                    <div style="font-size: 14px;">Please refresh the page to try again.</div>
+                </div>
+            `;
         }
     } catch (error) {
         console.error('❌ Load user messages error:', error);
         const messagesContainer = document.getElementById('profile-messages-container');
         if (messagesContainer) {
             messagesContainer.innerHTML = `
-                <div class="message-error">
-                    Failed to load messages: ${error.message || 'Unknown error'}
+                <div class="message-error" style="text-align: center; padding: 40px 20px; color: #e74c3c;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
+                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Failed to load messages</div>
+                    <div style="font-size: 14px;">${error.message || 'Unknown error'}</div>
+                    <button onclick="location.reload()" style="margin-top: 16px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Refresh Page</button>
                 </div>
             `;
         }

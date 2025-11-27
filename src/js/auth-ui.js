@@ -480,6 +480,52 @@ class AuthUI {
       };
     }
     
+    // Messages 菜单项 - 防止在 profile 页面重新加载导致卡死
+    const messagesItem = this.userContainer.querySelector('#messages-menu-item');
+    if (messagesItem) {
+      messagesItem.onclick = (e) => {
+        const currentPath = window.location.pathname;
+        const isOnProfilePage = currentPath.endsWith('profile.html') || currentPath.includes('/profile.html');
+        
+        if (isOnProfilePage) {
+          // 如果已经在 profile 页面，阻止默认跳转，直接滚动到消息区域
+          e.preventDefault();
+          
+          // 关闭下拉菜单
+          if (dropdown) {
+            dropdown.classList.remove('show');
+          }
+          
+          // 更新 URL hash（不会重新加载页面）
+          window.history.pushState(null, '', 'profile.html#messages');
+          
+          // 滚动到消息区域
+          setTimeout(() => {
+            const messagesSection = document.getElementById('profile-messages-section');
+            if (messagesSection) {
+              messagesSection.style.display = 'block';
+              messagesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              
+              // 展开所有消息分组
+              const groupTitles = messagesSection.querySelectorAll('.messages-group-title.collapsed');
+              groupTitles.forEach(title => {
+                const group = title.closest('.messages-group');
+                const list = group?.querySelector('.messages-group-list');
+                const icon = title.querySelector('.group-icon');
+                
+                if (list && list.style.display === 'none') {
+                  list.style.display = 'flex';
+                  title.classList.remove('collapsed');
+                  if (icon) icon.textContent = '▼';
+                }
+              });
+            }
+          }, 100);
+        }
+        // 如果在其他页面，允许正常跳转到 profile.html#messages
+      };
+    }
+    
     // 设置按钮
     const settingsBtn = this.userContainer.querySelector('#settings-btn');
     if (settingsBtn) {
