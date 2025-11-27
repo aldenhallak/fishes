@@ -325,15 +325,6 @@ async function handleSortChange(sortType) {
     currentSort = sortType;
     sortDirection = sortType === 'date' ? 'desc' : 'desc'; // Default to descending for most sorts
 
-    // Reset pagination state whenever sort changes
-    lastDoc = null;
-    hasMoreFish = true;
-    loadedCount = 0;
-    allFishData = [];
-    currentPage = 1; // Reset to first page when sort changes
-    totalFishCount = 0; // Reset total count (will be recalculated on next load)
-    totalPages = 1; // Reset total pages
-
     // Update sort buttons
     const sortHotBtn = document.getElementById('sort-hot-btn');
     const sortDateBtn = document.getElementById('sort-date-btn');
@@ -348,12 +339,53 @@ async function handleSortChange(sortType) {
         }
     }
 
+    // If we're in my-fish or favorites category, just re-sort the existing data
+    if (currentCategory === 'my-fish') {
+        const sortedData = sortFishArray(myFishData, sortType);
+        displayCategoryFish(sortedData);
+        return;
+    } else if (currentCategory === 'favorites') {
+        const sortedData = sortFishArray(favoritesData, sortType);
+        displayCategoryFish(sortedData);
+        return;
+    }
+
+    // For rank category, reset pagination and reload data
+    lastDoc = null;
+    hasMoreFish = true;
+    loadedCount = 0;
+    allFishData = [];
+    currentPage = 1; // Reset to first page when sort changes
+    totalFishCount = 0; // Reset total count (will be recalculated on next load)
+    totalPages = 1; // Reset total pages
+
     // Show loading and reload data with new sort
     document.getElementById('loading').style.display = 'block';
     document.getElementById('fish-grid').style.display = 'none';
 
     // Reload fish data with new sort criteria
     await loadFishData(sortType);
+}
+
+// Helper function to sort fish array
+function sortFishArray(fishArray, sortType) {
+    const sorted = [...fishArray];
+    if (sortType === 'hot') {
+        // Sort by votes (descending)
+        sorted.sort((a, b) => {
+            const votesA = a.votes || a.Votes || 0;
+            const votesB = b.votes || b.Votes || 0;
+            return votesB - votesA;
+        });
+    } else {
+        // Sort by date (descending - newest first)
+        sorted.sort((a, b) => {
+            const dateA = new Date(a.created_at || a.CreatedAt);
+            const dateB = new Date(b.created_at || b.CreatedAt);
+            return dateB - dateA;
+        });
+    }
+    return sorted;
 }
 
 // Filter fish with working images
@@ -494,6 +526,14 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true, page =
         displayFish(allFishData, false);
         updatePaginationControls();
         updateStatusMessage();
+        
+        // Update rank count if available
+        if (totalFishCount > 0) {
+            const rankCountElement = document.getElementById('rank-count');
+            if (rankCountElement) {
+                rankCountElement.textContent = totalFishCount;
+            }
+        }
 
         // Scroll to top when page changes
         if (!isInitialLoad) {
@@ -811,7 +851,7 @@ async function loadUserFishCategories() {
 }
 
 // Handle category change
-function handleCategoryChange(category) {
+async function handleCategoryChange(category) {
     currentCategory = category;
     
     // Update active tab
@@ -821,7 +861,28 @@ function handleCategoryChange(category) {
     document.querySelector(`[data-category="${category}"]`).classList.add('active');
     
     // Load appropriate data
-    if (category === 'my-fish') {
+    if (category === 'rank') {
+        // Clear user filter to show all fish
+        const previousUserId = currentUserId;
+        currentUserId = null;
+        
+        // Reset pagination state
+        lastDoc = null;
+        hasMoreFish = true;
+        loadedCount = 0;
+        allFishData = [];
+        currentPage = 1;
+        totalFishCount = 0;
+        totalPages = 1;
+        
+        // Load all fish (normal ranking)
+        await loadFishData(currentSort, false, 1);
+        
+        // Restore userId for other categories if needed
+        if (!previousUserId) {
+            currentUserId = null;
+        }
+    } else if (category === 'my-fish') {
         displayCategoryFish(myFishData);
     } else if (category === 'favorites') {
         displayCategoryFish(favoritesData);
@@ -837,16 +898,25 @@ function displayCategoryFish(fishArray) {
     if (!fishArray || fishArray.length === 0) {
         gridElement.style.display = 'none';
         paginationControls.style.display = 'none';
-        loadingElement.textContent = currentCategory === 'my-fish' ? 
-            'No fish created yet. Go draw some!' : 
-            'No favorites yet. Start adding fish to favorites!';
+        
+        let message = 'No fish found.';
+        if (currentCategory === 'my-fish') {
+            message = 'No fish created yet. Go draw some!';
+        } else if (currentCategory === 'favorites') {
+            message = 'No favorites yet. Start adding fish to favorites!';
+        }
+        
+        loadingElement.textContent = message;
         loadingElement.style.display = 'block';
         loadingElement.classList.remove('loading');
         return;
     }
     
+    // Apply current sort before displaying
+    const sortedArray = sortFishArray(fishArray, currentSort);
+    
     // Map to display format
-    allFishData = fishArray.map(fish => ({
+    allFishData = sortedArray.map(fish => ({
         ...fish,
         docId: fish.id,
         Artist: fish.artist || fish.Artist,
@@ -854,7 +924,9 @@ function displayCategoryFish(fishArray) {
         userId: fish.user_id || fish.userId,
         Image: fish.image_url || fish.Image,
         image: fish.image_url || fish.image,
-        upvotes: fish.upvotes || 0
+        upvotes: fish.upvotes || 0,
+        votes: fish.upvotes || fish.votes || 0,
+        Votes: fish.upvotes || fish.votes || 0
     }));
     
     loadingElement.style.display = 'none';
@@ -875,36 +947,35 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Check for URL parameters first
     const urlParams = new URLSearchParams(window.location.search);
     const showFavorites = urlParams.get('favorites') === 'true';
-    currentUserId = urlParams.get('userId');
+    const showMyFish = urlParams.get('myfish') === 'true';
+    const urlUserId = urlParams.get('userId'); // Keep for backward compatibility
     
-    // Load user's fish categories
+    // Load user's fish categories (to populate counts)
     await loadUserFishCategories();
     
-    // Force show category filter if we're in favorites mode
+    // Determine which category to show initially
+    let initialCategory = 'rank'; // Default
     if (showFavorites) {
-        const filterElement = document.getElementById('fish-category-filter');
-        if (filterElement) {
-            filterElement.style.display = 'flex';
-        }
-        
-        // Set active tab to favorites
-        document.querySelectorAll('.category-tab').forEach(tab => {
-            const category = tab.getAttribute('data-category');
-            if (category === 'favorites') {
-                tab.classList.add('active');
-            } else {
-                tab.classList.remove('active');
-            }
-        });
-        
-        currentCategory = 'favorites';
-        
-        // Update page title
-        const pageHeader = document.querySelector('.ranking-header h1');
-        if (pageHeader) {
-            pageHeader.textContent = '⭐ My Favorites';
-        }
+        initialCategory = 'favorites';
+    } else if (showMyFish) {
+        initialCategory = 'my-fish';
     }
+    
+    // Only set currentUserId filter if we're not showing rank category
+    // This ensures rank category always shows all fish
+    currentUserId = (initialCategory === 'rank') ? null : urlUserId;
+    
+    // Set active tab based on initial category
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        const category = tab.getAttribute('data-category');
+        if (category === initialCategory) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+    
+    currentCategory = initialCategory;
     
     // Hide user filter header if present
     const userFilterNote = document.querySelector('.user-filter-note');
@@ -959,13 +1030,18 @@ window.addEventListener('DOMContentLoaded', async () => {
         nextBtn.addEventListener('click', goToNextPage);
     }
 
-    // Load data based on URL parameters
-    if (showFavorites) {
-        // Load favorite fish
-        await loadFavoriteFish();
+    // Load data based on initial category
+    if (initialCategory === 'favorites') {
+        displayCategoryFish(favoritesData);
+    } else if (initialCategory === 'my-fish') {
+        displayCategoryFish(myFishData);
     } else {
-        // Load initial fish data (all fish or filtered by user)
+        // Load rank data (all fish)
         await loadFishData();
+        // Update rank count after loading
+        if (totalFishCount > 0) {
+            document.getElementById('rank-count').textContent = totalFishCount;
+        }
     }
     
     // Initialize favorite buttons if user is logged in
@@ -1107,12 +1183,12 @@ async function showEditFishModal(fishId) {
                     <select id="edit-fish-personality" onchange="toggleCustomPersonalityInput()"
                         style="width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-size: 14px;">
                         <option value="random" ${selectedPersonality === 'random' ? 'selected' : ''}>🎲 Random</option>
-                        ${PRESET_PERSONALITIES.map(p => `
-                            <option value="${p.value}" ${selectedPersonality === p.value ? 'selected' : ''}>${p.label}</option>
-                        `).join('')}
                         <option value="custom" ${selectedPersonality === 'custom' ? 'selected' : ''}>
                             ✨ Custom ${canUseCustom ? '' : '(Premium Only)'}
                         </option>
+                        ${PRESET_PERSONALITIES.map(p => `
+                            <option value="${p.value}" ${selectedPersonality === p.value ? 'selected' : ''}>${p.label}</option>
+                        `).join('')}
                     </select>
                 </div>
                 

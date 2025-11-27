@@ -382,10 +382,10 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
     // 动态构建查询变量声明
     const variableDeclarations = ['$limit: Int!', '$offset: Int!'];
     if (userId) {
-        variableDeclarations.push('$userId: uuid!');
+        variableDeclarations.push('$userId: String!');
     }
     if (hasExcludeIds) {
-        variableDeclarations.push('$excludeIds: [uuid!]');
+        variableDeclarations.push('$excludeIds: [String!]');
     }
     
     const query = `

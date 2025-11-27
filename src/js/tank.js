@@ -2731,7 +2731,7 @@ async function handleAddToMyTank(fishId, event) {
         } else {
             // Add to tank
             const API_BASE = typeof BACKEND_URL !== 'undefined' ? BACKEND_URL : '';
-            const response = await fetch(`${API_BASE}/api/fish/favorite`, {
+            const response = await fetch(`${API_BASE}/api/fish-api?action=favorite`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -3457,49 +3457,40 @@ function animateFishes() {
             swimY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
         }
         
-        // 🌟 绘制新鱼的发光特效
+        drawWigglingFish(fish, fish.x, swimY, fish.direction, time, fish.phase);
+        
+        // 👑 绘制新鱼的皇冠特效（在鱼绘制之后，这样皇冠在上层）
         if (fish.isNewlyCreated) {
             const now = Date.now();
             const elapsed = now - (fish.createdDisplayTime || now);
             
             // 特效持续60秒
             if (elapsed < 60000) {
-                // 脉动效果：0.5-1.0之间变化
-                const pulse = 0.5 + 0.5 * Math.sin(now / 300);
+                const centerX = fish.x + fish.width / 2;
+                const crownY = swimY - 20; // 使用 swimY 而不是 fish.y，跟随鱼的波动
                 
                 swimCtx.save();
                 
-                // 绘制金色光晕（多层）
-                swimCtx.shadowColor = `rgba(255, 215, 0, ${pulse})`;
-                swimCtx.shadowBlur = 20 + pulse * 15;
+                // 设置字体
+                swimCtx.font = 'bold 24px Arial';
+                swimCtx.textAlign = 'center';
+                swimCtx.textBaseline = 'middle';
                 
-                // 外层光环
-                swimCtx.strokeStyle = `rgba(255, 215, 0, ${pulse * 0.6})`;
-                swimCtx.lineWidth = 3;
-                swimCtx.beginPath();
-                const glowRadius = Math.max(fish.width, fish.height) * 0.6;
-                const centerX = fish.x + fish.width / 2;
-                const centerY = swimY + fish.height / 2;
-                swimCtx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2);
-                swimCtx.stroke();
+                // 添加金色光晕效果
+                swimCtx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+                swimCtx.shadowBlur = 8;
                 
-                // 内层光环（更亮）
-                swimCtx.strokeStyle = `rgba(255, 215, 0, ${pulse * 0.8})`;
-                swimCtx.lineWidth = 2;
-                swimCtx.beginPath();
-                swimCtx.arc(centerX, centerY, glowRadius * 0.7, 0, Math.PI * 2);
-                swimCtx.stroke();
+                // 绘制皇冠 emoji
+                swimCtx.fillText('👑', centerX, crownY);
                 
                 swimCtx.restore();
             } else {
                 // 60秒后移除标记
                 delete fish.isNewlyCreated;
                 delete fish.createdDisplayTime;
-                console.log(`⏰ New fish glow effect expired for fish: ${fish.docId}`);
+                console.log(`⏰ New fish crown effect expired for fish: ${fish.docId}`);
             }
         }
-
-        drawWigglingFish(fish, fish.x, swimY, fish.direction, time, fish.phase);
     }
 
     // Render food pellets

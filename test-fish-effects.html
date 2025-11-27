@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐟 新鱼特效预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(180deg, #B2EBF2 0%, #4FC3F7 30%, #0288D1 70%, #01579B 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .controls {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        button.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: scale(1.05);
+        }
+        
+        .info {
+            background: rgba(100, 200, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #0288D1;
+        }
+        
+        .info h3 {
+            color: #01579B;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        
+        .info p {
+            color: #0277BD;
+            line-height: 1.6;
+            margin: 5px 0;
+        }
+        
+        .canvas-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #B2EBF2 0%, #4FC3F7 30%, #0288D1 70%, #01579B 100%);
+            border-radius: 10px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.2);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(100, 200, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0288D1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐟 新鱼特效预览器</h1>
+        <p class="subtitle">点击下方按钮切换不同的特效方案，实时预览效果</p>
+        
+        <div class="controls">
+            <div class="button-group">
+                <button onclick="setEffect('current')" class="active" id="btn-current">
+                    当前方案<br><small>金色光环</small>
+                </button>
+                <button onclick="setEffect('particles')" id="btn-particles">
+                    方案 A<br><small>✨ 闪光粒子</small>
+                </button>
+                <button onclick="setEffect('gradient')" id="btn-gradient">
+                    方案 B<br><small>🌈 柔和光晕</small>
+                </button>
+                <button onclick="setEffect('bubbles')" id="btn-bubbles">
+                    方案 C<br><small>💧 气泡尾迹</small>
+                </button>
+                <button onclick="setEffect('crown')" id="btn-crown">
+                    方案 D<br><small>👑 小皇冠</small>
+                </button>
+                <button onclick="setEffect('glow')" id="btn-glow">
+                    方案 E<br><small>💎 闪光边缘</small>
+                </button>
+                <button onclick="setEffect('ripple')" id="btn-ripple">
+                    方案 F<br><small>🌀 脉冲波纹</small>
+                </button>
+                <button onclick="setEffect('combo')" id="btn-combo">
+                    方案 G<br><small>✨ 组合效果</small>
+                </button>
+                <button onclick="setEffect('none')" id="btn-none">
+                    方案 H<br><small>无特效</small>
+                </button>
+            </div>
+            
+            <div class="info" id="effectInfo">
+                <h3>当前方案：金色光环</h3>
+                <p><strong>描述：</strong>双层金色光环，脉动效果</p>
+                <p><strong>风格：</strong>明显但可能不够自然</p>
+                <p><strong>自然度：</strong>⭐⭐⭐</p>
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="fishCanvas"></canvas>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-label">特效方案</div>
+                    <div class="stat-value" id="effectName">金色光环</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">FPS</div>
+                    <div class="stat-value" id="fps">60</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">特效时长</div>
+                    <div class="stat-value">60秒</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('fishCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置canvas尺寸
+        canvas.width = 800;
+        canvas.height = 500;
+        
+        // 鱼的数据
+        const fish = {
+            x: 200,
+            y: 250,
+            width: 120,
+            height: 72,
+            vx: 1.5,
+            vy: 0.5,
+            direction: 1,
+            speed: 2,
+            amplitude: 24,
+            phase: 0,
+            isNewlyCreated: true,
+            createdDisplayTime: Date.now(),
+            bubbles: []
+        };
+        
+        // 粒子系统（用于方案A）
+        const particles = [];
+        for (let i = 0; i < 12; i++) {
+            particles.push({
+                angle: (Math.PI * 2 * i) / 12,
+                distance: fish.width * 0.8,
+                opacity: Math.random(),
+                speed: 0.02 + Math.random() * 0.01
+            });
+        }
+        
+        // 加载鱼的图片
+        const fishImage = new Image();
+        fishImage.src = 'data:image/svg+xml;base64,' + btoa(`
+            <svg width="120" height="72" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="fishGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:rgb(255,140,0);stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:rgb(255,165,0);stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <ellipse cx="60" cy="36" rx="50" ry="30" fill="url(#fishGrad)" stroke="#FF8C00" stroke-width="2"/>
+                <circle cx="75" cy="30" r="5" fill="white"/>
+                <circle cx="77" cy="30" r="2" fill="black"/>
+                <path d="M 10 36 L -10 20 L -10 52 Z" fill="url(#fishGrad)" stroke="#FF8C00" stroke-width="2"/>
+            </svg>
+        `);
+        
+        let currentEffect = 'current';
+        
+        const effectInfo = {
+            current: {
+                name: '金色光环',
+                title: '当前方案：金色光环',
+                desc: '双层金色光环，脉动效果',
+                style: '明显但可能不够自然',
+                natural: '⭐⭐⭐'
+            },
+            particles: {
+                name: '闪光粒子',
+                title: '方案 A：闪光粒子效果',
+                desc: '鱼周围环绕着闪烁的小星星粒子',
+                style: '梦幻、活泼',
+                natural: '⭐⭐⭐⭐⭐'
+            },
+            gradient: {
+                name: '柔和光晕',
+                title: '方案 B：柔和渐变光晕',
+                desc: '鱼身周围有柔和的彩虹渐变光晕，无明显边界',
+                style: '优雅、自然',
+                natural: '⭐⭐⭐⭐⭐'
+            },
+            bubbles: {
+                name: '气泡尾迹',
+                title: '方案 C：气泡尾迹效果',
+                desc: '鱼游动时身后跟随小气泡上浮',
+                style: '可爱、水下感强',
+                natural: '⭐⭐⭐⭐⭐'
+            },
+            crown: {
+                name: '小皇冠',
+                title: '方案 D：简约标记',
+                desc: '鱼头顶显示小小的皇冠图标',
+                style: '简约、清晰',
+                natural: '⭐⭐⭐⭐'
+            },
+            glow: {
+                name: '闪光边缘',
+                title: '方案 E：柔和闪光边缘',
+                desc: '鱼的轮廓有柔和的白色/蓝色发光',
+                style: '科技感、清爽',
+                natural: '⭐⭐⭐⭐'
+            },
+            ripple: {
+                name: '脉冲波纹',
+                title: '方案 F：脉冲波纹效果',
+                desc: '从鱼身向外扩散的透明波纹（像声呐）',
+                style: '动态、现代',
+                natural: '⭐⭐⭐⭐'
+            },
+            combo: {
+                name: '组合效果',
+                title: '方案 G：组合效果（推荐）',
+                desc: '结合微弱的光晕和少量闪烁粒子',
+                style: '精致、平衡',
+                natural: '⭐⭐⭐⭐⭐'
+            },
+            none: {
+                name: '无特效',
+                title: '方案 H：无特效',
+                desc: '不改变鱼本身，仅通过UI提示',
+                style: '极简',
+                natural: '⭐⭐⭐⭐⭐'
+            }
+        };
+        
+        function setEffect(effect) {
+            currentEffect = effect;
+            
+            // 更新按钮状态
+            document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + effect).classList.add('active');
+            
+            // 更新信息
+            const info = effectInfo[effect];
+            document.getElementById('effectInfo').innerHTML = `
+                <h3>${info.title}</h3>
+                <p><strong>描述：</strong>${info.desc}</p>
+                <p><strong>风格：</strong>${info.style}</p>
+                <p><strong>自然度：</strong>${info.natural}</p>
+            `;
+            document.getElementById('effectName').textContent = info.name;
+            
+            // 重置气泡
+            fish.bubbles = [];
+        }
+        
+        function drawBackground() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#B2EBF2');
+            gradient.addColorStop(0.3, '#4FC3F7');
+            gradient.addColorStop(0.7, '#0288D1');
+            gradient.addColorStop(1, '#01579B');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function updateFish() {
+            // 移动鱼
+            fish.x += fish.vx * fish.direction;
+            fish.y += fish.vy;
+            
+            // 边界反弹
+            if (fish.x <= 0 || fish.x >= canvas.width - fish.width) {
+                fish.direction *= -1;
+                fish.vx = Math.abs(fish.vx);
+            }
+            if (fish.y <= 0 || fish.y >= canvas.height - fish.height) {
+                fish.vy *= -1;
+            }
+        }
+        
+        function drawFish() {
+            ctx.save();
+            
+            const centerX = fish.x + fish.width / 2;
+            const centerY = fish.y + fish.height / 2;
+            
+            // 应用特效
+            drawEffect(centerX, centerY);
+            
+            // 绘制鱼（翻转）
+            ctx.translate(centerX, centerY);
+            if (fish.direction < 0) {
+                ctx.scale(-1, 1);
+            }
+            ctx.drawImage(fishImage, -fish.width / 2, -fish.height / 2, fish.width, fish.height);
+            
+            ctx.restore();
+        }
+        
+        function drawEffect(centerX, centerY) {
+            const now = Date.now();
+            const elapsed = now - fish.createdDisplayTime;
+            
+            if (elapsed >= 60000) return; // 60秒后不显示
+            
+            const pulse = 0.5 + 0.5 * Math.sin(now / 300);
+            
+            switch(currentEffect) {
+                case 'current': // 当前金色光环
+                    ctx.save();
+                    ctx.shadowColor = `rgba(255, 215, 0, ${pulse})`;
+                    ctx.shadowBlur = 20 + pulse * 15;
+                    
+                    ctx.strokeStyle = `rgba(255, 215, 0, ${pulse * 0.6})`;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, fish.width * 0.6, 0, Math.PI * 2);
+                    ctx.stroke();
+                    
+                    ctx.strokeStyle = `rgba(255, 215, 0, ${pulse * 0.8})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, fish.width * 0.6 * 0.7, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                    break;
+                    
+                case 'particles': // 方案A: 闪光粒子
+                    particles.forEach(p => {
+                        p.angle += p.speed;
+                        p.opacity = 0.3 + Math.sin(now / 200 + p.angle) * 0.7;
+                        
+                        const px = centerX + Math.cos(p.angle) * p.distance;
+                        const py = centerY + Math.sin(p.angle) * p.distance;
+                        
+                        ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    break;
+                    
+                case 'gradient': // 方案B: 柔和光晕
+                    const gradient = ctx.createRadialGradient(
+                        centerX, centerY, 0,
+                        centerX, centerY, fish.width * 0.8
+                    );
+                    gradient.addColorStop(0, 'rgba(255, 215, 0, 0.3)');
+                    gradient.addColorStop(0.5, 'rgba(255, 182, 193, 0.2)');
+                    gradient.addColorStop(1, 'rgba(135, 206, 250, 0)');
+                    
+                    ctx.save();
+                    ctx.fillStyle = gradient;
+                    ctx.globalCompositeOperation = 'screen';
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, fish.width * 0.8, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                    break;
+                    
+                case 'bubbles': // 方案C: 气泡尾迹
+                    if (Math.random() < 0.3) {
+                        fish.bubbles.push({
+                            x: fish.x + fish.width / 2,
+                            y: fish.y + fish.height / 2,
+                            size: 2 + Math.random() * 4,
+                            vy: -0.5 - Math.random() * 0.5,
+                            life: 1.0
+                        });
+                    }
+                    
+                    fish.bubbles = fish.bubbles.filter(bubble => {
+                        bubble.y += bubble.vy;
+                        bubble.life -= 0.01;
+                        
+                        if (bubble.life > 0) {
+                            ctx.fillStyle = `rgba(173, 216, 230, ${bubble.life * 0.6})`;
+                            ctx.strokeStyle = `rgba(255, 255, 255, ${bubble.life * 0.4})`;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.arc(bubble.x, bubble.y, bubble.size, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.stroke();
+                            return true;
+                        }
+                        return false;
+                    });
+                    break;
+                    
+                case 'crown': // 方案D: 小皇冠
+                    ctx.save();
+                    ctx.font = 'bold 24px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+                    ctx.shadowBlur = 8;
+                    ctx.fillText('👑', centerX, fish.y - 20);
+                    ctx.restore();
+                    break;
+                    
+                case 'glow': // 方案E: 闪光边缘
+                    ctx.save();
+                    ctx.shadowColor = 'rgba(135, 206, 250, 0.8)';
+                    ctx.shadowBlur = 15 + pulse * 5;
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.3 + pulse * 0.2})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.ellipse(centerX, centerY, fish.width * 0.5, fish.height * 0.5, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                    break;
+                    
+                case 'ripple': // 方案F: 脉冲波纹
+                    const ripplePhase = (now / 1000) % 2;
+                    const rippleRadius = fish.width * 0.5 * (1 + ripplePhase);
+                    const rippleOpacity = 0.5 * (1 - ripplePhase / 2);
+                    
+                    ctx.strokeStyle = `rgba(100, 200, 255, ${rippleOpacity})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, rippleRadius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    break;
+                    
+                case 'combo': // 方案G: 组合效果
+                    // 柔和光晕
+                    const comboGrad = ctx.createRadialGradient(
+                        centerX, centerY, 0,
+                        centerX, centerY, fish.width * 0.6
+                    );
+                    comboGrad.addColorStop(0, 'rgba(255, 223, 186, 0.15)');
+                    comboGrad.addColorStop(1, 'rgba(255, 223, 186, 0)');
+                    ctx.fillStyle = comboGrad;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, fish.width * 0.6, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 少量粒子
+                    const particleCount = 5;
+                    for (let i = 0; i < particleCount; i++) {
+                        const angle = (now / 1000 + i * Math.PI * 2 / particleCount) % (Math.PI * 2);
+                        const distance = fish.width * 0.5;
+                        const px = centerX + Math.cos(angle) * distance;
+                        const py = centerY + Math.sin(angle) * distance;
+                        const opacity = 0.3 + Math.sin(now / 300 + i) * 0.3;
+                        
+                        ctx.fillStyle = `rgba(255, 215, 0, ${opacity})`;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    break;
+                    
+                case 'none': // 方案H: 无特效
+                    break;
+            }
+        }
+        
+        // FPS计算
+        let lastTime = Date.now();
+        let frameCount = 0;
+        let fps = 60;
+        
+        function animate() {
+            // 计算FPS
+            frameCount++;
+            const now = Date.now();
+            if (now - lastTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastTime = now;
+                document.getElementById('fps').textContent = fps;
+            }
+            
+            drawBackground();
+            updateFish();
+            drawFish();
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // 等待鱼图片加载
+        fishImage.onload = () => {
+            animate();
+        };
+        
+        // 如果图片加载失败，也开始动画
+        setTimeout(() => {
+            if (!fishImage.complete) {
+                animate();
+            }
+        }, 100);
+    </script>
+</body>
+</html>
+
+
+

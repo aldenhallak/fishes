@@ -408,10 +408,11 @@ function displayProfile(profile, searchedUserId = null) {
     // 给Fish Created统计卡片添加点击跳转功能
     const statItems = document.querySelectorAll('.stat-item');
     if (statItems.length > 0 && profileUserId) {
-        // 第一个是 Fish Created
+        // 第一个是 Fish Created (My fish)
         statItems[0].style.cursor = 'pointer';
         statItems[0].onclick = () => {
-            window.location.href = `rank.html?userId=${encodeURIComponent(profileUserId)}`;
+            // 跳转到 rank.html 并显示 My Fish 分类
+            window.location.href = `rank.html?myfish=true`;
         };
         
         // 第二个是 Favorites（如果存在）

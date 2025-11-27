@@ -110,14 +110,14 @@
         .category-tab {
             padding: 12px 24px;
             border: none;
-            background: linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+            background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #3A7BC8 100%);
             border-radius: 12px;
             cursor: pointer;
             font-size: 15px;
             font-weight: 700;
             color: white;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            box-shadow: 0 4px 0 0 #B8860B, 0 6px 12px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 0 0 #2C5F8F, 0 6px 12px rgba(74, 144, 226, 0.3);
             transition: all 0.15s ease;
             white-space: nowrap;
             position: relative;
@@ -126,86 +126,67 @@
         
         .category-tab:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 0 0 #B8860B, 0 8px 16px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 6px 0 0 #2C5F8F, 0 8px 16px rgba(74, 144, 226, 0.4);
         }
         
         .category-tab:active {
             transform: translateY(2px);
-            box-shadow: 0 2px 0 0 #B8860B, 0 3px 6px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 0 0 #2C5F8F, 0 3px 6px rgba(74, 144, 226, 0.3);
         }
         
         .category-tab.active {
-            background: linear-gradient(180deg, #6366F1 0%, #4F46E5 50%, #3730A3 100%);
-            box-shadow: 0 4px 0 0 #312E81, 0 6px 12px rgba(99, 102, 241, 0.4);
+            background: linear-gradient(180deg, #FF9500 0%, #FF8000 100%);
+            box-shadow: 0 4px 0 0 #CC6600, 0 6px 12px rgba(255, 149, 0, 0.4);
             transform: translateY(0);
         }
         
         .category-tab.active:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 0 0 #312E81, 0 8px 16px rgba(99, 102, 241, 0.5);
+            box-shadow: 0 6px 0 0 #CC6600, 0 8px 16px rgba(255, 149, 0, 0.5);
         }
         
         .category-tab.active:active {
             transform: translateY(2px);
-            box-shadow: 0 2px 0 0 #312E81, 0 3px 6px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 2px 0 0 #CC6600, 0 3px 6px rgba(255, 149, 0, 0.4);
         }
         
-        /* Compact Sort Controls */
-        .sort-controls-compact {
+        /* Text-only Sort Controls (Left Aligned) */
+        .sort-controls-text {
             display: flex;
-            justify-content: center;
             align-items: center;
-            gap: 15px;
+            gap: 8px;
             margin-bottom: 20px;
+            padding-left: 5px;
+            font-size: 14px;
         }
         
         .sort-label {
-            font-size: 16px;
-            font-weight: 700;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+            color: #666;
         }
         
-        .sort-btn {
-            padding: 10px 20px;
-            border: none;
-            background: linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
-            border-radius: 12px;
+        .sort-link {
+            color: #6366F1;
+            text-decoration: none;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 15px;
+            transition: all 0.2s ease;
+            padding: 2px 4px;
+        }
+        
+        .sort-link:hover {
+            color: #4F46E5;
+            text-decoration: underline;
+        }
+        
+        .sort-link.active {
+            color: #4F46E5;
             font-weight: 700;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            box-shadow: 0 4px 0 0 #B8860B, 0 6px 12px rgba(0, 0, 0, 0.3);
-            transition: all 0.15s ease;
-            white-space: nowrap;
-            position: relative;
-            top: 0;
         }
         
-        .sort-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 0 #B8860B, 0 8px 16px rgba(0, 0, 0, 0.4);
-        }
-        
-        .sort-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 0 #B8860B, 0 3px 6px rgba(0, 0, 0, 0.3);
-        }
-        
-        .sort-btn.active {
-            background: linear-gradient(180deg, #6366F1 0%, #4F46E5 50%, #3730A3 100%);
-            box-shadow: 0 4px 0 0 #312E81, 0 6px 12px rgba(99, 102, 241, 0.4);
-        }
-        
-        .sort-btn.active:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 0 #312E81, 0 8px 16px rgba(99, 102, 241, 0.5);
-        }
-        
-        .sort-btn.active:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 0 #312E81, 0 3px 6px rgba(99, 102, 241, 0.4);
+        .sort-separator {
+            color: #D1D5DB;
+            font-weight: 300;
         }
         
         /* Loading state */
@@ -617,14 +598,13 @@
     </div>
     
     <div class="ranking-container">
-        <div class="ranking-header animate-fadeInUp">
-            <h1>🐠 Fish Ranking 🏆</h1>
-        </div>
-        
-        <!-- Fish Category Filter (My Fish / Favorites) -->
-        <div id="fish-category-filter" class="fish-category-filter" style="display: none;">
+        <!-- Fish Category Filter (Rank / My Fish / Favorites) -->
+        <div id="fish-category-filter" class="fish-category-filter">
             <div class="category-tabs">
-                <button class="category-tab active" data-category="my-fish">
+                <button class="category-tab active" data-category="rank">
+                    🏆 Rank (<span id="rank-count">0</span>)
+                </button>
+                <button class="category-tab" data-category="my-fish">
                     🎨 My Fish (<span id="my-fish-count">0</span>)
                 </button>
                 <button class="category-tab" data-category="favorites">
@@ -633,15 +613,12 @@
             </div>
         </div>
         
-        <!-- Compact Sort Controls -->
-        <div class="sort-controls-compact">
+        <!-- Text-only Sort Controls (Left Aligned) -->
+        <div class="sort-controls-text">
             <span class="sort-label">Sort:</span>
-            <button id="sort-hot-btn" class="sort-btn" data-sort="hot">
-                🔥 Hot
-            </button>
-            <button id="sort-date-btn" class="sort-btn active" data-sort="date">
-                📅 Date
-            </button>
+            <a href="javascript:void(0)" id="sort-hot-btn" class="sort-link" data-sort="hot">🔥 Hot</a>
+            <span class="sort-separator">|</span>
+            <a href="javascript:void(0)" id="sort-date-btn" class="sort-link active" data-sort="date">📅 Date</a>
         </div>
         
         <div id="loading" class="loading">

@@ -44,7 +44,7 @@
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch(`${API_BASE}/api/fish/favorite`, {
+      const response = await fetch(`${API_BASE}/api/fish-api?action=favorite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,7 @@
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch(`${API_BASE}/api/fish/unfavorite`, {
+      const response = await fetch(`${API_BASE}/api/fish-api?action=unfavorite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
