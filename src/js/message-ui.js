@@ -131,7 +131,7 @@ const MessageUI = {
     let actionButtonsHtml = '';
     if (canReply || canDelete) {
       actionButtonsHtml = `
-        <div class="profile-message-actions">
+        <div class="profile-message-actions" style="display: flex; gap: 8px; align-items: center;">
           ${canReply ? `
             <button class="message-reply-btn" onclick="MessageUI.showReplyForm('${message.id}', '${message.sender_id}', '${MessageClient.escapeHtml(senderName)}')">
               Reply
@@ -147,16 +147,16 @@ const MessageUI = {
     }
 
     return `
-      <div class="message-card" data-message-id="${message.id}">
-        <div class="message-header">
-          <div class="message-sender">
+      <div class="message-card" data-message-id="${message.id}" style="display: flex; flex-direction: column;">
+        <div class="message-content" style="margin-bottom: 8px; flex: 1;">${content}</div>
+        <div class="message-header" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;">
+          <div class="message-sender" style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
             <div class="message-sender-avatar">${senderInitial}</div>
-            <span>${MessageClient.escapeHtml(senderName)}</span>
+            <span style="font-weight: 700; color: #4A90E2; white-space: nowrap;">${MessageClient.escapeHtml(senderName)}</span>
           </div>
-          <div class="message-time">${time}</div>
+          <div class="message-time" style="color: #999; font-size: 12px; white-space: nowrap; flex-shrink: 0;">${time}</div>
+          ${actionButtonsHtml}
         </div>
-        <div class="message-content">${content}</div>
-        ${actionButtonsHtml}
       </div>
     `;
   },
@@ -174,18 +174,13 @@ const MessageUI = {
     return `
       <div class="message-form" id="${formId}">
         <div class="message-form-group">
-          <div class="message-form-header">
-            <label class="message-form-label">Message</label>
-            <div class="message-char-count">
-              <span id="${formId}-count">0</span>/50
-            </div>
-          </div>
           <textarea 
             class="message-form-textarea" 
             id="${formId}-content"
             placeholder="Say something..."
             maxlength="50"
-            rows="3"
+            rows="1"
+            style="color: #333; font-weight: 500;"
           ></textarea>
         </div>
 

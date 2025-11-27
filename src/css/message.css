@@ -8,9 +8,10 @@
    ============================================ */
 
 .messages-section {
-  margin-top: 20px;
+  margin-top: 12px;
   padding-top: 0;
   border-top: none;
+  height: auto; /* 高度自适应内容 */
 }
 
 .messages-section-title {
@@ -33,9 +34,29 @@
    ============================================ */
 
 .messages-list {
-  max-height: 300px;
+  max-height: 250px; /* 减小最大高度 */
   overflow-y: auto;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+}
+
+/* 美化滚动条 - messages-list */
+.messages-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.messages-list::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+.messages-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.5);
 }
 
 .messages-empty {
@@ -193,7 +214,7 @@
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 10px;
+  padding: 8px;
 }
 
 .message-form-group {
@@ -225,6 +246,7 @@
   resize: vertical;
   transition: border-color 0.3s;
   box-sizing: border-box;
+  background-color: white;
 }
 
 .message-form-textarea:focus {

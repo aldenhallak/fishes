@@ -1070,9 +1070,10 @@ button.game-btn {
   position: relative;
   max-width: 90vw;
   max-height: 80vh;
-  overflow-y: auto;
+  overflow: visible; /* 允许关闭按钮溢出 */
   min-width: 350px;
   width: auto;
+  height: auto; /* 高度自适应内容 */
   box-shadow: 
     0 20px 60px rgba(0, 0, 0, 0.4),
     0 8px 0 rgba(0, 0, 0, 0.2),
@@ -1088,7 +1089,8 @@ button.game-btn {
 
 /* 弹窗内容区域（当没有标题横幅时使用padding） - 压缩内边距 */
 .modal-content:not(.has-title-banner) {
-  padding: 20px;
+  padding: 16px;
+  height: auto; /* 高度自适应内容 */
 }
 
 /* 弹窗顶部光泽效果 */
@@ -1135,30 +1137,34 @@ button.game-btn {
 
 /* 弹窗内容区域（有标题横幅时） - 压缩内边距 */
 .modal-content-area {
-  padding: 24px;
-  padding-top: 20px;
+  padding: 20px;
+  padding-top: 16px;
   position: relative;
   z-index: 1;
+  height: auto; /* 高度自适应内容 */
 }
 
-/* 宽弹窗样式 - 压缩PC端宽度 */
+/* 宽弹窗样式 - 自适应宽度和高度 */
 .modal-content.wide {
-  width: 600px;
-  max-width: 90vw;
+  width: auto; /* 自适应宽度 */
+  height: auto; /* 自适应高度 */
+  min-width: 320px; /* 最小宽度保证内容不被挤压 */
+  max-width: 85vw; /* 最大宽度限制 */
+  max-height: 85vh; /* 限制最大高度 */
 }
 
-/* 关闭按钮 */
+/* 关闭按钮 - 移动到弹窗右上角 */
 .modal .close,
 .modal-close-btn {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 36px;
-  height: 36px;
+  top: -15px; /* 移出内容区域顶部 */
+  right: -15px; /* 移出内容区域右侧 */
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: linear-gradient(180deg, #4CD964 0%, #3CB54A 50%, #2E8B3A 100%);
+  background: linear-gradient(180deg, #FF6B6B 0%, #EE5A52 50%, #E53935 100%); /* 使用醒目的红色 */
   border: none;
-  border-bottom: 3px solid #1F6B2A;
+  border-bottom: 2px solid #C62828;
   color: white;
   font-size: 20px;
   font-weight: 700;
@@ -1167,10 +1173,10 @@ button.game-btn {
   align-items: center;
   justify-content: center;
   box-shadow: 
-    0 4px 0 rgba(0, 0, 0, 0.25),
+    0 4px 8px rgba(0, 0, 0, 0.3),
     inset 0 2px 4px rgba(255, 255, 255, 0.3);
   transition: all 0.15s ease;
-  z-index: 10;
+  z-index: 20; /* 提高层级 */
   line-height: 1;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
@@ -1297,6 +1303,26 @@ button.game-btn {
 /* 弹窗内的鱼信息 */
 .modal-content .fish-info-modal {
   text-align: center;
+}
+
+/* 美化滚动条 - fish-info-modal */
+.fish-info-modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.fish-info-modal::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.fish-info-modal::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+.fish-info-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.5);
 }
 
 .modal-content .fish-score {

@@ -563,9 +563,6 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
             }
 
             fishes.push(fishObj);
-            
-            // 🔍 调试：记录全局鱼缸鱼的游动参数
-            console.log(`🔍 全局鱼缸鱼游动参数: speed=${fishObj.speed}, amplitude=${fishObj.amplitude}, phase=${fishObj.phase}, peduncle=${fishObj.peduncle}, docId=${fishObj.docId}`);
 
             if (onDone) onDone(fishObj);
         } else {
@@ -1270,14 +1267,6 @@ async function loadInitialFish(sortType = 'recent') {
 
             // Try multiple possible field names for image URL (support different API formats)
             const imageUrl = data.image || data.Image || data.image_url || data.imageUrl;
-            
-            // 🔍 调试：记录全局鱼缸的图片URL格式
-            console.log('🔍 Global tank image URL:', imageUrl, 'from data:', {
-                image: data.image,
-                Image: data.Image,
-                image_url: data.image_url,
-                imageUrl: data.imageUrl
-            });
             
             if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.startsWith('http')) {
                 console.warn('Skipping fish with invalid image:', fishId, data);
@@ -2560,48 +2549,45 @@ function showFishInfoModal(fish) {
         ? `<a href="profile.html?userId=${encodeURIComponent(userId)}" target="_blank" style="color: #4A90E2; text-decoration: none; font-weight: 700;">${escapeHtml(artistName)}</a>`
         : escapeHtml(artistName);
 
-    let info = `<div class="fish-info-modal" style="background: linear-gradient(180deg, #F8F9FA 0%, #E8E8E8 100%); padding: 16px; border-radius: 12px;">`;
+    let info = `<div class="fish-info-modal" style="background: transparent; padding: 12px; border-radius: 12px; max-height: calc(85vh - 80px); overflow-y: auto;">`;
 
-    // 移除用户自己的鱼的金色标签（两个鱼缸都不显示）
-    // if (isCurrentUserFish) {
-    //     info += `<div style='margin-bottom: 10px; padding: 6px; background: linear-gradient(135deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border: 2px solid #BFA000; border-radius: 8px; color: #5D4E00; font-weight: 900; font-size: 11px; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2); text-align: center; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);'>⭐ Your Fish</div>`;
-    // }
-
-    // Fish image (no frame, direct display) - 压缩尺寸优化
+    // Fish image (no frame, direct display) - 更精简的尺寸
     const isMobile = window.innerWidth <= 768;
     const imgContainerStyle = isMobile 
-        ? "display: flex; align-items: center; justify-content: center; margin-bottom: 12px; min-height: 120px;"
-        : "text-align: center; margin-bottom: 15px;";
+        ? "display: flex; align-items: center; justify-content: center; margin-bottom: 8px; min-height: 70px;"
+        : "text-align: center; margin-bottom: 10px;";
     const imgStyle = isMobile
-        ? `display: block; margin: 0 auto; max-width: min(${Math.min(modalWidth, 350)}px, 70vw); max-height: min(${Math.min(modalHeight, 200)}px, 25vh); width: auto; height: auto; image-rendering: auto; object-fit: contain;`
-        : `display: block; margin: 0 auto; max-width: ${Math.min(modalWidth, 400)}px; max-height: ${Math.min(modalHeight, 250)}px; width: auto; height: auto; image-rendering: auto; object-fit: contain;`;
+        ? `display: block; margin: 0 auto; max-width: min(${Math.min(modalWidth, 196)}px, 65vw); max-height: min(${Math.min(modalHeight, 119)}px, 22vh); width: auto; height: auto; image-rendering: auto; object-fit: contain;`
+        : `display: block; margin: 0 auto; max-width: ${Math.min(modalWidth, 224)}px; max-height: ${Math.min(modalHeight, 140)}px; width: auto; height: auto; image-rendering: auto; object-fit: contain;`;
     
     info += `<div style="${imgContainerStyle}">`;
     info += `<img src='${imgDataUrl}' style='${imgStyle}' alt='Fish'>`;
     info += `</div>`;
 
-    // Fish info section with fish name and artist - 压缩间距
+    // Fish info section with fish name and artist - 单行显示
     const fishName = fish.name || fish.title || `Fish #${fish.docId?.substring(0, 8) || 'Unknown'}`;
-    info += `<div style='margin-bottom: 8px; font-size: 12px; color: #666; line-height: 1.3;'><strong style='color: #333;'>${escapeHtml(fishName)}</strong> • <strong style='color: #333;'>Artist:</strong> ${artistLink}</div>`;
+    info += `<div style='margin-bottom: 10px; font-size: 15px; color: #333; line-height: 1.4; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'><strong style='color: #6366F1; font-size: 16px;'>${escapeHtml(fishName)}</strong> <span style='font-size: 14px; color: #666;'>by ${artistLink}</span></div>`;
 
-    // Action buttons: Like, Favorite, Report (并列，样式一致) - 压缩间距
-    info += `<div class="voting-controls modal-controls" style="display: flex; gap: 8px; justify-content: center; margin-bottom: 12px;">`;
+    // Action buttons: Like, Favorite, Report (并列，样式一致，更精简)
+    info += `<div class="voting-controls modal-controls" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;">`;
     
-    // Like button - 压缩尺寸
-    info += `<button class="vote-btn upvote-btn" onclick="handleVote('${fish.docId}', 'up', this)" style="flex: 1; padding: 8px 12px; border: none; border-radius: 8px; background: linear-gradient(180deg, #6FE77D 0%, #4CD964 50%, #3CB54A 100%); border-bottom: 2px solid #2E8B3A; color: white; cursor: pointer; font-size: 12px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 4px;">`;
-    info += `👍 <span class="vote-count upvote-count">${fish.upvotes || 0}</span>`;
+    const btnStyle = "flex: 1; padding: 8px 0; border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; height: 40px;";
+
+    // Like button
+    info += `<button class="vote-btn upvote-btn" onclick="handleVote('${fish.docId}', 'up', this)" style="${btnStyle} background: linear-gradient(180deg, #6FE77D 0%, #4CD964 50%, #3CB54A 100%); border-bottom: 2px solid #2E8B3A;">`;
+    info += `👍 <span class="vote-count upvote-count" style="margin-left: 4px;">${fish.upvotes || 0}</span>`;
     info += `</button>`;
     
-    // Add to My Tank button (only show if user is logged in and not their own fish)
+    // Add to My Tank button
     if (showFavoriteButton) {
-        info += `<button class="add-to-tank-btn" id="add-tank-btn-${fish.docId}" onclick="if(typeof handleAddToMyTank === 'function') handleAddToMyTank('${fish.docId}', event); else alert('Add to My Tank feature not yet implemented');" style="flex: 1; padding: 8px 12px; border: none; border-radius: 8px; background: linear-gradient(180deg, #4A90E2 0%, #357ABD 50%, #2C5F8F 100%); border-bottom: 2px solid #1E4A6F; color: white; cursor: pointer; font-size: 12px; font-weight: 700; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 4px;" title="Add this fish to your personal tank">`;
-        info += `🐠 Add to Tank`;
+        info += `<button class="add-to-tank-btn" id="add-tank-btn-${fish.docId}" onclick="if(typeof handleAddToMyTank === 'function') handleAddToMyTank('${fish.docId}', event); else alert('Add to My Tank feature not yet implemented');" style="${btnStyle} background: linear-gradient(180deg, #FFD93D 0%, #FFC107 50%, #FF8F00 100%); border-bottom: 2px solid #E67E00;" title="Add this fish to your personal tank">`;
+        info += `⭐`;
         info += `</button>`;
     }
     
-    // Report button - 压缩尺寸
-    info += `<button class="report-btn" onclick="handleReport('${fish.docId}')" style="flex: 1; padding: 8px 12px; border: none; border-radius: 8px; background: linear-gradient(180deg, #FFE55C 0%, #FFD700 50%, #E5BF00 100%); border-bottom: 2px solid #BFA000; color: #5D4E00; cursor: pointer; font-size: 12px; font-weight: 700; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25); transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; gap: 4px;" title="Report inappropriate content">`;
-    info += `⚠️ Report`;
+    // Report button
+    info += `<button class="report-btn" onclick="handleReport('${fish.docId}')" style="${btnStyle} background: linear-gradient(180deg, #9E9E9E 0%, #757575 50%, #616161 100%); border-bottom: 2px solid #424242;" title="Report inappropriate content">`;
+    info += `🚩`;
     info += `</button>`;
     
     info += `</div>`;
