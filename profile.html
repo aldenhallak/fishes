@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile - Your Fish Art Statistics | DrawAFish.com</title>
+    <title>User Profile - Your Fish Art Statistics | FishTalk.app</title>
     <meta name="description" content="View your fish drawing statistics, total scores, and community engagement.">
     <meta name="keywords" content="user profile, fish art statistics, drawing progress, artist profile, fish drawing stats, community engagement">
     
@@ -11,36 +11,110 @@
     <meta property="og:title" content="User Profile - Your Fish Art Statistics">
     <meta property="og:description" content="View your fish drawing statistics, total scores, and community engagement.">
     <meta property="og:type" content="profile">
-    <meta property="og:url" content="https://drawafish.com/profile.html">
+    <meta property="og:url" content="https://fishtalk.app/profile.html">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://drawafish.com/profile.html">
+    <link rel="canonical" href="https://fishtalk.app/profile.html">
     
-    <link rel="stylesheet" href="src/css/style.css">
-    <link rel="stylesheet" href="src/css/profile.css">
-    <link rel="icon" href="public/favicon.ico">
+    <link rel="stylesheet" href="src/css/animations.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
+    <link rel="stylesheet" href="src/css/style.css?v=2.0">
+    <link rel="stylesheet" href="src/css/profile.css?v=2.0">
+    <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
+    <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
+    <link rel="icon" type="image/png" href="/fish_logo.png">
     
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GS1GYSFBPX"></script>
+    <!-- Google tag (gtag.js) - 添加错误处理 -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-GS1GYSFBPX');
+      // 尝试加载Google Analytics，失败时静默处理
+      (function() {
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-601YXTKK0L';
+        script.onerror = function() {
+          console.warn('⚠️ Google Analytics failed to load (network issue)');
+        };
+        document.head.appendChild(script);
+        
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-601YXTKK0L');
+      })();
     </script>
 
 </head>
-<body>
-    <div class="nav-links">
-        <a href="index.html">draw</a>
-        <a href="tank.html">tank</a>
-        <a href="rank.html">rankings</a>
-        <a href="fishtanks.html" id="my-tanks-link">my tanks</a>
-        <a href="login.html" id="auth-link">login</a>
-    </div>
+<body class="game-style">
+  <!-- 海洋风格背景气泡 -->
+  <div class="background-bubbles"></div>
+
+  <!-- Top Navigation Bar -->
+  <nav class="game-nav">
+    <!-- 汉堡菜单按钮 -->
+    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="Open Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
     
-    <div class="profile-container">
+    <a href="index.html" class="game-logo" style="text-decoration: none; color: white; cursor: pointer;">
+      FishTalk.app
+    </a>
+    <div class="game-nav-links">
+      <a href="#about" class="game-btn game-btn-white" style="display: none;">
+        <span>ℹ️</span>
+        <span>About</span>
+      </a>
+      <a href="test-center.html" class="game-btn game-btn-white">
+        <span>🧪</span>
+        <span>Test</span>
+      </a>
+      <!-- 登录按钮和用户菜单将由 auth-ui.js 动态插入 -->
+    </div>
+  </nav>
+
+  <!-- 侧边栏菜单 -->
+  <div id="sidebar-menu" class="sidebar-menu">
+    <div class="sidebar-header">
+      <h3>🐟 Menu</h3>
+      <button id="close-sidebar-btn" class="close-sidebar-btn" aria-label="Close menu">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link">
+        <span class="sidebar-icon">🎨</span>
+        <span>Draw Fish</span>
+      </a>
+      <a href="tank.html" class="sidebar-link">
+        <span class="sidebar-icon">🌊</span>
+        <span>Global Tank</span>
+      </a>
+      <a href="tank.html?view=my" class="sidebar-link">
+        <span class="sidebar-icon">⭐</span>
+        <span>My Tank</span>
+      </a>
+      <a href="rank.html" class="sidebar-link">
+        <span class="sidebar-icon">🏆</span>
+        <span>Rank</span>
+      </a>
+      <a href="profile.html" class="sidebar-link">
+        <span class="sidebar-icon">👤</span>
+        <span>Profile</span>
+      </a>
+      <a href="membership.html" class="sidebar-link" id="sidebar-upgrade-link" style="display: none;">
+        <span class="sidebar-icon"><img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain;"></span>
+        <span>Upgrade</span>
+      </a>
+      <a href="#" id="sidebar-share-btn" class="sidebar-link">
+        <span class="sidebar-icon">📤</span>
+        <span>Share</span>
+      </a>
+    </nav>
+  </div>
+  
+  <!-- 侧边栏遮罩 -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+    
+    <div class="profile-container" style="padding-top: 70px;">
         <div class="profile-header">
             <h1>User Profile</h1>
         </div>
@@ -55,8 +129,8 @@
             <h2>No user logged in</h2>
             <p>Please log in to view your profile</p>
             <div class="profile-actions">
-                <a href="login.html" class="action-btn primary">Log In</a>
-                <a href="login.html?signup=true" class="action-btn">Sign Up</a>
+                <button onclick="showLoginModal()" class="action-btn primary">Log In</button>
+                <button onclick="showLoginModal()" class="action-btn">Sign Up</button>
             </div>
         </div>
         
@@ -65,6 +139,11 @@
                 <div class="profile-basic">
                     <div class="profile-avatar" id="profile-avatar"></div>
                     <div class="profile-name" id="profile-name"></div>
+                    <div class="profile-membership" id="profile-membership">
+                        <span id="membership-badge"></span>
+                        <span id="membership-text"></span>
+                        <button id="upgrade-btn" class="upgrade-btn" style="display: none;">Upgrade</button>
+                    </div>
                     <div class="profile-email" id="profile-email"></div>
                     <div class="profile-joined" id="profile-joined"></div>
                 </div>
@@ -72,42 +151,127 @@
                 <div class="profile-stats">
                     <div class="stat-item">
                         <div class="stat-value" id="fish-count">0</div>
-                        <div class="stat-label">Fish Created</div>
+                        <div class="stat-label">My fish</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value" id="total-score">0</div>
-                        <div class="stat-label">Total Score</div>
+                        <div class="stat-value" id="favorite-count">0</div>
+                        <div class="stat-label">⭐ Favorites</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-value" id="total-upvotes">0</div>
                         <div class="stat-label">Total Upvotes</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="total-downvotes">0</div>
-                        <div class="stat-label">Total Downvotes</div>
-                    </div>
                 </div>
             </div>
             
             <div class="profile-actions">
-                <button id="edit-profile-btn" class="action-btn" onclick="toggleEditProfile()">Edit Profile</button>
+                <button id="edit-profile-btn" class="action-btn" onclick="toggleEditProfile()">Settings</button>
                 <a href="#" id="view-fish-btn" class="action-btn">View All Fish</a>
                 <a href="#" id="visit-tank-btn" class="action-btn primary">Visit Tank</a>
                 <button onclick="shareProfile()" class="action-btn">Share Profile</button>
             </div>
         </div>
+        
+        <!-- Messages Section -->
+        <div id="profile-messages-section" class="profile-messages-section" style="display: none;">
+            <div id="profile-messages-container"></div>
+        </div>
     </div>
     
     <script src="src/js/footer-utils.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="src/js/firebase-init.js"></script>
-    <script src="src/js/fish-utils.js"></script>
+  <!-- Supabase SDK -->
+  <script src="public/supabase-config.js?v=2.2"></script>
+  <script>
+    // 尝试加载Supabase SDK，如果失败则使用备用CDN
+    (function() {
+      const cdnSources = [
+        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+        'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js',
+        'https://cdn.skypack.dev/@supabase/supabase-js@2'
+      ];
+      
+      let loaded = false;
+      let currentIndex = 0;
+      
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = () => {
+            loaded = true;
+            console.log('✅ Supabase SDK loaded from:', src);
+            resolve();
+          };
+          script.onerror = () => {
+            console.warn('⚠️ Failed to load from:', src);
+            reject();
+          };
+          document.head.appendChild(script);
+        });
+      }
+      
+      async function tryLoadSupabase() {
+        while (currentIndex < cdnSources.length && !loaded) {
+          try {
+            await loadScript(cdnSources[currentIndex]);
+            break;
+          } catch (error) {
+            currentIndex++;
+            if (currentIndex >= cdnSources.length) {
+              console.error('❌ All CDN sources failed. Please check your network connection.');
+              console.error('💡 You may need to:');
+              console.error('   1. Check your internet connection');
+              console.error('   2. Disable browser tracking prevention');
+              console.error('   3. Use a VPN if CDN is blocked in your region');
+            }
+          }
+        }
+      }
+      
+      tryLoadSupabase();
+    })();
+  </script>
+  <script src="src/js/supabase-init.js?v=2.3"></script>
+  <script src="src/js/auth-cache.js?v=1.0"></script>
+  <script src="src/js/fish-utils.js?v=2.5"></script>
+  <script src="src/js/fishtank-favorites.js"></script>
+  <script src="src/js/social-config.js?v=2.1"></script>
+  <script src="src/js/social-share.js?v=2.1"></script>
+    <script src="src/js/membership-icons.js?v=1.0"></script>
+    <script src="src/js/auth-ui.js?v=2.5"></script>
+    <script src="src/js/fish-info-modal.js?v=1.0"></script>
+    <script src="src/js/hamburger-menu.js?v=1.0"></script>
     <script src="src/js/profile.js"></script>
-    <script>
-        // Initialize navigation authentication
-        initializeAuthNavigation();
-    </script>
+  <script>
+    // Initialize navigation authentication
+    if (typeof initializeAuthNavigation === 'function') {
+      initializeAuthNavigation();
+    }
+  </script>
+
+  <!-- Game Style Footer -->
+  <footer class="game-footer">
+    <div class="game-footer-links">
+      <a href="tank.html" class="game-footer-link">Global Fish Tank</a>
+      <a href="fish-doodle-community.html" class="game-footer-link">Community</a>
+      <a href="about.html" class="game-footer-link">About</a>
+      <a href="how-to-draw-a-fish.html" class="game-footer-link">How to Draw a Fish</a>
+      <a href="fish-drawing-game.html" class="game-footer-link">Fish Drawing Game</a>
+      <a href="faq.html" class="game-footer-link">FAQ</a>
+    </div>
+    <p style="margin: 6px 0 4px; color: rgba(255, 255, 255, 0.9); font-size: 13px; line-height: 1.4;">
+      🎨 Based on 
+      <a href="https://github.com/aldenhallak/fishes" target="_blank" rel="noopener noreferrer" 
+         style="color: white; font-weight: 700; text-decoration: underline;">DrawAFish</a>
+      by
+      <a href="https://github.com/aldenhallak" target="_blank" rel="noopener noreferrer"
+         style="color: white; font-weight: 700; text-decoration: underline;">aldenhallak</a>
+    </p>
+  </footer>
+
+  <!-- Message System -->
+  <link rel="stylesheet" href="src/css/message.css">
+  <script src="src/js/message-client.js"></script>
+  <script src="src/js/message-ui.js"></script>
 </body>
 </html>

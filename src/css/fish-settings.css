@@ -1,0 +1,56 @@
+/* Fish Settings Page Styles */
+
+.card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.fish-card {
+    transition: all 0.3s ease;
+}
+
+.fish-card:hover {
+    background: #f9f9f9;
+    transform: translateX(5px);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .fish-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .fish-card img {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+

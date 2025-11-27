@@ -3,141 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fish Tank - Watch Community Fish Swim | DrawAFish.com</title>
-    <meta name="description" content="Watch all the community-created fish swim together in our interactive fish tank. View the most recent, popular, or random fish drawings from our creative community.">
-    <meta name="keywords" content="fish tank, swimming fish, community art, fish animation, digital aquarium, fish gallery">
+    <title>Global Fish Tank - Watch Everyone's Doodles Swim Live | FishTalk.app</title>
+    <meta name="description" content="Watch 50K+ fish doodles swim in our global tank! See weird, creative & funny fish from artists worldwide. A living aquarium of community art. Free online fish tank.">
+    <meta name="keywords" content="global fish tank, watch fish swim, fish doodles online, community fish tank, virtual aquarium, weird fish drawings, funny fish art, online fish tank, fish art gallery">
     
     <!-- Open Graph tags -->
     <meta property="og:title" content="Fish Tank - Watch Community Fish Swim">
     <meta property="og:description" content="Watch all the community-created fish swim together in our interactive fish tank. View recent, popular, or random fish drawings.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://drawafish.com/tank.html">
+    <meta property="og:url" content="https://fishtalk.app/tank.html">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://drawafish.com/tank.html">
+    <link rel="canonical" href="https://fishtalk.app/tank.html">
     
-    <link rel="stylesheet" href="src/css/style.css">
-    <link rel="icon" href="public/favicon.ico">
+    <link rel="stylesheet" href="src/css/animations.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
+    <link rel="stylesheet" href="src/css/style.css?v=2.0">
+    <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
+    <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
+    <link rel="icon" type="image/png" href="/fish_logo.png">
     
     <style>
-        /* Modal styling - matching rank page design */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background: white;
-            margin: 100px auto;
-            padding: 20px;
-            width: 400px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        
-        /* Special styling for add-to-tank modal */
-        .modal-content.wide {
-            width: 600px;
-            max-width: 90vw;
-        }
-        
-        .close {
-            float: right;
-            cursor: pointer;
-            font-size: 24px;
-            color: #666;
-        }
-        
-        .close:hover {
-            color: #333;
-        }
-        
-        /* Fish info modal specific styles */
-        .fish-info-modal {
-            text-align: center;
-        }
-        
-        .fish-info-modal h3 {
-            margin-top: 0;
-            color: #333;
-            font-size: 18px;
-        }
-        
-        .fish-info-modal .fish-details {
-            margin: 15px 0;
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .fish-info-modal .fish-score {
-            font-size: 16px;
-            font-weight: bold;
-            color: #007bff;
-            margin: 10px 0;
-        }
-        
-        /* Voting controls styling */
-        .voting-controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            align-items: center;
-            margin-top: 15px;
-        }
-        
-        .vote-btn {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: all 0.2s ease;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .vote-btn:hover {
-            background: #f0f0f0;
-            transform: translateY(-1px);
-        }
-        
-        .upvote-btn:hover {
-            background: #d4edda;
-            border-color: #28a745;
-        }
-        
-        .downvote-btn:hover {
-            background: #f8d7da;
-            border-color: #dc3545;
-        }
-        
-        .report-btn {
-            padding: 8px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: all 0.2s ease;
-        }
-        
-        .report-btn:hover {
-            background: #fff3cd;
-            border-color: #ffc107;
-        }
-        
-        .vote-count {
-            font-weight: bold;
-        }
-        
-        /* Tank selection in modal */
+        /* Tank selection in modal - 游戏风格优化 */
         .tank-selection-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -148,173 +35,214 @@
         }
         
         .tank-selection-item {
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 16px;
-            background: white;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
         }
         
         .tank-selection-item:hover {
-            border-color: #007bff;
-            background: #f8f9fa;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+            border-color: #4A90E2;
+            background: linear-gradient(180deg, #F8F9FA 0%, #E8E8E8 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2), 0 8px 16px rgba(74, 144, 226, 0.3);
         }
         
         .tank-selection-item h4 {
-            margin: 0 0 8px 0;
+            margin: 0 0 10px 0;
             color: #333;
-            font-size: 1.1em;
-            font-weight: 600;
+            font-size: 1.2em;
+            font-weight: 900;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .tank-selection-item .tank-description {
-            margin: 0 0 8px 0;
+            margin: 0 0 12px 0;
             color: #666;
             font-size: 14px;
-            line-height: 1.4;
+            line-height: 1.6;
         }
         
         .tank-selection-stats {
             display: flex;
-            gap: 15px;
-            margin: 8px 0 12px 0;
-            font-size: 13px;
+            gap: 16px;
+            margin: 12px 0 16px 0;
+            font-size: 14px;
             color: #666;
+            font-weight: 600;
         }
         
         .tank-selection-stats .stat-item {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
         
         .tank-privacy-indicator {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
+            top: 16px;
+            right: 16px;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         
         .tank-privacy-indicator.public {
-            background: #d4edda;
-            color: #155724;
+            background: linear-gradient(180deg, #6FE77D 0%, #4CD964 50%, #3CB54A 100%);
+            border-bottom: 2px solid #2E8B3A;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         
         .tank-privacy-indicator.private {
-            background: #f8d7da;
-            color: #721c24;
+            background: linear-gradient(180deg, #FF6259 0%, #FF3B30 50%, #CC2920 100%);
+            border-bottom: 2px solid #991F19;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         
         .add-to-tank-btn {
             width: 100%;
-            padding: 10px 15px;
-            border: 2px solid #007bff;
-            background: #007bff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+            border-bottom: 3px solid #2C5F8F;
             color: white;
-            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.15s ease;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .add-to-tank-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            pointer-events: none;
         }
         
         .add-to-tank-btn:hover {
-            background: #0056b3;
-            border-color: #0056b3;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+        }
+        
+        .add-to-tank-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
         }
         
         .no-tanks-message {
             text-align: center;
-            padding: 30px 20px;
-            border: 2px dashed #ddd;
-            border-radius: 12px;
-            background: #f8f9fa;
+            padding: 40px 24px;
+            border: 3px dashed rgba(74, 144, 226, 0.3);
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #F8F9FA 0%, #E8E8E8 100%);
             color: #666;
         }
         
         .no-tanks-message h3 {
-            margin: 0 0 10px 0;
+            margin: 0 0 12px 0;
             color: #333;
-            font-size: 1.2em;
+            font-size: 1.3em;
+            font-weight: 900;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .no-tanks-message p {
-            margin: 0 0 15px 0;
-            line-height: 1.5;
+            margin: 0 0 20px 0;
+            line-height: 1.6;
+            font-size: 15px;
         }
         
         .no-tanks-message .btn {
             display: inline-block;
             text-decoration: none;
-            padding: 10px 20px;
-            border: 2px solid #007bff;
-            background: white;
-            color: #007bff;
-            border-radius: 5px;
-            transition: all 0.2s ease;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+            border-bottom: 3px solid #2C5F8F;
+            color: white;
+            font-weight: 700;
+            transition: all 0.15s ease;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
         }
         
         .no-tanks-message .btn:hover {
-            background: #007bff;
-            color: white;
             transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+        }
+        
+        .no-tanks-message .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
         }
         
         /* Mobile-specific styles */
         @media (max-width: 768px) {
-            .modal-content {
-                width: 90%;
-                margin: 50px auto;
+            
+            html {
+                height: 100%;
+                overflow: hidden;
             }
             
             body {
                 margin: 0;
                 padding: 0;
                 touch-action: manipulation; /* Prevent zoom on double-tap */
-                display: flex;
-                flex-direction: column;
-                height: 100vh;
+                height: 100%;
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
             }
             
             #swim-canvas {
                 width: 100vw !important;
-                height: calc(100vh - 120px) !important;
+                height: 100vh !important;
                 max-width: 100vw !important;
+                max-height: 100vh !important;
                 border: none !important;
                 display: block !important;
                 margin: 0 !important;
-                flex: 1;
+                padding: 0 !important;
                 touch-action: manipulation;
-                position: relative;
-                z-index: 1;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 10;
             }
             
-            .controls-container {
-                position: static !important;
-                transform: none !important;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 8px;
-                border-top: 1px solid #ddd;
-                font-size: 11px;
-                text-align: center;
-                backdrop-filter: blur(10px);
-                flex-shrink: 0;
+            /* 确保装饰元素在移动端也能显示 */
+            .tank-decorations {
+                position: fixed !important;
+                z-index: 5 !important;
             }
             
-            .controls-container select,
-            .controls-container button,
-            .controls-container input[type="range"] {
-                margin: 2px;
-                font-size: 12px;
+            .light-beams {
+                position: fixed !important;
+                z-index: 15 !important;
+            }
+            
+            .game-tank-controls {
+                display: none !important;
             }
             
             .desktop-only {
@@ -325,15 +253,9 @@
                 display: inline;
             }
             
+            /* Hide footer on tank page mobile */
             footer {
-                position: static !important;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 8px 5px;
-                font-size: 10px;
-                backdrop-filter: blur(10px);
-                border-top: 1px solid #ddd;
-                flex-shrink: 0;
-                margin: 0;
+                display: none !important;
             }
         }
         
@@ -346,30 +268,213 @@
                 display: none;
             }
             
+            html {
+                height: 100%;
+                overflow: hidden;
+            }
+            
             body {
                 margin: 0;
                 padding: 0;
+                overflow: hidden;
+                height: 100%;
+                position: fixed;
+                width: 100%;
             }
             
             #swim-canvas {
                 width: 100vw !important;
                 height: 100vh !important;
                 max-width: 100vw !important;
+                max-height: 100vh !important;
                 border: none !important;
                 display: block !important;
                 margin: 0 !important;
+                padding: 0 !important;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 10;
             }
             
-            .controls-container {
-                position: static;
-                transform: none;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 15px;
-                border-top: 1px solid #ddd;
-                backdrop-filter: blur(10px);
-                text-align: center;
-                margin: 0;
+            /* 确保装饰元素在桌面端也能显示 */
+            .tank-decorations {
+                position: fixed !important;
+                z-index: 5 !important;
             }
+            
+            .light-beams {
+                position: fixed !important;
+                z-index: 15 !important;
+            }
+            
+            .game-tank-controls {
+                display: none !important;
+            }
+            
+            /* Hide footer on tank page desktop */
+            footer {
+                display: none !important;
+            }
+        }
+        
+        /* 游戏风格选择器 */
+        .game-select {
+            transition: all 0.2s ease;
+        }
+        
+        .game-select:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+        }
+        
+        .game-select:focus {
+            outline: none;
+            border-color: #6366F1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        /* 3D风格图标 */
+        .game-icon-3d {
+            display: inline-block;
+            font-size: 16px;
+            line-height: 1;
+            text-shadow: 
+                0 2px 0 rgba(0, 0, 0, 0.3),
+                0 3px 4px rgba(0, 0, 0, 0.2),
+                0 0 8px rgba(255, 255, 255, 0.3);
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+            transform: perspective(100px) rotateX(-5deg);
+            transition: all 0.2s ease;
+        }
+        
+        .game-icon-3d:hover {
+            transform: perspective(100px) rotateX(0deg) scale(1.1);
+            text-shadow: 
+                0 3px 0 rgba(0, 0, 0, 0.3),
+                0 4px 6px rgba(0, 0, 0, 0.3),
+                0 0 12px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 选择器内的图标 */
+        .game-select option {
+            font-weight: 600;
+        }
+        
+        /* 控制栏内的图标 - 3D立体风格，无边框 */
+        .game-control-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            line-height: 1;
+            /* 多层3D阴影效果 */
+            text-shadow: 
+                0 3px 0 rgba(0, 0, 0, 0.4),
+                0 4px 6px rgba(0, 0, 0, 0.3),
+                0 6px 12px rgba(0, 0, 0, 0.2),
+                0 0 12px rgba(255, 255, 255, 0.4),
+                0 0 20px rgba(255, 255, 255, 0.2);
+            /* 3D透视变换 */
+            transform: perspective(200px) rotateX(-8deg) translateZ(0);
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4)) 
+                    drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+            transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+        }
+        
+        /* 图标顶部高光效果 */
+        .game-control-icon::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 20%;
+            width: 60%;
+            height: 30%;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.6) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .game-control-icon:hover {
+            transform: perspective(200px) rotateX(0deg) translateY(-3px) scale(1.15) translateZ(10px);
+            text-shadow: 
+                0 4px 0 rgba(0, 0, 0, 0.4),
+                0 6px 8px rgba(0, 0, 0, 0.4),
+                0 8px 16px rgba(0, 0, 0, 0.3),
+                0 0 16px rgba(255, 255, 255, 0.6),
+                0 0 28px rgba(255, 255, 255, 0.4);
+            filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5)) 
+                    drop-shadow(0 0 12px rgba(255, 255, 255, 0.5));
+        }
+        
+        .game-control-icon:active {
+            transform: perspective(200px) rotateX(5deg) translateY(1px) scale(1.05) translateZ(0);
+            text-shadow: 
+                0 2px 0 rgba(0, 0, 0, 0.4),
+                0 3px 4px rgba(0, 0, 0, 0.3),
+                0 0 8px rgba(255, 255, 255, 0.3);
+        }
+        
+        /* 鱼数量图标 - 3D立体风格，无边框 */
+        .game-fish-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            line-height: 1;
+            /* 金色3D阴影效果 */
+            text-shadow: 
+                0 3px 0 rgba(0, 0, 0, 0.4),
+                0 4px 6px rgba(0, 0, 0, 0.3),
+                0 6px 12px rgba(0, 0, 0, 0.2),
+                0 0 12px rgba(255, 215, 0, 0.5),
+                0 0 20px rgba(255, 215, 0, 0.3),
+                0 0 30px rgba(255, 255, 255, 0.2);
+            /* 3D透视变换 */
+            transform: perspective(200px) rotateX(-8deg) translateZ(0);
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4)) 
+                    drop-shadow(0 0 10px rgba(255, 215, 0, 0.4))
+                    drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+            transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+        }
+        
+        /* 鱼图标顶部高光效果 */
+        .game-fish-icon::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 20%;
+            width: 60%;
+            height: 30%;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.7) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.9;
+        }
+        
+        .game-fish-icon:hover {
+            transform: perspective(200px) rotateX(0deg) translateY(-3px) scale(1.15) translateZ(10px);
+            text-shadow: 
+                0 4px 0 rgba(0, 0, 0, 0.4),
+                0 6px 8px rgba(0, 0, 0, 0.4),
+                0 8px 16px rgba(0, 0, 0, 0.3),
+                0 0 16px rgba(255, 215, 0, 0.7),
+                0 0 28px rgba(255, 215, 0, 0.5),
+                0 0 40px rgba(255, 255, 255, 0.4);
+            filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5)) 
+                    drop-shadow(0 0 15px rgba(255, 215, 0, 0.6))
+                    drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+        }
+        
+        .game-fish-icon:active {
+            transform: perspective(200px) rotateX(5deg) translateY(1px) scale(1.05) translateZ(0);
+            text-shadow: 
+                0 2px 0 rgba(0, 0, 0, 0.4),
+                0 3px 4px rgba(0, 0, 0, 0.3),
+                0 0 8px rgba(255, 215, 0, 0.4);
         }
         
         /* Responsive design for tank selection modal */
@@ -402,72 +507,1307 @@
                 font-size: 13px;
             }
         }
+        
+        /* Hide navigation bar background, keep only button */
+        .game-nav {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            box-shadow: none !important;
+            border-bottom: none !important;
+            padding: 10px 15px !important;
+            height: auto !important;
+            min-height: auto !important;
+        }
+        
+        /* Position hamburger button in top left */
+        .hamburger-menu-btn {
+            position: fixed !important;
+            top: 15px !important;
+            left: 15px !important;
+            z-index: 1001 !important;
+            background: rgba(0, 0, 0, 0.3) !important;
+            border-radius: 8px !important;
+            padding: 8px !important;
+            backdrop-filter: blur(5px) !important;
+        }
+        
+        .hamburger-menu-btn:hover {
+            background: rgba(0, 0, 0, 0.5) !important;
+        }
+        
+        /* Fish Talk Toggle Switch Styles */
+        #fish-talk-toggle {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 8px;
+            padding-top: 12px;
+        }
+        
+        #fish-talk-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        #fish-talk-switch:checked + span {
+            background-color: #6366F1 !important;
+        }
+        
+        #fish-talk-switch:checked + span + span {
+            transform: translateX(24px) !important;
+        }
+        
+        #fish-talk-switch + span {
+            transition: background-color 0.3s ease;
+        }
+        
+        #fish-talk-switch + span + span {
+            transition: transform 0.3s ease;
+        }
+        
+        
+        
+        
+        
+        /* Sidebar Tank Controls Styles */
+        #sidebar-menu .game-select,
+        #sidebar-menu .game-btn {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* Share and Refresh buttons - left aligned like Profile */
+        #sidebar-menu #tank-share-btn-sidebar,
+        #sidebar-menu #refresh-tank-sidebar {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+        }
+        
+        
+        #sidebar-menu #tank-sort-sidebar {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* 聊天重新打开按钮动画 */
+        #chat-reopen-btn {
+            animation: chatBtnPulse 2s infinite;
+        }
+        
+        @keyframes chatBtnPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        #chat-reopen-btn:hover {
+            animation: none;
+        }
+        
+        /* Ensure the tank controls section is visible */
+        #sidebar-menu .sidebar-nav > div:last-child {
+            display: block !important;
+            visibility: visible !important;
+        }
+        
+        /* Style for sidebar controls container */
+        #sidebar-menu .sidebar-nav > div:last-child > div {
+            display: block !important;
+            visibility: visible !important;
+        }
     </style>
     
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GS1GYSFBPX"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-601YXTKK0L"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'G-GS1GYSFBPX');
+      gtag('config', 'G-601YXTKK0L');
+    </script>
+    
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://fishtalk.app/"
+      },{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Fish Tank",
+        "item": "https://fishtalk.app/tank.html"
+      }]
+    }
     </script>
 </head>
-<body>
-  <canvas id="swim-canvas" width="800" height="400" style="border:1px solid #888; background:#e0f7fa; display:block; margin: 0 auto 0 auto;"></canvas>
+<body class="game-style">
+  <!-- Top Navigation Bar -->
+  <nav class="game-nav">
+    <!-- Hamburger Menu Button -->
+    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="Open Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+
+  <!-- 侧边栏菜单 -->
+  <div id="sidebar-menu" class="sidebar-menu">
+    <div class="sidebar-header">
+      <h3>🐟 Menu</h3>
+      <button id="close-sidebar-btn" class="close-sidebar-btn" aria-label="Close menu">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link">
+        <span class="sidebar-icon">🎨</span>
+        <span>Draw Fish</span>
+      </a>
+      <a href="tank.html" class="sidebar-link">
+        <span class="sidebar-icon">🌊</span>
+        <span>Global Tank</span>
+      </a>
+      <a href="tank.html?view=my" class="sidebar-link">
+        <span class="sidebar-icon">⭐</span>
+        <span>My Tank</span>
+      </a>
+      <a href="rank.html" class="sidebar-link">
+        <span class="sidebar-icon">🏆</span>
+        <span>Rank</span>
+      </a>
+      <a href="profile.html" class="sidebar-link">
+        <span class="sidebar-icon">👤</span>
+        <span>Profile</span>
+      </a>
+      <a href="membership.html" class="sidebar-link" id="sidebar-upgrade-link" style="display: none;">
+        <span class="sidebar-icon"><img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain;"></span>
+        <span>Upgrade</span>
+      </a>
+      <!-- Share Button (Menu Style) -->
+      <a href="#" id="tank-share-btn-sidebar" class="sidebar-link">
+        <span class="sidebar-icon">📤</span>
+        <span>Share</span>
+      </a>
+      <!-- Refresh Button (Menu Style) -->
+      <a href="#" id="refresh-tank-sidebar" class="sidebar-link">
+        <span class="sidebar-icon">🔄</span>
+        <span>Refresh</span>
+      </a>
+      <!-- Fish Talk Toggle (Global) -->
+      <div class="sidebar-link" id="fish-talk-toggle" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="sidebar-icon"><img src="icons/chat.svg" alt="Chat" style="width: 28px; height: 28px; object-fit: contain;"></span>
+          <span>Fish Talk</span>
+        </div>
+        <label style="position: relative; display: inline-block; width: 50px; height: 26px; margin: 0;">
+          <input type="checkbox" id="fish-talk-switch" style="opacity: 0; width: 0; height: 0;">
+          <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px;"></span>
+          <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+        </label>
+      </div>
+      <!-- Language Selection -->
+      <div class="sidebar-link" id="language-selection-container" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="sidebar-icon" style="font-size: 24px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">🌍</span>
+          <span>Language</span>
+        </div>
+        <select id="user-language-select" style="padding: 4px 8px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; background: rgba(255, 255, 255, 0.1); color: white; font-size: 12px; min-width: 100px;">
+          <option value="English" style="background: #333; color: white;">English</option>
+          <option value="French" style="background: #333; color: white;">French</option>
+          <option value="Spanish" style="background: #333; color: white;">Spanish</option>
+          <option value="简体中文" style="background: #333; color: white;">简体中文</option>
+          <option value="繁體中文" style="background: #333; color: white;">繁體中文</option>
+          <option value="Japanese" style="background: #333; color: white;">Japanese</option>
+          <option value="Korean" style="background: #333; color: white;">Korean</option>
+        </select>
+      </div>
+      
+      <!-- Tank Controls Section -->
+      <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 8px; padding-top: 12px;">
+        <!-- Sort Selector -->
+        <div style="padding: 8px 16px; margin-bottom: 8px;">
+          <select id="tank-sort-sidebar" class="game-select" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 12px; cursor: pointer; background: linear-gradient(180deg, rgba(74, 144, 226, 0.9) 0%, rgba(53, 122, 189, 0.9) 100%); color: white; font-weight: 700; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'><path fill=\'%23ffffff\' d=\'M6 9L1 4h10z\'/></svg>'); background-repeat: no-repeat; background-position: right 8px center; padding-right: 32px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
+            <option value="recent" style="background: rgba(74, 144, 226, 0.95); color: white;">🆕 Most Recent</option>
+            <option value="popular" style="background: rgba(74, 144, 226, 0.95); color: white;">⭐ Most Popular</option>
+            <option value="random" style="background: rgba(74, 144, 226, 0.95); color: white;">🎲 Random</option>
+          </select>
+        </div>
+        
+        <!-- Fish Count Selector -->
+        <div style="padding: 8px 16px; margin-bottom: 8px;">
+          <select id="fish-count-selector-sidebar" class="game-select" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 12px; cursor: pointer; background: linear-gradient(180deg, rgba(74, 144, 226, 0.9) 0%, rgba(53, 122, 189, 0.9) 100%); color: white; font-weight: 700; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'><path fill=\'%23ffffff\' d=\'M6 9L1 4h10z\'/></svg>'); background-repeat: no-repeat; background-position: right 8px center; padding-right: 32px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
+            <option value="10" style="background: rgba(74, 144, 226, 0.95); color: white;">🐠 10</option>
+            <option value="20" style="background: rgba(74, 144, 226, 0.95); color: white;" selected>🐠 20</option>
+            <option value="30" style="background: rgba(74, 144, 226, 0.95); color: white;">🐠 30</option>
+            <option value="40" style="background: rgba(74, 144, 226, 0.95); color: white;">🐠 40</option>
+            <option value="50" style="background: rgba(74, 144, 226, 0.95); color: white;">🐠 50</option>
+          </select>
+        </div>
+      </div>
+    </nav>
+  </div>
   
-  <div class="controls-container" style="text-align: center; margin-top: 15px; font-size: 12px; color: #666;">
-    View: 
-    <select id="tank-sort" style="font-size: 11px; margin: 0 5px;">
-      <option value="recent">Most Recent</option>
-      <option value="popular">Most Popular</option>
-      <option value="random">Random</option>
-    </select>
-    <button id="refresh-tank" style="font-size: 11px; margin-left: 5px;">refresh</button>
-    | 
-    <label style="font-size: 11px; margin-left: 5px;">
-      <input type="checkbox" id="notifications-toggle" checked style="margin-right: 3px;">
-      notifications
-    </label>
-    | 
-    <a href="rank.html" style="color: #0066cc; text-decoration: underline; font-size: 11px;">rankings</a>
-    | 
-    <a href="profile.html" style="color: #0066cc; text-decoration: underline; font-size: 11px;">profile</a>
-    | 
-    <a href="fishtanks.html" id="my-tanks-link" style="color: #0066cc; text-decoration: underline; font-size: 11px;">my tanks</a>
-    
-    <div style="margin-top: 8px;">
-      <label style="font-size: 11px; color: #666;">
-        Fish count: <span id="fish-count-display" style="font-weight: 500;">50</span>
-        <input type="range" id="fish-count-slider" min="1" max="100" value="50" 
-               style="width: 120px; margin: 0 8px; vertical-align: middle; cursor: pointer;">
-        <span id="current-fish-count" style="font-size: 10px; color: #999;"></span>
-      </label>
+  <!-- 侧边栏遮罩 -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <!-- 海洋风格背景气泡 -->
+  <div class="background-bubbles"></div>
+
+  <!-- 主容器：鱼缸 + 聊天面板 -->
+  <div style="position: relative; width: 100%;">
+    <!-- 鱼缸容器 -->
+    <div class="tank-wrapper" id="tank-wrapper-main" style="transition: margin-right 0.3s ease;">
+      <!-- 装饰层 -->
+      <div class="tank-decorations">
+        <!-- 水草 -->
+        <div class="seaweed seaweed-left"></div>
+        <div class="seaweed seaweed-right"></div>
+        <!-- 底部沙地 -->
+        <div class="sand-layer"></div>
+        <!-- 装饰物 -->
+        <div class="decoration shell"></div>
+        <div class="decoration starfish"></div>
+        <div class="decoration rock"></div>
+      </div>
+      
+      <!-- 鱼缸画布 -->
+      <canvas id="swim-canvas" width="800" height="400"></canvas>
+      
+      <!-- 前景光线效果 -->
+      <div class="light-beams">
+        <div class="light-beam"></div>
+        <div class="light-beam delay-1"></div>
+        <div class="light-beam delay-2"></div>
+      </div>
     </div>
     
-    <div style="margin-top: 8px; font-size: 11px; color: #666;">
-      <strong>Feed the fish:</strong> 
-      <span class="desktop-only">Hold Shift + Click or Right-click</span>
-      <span class="mobile-only">Double-tap or Long-press</span>
-      to drop food pellets
+    <!-- 聊天面板 (右下角位置) -->
+    <div class="chat-panel" id="chat-panel" style="position: fixed; right: -420px; bottom: 20px; width: 400px; max-height: 70vh; background: linear-gradient(#FFF9E6 0%, #FFF4D6 100%); border-radius: 16px; padding: 0; box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2), 0 16px 40px rgba(0, 0, 0, 0.4); border: 3px solid #A5B4FC; display: none; flex-direction: column; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 999; visibility: hidden; overflow: hidden;">
+      <!-- 深色标题栏 -->
+      <div style="background: linear-gradient(#1A1A1D 0%, #0F0F0F 50%, #050505 100%); padding: 8px 16px; border-bottom: 2px solid #000; position: relative; box-shadow: 0 2px 4px inset rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 8px;">
+        <div style="font-size: 20px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));"><img src="icons/chat.svg" alt="Chat" style="width: 20px; height: 20px; object-fit: contain;"></div>
+        <h3 style="margin: 0; color: #FFFFFF; font-size: 16px; font-weight: 900; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2); letter-spacing: 1px; flex: 1;">Fish Group Chat</h3>
+        <button id="close-chat-panel" style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(#FC5C65 0%, #EB3B5A 50%, #C0392B 100%); border: none; border-bottom: 2px solid #A93226; color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2); display: flex; align-items: center; justify-content: center; line-height: 1;" onmousedown="this.style.transform='translateY(1px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.3)';" onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2)';" onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2)';" title="Close">×</button>
+      </div>
+      
+      <!-- 内容区域 -->
+      <div style="padding: 20px 24px; display: flex; flex-direction: column; height: calc(100% - 48px); position: relative; overflow: hidden;">
+      
+      <!-- 消息显示区域 -->
+      <div id="chat-messages" style="flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 8px; padding-bottom: 20px; min-height: 100px; display: block !important; visibility: visible !important;">
+      </div>
+      
+      <!-- 输入控制区域 -->
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(139, 115, 85, 0.2);">
+        <div id="user-chat-login-prompt" style="text-align: center; color: #8B7355; font-size: 13px; font-weight: 600; padding: 16px; background: rgba(255, 255, 255, 0.6); border-radius: 16px; border: 2px solid rgba(139, 115, 85, 0.3); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1); display: none; margin-bottom: 12px;">
+          🔐 Please log in to join the conversation
+        </div>
+        <div id="user-chat-input-container" style="display: block;">
+          <div style="display: flex; gap: 8px; align-items: stretch; width: 100%; box-sizing: border-box;">
+            <button 
+              id="clear-chat-btn" 
+              onclick="clearChatMessages()"
+              style="padding: 6px 12px; background: linear-gradient(#FC5C65 0%, #EB3B5A 50%, #C0392B 100%); color: white; border: none; border-bottom: 2px solid #A93226; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.1s ease; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); white-space: nowrap; flex-shrink: 0;"
+              onmousedown="this.style.transform='translateY(1px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.2)';"
+              onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15)';"
+              onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15)';"
+              title="Clear all messages">
+              🗑️ Clear
+            </button>
+            <input 
+              type="text" 
+              id="user-chat-input" 
+              placeholder="Type your message..." 
+              maxlength="200"
+              style="flex: 1; padding: 10px 14px; border: 2px solid #D4A574; border-radius: 12px; font-size: 14px; font-weight: 500; outline: none; background: white; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 2px 0 rgba(255, 255, 255, 0.8); transition: all 0.2s ease;"
+              onfocus="this.style.borderColor='#6366F1'; this.style.boxShadow='inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(99, 102, 241, 0.2)'"
+              onblur="this.style.borderColor='#D4A574'; this.style.boxShadow='inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 2px 0 rgba(255, 255, 255, 0.8)'"
+              onkeypress="if(event.key === 'Enter') { sendUserChatMessage(); }"
+            />
+            <button 
+              id="user-chat-send-btn" 
+              onclick="sendUserChatMessage()"
+              style="padding: 8px 12px; background: linear-gradient(#4CD964 0%, #3CB54A 50%, #2E8B3A 100%); color: white; border: none; border-bottom: 2px solid #1F6B2A; border-radius: 10px; font-size: 12px; font-weight: 900; cursor: pointer; transition: all 0.1s ease; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15); white-space: nowrap; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); letter-spacing: 0.3px; flex-shrink: 0; min-width: 60px; max-width: 80px;"
+              onmousedown="this.style.transform='translateY(1px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.2)';"
+              onmouseup="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15)';"
+              onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 0 rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15)';"
+            >
+              SEND ✨
+            </button>
+          </div>
+          <div id="user-chat-error" style="color: #C0392B; font-size: 12px; font-weight: 600; margin-top: 10px; padding: 12px 16px; background: rgba(252, 92, 101, 0.1); border-radius: 12px; border: 2px solid rgba(192, 57, 43, 0.3); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1); display: none;"></div>
+        </div>
+      </div>
+      
+      </div>
     </div>
     
-    <div id="loading-indicator" style="display: none; font-size: 11px; color: #999; margin-top: 5px;">
-      loading...
+    <!-- 聊天面板重新打开按钮 -->
+    <div id="chat-reopen-btn" style="position: fixed; right: 20px; bottom: 20px; width: 42px; height: 42px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2), 0 6px 14px rgba(0, 0, 0, 0.3); transition: all 0.3s ease; z-index: 998; border: 2px solid #A5B4FC;" title="Open Chat Panel">
+      <svg width="22" height="22" viewBox="0 0 1024 1024" style="filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));">
+        <path d="M229.333333 321.194667a236.373333 236.373333 0 1 0 118.186667-204.16 235.136 235.136 0 0 0-118.186667 204.16z m0 0" fill="white"></path>
+        <path d="M469.333333 597.12c-186.624 0-345.088 129.578667-383.402666 272.512a57.685333 57.685333 0 0 0 57.429333 68.821333h655.232a52.736 52.736 0 0 0 52.650667-68.821333c-37.930667-142.762667-195.285333-272.512-381.909334-272.512z" fill="white"></path>
+        <path d="M725.333333 512h170.666667a42.666667 42.666667 0 0 1 0 85.333333h-170.666667a44.288 44.288 0 0 1-42.666666-42.666666 42.282667 42.282667 0 0 1 42.666666-42.666667z" fill="white"></path>
+        <path d="M810.666667 256h85.333333a42.666667 42.666667 0 0 1 0 85.333333h-85.333333a44.288 44.288 0 0 1-42.666667-42.666666 42.282667 42.282667 0 0 1 42.666667-42.666667z" fill="white"></path>
+        <path d="M768 384h128a42.666667 42.666667 0 0 1 0 85.333333h-128a44.288 44.288 0 0 1-42.666667-42.666666 42.282667 42.282667 0 0 1 42.666667-42.666667z" fill="white"></path>
+      </svg>
     </div>
   </div>
+  
+  <!-- 加载指示器 -->
+  <div id="loading-indicator" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 1000; background: rgba(255, 255, 255, 0.95); padding: 20px 40px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
+    <div style="text-align: center; color: #6366F1; font-weight: 600;">Loading...</div>
+  </div>
   <script src="src/js/footer-utils.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="src/js/firebase-init.js"></script>
+  <!-- Supabase SDK -->
+  <script src="public/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js"></script>
+  <script src="src/js/auth-cache.js?v=1.0"></script>
   <script src="src/js/fish-utils.js"></script>
+  <script src="src/js/fishtank-favorites.js"></script>
+  <script src="src/js/membership-icons.js?v=1.0"></script>
+  <script src="src/js/auth-ui.js?v=2.6"></script>
   <script src="src/js/modal-utils.js"></script>
-  <script src="src/js/tank.js"></script>
-  <script>
-    // Initialize navigation authentication
-    initializeAuthNavigation();
+  <script src="src/js/social-config.js?v=2.1"></script>
+  <script src="src/js/social-share.js?v=2.1"></script>
+  <!-- Battle System Client - Commented out for community chat system -->
+  <!-- <script src="src/js/battle-client.js"></script>
+  <script src="src/js/battle-animation.js"></script> -->
+  <!-- Fish Dialogue System (Phase 0) -->
+  <script src="src/js/fish-preset-dialogues.js"></script>
+  <script src="src/js/fish-dialogue-simple.js"></script>
+  <!-- Community Chat System (New) -->
+  <script src="src/js/tank-layout-manager.js?v=1.3"></script>
+  <script src="src/js/community-chat-manager.js?v=2.7"></script>
+    <script src="src/js/tank.js?v=5.2"></script>
+    <script>
+      // Initialize navigation authentication
+      if (typeof initializeAuthNavigation === 'function') {
+        initializeAuthNavigation();
+      }
+      
+      // Remind user to login for Fish Talk feature after 10 seconds
+      (async function() {
+        // Wait for auth modules to be ready
+        await new Promise(resolve => {
+          if (window.supabaseAuth && window.authUI) {
+            resolve();
+          } else {
+            const checkInterval = setInterval(() => {
+              if (window.supabaseAuth && window.authUI) {
+                clearInterval(checkInterval);
+                resolve();
+              }
+            }, 100);
+            // Timeout after 5 seconds
+            setTimeout(() => {
+              clearInterval(checkInterval);
+              resolve();
+            }, 5000);
+          }
+        });
+        
+        // Check if user is logged in
+        try {
+          const user = await window.supabaseAuth?.getCurrentUser();
+          if (!user) {
+            // User is not logged in, show reminder after 10 seconds
+            setTimeout(() => {
+              // Check again to make sure user still not logged in
+              window.supabaseAuth?.getCurrentUser().then(currentUser => {
+                if (!currentUser) {
+                  // Show centered modal reminder - Game Style
+                  if (window.authUI && window.authUI.showLoginModal) {
+                    // Create modal overlay
+                    const overlay = document.createElement('div');
+                    overlay.className = 'modal';
+                    overlay.style.cssText = `
+                      display: flex;
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 100%;
+                      background: rgba(0, 0, 0, 0.7);
+                      backdrop-filter: blur(8px);
+                      z-index: 10001;
+                      align-items: center;
+                      justify-content: center;
+                      animation: fadeIn 0.3s ease;
+                    `;
+                    
+                    // Create modal content with game style - redesigned with stone banner
+                    const modal = document.createElement('div');
+                    modal.className = 'modal-content';
+                    modal.style.cssText = `
+                      background: linear-gradient(180deg, #FFF9E6 0%, #FFF4D6 100%);
+                      border-radius: 32px;
+                      padding: 0;
+                      width: 460px;
+                      max-width: 90vw;
+                      box-shadow: 
+                        0 8px 0 rgba(0, 0, 0, 0.2),
+                        0 16px 40px rgba(0, 0, 0, 0.4);
+                      border: 3px solid #A5B4FC;
+                      position: relative;
+                      animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                      text-align: center;
+                      overflow: hidden;
+                    `;
+                    
+                    // Create stone-style title banner at top
+                    const titleBanner = document.createElement('div');
+                    titleBanner.style.cssText = `
+                      background: linear-gradient(180deg, #1A1A1D 0%, #0F0F0F 50%, #050505 100%);
+                      padding: 16px 24px;
+                      border-bottom: 2px solid #000000;
+                      position: relative;
+                      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1);
+                    `;
+                    titleBanner.innerHTML = `
+                      <h2 style="
+                        color: #FFFFFF;
+                        margin: 0;
+                        font-size: 24px;
+                        font-weight: 900;
+                        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
+                        letter-spacing: 1px;
+                      ">Fish Group Chat</h2>
+                    `;
+                    modal.appendChild(titleBanner);
+                    
+                    // Create main content area
+                    const contentArea = document.createElement('div');
+                    contentArea.style.cssText = `
+                      padding: 40px;
+                      padding-top: 32px;
+                    `;
+                    contentArea.innerHTML = `
+                      <button id="close-reminder-modal" class="modal-close-btn" style="
+                        position: absolute;
+                        top: 20px;
+                        right: 20px;
+                        width: 36px;
+                        height: 36px;
+                        border-radius: 50%;
+                        background: linear-gradient(180deg, #4CD964 0%, #3CB54A 50%, #2E8B3A 100%);
+                        border: none;
+                        border-bottom: 3px solid #1F6B2A;
+                        color: white;
+                        font-size: 20px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                        transition: all 0.15s ease;
+                        z-index: 10;
+                        line-height: 1;
+                        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                      " title="Close">×</button>
+                      <div style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 20px;
+                        margin-bottom: 24px;
+                        padding: 20px 0;
+                      ">
+                        <div style="
+                          font-size: 72px;
+                          text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                          animation: float 2s ease-in-out infinite;
+                        ">🐠</div>
+                        <div style="
+                          background: linear-gradient(180deg, #D4A574 0%, #C8965A 50%, #B8854A 100%);
+                          border: 3px solid #8B6F3D;
+                          border-radius: 12px;
+                          padding: 16px 20px;
+                          box-shadow: 
+                            0 4px 0 rgba(0, 0, 0, 0.2),
+                            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                          position: relative;
+                        ">
+                          <div style="
+                            color: #5D4037;
+                            font-size: 14px;
+                            font-weight: 700;
+                            margin-bottom: 4px;
+                            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                          ">Unlock Feature</div>
+                          <div style="
+                            color: #3E2723;
+                            font-size: 18px;
+                            font-weight: 900;
+                            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+                          ">Group Chat</div>
+                        </div>
+                      </div>
+                      <p style="
+                        color: #666;
+                        margin: 0 0 32px 0;
+                        font-size: 16px;
+                        line-height: 1.6;
+                        padding: 0 10px;
+                      ">
+                        Sign in to unlock the Fish Group Chat feature and watch your fish come alive with conversations!
+                      </p>
+                      <div style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: 12px;
+                        width: 100%;
+                      ">
+                        <button id="login-from-reminder" class="game-btn game-btn-blue" style="
+                          width: 100%;
+                          padding: 16px 28px;
+                          border: none;
+                          border-radius: 24px;
+                          background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
+                          border-bottom: 3px solid #2A5F8F;
+                          color: white;
+                          font-size: 18px;
+                          font-weight: 700;
+                          cursor: pointer;
+                          position: relative;
+                          overflow: hidden;
+                          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                          box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                          transition: all 0.15s ease;
+                          transform: translateY(0);
+                        ">
+                          <span style="position: relative; z-index: 1;">Sign In</span>
+                        </button>
+                        <button id="maybe-later-btn" class="game-btn game-btn-orange" style="
+                          width: 100%;
+                          padding: 16px 28px;
+                          border: none;
+                          border-radius: 24px;
+                          background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E67E00 100%);
+                          border-bottom: 3px solid #CC6F00;
+                          color: white;
+                          font-size: 18px;
+                          font-weight: 700;
+                          cursor: pointer;
+                          position: relative;
+                          overflow: hidden;
+                          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                          box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                          transition: all 0.15s ease;
+                          transform: translateY(0);
+                        ">
+                          <span style="position: relative; z-index: 1;">Maybe Later</span>
+                        </button>
+                      </div>
+                    `;
+                    modal.appendChild(contentArea);
+                    
+                    // Add top gloss effect
+                    const gloss = document.createElement('div');
+                    gloss.style.cssText = `
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      height: 50%;
+                      background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+                      border-radius: 32px 32px 0 0;
+                      pointer-events: none;
+                      z-index: 1;
+                    `;
+                    modal.appendChild(gloss);
+                    
+                    // Add animations
+                    const style = document.createElement('style');
+                    style.textContent = `
+                      @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                      }
+                      @keyframes modalBounce {
+                        0% { 
+                          transform: scale(0.8) translateY(-30px); 
+                          opacity: 0; 
+                        }
+                        50% { 
+                          transform: scale(1.05) translateY(5px); 
+                        }
+                        100% { 
+                          transform: scale(1) translateY(0); 
+                          opacity: 1; 
+                        }
+                      }
+                      @keyframes fadeOut {
+                        from { opacity: 1; }
+                        to { opacity: 0; }
+                      }
+                      @keyframes float {
+                        0%, 100% { 
+                          transform: translateY(0px); 
+                        }
+                        50% { 
+                          transform: translateY(-10px); 
+                        }
+                      }
+                      .game-btn::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 50%;
+                        background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+                        border-radius: 24px 24px 0 0;
+                        pointer-events: none;
+                      }
+                      .game-btn:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+                      }
+                      .game-btn:active {
+                        transform: translateY(2px);
+                        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+                      }
+                      .modal-close-btn::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 50%;
+                        background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+                        border-radius: 50% 50% 0 0;
+                        pointer-events: none;
+                      }
+                      .modal-close-btn:hover {
+                        transform: scale(1.1);
+                        box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+                      }
+                      .modal-close-btn:active {
+                        transform: scale(0.95);
+                        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                      }
+                    `;
+                    document.head.appendChild(style);
+                    
+                    overlay.appendChild(modal);
+                    document.body.appendChild(overlay);
+                    
+                    // Close modal function
+                    const closeModal = () => {
+                      overlay.style.animation = 'fadeOut 0.3s ease';
+                      setTimeout(() => {
+                        overlay.remove();
+                      }, 300);
+                    };
+                    
+                    // Close button handler
+                    const closeBtn = modal.querySelector('#close-reminder-modal');
+                    closeBtn.addEventListener('click', closeModal);
+                    
+                    // Maybe later button handler
+                    const maybeLaterBtn = modal.querySelector('#maybe-later-btn');
+                    maybeLaterBtn.addEventListener('click', closeModal);
+                    
+                    // Login button handler
+                    const loginBtn = modal.querySelector('#login-from-reminder');
+                    loginBtn.addEventListener('click', () => {
+                      closeModal();
+                      setTimeout(() => {
+                        if (window.authUI && window.authUI.showLoginModal) {
+                          window.authUI.showLoginModal();
+                        }
+                      }, 300);
+                    });
+                    
+                    // Click overlay to close
+                    overlay.addEventListener('click', (e) => {
+                      if (e.target === overlay) {
+                        closeModal();
+                      }
+                    });
+                    
+                    // 3D Button hover effects - Game Style
+                    loginBtn.addEventListener('mouseenter', () => {
+                      loginBtn.style.transform = 'translateY(-2px)';
+                      loginBtn.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    loginBtn.addEventListener('mouseleave', () => {
+                      loginBtn.style.transform = 'translateY(0)';
+                      loginBtn.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    loginBtn.addEventListener('mousedown', () => {
+                      loginBtn.style.transform = 'translateY(2px)';
+                      loginBtn.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    loginBtn.addEventListener('mouseup', () => {
+                      loginBtn.style.transform = 'translateY(-2px)';
+                      loginBtn.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    
+                    maybeLaterBtn.addEventListener('mouseenter', () => {
+                      maybeLaterBtn.style.transform = 'translateY(-2px)';
+                      maybeLaterBtn.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    maybeLaterBtn.addEventListener('mouseleave', () => {
+                      maybeLaterBtn.style.transform = 'translateY(0)';
+                      maybeLaterBtn.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    maybeLaterBtn.addEventListener('mousedown', () => {
+                      maybeLaterBtn.style.transform = 'translateY(2px)';
+                      maybeLaterBtn.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    maybeLaterBtn.addEventListener('mouseup', () => {
+                      maybeLaterBtn.style.transform = 'translateY(-2px)';
+                      maybeLaterBtn.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25)';
+                    });
+                    
+                    closeBtn.addEventListener('mouseenter', () => {
+                      closeBtn.style.transform = 'translateY(-2px) rotate(90deg) scale(1.1)';
+                      closeBtn.style.boxShadow = '0 6px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.4)';
+                    });
+                    closeBtn.addEventListener('mouseleave', () => {
+                      closeBtn.style.transform = 'translateY(0) rotate(0deg) scale(1)';
+                      closeBtn.style.boxShadow = '0 4px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3)';
+                    });
+                    closeBtn.addEventListener('mousedown', () => {
+                      closeBtn.style.transform = 'translateY(2px) rotate(90deg) scale(1.05)';
+                      closeBtn.style.boxShadow = '0 2px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3)';
+                    });
+                  }
+                }
+              });
+            }, 10000); // 10 seconds
+          }
+        } catch (error) {
+          console.error('Error checking login status:', error);
+        }
+      })();
+      
+      // Sidebar controls - independent functionality
+    (function() {
+      // Wait for DOM and tank.js to be fully loaded
+      setTimeout(() => {
+        const sortSelectSidebar = document.getElementById('tank-sort-sidebar');
+        const refreshBtnSidebar = document.getElementById('refresh-tank-sidebar');
+        const shareBtnSidebar = document.getElementById('tank-share-btn-sidebar');
+        const fishCountSelector = document.getElementById('fish-count-selector-sidebar');
+        
+        // Sort selector - trigger loadFishIntoTank directly
+        if (sortSelectSidebar) {
+          sortSelectSidebar.addEventListener('change', () => {
+            const selectedSort = sortSelectSidebar.value;
+            
+            // 🆕 保存排序选择到 localStorage
+            localStorage.setItem('tankSortPreference', selectedSort);
+            
+            if (typeof loadFishIntoTank === 'function') {
+              loadFishIntoTank(selectedSort);
+            }
+            // Update URL
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('sort', selectedSort);
+            window.history.replaceState({}, '', newUrl);
+          });
+        }
+        
+        // Refresh button - trigger loadFishIntoTank with current sort
+        if (refreshBtnSidebar) {
+          refreshBtnSidebar.addEventListener('click', (e) => {
+            e.preventDefault();
+            const selectedSort = sortSelectSidebar ? sortSelectSidebar.value : 'recent';
+            if (typeof loadFishIntoTank === 'function') {
+              loadFishIntoTank(selectedSort);
+            }
+          });
+        }
+        
+        // Share button - trigger share modal
+        if (shareBtnSidebar) {
+          shareBtnSidebar.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.socialShare && window.socialShare.showShareModal) {
+              window.socialShare.showShareModal();
+            }
+          });
+        }
+        
+        // 聊天面板现在由Fish Talk开关直接控制，移除独立的聊天面板开关逻辑
+        
+        // Language selection - bind to database user_language field
+        const userLanguageSelect = document.getElementById('user-language-select');
+        const languageContainer = document.getElementById('language-selection-container');
+        
+        // 阻止语言选择容器的点击事件冒泡，防止汉堡菜单收起
+        if (languageContainer) {
+          languageContainer.addEventListener('click', (e) => {
+            e.stopPropagation();
+          });
+        }
+        
+        if (userLanguageSelect) {
+          // Initialize language selection from database
+          (async () => {
+            try {
+              if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
+                const user = await window.supabaseAuth.getCurrentUser();
+                if (user) {
+                  const backendUrl = window.BACKEND_URL || '';
+                  const token = localStorage.getItem('userToken');
+                  if (token) {
+                    const profileResponse = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(user.id)}`, {
+                      method: 'GET',
+                      headers: {
+                        'Authorization': `Bearer ${token}`
+                      }
+                    });
+                    
+                    if (profileResponse.ok) {
+                      const profileData = await profileResponse.json();
+                      const userLanguage = profileData.user?.user_language || 'English';
+                      userLanguageSelect.value = userLanguage;
+                      console.log('🔄 从数据库加载用户语言:', userLanguage);
+                    } else {
+                      // 如果获取失败，设置默认语言为English
+                      userLanguageSelect.value = 'English';
+                      console.log('🔄 设置默认语言为English（API调用失败）');
+                    }
+                  } else {
+                    // 用户未登录，设置默认语言为English
+                    userLanguageSelect.value = 'English';
+                    console.log('🔄 用户未登录，设置默认语言为English');
+                  }
+                } else {
+                  // supabaseAuth不可用，设置默认语言为English
+                  userLanguageSelect.value = 'English';
+                  console.log('🔄 supabaseAuth不可用，设置默认语言为English');
+                }
+              } else {
+                // getCurrentUser函数不存在，设置默认语言为English
+                userLanguageSelect.value = 'English';
+                console.log('🔄 getCurrentUser函数不存在，设置默认语言为English');
+              }
+            } catch (error) {
+              console.error('初始化用户语言时出错:', error);
+              // 出错时也设置默认语言为English
+              userLanguageSelect.value = 'English';
+              console.log('🔄 设置默认语言为English（出现错误）');
+            }
+          })();
+          
+          // 阻止下拉列表的点击事件冒泡，防止汉堡菜单收起
+          userLanguageSelect.addEventListener('click', (e) => {
+            e.stopPropagation();
+          });
+          
+          userLanguageSelect.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+          });
+          
+          // Handle language change
+          userLanguageSelect.addEventListener('change', async (e) => {
+            e.stopPropagation(); // 防止事件冒泡
+            const newLanguage = e.target.value;
+            
+            try {
+              const user = await window.supabaseAuth.getCurrentUser();
+              if (user) {
+                const backendUrl = window.BACKEND_URL || '';
+                const token = localStorage.getItem('userToken');
+                if (token) {
+                  const response = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(user.id)}`, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                      user_language: newLanguage
+                    })
+                  });
+                  
+                  if (response.ok) {
+                    console.log('✅ 用户语言已保存到数据库:', newLanguage);
+                  } else {
+                    console.error('❌ 保存用户语言失败:', response.status);
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('保存用户语言时出错:', error);
+            }
+          });
+        }
+        
+        // Fish count selector - update tank capacity
+        if (fishCountSelector) {
+          fishCountSelector.addEventListener('change', () => {
+            const value = parseInt(fishCountSelector.value);
+            if (value >= 1 && value <= 100) {
+              // Update tank capacity if function exists
+              if (typeof updateTankCapacity === 'function') {
+                updateTankCapacity(value);
+              } else if (typeof window.updateTankCapacity === 'function') {
+                window.updateTankCapacity(value);
+              }
+              // Update URL
+              const newUrl = new URL(window.location);
+              newUrl.searchParams.set('capacity', value);
+              window.history.replaceState({}, '', newUrl);
+            }
+          });
+        }
+      }, 500);
+    })();
+    
+    // Battle button handler - Commented out for community chat system
+    /* const tankBattleBtn = document.getElementById('tank-battle-btn');
+    if (tankBattleBtn) {
+      tankBattleBtn.addEventListener('click', async () => {
+        try {
+          // Get current user
+          const user = await window.supabaseAuth.getUser();
+          if (!user) {
+            alert('Please login first to enter battle mode!');
+            if (window.authUI && window.authUI.showLoginModal) {
+                window.authUI.showLoginModal();
+            }
+            return;
+          }
+          
+          // Check if there are any fish in the global tank
+          if (!window.fishes || window.fishes.length === 0) {
+            alert('There are no fish in the tank! Please try again later.');
+            return;
+          }
+          
+          // Find user's fish in the global tank - 支持多种用户ID字段名
+          console.log('🔍 [tank.html] 当前用户:', user);
+          console.log('🔍 [tank.html] 鱼缸中的鱼数量:', window.fishes.length);
+          console.log('🔍 [tank.html] 鱼缸中的鱼:', window.fishes.map(f => ({
+            id: f.docId || f.id,
+            artist: f.artist,
+            userId: f.userId,
+            UserId: f.UserId,
+            user_id: f.user_id,
+            owner_id: f.owner_id,
+            ownerId: f.ownerId
+          })));
+          
+          const userFish = window.fishes.filter(fish => {
+            // 尝试所有可能的用户ID字段名
+            const fishUserId = fish.user_id || fish.UserId || fish.userId || fish.owner_id || fish.ownerId;
+            console.log(`🔍 [tank.html] 比较: 鱼 ${fish.docId || fish.id} 的userId=${fishUserId}, 当前用户=${user.id}`);
+            return fishUserId === user.id;
+          });
+          
+          console.log('🔍 [tank.html] 用户的鱼数量:', userFish.length);
+          
+          if (userFish.length === 0) {
+            alert(`You haven't drawn any fish yet!\n\nCurrent User ID: ${user.id}\nTotal fish in tank: ${window.fishes.length}\nPlease draw a fish first.\n\nCheck browser console for more details.`);
+            if (confirm('Go to the drawing page?')) {
+              window.location.href = 'index.html';
+            }
+            return;
+          }
+          
+          // Use the first fish for battle
+          const selectedFish = userFish[0];
+          const fishId = selectedFish.docId || selectedFish.id;
+          
+          // Show loading state
+          const originalText = tankBattleBtn.innerHTML;
+          tankBattleBtn.innerHTML = '⏳ Entering...';
+          tankBattleBtn.disabled = true;
+          
+          // Check if BattleClient is loaded
+          if (typeof BattleClient === 'undefined') {
+            alert('Battle system is loading...');
+            tankBattleBtn.innerHTML = originalText;
+            tankBattleBtn.disabled = false;
+            return;
+          }
+          
+          // Call enter battle mode API
+          const result = await BattleClient.enterBattleMode(user.id, fishId);
+          
+          if (result.success) {
+            console.log('✅ 成功进入战斗模式API');
+            
+            // 设置战斗模式标志 - 开始碰撞检测
+            window.isBattleMode = true;
+            console.log('🎮 战斗模式已启用，开始碰撞检测');
+            
+            // 重新加载鱼缸为战斗模式
+            if (typeof window.reloadTankForBattleMode === 'function') {
+              await window.reloadTankForBattleMode(20); // 加载20条战斗鱼
+            }
+            
+            alert(`✅ Successfully entered battle mode!\n\nCurrent online: ${result.currentUsers}/${result.maxUsers}\nFish: ${selectedFish.Artist || selectedFish.artist || 'Anonymous'}\n\n⚔️ Battles will automatically occur in the tank!\nWhen your fish collides with others, battle animations will trigger.`);
+            tankBattleBtn.innerHTML = '✓ In Battle';
+            tankBattleBtn.style.background = 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)';
+            tankBattleBtn.disabled = false;
+            
+            // 战斗在当前鱼缸页面内实时进行，无需跳转
+          } else if (result.inQueue) {
+            alert(`⏳ Battle mode is full!\n\nJoined queue: Position ${result.position}\nEstimated wait: ${result.estimatedWait} seconds`);
+            tankBattleBtn.innerHTML = originalText;
+            tankBattleBtn.disabled = false;
+          } else {
+            alert(`❌ Failed to enter: ${result.error || result.message}`);
+            tankBattleBtn.innerHTML = originalText;
+            tankBattleBtn.disabled = false;
+          }
+          
+        } catch (error) {
+          console.error('进入战斗模式错误:', error);
+          alert(`❌ Error: ${error.message}`);
+          
+          if (tankBattleBtn) {
+            tankBattleBtn.innerHTML = '⚔️ Battle';
+            tankBattleBtn.disabled = false;
+          }
+        }
+      });
+      
+      // Add hover effect
+      tankBattleBtn.addEventListener('mouseenter', () => {
+        if (!tankBattleBtn.disabled) {
+          tankBattleBtn.style.transform = 'translateY(-2px) scale(1.05)';
+          tankBattleBtn.style.boxShadow = '0 6px 20px rgba(240, 147, 251, 0.6)';
+        }
+      });
+      
+      tankBattleBtn.addEventListener('mouseleave', () => {
+        tankBattleBtn.style.transform = 'translateY(0) scale(1)';
+        tankBattleBtn.style.boxShadow = '0 4px 12px rgba(240, 147, 251, 0.4)';
+      });
+    } */
   </script>
+    <!-- Message System -->
+    <link rel="stylesheet" href="src/css/message.css">
+    <script src="src/js/message-client.js"></script>
+    <script src="src/js/message-ui.js"></script>
+    
+    <!-- Hamburger Menu -->
+    <script src="src/js/hamburger-menu.js"></script>
+    <script>
+      // Initialize navigation authentication
+      if (typeof initializeAuthNavigation === 'function') {
+        initializeAuthNavigation();
+      }
+      
+      // Debug: Verify sidebar controls when sidebar opens
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebarMenu = document.getElementById('sidebar-menu');
+        const hamburgerBtn = document.getElementById('hamburger-menu-btn');
+        
+        if (sidebarMenu && hamburgerBtn) {
+          // Use MutationObserver to watch for sidebar opening
+          const observer = new MutationObserver(function(mutations) {
+            if (sidebarMenu.classList.contains('open')) {
+              // Sidebar is open, verify controls
+              const controls = {
+                sort: document.getElementById('tank-sort-sidebar'),
+                refresh: document.getElementById('refresh-tank-sidebar'),
+                share: document.getElementById('tank-share-btn-sidebar'),
+                fishCount: document.getElementById('fish-count-selector-sidebar')
+              };
+              
+              console.log('🔍 Sidebar opened - Controls check:');
+              for (const [name, element] of Object.entries(controls)) {
+                if (element) {
+                  const rect = element.getBoundingClientRect();
+                  const isVisible = rect.width > 0 && rect.height > 0;
+                  console.log(`  ${name}: ✓ Found, visible: ${isVisible}, position: (${rect.left}, ${rect.top}), size: ${rect.width}x${rect.height}`);
+                  
+                   // Force visibility with correct styles
+                   if (element.id === 'tank-share-btn-sidebar' || element.id === 'refresh-tank-sidebar') {
+                     // Share and Refresh: flex with left alignment
+                     element.style.display = 'flex';
+                     element.style.justifyContent = 'flex-start';
+                     element.style.alignItems = 'center';
+                     element.style.visibility = 'visible';
+                     element.style.opacity = '1';
+                   } else if (element.tagName === 'SELECT') {
+                     element.style.display = 'block';
+                     element.style.visibility = 'visible';
+                     element.style.opacity = '1';
+                   } else {
+                     element.style.display = 'flex';
+                     element.style.visibility = 'visible';
+                     element.style.opacity = '1';
+                   }
+                } else {
+                  console.error(`  ${name}: ✗ Missing!`);
+                }
+              }
+            }
+          });
+          
+          observer.observe(sidebarMenu, {
+            attributes: true,
+            attributeFilter: ['class']
+          });
+        }
+        
+        // 根据fish_talk字段直接控制聊天面板的显示
+        window.updateChatPanelVisibility = async function() {
+          console.log('🔍 updateChatPanelVisibility 被调用');
+          const chatPanel = document.getElementById('chat-panel');
+          const chatReopenBtn = document.getElementById('chat-reopen-btn');
+          
+          if (!chatPanel) {
+            console.error('❌ 找不到聊天面板元素 chat-panel');
+            return;
+          }
+          console.log('✅ 找到聊天面板元素');
+          
+          let fishTalkEnabled = false;
+          
+          try {
+            // 检查用户是否已登录
+            if (window.supabaseAuth && typeof window.supabaseAuth.getCurrentUser === 'function') {
+              const user = await window.supabaseAuth.getCurrentUser();
+              if (user) {
+                // 从数据库获取fish_talk状态
+                const backendUrl = window.BACKEND_URL || '';
+                const token = localStorage.getItem('userToken');
+                if (token) {
+                  const profileResponse = await fetch(`${backendUrl}/api/profile/${encodeURIComponent(user.id)}`, {
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${token}`
+                    }
+                  });
+                  
+                  if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    fishTalkEnabled = profileData.user?.fish_talk || false;
+                    console.log('🔄 从数据库加载Fish Talk状态用于聊天面板显示:', fishTalkEnabled);
+                  }
+                }
+              }
+            }
+          } catch (error) {
+            console.error('获取Fish Talk状态时出错:', error);
+            // 回退到localStorage
+            const savedPreference = localStorage.getItem('groupChatEnabled');
+            fishTalkEnabled = savedPreference === 'true';
+            console.log('🔄 回退到localStorage，Fish Talk状态:', fishTalkEnabled, '(savedPreference:', savedPreference, ')');
+          }
+          
+          // 根据fish_talk状态显示或隐藏聊天面板
+          if (fishTalkEnabled) {
+            // Fish Talk启用时，根据localStorage中保存的状态决定是否展开
+            const chatPanelOpen = localStorage.getItem('chatPanelOpen');
+            const shouldOpen = chatPanelOpen !== 'false'; // 默认展开，除非用户明确关闭过
+            
+            if (shouldOpen) {
+              // 显示聊天面板
+              chatPanel.style.display = 'flex';
+              chatPanel.style.visibility = 'visible';
+              // 使用setTimeout确保display先生效
+              setTimeout(() => {
+                chatPanel.style.right = '0';
+              }, 10);
+              // 隐藏重新打开按钮
+              if (chatReopenBtn) {
+                chatReopenBtn.style.display = 'none';
+              }
+              // 同步更新全局状态变量
+              if (window.isChatPanelOpen !== undefined) {
+                window.isChatPanelOpen = true;
+              }
+              console.log('✅ 聊天面板已显示（Fish Talk已启用，用户之前打开）');
+              
+              // 滚动到底部
+              setTimeout(() => {
+                if (typeof scrollChatToBottom === 'function') {
+                  scrollChatToBottom();
+                }
+              }, 100);
+            } else {
+              // 用户之前关闭了聊天面板，保持关闭状态但显示重新打开按钮
+              chatPanel.style.right = '-420px';
+              chatPanel.style.display = 'none';
+              chatPanel.style.visibility = 'hidden';
+              if (chatReopenBtn) {
+                chatReopenBtn.style.display = 'flex';
+              }
+              // 同步更新全局状态变量
+              if (window.isChatPanelOpen !== undefined) {
+                window.isChatPanelOpen = false;
+              }
+              console.log('✅ 聊天面板已隐藏（Fish Talk已启用，但用户之前关闭）');
+            }
+          } else {
+            // Fish Talk禁用时，隐藏聊天面板和重新打开按钮
+            chatPanel.style.right = '-420px';
+            if (chatReopenBtn) {
+              chatReopenBtn.style.display = 'none';
+            }
+            // 延迟隐藏，等待动画完成
+            setTimeout(() => {
+              chatPanel.style.display = 'none';
+              chatPanel.style.visibility = 'hidden';
+            }, 400);
+            // 同步更新全局状态变量
+            if (window.isChatPanelOpen !== undefined) {
+              window.isChatPanelOpen = false;
+            }
+            console.log('❌ 聊天面板已隐藏（Fish Talk未启用）');
+          }
+        };
+        
+        // 页面加载完成后检查fish_talk状态
+        document.addEventListener('DOMContentLoaded', function() {
+          // 延迟执行，确保所有相关脚本都已加载
+          setTimeout(() => {
+            console.log('🔄 页面加载完成，开始检查聊天面板显示状态');
+            window.updateChatPanelVisibility();
+          }, 1000);
+        });
+        
+        // 也在window.onload时检查，确保所有资源都已加载
+        window.addEventListener('load', function() {
+          setTimeout(() => {
+            console.log('🔄 所有资源加载完成，再次检查聊天面板显示状态');
+            window.updateChatPanelVisibility();
+          }, 1500);
+        });
+        
+        // 监听Fish Talk状态变化事件
+        window.addEventListener('groupChatEnabledChanged', function(event) {
+          console.log('🔄 检测到Fish Talk状态变化，更新聊天面板显示:', event.detail?.enabled);
+          setTimeout(() => {
+            window.updateChatPanelVisibility();
+          }, 100);
+        });
+        
+        // 提供手动触发函数用于调试
+        window.debugChatPanel = function() {
+          console.log('🔧 手动触发聊天面板显示检查');
+          const chatPanel = document.getElementById('chat-panel');
+          if (chatPanel) {
+            console.log('当前聊天面板样式:', {
+              display: chatPanel.style.display,
+              visibility: chatPanel.style.visibility,
+              right: chatPanel.style.right,
+              computedDisplay: window.getComputedStyle(chatPanel).display
+            });
+          }
+          window.updateChatPanelVisibility();
+        };
+      });
+    </script>
 </body>
 </html>

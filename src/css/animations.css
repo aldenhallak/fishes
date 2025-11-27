@@ -1,0 +1,119 @@
+/* ===== 动画效果库 ===== */
+
+/* Fade In */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Fade In and Scale Up */
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Fade In Up */
+@keyframes fadeInUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Pulse effect for buttons */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Heartbeat effect for buttons on hover */
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.1); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Spin animation for loading */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Drawing particle explode effect */
+@keyframes explode {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
+/* Confetti effect */
+@keyframes confetti {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) rotate(720deg); opacity: 0; }
+}
+
+/* Seaweed sway animation */
+@keyframes sway {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(5deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Decoration float animation */
+@keyframes float {
+    0% { transform: translateY(0px) rotate(-45deg); }
+    50% { transform: translateY(-10px) rotate(-48deg); }
+    100% { transform: translateY(0px) rotate(-45deg); }
+}
+
+/* Starfish sparkle animation */
+@keyframes sparkle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Light beam animation */
+@keyframes lightbeam {
+    0% { transform: skewX(-10deg) translateX(-100%); opacity: 0.2; }
+    50% { transform: skewX(-10deg) translateX(100%); opacity: 0.05; }
+    100% { transform: skewX(-10deg) translateX(-100%); opacity: 0.2; }
+}
+
+/* 应用动画的工具类 */
+.animate-fadeIn {
+    animation: fadeIn 0.5s ease;
+}
+
+.animate-fadeInScale {
+    animation: fadeInScale 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.5s ease;
+}
+
+.animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* 延迟动画 */
+.delay-1 {
+    animation-delay: 0.1s;
+}
+
+.delay-2 {
+    animation-delay: 0.2s;
+}
+
+.delay-3 {
+    animation-delay: 0.3s;
+}
+
+
+

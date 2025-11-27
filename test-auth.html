@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>认证系统测试 - Fish Art</title>
+  <!-- <link rel="stylesheet" href="src/css/common.css"> -->
+  <style>
+    body {
+      background: #f7fafc;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .test-container {
+      max-w: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 2rem;
+    }
+
+    .test-header {
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 1rem;
+    }
+
+    .test-header h1 {
+      font-size: 2rem;
+      color: #1a202c;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-status {
+      background: #edf2f7;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .auth-status h3 {
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .status-item {
+      background: white;
+      padding: 1rem;
+      border-radius: 6px;
+      border-left: 4px solid #667eea;
+    }
+
+    .status-item label {
+      font-size: 0.875rem;
+      color: #718096;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .status-item .value {
+      font-weight: 600;
+      color: #1a202c;
+      word-break: break-all;
+    }
+
+    .test-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #718096;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: #667eea;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-primary:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+    }
+
+    .btn-danger {
+      background: #f56565;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #e53e3e;
+    }
+
+    .btn-secondary {
+      background: #4a5568;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #2d3748;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .results-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+
+    .results-container {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .result-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .result-item.success {
+      background: #f0fff4;
+      border-color: #9ae6b4;
+    }
+
+    .result-item.error {
+      background: #fff5f5;
+      border-color: #fc8181;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .result-item.success .status-badge {
+      background: #9ae6b4;
+      color: #22543d;
+    }
+
+    .result-item.error .status-badge {
+      background: #fc8181;
+      color: #742a2a;
+    }
+
+    .json-result {
+      background: #1a202c;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 2rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .info-box {
+      background: #edf2f7;
+      border-left: 4px solid #667eea;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 2rem;
+    }
+
+    .info-box h3 {
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-box ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-box li {
+      color: #4a5568;
+      padding: 0.25rem 0;
+      font-size: 0.9rem;
+    }
+
+    .info-box li::before {
+      content: "• ";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.toast-success {
+      background: #48bb78;
+      color: white;
+    }
+
+    .toast.toast-error {
+      background: #f56565;
+      color: white;
+    }
+
+    .toast.toast-info {
+      background: #4299e1;
+      color: white;
+    }
+
+    .logged-out-only {
+      display: none;
+    }
+
+    .logged-in-only {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>🔐 认证系统测试</h1>
+      <p>测试 Supabase 认证功能，包括登录、注册和密码重置</p>
+    </div>
+
+    <!-- 提示信息 -->
+    <div class="info-box">
+      <h3>💡 测试说明</h3>
+      <ul>
+        <li>使用 Supabase Auth 进行用户认证</li>
+        <li>支持邮箱密码登录和注册</li>
+        <li>支持密码重置功能</li>
+        <li>会话自动管理和刷新</li>
+        <li>测试环境使用真实的认证系统</li>
+      </ul>
+    </div>
+
+    <!-- 认证状态 -->
+    <div class="auth-status">
+      <h3>🔍 当前认证状态</h3>
+      <div class="status-grid">
+        <div class="status-item">
+          <label>登录状态</label>
+          <div class="value" id="loginStatus">检查中...</div>
+        </div>
+        <div class="status-item">
+          <label>用户ID</label>
+          <div class="value" id="userId">-</div>
+        </div>
+        <div class="status-item">
+          <label>用户邮箱</label>
+          <div class="value" id="userEmail">-</div>
+        </div>
+        <div class="status-item">
+          <label>Token状态</label>
+          <div class="value" id="tokenStatus">-</div>
+        </div>
+      </div>
+      <div class="button-group logged-in-only" style="margin-top: 1rem;">
+        <button class="btn btn-secondary" id="refreshBtn">刷新状态</button>
+        <button class="btn btn-danger" id="logoutBtn">退出登录</button>
+      </div>
+    </div>
+
+    <!-- 标签页（仅未登录时显示） -->
+    <div class="logged-out-only">
+      <div class="test-tabs">
+        <button class="tab active" data-tab="login">登录测试</button>
+        <button class="tab" data-tab="signup">注册测试</button>
+        <button class="tab" data-tab="reset">密码重置</button>
+      </div>
+
+      <!-- 登录测试 -->
+      <div class="tab-content active" id="login">
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail">邮箱 *</label>
+            <input type="email" id="loginEmail" required placeholder="your.email@example.com">
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">密码 *</label>
+            <input type="password" id="loginPassword" required placeholder="输入密码">
+          </div>
+          <button type="submit" class="btn btn-primary">登录</button>
+        </form>
+      </div>
+
+      <!-- 注册测试 -->
+      <div class="tab-content" id="signup">
+        <form id="signupForm">
+          <div class="form-group">
+            <label for="signupEmail">邮箱 *</label>
+            <input type="email" id="signupEmail" required placeholder="your.email@example.com">
+          </div>
+          <div class="form-group">
+            <label for="signupPassword">密码 *</label>
+            <input type="password" id="signupPassword" required placeholder="至少6个字符">
+          </div>
+          <div class="form-group">
+            <label for="signupConfirm">确认密码 *</label>
+            <input type="password" id="signupConfirm" required placeholder="再次输入密码">
+          </div>
+          <button type="submit" class="btn btn-primary">注册</button>
+        </form>
+      </div>
+
+      <!-- 密码重置 -->
+      <div class="tab-content" id="reset">
+        <form id="resetForm">
+          <div class="form-group">
+            <label for="resetEmail">邮箱 *</label>
+            <input type="email" id="resetEmail" required placeholder="your.email@example.com">
+          </div>
+          <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+            系统会发送密码重置链接到您的邮箱
+          </p>
+          <button type="submit" class="btn btn-primary">发送重置链接</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 已登录提示 -->
+    <div class="logged-in-only">
+      <div class="info-box" style="border-left-color: #48bb78;">
+        <h3>✅ 已登录</h3>
+        <p style="color: #4a5568;">您已成功登录，可以在其他测试页面中测试需要认证的功能。</p>
+      </div>
+    </div>
+
+    <!-- 结果展示 -->
+    <div class="results-section">
+      <h2 class="section-title">操作结果</h2>
+      <div class="results-container" id="resultsContainer"></div>
+    </div>
+
+    <a href="test-center.html" class="back-link">← 返回测试中心</a>
+  </div>
+
+  <!-- 加载依赖 -->
+  <script src="public/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js"></script>
+  <script src="src/js/admin-auth.js"></script>
+  <script src="src/js/test-utils.js"></script>
+  
+  <script>
+    // 管理员权限检查
+    (async function() {
+      // 等待页面加载
+      if (document.readyState === 'loading') {
+        await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+      }
+      
+      // 确保 Supabase 已初始化
+      if (!window.supabaseAuth) {
+        await new Promise(resolve => {
+          const checkInterval = setInterval(() => {
+            if (window.supabaseAuth) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+        });
+      }
+      
+      // 检查管理员权限
+      await window.adminAuth.requireAdminAccess();
+    })();
+  </script>
+  
+  <script>
+    // 标签页切换
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.dataset.tab;
+        
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    // 更新认证状态显示
+    async function updateAuthStatus() {
+      const isLoggedIn = await isUserLoggedIn();
+      const user = await window.supabaseAuth.getCurrentUser();
+      const token = await getAuthToken();
+      
+      document.getElementById('loginStatus').textContent = isLoggedIn ? '✅ 已登录' : '❌ 未登录';
+      document.getElementById('userId').textContent = user?.id || '-';
+      document.getElementById('userEmail').textContent = user?.email || '-';
+      document.getElementById('tokenStatus').textContent = token ? '✅ 有效' : '❌ 无效';
+      
+      // 显示/隐藏相关元素
+      const loggedInElements = document.querySelectorAll('.logged-in-only');
+      const loggedOutElements = document.querySelectorAll('.logged-out-only');
+      
+      loggedInElements.forEach(el => {
+        el.style.display = isLoggedIn ? 'block' : 'none';
+      });
+      
+      loggedOutElements.forEach(el => {
+        el.style.display = isLoggedIn ? 'none' : 'block';
+      });
+    }
+
+    // 登录表单
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      
+      try {
+        const result = await window.supabaseAuth.signIn(email, password);
+        
+        renderApiResult({
+          success: !result.error,
+          data: result.error ? { error: result.error.message } : { user: result.user }
+        }, resultsContainer);
+        
+        if (!result.error) {
+          showToast('登录成功！');
+          await updateAuthStatus();
+          e.target.reset();
+        } else {
+          showToast('登录失败: ' + result.error.message, 'error');
+        }
+      } catch (error) {
+        showToast('登录失败: ' + error.message, 'error');
+        renderApiResult({ success: false, data: { error: error.message } }, resultsContainer);
+      }
+      
+      setButtonLoading(submitBtn, false);
+    });
+
+    // 注册表单
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const confirm = document.getElementById('signupConfirm').value;
+      
+      if (password !== confirm) {
+        showToast('两次输入的密码不一致', 'error');
+        return;
+      }
+      
+      if (password.length < 6) {
+        showToast('密码长度至少为6个字符', 'error');
+        return;
+      }
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      
+      try {
+        const result = await window.supabaseAuth.signUp(email, password);
+        
+        renderApiResult({
+          success: !result.error,
+          data: result.error ? { error: result.error.message } : { user: result.user }
+        }, resultsContainer);
+        
+        if (!result.error) {
+          showToast('注册成功！请检查邮箱进行验证。');
+          e.target.reset();
+        } else {
+          showToast('注册失败: ' + result.error.message, 'error');
+        }
+      } catch (error) {
+        showToast('注册失败: ' + error.message, 'error');
+        renderApiResult({ success: false, data: { error: error.message } }, resultsContainer);
+      }
+      
+      setButtonLoading(submitBtn, false);
+    });
+
+    // 密码重置表单
+    document.getElementById('resetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('resetEmail').value;
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      
+      try {
+        const result = await window.supabaseAuth.resetPassword(email);
+        
+        renderApiResult({
+          success: !result.error,
+          data: result.error ? { error: result.error.message } : { message: '重置链接已发送' }
+        }, resultsContainer);
+        
+        if (!result.error) {
+          showToast('密码重置链接已发送到您的邮箱！');
+          e.target.reset();
+        } else {
+          showToast('发送失败: ' + result.error.message, 'error');
+        }
+      } catch (error) {
+        showToast('发送失败: ' + error.message, 'error');
+        renderApiResult({ success: false, data: { error: error.message } }, resultsContainer);
+      }
+      
+      setButtonLoading(submitBtn, false);
+    });
+
+    // 刷新状态按钮
+    document.getElementById('refreshBtn').addEventListener('click', async () => {
+      await updateAuthStatus();
+      showToast('状态已刷新', 'info');
+    });
+
+    // 退出登录按钮
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      if (confirm('确定要退出登录吗？')) {
+        const logoutBtn = document.getElementById('logoutBtn');
+        setButtonLoading(logoutBtn, true);
+        
+        try {
+          await window.supabaseAuth.signOut();
+          showToast('已退出登录');
+          await updateAuthStatus();
+        } catch (error) {
+          showToast('退出失败: ' + error.message, 'error');
+        }
+        
+        setButtonLoading(logoutBtn, false);
+      }
+    });
+
+    // 初始化：更新认证状态
+    updateAuthStatus();
+
+    // 监听认证状态变化
+    window.supabaseAuth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session);
+      updateAuthStatus();
+      
+      if (event === 'SIGNED_IN') {
+        showToast('认证状态已更新', 'info');
+      }
+    });
+  </script>
+</body>
+</html>
+

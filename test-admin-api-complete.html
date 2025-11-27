@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理员 API 完整测试</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .test-section h2 {
+      margin-bottom: 15px;
+      color: #2d3748;
+    }
+    .status {
+      padding: 10px 15px;
+      margin: 10px 0;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+    .error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+    .info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+    .warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-right: 10px;
+    }
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #5a67d8;
+    }
+    .btn-success {
+      background: #48bb78;
+      color: white;
+    }
+    .btn-success:hover {
+      background: #38a169;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .endpoint {
+      font-family: 'Courier New', monospace;
+      background: #e2e8f0;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge-get { background: #bee3f8; color: #2c5282; }
+    .badge-put { background: #feebc8; color: #7c2d12; }
+    .badge-delete { background: #fed7d7; color: #742a2a; }
+    .quick-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🧪 管理员 API 完整测试</h1>
+    <p>测试所有管理员相关的 API 端点是否正常工作</p>
+  </div>
+
+  <div class="test-section">
+    <h2>📋 快速访问链接</h2>
+    <div class="quick-links">
+      <a href="/admin-table-manager.html" class="btn btn-primary" target="_blank">
+        表管理器页面
+      </a>
+      <a href="/admin-table-edit.html?table=user_subscriptions" class="btn btn-primary" target="_blank">
+        编辑 user_subscriptions
+      </a>
+      <a href="/admin-table-edit.html?table=fish" class="btn btn-primary" target="_blank">
+        编辑 fish
+      </a>
+      <a href="/admin-table-edit.html?table=group_chat" class="btn btn-primary" target="_blank">
+        编辑 group_chat
+      </a>
+    </div>
+  </div>
+
+  <!-- Test 1: 表列表 API -->
+  <div class="test-section">
+    <h2>Test 1: 表列表 API</h2>
+    <p>
+      <span class="badge badge-get">GET</span>
+      <span class="endpoint">/api/admin/tables</span>
+    </p>
+    <button class="btn btn-success" onclick="testTablesList()">运行测试</button>
+    <div id="test1-result"></div>
+  </div>
+
+  <!-- Test 2: 表数据 API -->
+  <div class="test-section">
+    <h2>Test 2: 表数据 API</h2>
+    <p>
+      <span class="badge badge-get">GET</span>
+      <span class="endpoint">/api/admin/tables/{tableName}</span>
+    </p>
+    <button class="btn btn-success" onclick="testTableData()">运行测试</button>
+    <div id="test2-result"></div>
+  </div>
+
+  <!-- Test 3: 多个表测试 -->
+  <div class="test-section">
+    <h2>Test 3: 批量表访问测试</h2>
+    <p>测试多个常用表的 API 访问</p>
+    <button class="btn btn-success" onclick="testMultipleTables()">运行测试</button>
+    <div id="test3-result"></div>
+  </div>
+
+  <!-- Summary -->
+  <div class="test-section">
+    <h2>📊 测试总结</h2>
+    <div id="summary">
+      <div class="info">点击上方按钮开始测试</div>
+    </div>
+  </div>
+
+  <script>
+    let testResults = {
+      passed: 0,
+      failed: 0,
+      total: 0
+    };
+
+    async function testTablesList() {
+      const resultDiv = document.getElementById('test1-result');
+      resultDiv.innerHTML = '<div class="info">🔄 测试进行中...</div>';
+
+      try {
+        const response = await fetch('/api/admin/tables');
+        const data = await response.json();
+
+        let html = '';
+        if (response.ok && data.success) {
+          html += '<div class="success">✅ 测试通过！</div>';
+          html += `<div class="info">找到 ${data.data.tables.length} 个数据表</div>`;
+          html += '<pre>' + JSON.stringify(data, null, 2).substring(0, 500) + '...</pre>';
+          testResults.passed++;
+        } else {
+          html += '<div class="error">❌ 测试失败</div>';
+          html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+          testResults.failed++;
+        }
+        resultDiv.innerHTML = html;
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="error">❌ 请求失败: ${error.message}</div>`;
+        testResults.failed++;
+      }
+      
+      testResults.total++;
+      updateSummary();
+    }
+
+    async function testTableData() {
+      const resultDiv = document.getElementById('test2-result');
+      resultDiv.innerHTML = '<div class="info">🔄 测试进行中...</div>';
+
+      try {
+        const tableName = 'user_subscriptions';
+        const response = await fetch(`/api/admin/tables/${tableName}?limit=3`);
+        const data = await response.json();
+
+        let html = '';
+        if (response.ok && data.success) {
+          html += '<div class="success">✅ 测试通过！</div>';
+          html += `<div class="info">表: ${data.data.tableName}</div>`;
+          html += `<div class="info">列数: ${data.data.columns.length}</div>`;
+          html += `<div class="info">行数: ${data.data.rows.length}</div>`;
+          html += '<pre>' + JSON.stringify(data, null, 2).substring(0, 800) + '...</pre>';
+          testResults.passed++;
+        } else {
+          html += '<div class="error">❌ 测试失败</div>';
+          html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+          testResults.failed++;
+        }
+        resultDiv.innerHTML = html;
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="error">❌ 请求失败: ${error.message}</div>`;
+        testResults.failed++;
+      }
+      
+      testResults.total++;
+      updateSummary();
+    }
+
+    async function testMultipleTables() {
+      const resultDiv = document.getElementById('test3-result');
+      resultDiv.innerHTML = '<div class="info">🔄 测试进行中...</div>';
+
+      const tables = ['fish', 'users', 'group_chat', 'votes'];
+      let html = '';
+      let passed = 0;
+      let failed = 0;
+
+      for (const tableName of tables) {
+        try {
+          const response = await fetch(`/api/admin/tables/${tableName}?limit=1`);
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            html += `<div class="success">✅ ${tableName}: 成功 (${data.data.columns?.length || 0} 列)</div>`;
+            passed++;
+          } else {
+            html += `<div class="error">❌ ${tableName}: 失败 - ${data.error || '未知错误'}</div>`;
+            failed++;
+          }
+        } catch (error) {
+          html += `<div class="error">❌ ${tableName}: 请求失败 - ${error.message}</div>`;
+          failed++;
+        }
+      }
+
+      html += `<div class="info">总计: ${passed} 通过, ${failed} 失败</div>`;
+      resultDiv.innerHTML = html;
+      
+      testResults.passed += passed;
+      testResults.failed += failed;
+      testResults.total++;
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const summaryDiv = document.getElementById('summary');
+      const successRate = testResults.total > 0 
+        ? Math.round((testResults.passed / (testResults.passed + testResults.failed)) * 100) 
+        : 0;
+
+      summaryDiv.innerHTML = `
+        <div class="info">
+          <strong>已运行测试:</strong> ${testResults.total} 组<br>
+          <strong>通过:</strong> ${testResults.passed} 个<br>
+          <strong>失败:</strong> ${testResults.failed} 个<br>
+          <strong>成功率:</strong> ${successRate}%
+        </div>
+        ${successRate === 100 && testResults.total >= 3 ? 
+          '<div class="success"><strong>🎉 所有测试通过！管理员 API 工作正常。</strong></div>' : ''}
+      `;
+    }
+
+    // 页面加载时显示提示
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log('管理员 API 测试页面已加载');
+    });
+  </script>
+</body>
+</html>
+

@@ -14,51 +14,123 @@ function escapeHtml(unsafe) {
         .replace(/'/g, "&#039;");
 }
 
-// Configuration for backend URL - automatically detects environment with URL override support
-const isLocalhost = window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1' ||
-    window.location.hostname.includes('localhost');
+// Configuration for backend URL - dynamically loaded from API
+// 后端配置（会从API异步加载）
+let backendConfig = {
+    backend: 'hasura', // 默认使用hasura
+    useHasura: true,
+    useOriginal: false,
+    originalBackendUrl: null,
+    hasuraEndpoint: '/api/graphql',
+    loaded: false
+};
+
+// 缓存用户ID，避免每帧动画都检查认证状态
+let cachedUserId = null;
+let userIdChecked = false;
 
 // Check for URL parameter override (useful for testing)
 const urlParams = new URLSearchParams(window.location.search);
 const forceLocal = urlParams.get('local') === 'true';
 const forceProd = urlParams.get('prod') === 'true';
 
-let BACKEND_URL;
+// 临时的BACKEND_URL（用于兼容旧代码，在配置加载后会更新）
+// 默认为空字符串，表示使用本地API
+window.BACKEND_URL = '';
+
+// URL参数强制覆盖
 if (forceLocal) {
-    BACKEND_URL = 'http://localhost:8080';
+    window.BACKEND_URL = 'http://localhost:8080';
 } else if (forceProd) {
-    BACKEND_URL = 'https://fishes-be-571679687712.northamerica-northeast1.run.app';
-} else {
-    BACKEND_URL = isLocalhost
-        ? 'http://localhost:8080'
-        : 'https://fishes-be-571679687712.northamerica-northeast1.run.app';
+    window.BACKEND_URL = 'https://fishes-be-571679687712.northamerica-northeast1.run.app';
 }
 
-// Calculate fish score (upvotes - downvotes)
-function calculateScore(fish) {
-    const upvotes = fish.upvotes || 0;
-    const downvotes = fish.downvotes || 0;
-    return upvotes - downvotes;
+const BACKEND_URL = window.BACKEND_URL;
+
+/**
+ * 加载后端配置
+ */
+async function loadBackendConfig() {
+    if (backendConfig.loaded) return backendConfig;
+    
+    try {
+        const response = await fetch('/api/config-api?action=backend');
+        if (response.ok) {
+            const config = await response.json();
+            backendConfig = { ...config, loaded: true };
+            
+            // 更新BACKEND_URL
+            if (config.useOriginal && config.originalBackendUrl) {
+                window.BACKEND_URL = config.originalBackendUrl;
+            } else {
+                // 使用Hasura时，BACKEND_URL为空字符串，表示使用本地API
+                window.BACKEND_URL = '';
+            }
+            
+            console.log(`🔧 后端配置: ${config.backend === 'hasura' ? 'Hasura数据库' : '原作者后端'}`);
+            console.log(`🌐 BACKEND_URL: ${window.BACKEND_URL || '(本地API)'}`);
+        } else {
+            console.warn('⚠️ 无法加载后端配置，使用默认值');
+            backendConfig.loaded = true;
+        }
+    } catch (error) {
+        console.warn('⚠️ 加载后端配置失败，使用默认值:', error);
+        backendConfig.loaded = true;
+    }
+    
+    return backendConfig;
 }
+
+// 导出配置加载函数
+window.loadBackendConfig = loadBackendConfig;
+
+// Note: Score calculation removed - now only using upvotes
 
 // Send vote to endpoint
 async function sendVote(fishId, voteType) {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/vote`, {
+        // 获取Supabase认证token和用户ID
+        let authToken = null;
+        let userId = null;
+        
+        if (window.supabaseAuth) {
+            authToken = await window.supabaseAuth.getAccessToken();
+            const user = await window.supabaseAuth.getUser();
+            userId = user?.id;
+        }
+        
+        // 如果没有用户ID，检查localStorage
+        if (!userId) {
+            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            userId = userInfo.userId;
+        }
+        
+        if (!userId) {
+            throw new Error('请先登录才能投票');
+        }
+        
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        
+        if (authToken) {
+            headers['Authorization'] = `Bearer ${authToken}`;
+        }
+        
+        const response = await fetch(`${BACKEND_URL}/api/vote/vote`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: headers,
             body: JSON.stringify({
                 fishId: fishId,
-                vote: voteType // 'up' or 'down'
+                userId: userId,
+                voteType: voteType // 'up' or 'down'
             })
         });
 
         if (!response.ok) {
-            console.error(`Vote failed with status: ${response.status}`);
-            throw new Error(`Vote failed with status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            console.error(`Vote failed with status: ${response.status}`, errorData);
+            throw new Error(errorData.error || `Vote failed with status: ${response.status}`);
         }
 
         const responseData = await response.json();
@@ -72,17 +144,26 @@ async function sendVote(fishId, voteType) {
 // Send report to endpoint
 async function sendReport(fishId, reason) {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/report`, {
+        // 获取Supabase认证token
+        let authToken = null;
+        if (window.supabaseAuth) {
+            authToken = await window.supabaseAuth.getAccessToken();
+        }
+        
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        
+        if (authToken) {
+            headers['Authorization'] = `Bearer ${authToken}`;
+        }
+        
+        const response = await fetch(`${BACKEND_URL}/api/report/submit`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: headers,
             body: JSON.stringify({
                 fishId: fishId,
-                reason: reason.trim(),
-                userAgent: navigator.userAgent,
-                url: window.location.href,
-                timestamp: new Date().toISOString()
+                reason: reason.trim()
             })
         });
 
@@ -200,20 +281,12 @@ function formatDate(dateValue) {
     });
 }
 
-// Create voting controls HTML (shared utility)
-function createVotingControlsHTML(fishId, upvotes = 0, downvotes = 0, includeScore = false, cssClass = '') {
-    const score = upvotes - downvotes;
+// Create voting controls HTML (shared utility) - only upvote and report
+function createVotingControlsHTML(fishId, upvotes = 0, cssClass = '') {
     let html = `<div class="voting-controls ${cssClass}">`;
-
-    if (includeScore) {
-        html += `<span class="fish-score">Score: ${score}</span><br>`;
-    }
 
     html += `<button class="vote-btn upvote-btn" onclick="handleVote('${fishId}', 'up', this)">`;
     html += `👍 <span class="vote-count upvote-count">${upvotes}</span>`;
-    html += `</button>`;
-    html += `<button class="vote-btn downvote-btn" onclick="handleVote('${fishId}', 'down', this)">`;
-    html += `👎 <span class="vote-count downvote-count">${downvotes}</span>`;
     html += `</button>`;
     html += `<button class="report-btn" onclick="handleReport('${fishId}', this)" title="Report inappropriate content">`;
     html += `🚩`;
@@ -235,44 +308,322 @@ function generateRandomDocId() {
 
 // Get random documents using backend API
 async function getRandomFish(limit = 25, userId = null) {
-    try {
-        // Use the backend API with random parameter
-        const params = new URLSearchParams({
-            limit: limit.toString(),
-            orderBy: 'CreatedAt',
-            random: 'true',
-            isVisible: 'true',
-            deleted: 'false'
-        });
-
-        if (userId) {
-            params.append('userId', userId);
-        }
-
-        const response = await fetch(`${BACKEND_URL}/api/fish?${params}`);
-
-        if (!response.ok) {
-            throw new Error(`Backend API failed: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // Convert backend response to Firestore-like documents
-        return data.data.map(fishItem => ({
-            id: fishItem.id,
-            data: () => fishItem.data
-        }));
-    } catch (error) {
-        console.error('Error fetching random fish from backend:', error);
-        throw error;
-    }
+    // 使用getFishBySort的random模式，确保使用正确的后端
+    return await getFishBySort('random', limit, null, 'desc', userId);
 }
 
 
 
+/**
+ * 从Hasura获取鱼数据
+ */
+async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null, battleModeOnly = false, excludeFishIds = []) {
+    // 确定排序字段
+    let orderByClause = '{ created_at: desc }';
+    
+    // 对于random，使用随机offset
+    if (sortType === 'random') {
+        // 先获取总数，然后随机选择offset
+        const countQuery = `
+            query GetFishCount {
+                fish_aggregate(where: {is_approved: {_eq: true}}) {
+                    aggregate {
+                        count
+                    }
+                }
+            }
+        `;
+        
+        try {
+            const countResponse = await fetch('/api/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: countQuery })
+            });
+            
+            if (countResponse.ok) {
+                const countResult = await countResponse.json();
+                const totalCount = countResult.data?.fish_aggregate?.aggregate?.count || 0;
+                
+                if (totalCount > limit) {
+                    // 随机选择一个offset
+                    offset = Math.floor(Math.random() * (totalCount - limit));
+                }
+            }
+        } catch (error) {
+            console.warn('无法获取鱼总数，使用默认offset:', error);
+        }
+        
+        orderByClause = '{ created_at: desc }';
+    } else {
+        switch (sortType) {
+            case 'hot':
+            case 'popular':
+                orderByClause = '{ upvotes: desc }';
+                break;
+            case 'score':
+                orderByClause = '{ upvotes: desc }';
+                break;
+            case 'recent':
+            case 'date':
+                orderByClause = '{ created_at: desc }';
+                break;
+            default:
+                orderByClause = '{ created_at: desc }';
+        }
+    }
+
+    // 构建GraphQL查询 - 直接在查询字符串中插入 order_by
+    // 添加 upvotes 不为 null 的条件，避免 GraphQL 非空类型错误
+    // 同时获取总数用于分页
+    // 🆕 添加排除ID支持
+    const hasExcludeIds = excludeFishIds && excludeFishIds.length > 0;
+    
+    // 动态构建查询变量声明
+    const variableDeclarations = ['$limit: Int!', '$offset: Int!'];
+    if (userId) {
+        variableDeclarations.push('$userId: String!');
+    }
+    if (hasExcludeIds) {
+        variableDeclarations.push('$excludeIds: [String!]');
+    }
+    
+    const query = `
+        query GetFish(${variableDeclarations.join(', ')}) {
+            fish(
+                where: {
+                    is_approved: { _eq: true }
+                    upvotes: { _is_null: false }
+                    ${userId ? ', user_id: { _eq: $userId }' : ''}
+                    ${hasExcludeIds ? ', id: { _nin: $excludeIds }' : ''}
+                }
+                limit: $limit
+                offset: $offset
+                order_by: [${orderByClause}]
+            ) {
+                id
+                user_id
+                artist
+                image_url
+                created_at
+                upvotes
+                fish_name
+                personality
+            }
+            fish_aggregate(
+                where: {
+                    is_approved: { _eq: true }
+                    upvotes: { _is_null: false }
+                    ${userId ? ', user_id: { _eq: $userId }' : ''}
+                    ${hasExcludeIds ? ', id: { _nin: $excludeIds }' : ''}
+                }
+            ) {
+                aggregate {
+                    count
+                }
+            }
+        }
+    `;
+
+    // 确保 limit 和 offset 是有效的数字
+    const limitNum = parseInt(limit) || 25;
+    const offsetNum = parseInt(offset) || 0;
+    
+    // 确保值不为 NaN 或负数
+    const safeLimit = isNaN(limitNum) || limitNum <= 0 ? 25 : limitNum;
+    const safeOffset = isNaN(offsetNum) || offsetNum < 0 ? 0 : offsetNum;
+
+    const variables = {
+        limit: safeLimit,
+        offset: safeOffset
+    };
+
+    if (userId) {
+        variables.userId = userId;
+    }
+    
+    // 🆕 添加排除ID参数
+    if (hasExcludeIds) {
+        variables.excludeIds = excludeFishIds;
+    }
+
+    try {
+        console.log('🐟 Fetching fish from Hasura:', { sortType, limit: safeLimit, offset: safeOffset, userId, excludeFishIds: excludeFishIds?.length || 0 });
+        
+        const response = await fetch('/api/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, variables })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('GraphQL request failed:', response.status, errorText);
+            throw new Error(`GraphQL request failed: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+            throw new Error(result.errors[0].message);
+        }
+        
+        console.log('✅ Successfully fetched', result.data.fish?.length || 0, 'fish from Hasura');
+
+        // 获取总数
+        const totalCount = result.data.fish_aggregate?.aggregate?.count || 0;
+        
+        // 转换为Firestore-like格式，并附加总数信息
+        const fishDocs = result.data.fish.map(fish => ({
+            id: fish.id,
+            data: () => ({
+                ...fish,
+                Artist: fish.artist,
+                Image: fish.image_url,
+                upvotes: fish.upvotes ?? 0, // 处理 null 值
+                CreatedAt: { _seconds: new Date(fish.created_at).getTime() / 1000 }
+            })
+        }));
+        
+        // 将总数附加到第一个文档上（用于传递总数信息）
+        if (fishDocs.length > 0 && totalCount > 0) {
+            fishDocs._totalCount = totalCount;
+        }
+        
+        return fishDocs;
+    } catch (error) {
+        console.error('Error fetching fish from Hasura:', error);
+        throw error;
+    }
+}
+
+/**
+ * 通过ID获取单条鱼的数据
+ * @param {string} fishId - 鱼的ID
+ * @returns {Object|null} 鱼数据对象，如果未找到则返回null
+ */
+async function getFishById(fishId) {
+    // 先加载配置
+    await loadBackendConfig();
+
+    // 如果使用Hasura
+    if (backendConfig.useHasura) {
+        const query = `
+            query GetFishById($fishId: uuid!) {
+                fish_by_pk(id: $fishId) {
+                    id
+                    user_id
+                    artist
+                    image_url
+                    created_at
+                    upvotes
+                    fish_name
+                    personality
+                    is_approved
+                }
+            }
+        `;
+
+        try {
+            const response = await fetch('/api/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    query, 
+                    variables: { fishId } 
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`GraphQL request failed: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.errors) {
+                console.error('❌ [FISH LOADER] GraphQL errors:', result.errors);
+                console.error('❌ [FISH LOADER] Error details:', JSON.stringify(result.errors, null, 2));
+                console.error('❌ [FISH LOADER] Query was for fishId:', fishId);
+                console.error('❌ [FISH LOADER] Full response:', result);
+                return null;
+            }
+
+            const fish = result.data.fish_by_pk;
+            
+            if (!fish) {
+                console.warn(`Fish with ID ${fishId} not found`);
+                return null;
+            }
+            
+            // 🔍 只排除明确标记为未审核的鱼（is_approved === false）
+            // 默认创建的鱼 is_approved = true，所以这里只检查明确的 false
+            if (fish.is_approved === false) {
+                console.warn(`Fish with ID ${fishId} is explicitly not approved (is_approved: false)`);
+                return null;
+            }
+            
+            console.log(`✅ [FISH LOADER] Found fish by ID:`, {
+                id: fish.id,
+                name: fish.fish_name,
+                is_approved: fish.is_approved,
+                image_url: fish.image_url,
+                artist: fish.artist
+            });
+
+            // 转换为标准格式
+            return {
+                id: fish.id,
+                user_id: fish.user_id,
+                artist: fish.artist,
+                image_url: fish.image_url,
+                created_at: fish.created_at,
+                upvotes: fish.upvotes ?? 0,
+                fish_name: fish.fish_name,
+                personality: fish.personality,
+                is_approved: fish.is_approved,
+                Artist: fish.artist,
+                Image: fish.image_url,
+                CreatedAt: { _seconds: new Date(fish.created_at).getTime() / 1000 }
+            };
+        } catch (error) {
+            console.error('Error fetching fish by ID from Hasura:', error);
+            return null;
+        }
+    }
+
+    // 使用原作者后端API
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/fish/${fishId}`);
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                console.warn(`Fish with ID ${fishId} not found`);
+                return null;
+            }
+            throw new Error(`Backend API failed: ${response.status}`);
+        }
+
+        const fish = await response.json();
+        return fish;
+    } catch (error) {
+        console.error('Error fetching fish by ID from backend:', error);
+        return null;
+    }
+}
+
 // Get fish from backend API with caching
-async function getFishBySort(sortType, limit = 25, startAfter = null, direction = 'desc', userId = null) {
-    // Create the backend API request
+async function getFishBySort(sortType, limit = 25, startAfter = null, direction = 'desc', userId = null, battleModeOnly = false, excludeFishIds = []) {
+    // 先加载配置
+    await loadBackendConfig();
+
+    // 如果使用Hasura
+    if (backendConfig.useHasura) {
+        const offset = startAfter || 0;
+        return await getFishFromHasura(sortType, limit, offset, userId, battleModeOnly, excludeFishIds);
+    }
+
+    // 使用原作者后端API
     const queryPromise = async () => {
         // Build query parameters to match your backend API
         const params = new URLSearchParams({
@@ -368,43 +719,51 @@ function createFishImageDataUrl(imgUrl, callback) {
     img.src = imgUrl;
 }
 
-// Authentication utilities
-function isUserLoggedIn() {
-    const token = localStorage.getItem('userToken');
-    const userData = localStorage.getItem('userData');
-    return !!(token && userData);
+// Authentication utilities - Supabase版本
+async function isUserLoggedIn() {
+    if (!window.supabaseAuth) return false;
+    return await window.supabaseAuth.isLoggedIn();
 }
 
-function getCurrentUser() {
-    const userData = localStorage.getItem('userData');
-    return userData ? JSON.parse(userData) : null;
+async function getCurrentUser() {
+    if (!window.supabaseAuth) return null;
+    return await window.supabaseAuth.getCurrentUser();
 }
 
 function redirectToLogin(currentPage = null) {
-    // Store current page for redirect after login
+    // Only store redirect if it's from a page that requires auth (not from index.html)
     const redirectUrl = currentPage || window.location.href;
+    const currentPath = window.location.pathname;
+    
+    // Don't redirect back to index.html after login - stay on index
+    if (!currentPath.includes('index.html') && currentPath !== '/') {
+        localStorage.setItem('loginRedirect', redirectUrl);
+    } else {
+        // Clear any existing redirect if logging in from index
+        localStorage.removeItem('loginRedirect');
+    }
 
-    // Use URL parameter for immediate redirect, and localStorage as backup
-    const loginUrl = new URL('/login.html', window.location.origin);
-    loginUrl.searchParams.set('redirect', encodeURIComponent(redirectUrl));
-
-    // Also store in localStorage as backup
-    localStorage.setItem('loginRedirect', redirectUrl);
-
-    // Redirect to login page
-    window.location.href = loginUrl.toString();
+    // Show auth modal instead of redirecting to login.html
+    if (window.authUI && window.authUI.showLoginModal) {
+        window.authUI.showLoginModal();
+    } else {
+        // Fallback: if auth UI is not available, redirect to home page
+        window.location.href = '/index.html';
+    }
 }
 
-function logout() {
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userData');
+async function logout() {
+    if (window.supabaseAuth) {
+        await window.supabaseAuth.signOut();
+    }
     localStorage.removeItem('loginRedirect');
     window.location.href = '/login.html';
 }
 
 // Check if authentication is required and redirect if needed
-function requireAuthentication(redirectToCurrentPage = true) {
-    if (!isUserLoggedIn()) {
+async function requireAuthentication(redirectToCurrentPage = true) {
+    const loggedIn = await isUserLoggedIn();
+    if (!loggedIn) {
         if (redirectToCurrentPage) {
             redirectToLogin(window.location.href);
         } else {
@@ -416,14 +775,37 @@ function requireAuthentication(redirectToCurrentPage = true) {
 }
 
 // Update authentication-related UI elements
-function updateAuthenticationUI() {
-    const isLoggedIn = isUserLoggedIn();
-    const currentUser = getCurrentUser();
+async function updateAuthenticationUI() {
+    // 如果用户缓存未初始化，先初始化
+    if (!userIdChecked) {
+        await initializeUserCache();
+    }
+    
+    // 使用缓存的用户信息
+    const isLoggedIn = cachedUserId !== null;
+    let currentUser = null;
+    
+    // 只有在需要用户详细信息时才调用getCurrentUser
+    if (isLoggedIn) {
+        try {
+            currentUser = await getCurrentUser();
+        } catch (error) {
+            // 如果获取失败，清除缓存
+            cachedUserId = null;
+            userIdChecked = true;
+        }
+    }
 
-    // Update "my tanks" link visibility
+    // Update "my tanks" link visibility and URL
     const myTanksLink = document.getElementById('my-tanks-link');
     if (myTanksLink) {
         myTanksLink.style.display = isLoggedIn ? 'inline' : 'none';
+        
+        // If logged in, get default tank and update link to go directly to it
+        if (isLoggedIn && window.FishTankFavorites) {
+            // Always link to private tank (unified tank architecture)
+            myTanksLink.href = 'tank.html?view=my';
+        }
     }
     // Update auth link (login/logout)
     const authLink = document.getElementById('auth-link');
@@ -431,9 +813,9 @@ function updateAuthenticationUI() {
         if (isLoggedIn) {
             authLink.textContent = 'Logout';
             authLink.href = '#';
-            authLink.onclick = (e) => {
+            authLink.onclick = async (e) => {
                 e.preventDefault();
-                logout();
+                await logout();
             };
         } else {
             authLink.textContent = 'Login';
@@ -446,8 +828,11 @@ function updateAuthenticationUI() {
     // Update auth status if present
     const authStatus = document.getElementById('auth-status');
     if (authStatus) {
-        if (isLoggedIn) {
-            authStatus.textContent = `Welcome, ${currentUser.displayName || currentUser.email}!`;
+        if (isLoggedIn && currentUser) {
+            const displayName = currentUser?.user_metadata?.name || 
+                               currentUser?.email?.split('@')[0] || 
+                               'User';
+            authStatus.textContent = `Welcome, ${displayName}!`;
         } else {
             authStatus.textContent = 'Please log in to access this feature';
         }
@@ -463,19 +848,48 @@ function getDisplayName(profile) {
 }
 
 // Get user profile data from API
+// Get user profile data from Hasura
 async function getUserProfile(userId) {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/profile/${encodeURIComponent(userId)}`);
+        const query = `
+            query GetUserProfile($userId: String!) {
+                users_by_pk(id: $userId) {
+                    id
+                    nick_name
+                    email
+                    avatar_url
+                    created_at
+                }
+            }
+        `;
+
+        const response = await fetch('/api/graphql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                query,
+                variables: { userId }
+            })
+        });
 
         if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error('User not found');
-            }
-            throw new Error(`Failed to fetch profile: ${response.status}`);
+            throw new Error(`GraphQL request failed: ${response.status}`);
         }
 
-        const data = await response.json();
-        return data.profile;
+        const result = await response.json();
+
+        if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+            throw new Error(result.errors[0].message);
+        }
+
+        if (!result.data || !result.data.users_by_pk) {
+            throw new Error('User not found');
+        }
+
+        return result.data.users_by_pk;
     } catch (error) {
         console.error('Error fetching profile:', error);
         throw error;
@@ -485,38 +899,69 @@ async function getUserProfile(userId) {
 // Navigation authentication utility
 function initializeAuthNavigation() {
     // Update UI on page load
-    document.addEventListener('DOMContentLoaded', updateAuthenticationUI);
-
-    // Also check when localStorage changes (for cross-tab login/logout)
-    window.addEventListener('storage', function (e) {
-        if (e.key === 'userToken' || e.key === 'userData') {
-            updateAuthenticationUI();
-        }
+    document.addEventListener('DOMContentLoaded', async () => {
+        await updateAuthenticationUI();
     });
+
+    // Listen for Supabase auth state changes
+    if (window.supabaseAuth) {
+        window.supabaseAuth.onAuthStateChange(async (event, session) => {
+            console.log('Auth state changed:', event);
+            await updateAuthenticationUI();
+        });
+    }
 }
 
 // Get the current user's ID for highlighting their fish
-function getCurrentUserId() {
-    const userData = localStorage.getItem('userData');
-    const userIdFromStorage = localStorage.getItem('userId');
-
-    if (userData) {
-        try {
-            const parsed = JSON.parse(userData);
-            return userIdFromStorage || parsed.uid || parsed.userId || parsed.id || parsed.email;
-        } catch (e) {
-            return userIdFromStorage;
+/**
+ * 初始化用户ID缓存（页面加载时调用一次）
+ */
+async function initializeUserCache() {
+    if (userIdChecked) return cachedUserId;
+    
+    userIdChecked = true;
+    try {
+        const user = await getCurrentUser();
+        cachedUserId = user ? user.id : null;
+        if (cachedUserId) {
+            console.log('✅ 用户已登录，ID已缓存');
         }
+    } catch (error) {
+        console.log('ℹ️ 用户未登录');
+        cachedUserId = null;
     }
+    return cachedUserId;
+}
 
-    return userIdFromStorage;
+async function getCurrentUserId() {
+    // 如果已检查过，直接返回缓存值
+    if (userIdChecked) {
+        return cachedUserId;
+    }
+    
+    // 否则初始化缓存
+    return await initializeUserCache();
 }
 
 // Check if a fish belongs to the current user
+// 使用同步检查，避免每帧动画都调用async函数
 function isUserFish(fish) {
-    const currentUserId = getCurrentUserId();
-    if (!currentUserId || !fish.userId) {
+    // 如果尚未检查用户ID，返回false（页面加载时会初始化）
+    if (!userIdChecked) {
         return false;
     }
-    return currentUserId === fish.userId;
+    
+    if (!cachedUserId || !fish.userId) {
+        return false;
+    }
+    return cachedUserId === fish.userId;
 }
+
+// Export functions to window for use in other scripts
+window.requireAuthentication = requireAuthentication;
+window.redirectToLogin = redirectToLogin;
+window.isUserLoggedIn = isUserLoggedIn;
+window.getCurrentUser = getCurrentUser;
+window.getCurrentUserId = getCurrentUserId;
+window.initializeUserCache = initializeUserCache;
+window.isUserFish = isUserFish;

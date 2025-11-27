@@ -1,0 +1,243 @@
+/* ===== 汉堡菜单按钮样式 ===== */
+.hamburger-menu-btn {
+  display: flex; /* PC端和移动端都显示 */
+  flex-direction: column;
+  justify-content: space-around;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+  position: relative;
+  order: -1; /* 确保按钮在左侧 */
+  flex-shrink: 0; /* 防止按钮被压缩 */
+}
+
+.hamburger-menu-btn span {
+  width: 28px;
+  height: 3px;
+  background: white;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hamburger-menu-btn:hover span {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.hamburger-menu-btn.active span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger-menu-btn.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-menu-btn.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(8px, -8px);
+}
+
+/* ===== 侧边栏菜单样式 ===== */
+.sidebar-menu {
+  position: fixed;
+  top: 0;
+  left: -300px; /* 默认隐藏在左侧 */
+  width: 280px;
+  height: 100vh;
+  background: linear-gradient(180deg, rgba(74, 144, 226, 0.98) 0%, rgba(53, 122, 189, 0.98) 100%);
+  backdrop-filter: blur(10px);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  transition: left 0.3s ease;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-menu.open {
+  left: 0;
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 24px;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.close-sidebar-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  line-height: 1;
+}
+
+.close-sidebar-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+.sidebar-nav {
+  padding: 20px 0;
+  flex: 1;
+  padding-bottom: 40px; /* 确保最后一个选项在移动端完全可见 */
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 20px;
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+  margin: 4px 0;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-left-color: white;
+  transform: translateX(4px);
+}
+
+.sidebar-link:active {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.sidebar-icon {
+  font-size: 24px;
+  width: 32px;
+  text-align: center;
+}
+
+/* ===== 侧边栏遮罩 ===== */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ===== 响应式设计 ===== */
+@media (max-width: 768px) {
+  .hamburger-menu-btn {
+    display: flex !important;
+    order: -1; /* 确保按钮在左侧 */
+  }
+  
+  .game-nav-links {
+    display: flex !important; /* 保持显示以容纳登录按钮 */
+    gap: 8px;
+  }
+  
+  /* 隐藏导航栏中的普通链接按钮，但保留登录按钮和用户菜单 */
+  .game-nav .game-nav-links .game-btn:not(#login-btn) {
+    display: none !important;
+  }
+  
+  /* 注意：不要强制设置 #login-btn 和 #user-container 的 display 属性
+     让 JavaScript (auth-ui.js) 根据登录状态动态控制显示/隐藏 */
+  
+  .sidebar-menu {
+    width: 260px;
+  }
+  
+  .sidebar-nav {
+    padding-bottom: 50px; /* 移动端增加底部间距 */
+  }
+  
+  /* 确保导航栏在移动端正确布局 */
+  .game-nav {
+    justify-content: flex-start !important;
+    gap: 12px;
+  }
+  
+  .game-logo {
+    flex: 1;
+    margin-left: 0;
+    font-size: 20px; /* 移动端缩小字体 */
+  }
+}
+
+/* PC端：确保布局正确 */
+@media (min-width: 769px) {
+  .game-nav {
+    justify-content: space-between;
+  }
+  
+  .game-logo {
+    margin-right: auto; /* logo靠左 */
+  }
+  
+  /* 确保登录按钮和用户菜单始终可见 */
+  .game-nav-links {
+    flex-shrink: 0;
+    min-width: fit-content; /* 确保有足够空间 */
+  }
+  
+  /* 确保登录按钮和用户菜单不被遮挡 */
+  .game-nav-links .login-btn,
+  .game-nav-links .user-container {
+    flex-shrink: 0;
+    margin-left: auto; /* 靠右对齐 */
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-menu {
+    width: 240px;
+  }
+  
+  .sidebar-link {
+    font-size: 16px;
+    padding: 9px 18px;
+  }
+  
+  .sidebar-icon {
+    font-size: 20px;
+    width: 28px;
+  }
+  
+  .sidebar-nav {
+    padding-bottom: 60px; /* 移动端增加更多底部间距 */
+  }
+}
+

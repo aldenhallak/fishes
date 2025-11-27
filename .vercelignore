@@ -1,0 +1,17 @@
+# Vercel Ignore File
+# Files and directories to EXCLUDE from deployment
+
+# Only ignore test data and temp files
+test-data/
+fish-images/
+*.tmp
+*.log
+
+# Don't ignore lib directory - it's needed for API handlers
+# !lib/
+
+# Don't ignore .env files - they're needed for local development
+!.env.local
+!.env
+!.env.*
+

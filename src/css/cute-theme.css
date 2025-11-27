@@ -1,0 +1,858 @@
+/* ===== 可爱海洋主题样式 ===== */
+/* 活泼可爱的配色和通用组件 */
+
+/* ===== 配色系统 ===== */
+:root {
+  /* 主色 - 紫色系 */
+  --primary-color: #6366F1;
+  --primary-light: #A5B4FC;
+  --primary-dark: #4F46E5;
+  
+  /* 辅助色 */
+  --coral-pink: #FF6B9D;
+  --mint-green: #A5D6A7;
+  --sunshine-yellow: #FFD54F;
+  --lavender: #B39DDB;
+  --peach: #FFAB91;
+  
+  /* 背景色 */
+  --bg-gradient-start: #E3F2FD;
+  --bg-gradient-end: #E0F2F1;
+  --bg-ocean: linear-gradient(180deg, #E3F2FD 0%, #B2EBF2 50%, #80DEEA 100%);
+  
+  /* 中性色 */
+  --white: #FFFFFF;
+  --light-gray: #F5F5F5;
+  --gray: #E0E0E0;
+  --dark-gray: #757575;
+  
+  /* 阴影 */
+  --shadow-sm: 0 2px 8px rgba(99, 102, 241, 0.15);
+  --shadow-md: 0 4px 15px rgba(99, 102, 241, 0.25);
+  --shadow-lg: 0 8px 30px rgba(99, 102, 241, 0.35);
+  --shadow-soft: 0 5px 20px rgba(99, 102, 241, 0.2);
+  
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 15px;
+  --radius-lg: 25px;
+  --radius-xl: 35px;
+  --radius-full: 50%;
+  
+  /* 间距 */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+}
+
+/* ===== 全局样式重置 ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ===== 可爱按钮样式 ===== */
+.cute-button {
+  padding: 12px 30px;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.cute-button:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--shadow-lg);
+}
+
+.cute-button:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.cute-button-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: var(--white);
+}
+
+.cute-button-coral {
+  background: linear-gradient(135deg, var(--coral-pink), #FF8FAB);
+  color: var(--white);
+}
+
+.cute-button-success {
+  background: linear-gradient(135deg, var(--mint-green), #C5E1A5);
+  color: var(--white);
+}
+
+.cute-button-sunshine {
+  background: linear-gradient(135deg, var(--sunshine-yellow), #FFE082);
+  color: #5D4037;
+}
+
+/* 按钮波纹效果 */
+.cute-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.cute-button:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* ===== 可爱卡片样式 ===== */
+.cute-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cute-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--primary-color);
+}
+
+.cute-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ===== 可爱输入框样式 ===== */
+.cute-input {
+  padding: 12px 20px;
+  border: 2px solid var(--gray);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: var(--white);
+}
+
+.cute-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.1);
+  transform: scale(1.02);
+}
+
+/* ===== 可爱滑块样式 ===== */
+.cute-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--primary-light), var(--primary-color));
+  outline: none;
+  opacity: 0.9;
+  transition: opacity 0.3s;
+}
+
+.cute-slider:hover {
+  opacity: 1;
+}
+
+.cute-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--white), var(--primary-light));
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  border: 3px solid var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.cute-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: var(--shadow-lg);
+}
+
+.cute-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--white), var(--primary-light));
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  border: 3px solid var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.cute-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ===== 可爱标签样式 ===== */
+.cute-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 6px 12px;
+  border-radius: var(--radius-lg);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--primary-color);
+  color: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+
+.cute-badge-coral {
+  background: var(--coral-pink);
+}
+
+.cute-badge-mint {
+  background: var(--mint-green);
+  color: #2E7D32;
+}
+
+.cute-badge-sunshine {
+  background: var(--sunshine-yellow);
+  color: #5D4037;
+}
+
+/* ===== 可爱工具提示 ===== */
+.cute-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.cute-tooltip .tooltip-text {
+  visibility: hidden;
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--white);
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  position: absolute;
+  z-index: 1000;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.cute-tooltip .tooltip-text::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+}
+
+.cute-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(-5px);
+}
+
+/* ===== 可爱进度条 ===== */
+.cute-progress {
+  width: 100%;
+  height: 12px;
+  background: var(--gray);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cute-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-light), var(--mint-green));
+  background-size: 200% 100%;
+  animation: wave 2s linear infinite;
+  border-radius: var(--radius-lg);
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.cute-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: var(--radius-lg);
+}
+
+/* ===== 可爱选择框样式 ===== */
+.cute-select {
+  padding: 10px 40px 10px 15px;
+  border: 2px solid var(--gray);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%234FC3F7" d="M6 9L1 4h10z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.cute-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.1);
+}
+
+.cute-select:hover {
+  border-color: var(--primary-light);
+}
+
+/* ===== 可爱复选框样式 ===== */
+.cute-checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: var(--space-sm);
+}
+
+.cute-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.cute-checkbox .checkmark {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--gray);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.cute-checkbox:hover .checkmark {
+  border-color: var(--primary-color);
+  transform: scale(1.1);
+}
+
+.cute-checkbox input:checked ~ .checkmark {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  border-color: var(--primary-color);
+}
+
+.cute-checkbox .checkmark::after {
+  content: '';
+  position: absolute;
+  display: none;
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border: solid var(--white);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.cute-checkbox input:checked ~ .checkmark::after {
+  display: block;
+}
+
+/* ===== 颜色按钮样式 ===== */
+.cute-color-button {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--white);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.cute-color-button:hover {
+  transform: scale(1.2) rotate(10deg);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.cute-color-button:active {
+  transform: scale(0.9);
+}
+
+.cute-color-button.active {
+  border-width: 4px;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.2);
+}
+
+/* ===== 可爱图标按钮 ===== */
+.cute-icon-button {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--primary-color);
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cute-icon-button:hover {
+  background: var(--primary-color);
+  color: var(--white);
+  transform: rotate(10deg) scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
+.cute-icon-button:active {
+  transform: scale(0.9);
+}
+
+/* ===== 可爱画布容器 ===== */
+.cute-canvas-container {
+  position: relative;
+  display: block;
+  width: fit-content; /* 自适应内容宽度 */
+  padding: 20px;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 3px solid var(--primary-light);
+  margin: 0 auto; /* 居中显示 */
+}
+
+.cute-canvas-container canvas {
+  display: block;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 粒子容器 - 绝对定位，不影响布局 */
+.particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 10;
+}
+
+/* 粒子动画 */
+@keyframes explode {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes confetti {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(720deg) scale(0);
+    opacity: 0;
+  }
+}
+
+/* ===== 可爱加载动画 ===== */
+.cute-loader {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.cute-loader-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  animation: bounce 1.4s ease-in-out infinite;
+}
+
+.cute-loader-dot:nth-child(1) {
+  background: var(--primary-color);
+  animation-delay: 0s;
+}
+
+.cute-loader-dot:nth-child(2) {
+  background: var(--coral-pink);
+  animation-delay: 0.2s;
+}
+
+.cute-loader-dot:nth-child(3) {
+  background: var(--mint-green);
+  animation-delay: 0.4s;
+}
+
+/* ===== 可爱通知 ===== */
+.cute-notification {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  padding: 16px 24px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border-left: 4px solid var(--primary-color);
+  animation: fadeInUp 0.3s ease;
+  z-index: 10000;
+  max-width: 320px;
+}
+
+.cute-notification-success {
+  border-left-color: var(--mint-green);
+}
+
+.cute-notification-error {
+  border-left-color: var(--coral-pink);
+}
+
+.cute-notification-warning {
+  border-left-color: var(--sunshine-yellow);
+}
+
+/* ===== 可爱弹窗样式 ===== */
+.cute-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+.cute-modal {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: fadeInScale 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  border: 3px solid var(--primary-light);
+}
+
+/* ===== 响应式调整 ===== */
+@media (max-width: 768px) {
+  :root {
+    --space-lg: 16px;
+    --space-xl: 24px;
+  }
+  
+  .cute-button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .cute-card {
+    padding: var(--space-md);
+  }
+  
+  .cute-modal {
+    padding: var(--space-lg);
+    width: 95%;
+  }
+  
+  .cute-color-button {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .cute-icon-button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}
+
+/* ===== 海洋风格装饰效果 ===== */
+
+/* 背景气泡容器 */
+.background-bubbles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* 单个气泡样式 */
+.bubble {
+  position: absolute;
+  bottom: -60px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: float-up 7s ease-in infinite;
+  box-shadow: 
+    inset 0 0 10px rgba(255, 255, 255, 0.5),
+    0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+/* 气泡上浮动画 */
+@keyframes float-up {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-50vh) translateX(20px) scale(1.1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(-20px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* 鱼缸装饰层 */
+.tank-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 水草样式 */
+.seaweed {
+  position: absolute;
+  bottom: 0;
+  width: 40px;
+  height: 120px;
+  background: linear-gradient(to top, #4CAF50, #8BC34A);
+  border-radius: 50% 50% 0 0;
+  transform-origin: bottom center;
+  animation: sway 3s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.seaweed-left {
+  left: 5%;
+  animation-delay: 0s;
+}
+
+.seaweed-right {
+  right: 5%;
+  animation-delay: 1.5s;
+  background: linear-gradient(to top, #388E3C, #7CB342);
+}
+
+/* 水草摇摆动画 */
+@keyframes sway {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+/* 底部沙地 */
+.sand-layer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(to bottom, #FFD54F, #FFA726);
+  border-radius: 0;
+  opacity: 0.8;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 装饰物基础样式 */
+.decoration {
+  position: absolute;
+  bottom: 35px;
+  opacity: 0.7;
+}
+
+/* 贝壳 */
+.decoration.shell {
+  left: 15%;
+  width: 30px;
+  height: 25px;
+  background: linear-gradient(135deg, #FFF8E1, #FFECB3);
+  border-radius: 50% 50% 45% 45%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 海星 */
+.decoration.starfish {
+  right: 20%;
+  width: 35px;
+  height: 35px;
+  background: #FF8A65;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+  animation: starfish-twinkle 4s ease-in-out infinite;
+}
+
+@keyframes starfish-twinkle {
+  0%, 100% {
+    opacity: 0.7;
+    transform: rotate(0deg);
+  }
+  50% {
+    opacity: 0.9;
+    transform: rotate(10deg);
+  }
+}
+
+/* 石头 */
+.decoration.rock {
+  left: 30%;
+  width: 40px;
+  height: 30px;
+  background: linear-gradient(135deg, #9E9E9E, #757575);
+  border-radius: 40% 60% 50% 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* 光线效果容器 */
+.light-beams {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* 单个光束 */
+.light-beam {
+  position: absolute;
+  top: -50%;
+  width: 80px;
+  height: 150%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  transform: skewX(-15deg);
+  animation: light-shimmer 8s ease-in-out infinite;
+  opacity: 0.4;
+}
+
+.light-beam:nth-child(1) {
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.light-beam.delay-1 {
+  left: 50%;
+  animation-delay: 2s;
+  width: 100px;
+}
+
+.light-beam.delay-2 {
+  left: 75%;
+  animation-delay: 4s;
+  width: 60px;
+}
+
+/* 光线闪烁动画 */
+@keyframes light-shimmer {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 鱼缸包装器 */
+.tank-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+

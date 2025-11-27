@@ -1,0 +1,21 @@
+{
+  "outputDirectory": ".",
+  "framework": null,
+  "functions": {
+    "api/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 15
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*).onnx",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

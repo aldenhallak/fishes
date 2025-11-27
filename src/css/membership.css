@@ -1,0 +1,563 @@
+/* ===== 会员套餐页面样式 ===== */
+/* 基于 cute-game-style.css 的休闲游戏风格 */
+
+.membership-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.membership-header {
+  text-align: center;
+  margin-bottom: 60px;
+  animation: fadeInDown 0.6s ease;
+}
+
+.membership-header h1 {
+  font-size: 48px;
+  font-weight: 900;
+  color: white;
+  text-shadow: 
+    3px 3px 0 rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(255, 255, 255, 0.5);
+  margin-bottom: 16px;
+}
+
+.membership-header p {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* ===== 套餐卡片容器 ===== */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+  margin-bottom: 60px;
+}
+
+/* ===== 单个套餐卡片 ===== */
+.plan-card {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+  border-radius: 32px;
+  padding: 40px 32px;
+  box-shadow: 
+    0 8px 0 rgba(0, 0, 0, 0.25),
+    0 16px 40px rgba(0, 0, 0, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease;
+}
+
+.plan-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, 
+    #FF9500 0%, 
+    #4A90E2 25%, 
+    #4CD964 50%, 
+    #FFD700 75%, 
+    #FF3B30 100%);
+  border-radius: 32px 32px 0 0;
+}
+
+.plan-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
+  border-radius: 32px 32px 0 0;
+  pointer-events: none;
+}
+
+.plan-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 
+    0 12px 0 rgba(0, 0, 0, 0.25),
+    0 24px 50px rgba(0, 0, 0, 0.4);
+}
+
+/* Premium卡片特殊样式 */
+.plan-card.premium {
+  border: 4px solid #FFD700;
+  box-shadow: 
+    0 8px 0 rgba(0, 0, 0, 0.25),
+    0 16px 40px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(255, 215, 0, 0.4);
+  animation: premiumGlow 3s ease-in-out infinite;
+}
+
+.plan-card.premium::before {
+  height: 8px;
+  background: linear-gradient(90deg, 
+    #FFD700 0%, 
+    #FFA500 25%, 
+    #FFD700 50%, 
+    #FFA500 75%, 
+    #FFD700 100%);
+  animation: premiumShine 2s linear infinite;
+}
+
+@keyframes premiumGlow {
+  0%, 100% { box-shadow: 0 8px 0 rgba(0, 0, 0, 0.25), 0 16px 40px rgba(0, 0, 0, 0.3), 0 0 40px rgba(255, 215, 0, 0.4); }
+  50% { box-shadow: 0 8px 0 rgba(0, 0, 0, 0.25), 0 16px 40px rgba(0, 0, 0, 0.3), 0 0 60px rgba(255, 215, 0, 0.6); }
+}
+
+@keyframes premiumShine {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* ===== 会员徽章 ===== */
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  margin-bottom: 24px;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.plan-badge-icon {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px;
+  min-height: 48px;
+  max-width: 48px;
+  max-height: 48px;
+  object-fit: contain;
+  display: block;
+}
+
+.plan-badge-text {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.plan-badge.free .plan-badge-text {
+  color: #5a5a5a;
+}
+
+.plan-badge.plus .plan-badge-text {
+  color: #2A9D96;
+}
+
+.plan-badge.premium .plan-badge-text {
+  color: #B866D1;
+}
+
+/* ===== 价格显示 ===== */
+.plan-price {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.plan-price-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.plan-price-amount {
+  font-size: 36px;
+  font-weight: 900;
+  color: #333;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  line-height: 1;
+}
+
+.plan-price-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.price-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.price-toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.price-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #A0A0A0 0%, #707070 100%);
+  transition: 0.3s;
+  border-radius: 26px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+.price-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.price-toggle-input:checked + .price-toggle-slider {
+  background: linear-gradient(180deg, #2EBD4A 0%, #1E8D3A 100%);
+  border-color: #1E8D3A;
+}
+
+.price-toggle-input:checked + .price-toggle-slider:before {
+  transform: translateX(24px);
+}
+
+.price-toggle-labels {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.price-toggle-label {
+  color: #666;
+  transition: color 0.3s;
+}
+
+.price-toggle-label.monthly {
+  color: #4CD964;
+}
+
+.plan-price-savings {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+/* ===== 功能列表 ===== */
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px 0;
+}
+
+.plan-features li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  font-size: 16px;
+  color: #333;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.plan-features li:last-child {
+  border-bottom: none;
+}
+
+.plan-features li .feature-icon {
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+}
+
+.plan-features li .feature-text {
+  flex: 1;
+}
+
+/* ===== 套餐按钮 ===== */
+.plan-button {
+  width: 100%;
+  padding: 18px 32px;
+  border: none;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.plan-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
+  border-radius: 16px 16px 0 0;
+  pointer-events: none;
+}
+
+.plan-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+}
+
+.plan-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.plan-button.current {
+  background: linear-gradient(180deg, #E0E0E0 0%, #B0B0B0 50%, #909090 100%);
+  color: #333;
+  border-bottom: 3px solid #707070;
+  cursor: default;
+  text-shadow: none;
+}
+
+.plan-button.current:hover {
+  transform: none;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.plan-button.upgrade {
+  background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E6850E 100%);
+  color: white;
+  border-bottom: 3px solid #CC6E00;
+}
+
+.plan-button.upgrade.premium {
+  background: linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #E6850E 100%);
+  color: #5D4E00;
+  border-bottom: 3px solid #BFA000;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* ===== 功能对比表格 ===== */
+.features-comparison {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+  border-radius: 32px;
+  padding: 40px;
+  box-shadow: 
+    0 8px 0 rgba(0, 0, 0, 0.25),
+    0 16px 40px rgba(0, 0, 0, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  margin-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.features-comparison::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, 
+    #FF9500 0%, 
+    #4A90E2 25%, 
+    #4CD964 50%, 
+    #FFD700 75%, 
+    #FF3B30 100%);
+  border-radius: 32px 32px 0 0;
+}
+
+.features-comparison h2 {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 900;
+  color: #333;
+  margin-bottom: 32px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 16px;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.comparison-table th {
+  font-weight: 700;
+  color: #333;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.comparison-table th:first-child {
+  text-align: left;
+}
+
+.comparison-table td:first-child {
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+}
+
+.comparison-table .check {
+  color: #4CD964;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.comparison-table .cross {
+  color: #FF3B30;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+/* ===== FAQ部分 ===== */
+.faq-section {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+  border-radius: 32px;
+  padding: 40px;
+  box-shadow: 
+    0 8px 0 rgba(0, 0, 0, 0.25),
+    0 16px 40px rgba(0, 0, 0, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  position: relative;
+  overflow: hidden;
+}
+
+.faq-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, 
+    #FF9500 0%, 
+    #4A90E2 25%, 
+    #4CD964 50%, 
+    #FFD700 75%, 
+    #FF3B30 100%);
+  border-radius: 32px 32px 0 0;
+}
+
+.faq-section h2 {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 900;
+  color: #333;
+  margin-bottom: 32px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.faq-item {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.faq-item h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.faq-item p {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ===== 响应式设计 ===== */
+@media (max-width: 768px) {
+  .membership-header h1 {
+    font-size: 36px;
+  }
+  
+  .membership-header p {
+    font-size: 18px;
+  }
+  
+  .plans-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .plan-card {
+    padding: 32px 24px;
+  }
+  
+  .plan-price-amount {
+    font-size: 48px;
+  }
+  
+  .features-comparison,
+  .faq-section {
+    padding: 24px;
+  }
+  
+  .comparison-table {
+    font-size: 14px;
+  }
+  
+  .comparison-table th,
+  .comparison-table td {
+    padding: 12px 8px;
+  }
+}
+
+/* ===== 动画 ===== */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

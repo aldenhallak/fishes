@@ -1,32 +1,37 @@
-window.onload = () => {
+window.onload = async () => {
   // Setup form event listener
   document.getElementById('reset-password-form').addEventListener('submit', handlePasswordReset);
   
-  // Check for reset token in URL
-  checkForPasswordResetToken();
+  // Check for reset token in URL (Supabase flow)
+  await checkForPasswordResetToken();
 };
 
-// Check for password reset token in URL and validate
-function checkForPasswordResetToken() {
+// Check for password reset token in URL and validate (Supabase Auth)
+async function checkForPasswordResetToken() {
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
-  const email = urlParams.get('email');
+  const accessToken = urlParams.get('access_token');
+  const type = urlParams.get('type');
   
-  if (!token || !email) {
-    showInvalidToken();
-    return;
+  // Supabase password recovery flow
+  if (type === 'recovery' && accessToken) {
+    try {
+      // Verify the session with Supabase
+      const user = await window.supabaseAuth.getCurrentUser();
+      
+      if (user && user.email) {
+        // Valid recovery session, show the reset form
+        document.getElementById('reset-email').value = user.email;
+        document.getElementById('email-display').textContent = user.email;
+        document.getElementById('reset-password-form').style.display = 'block';
+        return;
+      }
+    } catch (error) {
+      console.error('Error verifying recovery token:', error);
+    }
   }
   
-  // Decode email if it was encoded
-  const decodedEmail = decodeURIComponent(email);
-  
-  // Store token and email in hidden fields
-  document.getElementById('reset-token').value = token;
-  document.getElementById('reset-email').value = decodedEmail;
-  document.getElementById('email-display').textContent = decodedEmail;
-  
-  // Show the reset form
-  document.getElementById('reset-password-form').style.display = 'block';
+  // If no valid token, show invalid message
+  showInvalidToken();
 }
 
 // Handle password reset submission
@@ -35,8 +40,6 @@ async function handlePasswordReset(event) {
   
   const newPassword = document.getElementById('new-password').value;
   const confirmPassword = document.getElementById('confirm-password').value;
-  const token = document.getElementById('reset-token').value;
-  const email = document.getElementById('reset-email').value;
   
   if (!newPassword || !confirmPassword) {
     showError("Please fill in both password fields.");
@@ -53,45 +56,53 @@ async function handlePasswordReset(event) {
     return;
   }
   
+  if (!window.supabaseAuth || !window.supabaseAuth.updatePassword) {
+    showError("Authentication system not initialized. Please refresh the page.");
+    return;
+  }
+  
   showLoading();
   hideError();
   hideSuccess();
   
   try {
-    const response = await fetch(BACKEND_URL + "/auth/reset-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        email, 
-        token, 
-        newPassword 
-      })
-    });
+    // Use Supabase Auth to update password
+    const { data, error } = await window.supabaseAuth.updatePassword(newPassword);
     
-    if (response.ok) {
+    if (error) {
+      throw error;
+    }
+    
+    if (data) {
       showSuccess("Password reset successful! You can now sign in with your new password.");
       
       // Hide the form and show success
       document.getElementById('reset-password-form').style.display = 'none';
       
+      // Sign out the user (recovery session should be cleared)
+      await window.supabaseAuth.signOut();
+      
       // Redirect to login page after 3 seconds
       setTimeout(() => {
         window.location.href = '/login.html?message=password-reset-success';
       }, 3000);
-      
     } else {
-      const errorResponse = await response.json().catch(() => ({}));
-      
-      // If token is invalid/expired, show invalid token message
-      if (response.status === 400 || response.status === 401) {
-        showInvalidToken();
-      } else {
-        throw new Error(errorResponse.error || "Failed to reset password.");
-      }
+      throw new Error("Failed to reset password. Please try again.");
     }
   } catch (error) {
     console.error("Password reset error:", error);
-    showError(error.message || "Failed to reset password. Please try again or request a new reset link.");
+    
+    let errorMessage = "Failed to reset password. Please try again or request a new reset link.";
+    
+    // Handle specific error messages
+    if (error.message.includes("Invalid") || error.message.includes("expired")) {
+      showInvalidToken();
+      return;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    showError(errorMessage);
   } finally {
     hideLoading();
   }

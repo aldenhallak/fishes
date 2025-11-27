@@ -1,0 +1,38 @@
+{
+  "name": "fish-art-battle",
+  "version": "1.0.1",
+  "description": "Fish Art Battle System - 鱼画战斗系统",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node dev-server.js",
+    "dev:vercel": "vercel dev",
+    "check:env": "node scripts/check-env.js",
+    "test:hasura": "node scripts/test-hasura-connection.js",
+    "test:redis": "node scripts/test-redis-connection.js",
+    "test:api": "node scripts/test-api-endpoints.js",
+    "test:all": "npm run test:hasura && npm run test:redis && npm run test:api",
+    "download:fish": "node scripts/download-fish-data.js",
+    "download:schema": "graphql-codegen --config codegen.json",
+    "migrate": "echo '请在Hasura Console中执行 scripts/migrate-database.sql'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.79.0",
+    "dotenv": "^16.6.1",
+    "form-data": "^4.0.4",
+    "formidable": "^3.5.0",
+    "ioredis": "^5.8.2",
+    "node-fetch": "^2.7.0",
+    "qiniu": "^7.12.0",
+    "stripe": "^14.0.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/schema-ast": "^5.0.0",
+    "@graphql-codegen/typescript": "^5.0.2",
+    "@vercel/node": "^3.0.0",
+    "graphql": "^16.12.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

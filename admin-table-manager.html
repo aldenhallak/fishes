@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据表管理 - Fish Art</title>
+  <script src="public/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js"></script>
+  <script src="src/js/admin-auth.js"></script>
+  <script>
+    // 管理员权限检查
+    (async function() {
+      // 等待页面加载
+      if (document.readyState === 'loading') {
+        await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+      }
+      
+      // 确保 Supabase 已初始化
+      if (!window.supabaseAuth) {
+        await new Promise(resolve => {
+          const checkInterval = setInterval(() => {
+            if (window.supabaseAuth) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+        });
+      }
+      
+      // 检查管理员权限
+      await window.adminAuth.requireAdminAccess();
+    })();
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f7fafc;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 2rem;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 1rem;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      color: #1a202c;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      color: #718096;
+    }
+
+    .version-info {
+      text-align: right;
+      font-size: 0.875rem;
+      color: #718096;
+    }
+
+    .info-box {
+      background: #ebf8ff;
+      border-left: 4px solid #3182ce;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border-radius: 4px;
+    }
+
+    .info-box h3 {
+      color: #2c5282;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-box p {
+      color: #2d3748;
+      line-height: 1.6;
+    }
+
+    .selector-section {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .selector-section h2 {
+      font-size: 1.125rem;
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+
+    .selector-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .selector-controls label {
+      font-weight: 500;
+      color: #4a5568;
+      white-space: nowrap;
+    }
+
+    .selector-controls select {
+      flex: 1;
+      max-width: 500px;
+      padding: 0.75rem;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      color: #2d3748;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .selector-controls select:hover {
+      border-color: #667eea;
+    }
+
+    .selector-controls select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5a67d8;
+    }
+
+    .table-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .table-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: 2px solid #e2e8f0;
+      cursor: pointer;
+      transition: all 0.2s;
+      overflow: hidden;
+    }
+
+    .table-card:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      border-color: #667eea;
+      transform: translateY(-2px);
+    }
+
+    .table-card-content {
+      padding: 1.5rem;
+    }
+
+    .table-card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .table-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-right: 0.75rem;
+    }
+
+    .table-card h3 {
+      font-size: 1rem;
+      color: #2d3748;
+      margin-bottom: 0.25rem;
+    }
+
+    .table-card .table-name {
+      font-size: 0.75rem;
+      color: #718096;
+      font-family: 'Courier New', monospace;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: #fff5f5;
+      border: 1px solid #fc8181;
+      color: #c53030;
+      padding: 1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #718096;
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .footer {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+      color: #718096;
+      font-size: 0.875rem;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      background: #f7fafc;
+      color: #4a5568;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      background: #edf2f7;
+      color: #2d3748;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 页面标题 -->
+    <div class="header">
+      <div class="header-content">
+        <div>
+          <h1>🗄️ 数据表管理</h1>
+          <p>管理和编辑数据库表中的数据</p>
+        </div>
+        <div class="version-info">
+          当前版本：<span id="currentVersion">加载中...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 功能说明 -->
+    <div class="info-box">
+      <h3>💡 使用说明</h3>
+      <p>
+        <strong>快速编辑数据表：</strong>选择任意表格可进入编辑模式，支持在线修改数据，就像操作Excel一样简单。
+        支持批量编辑、删除、排序等功能。
+      </p>
+    </div>
+
+    <!-- 表格选择器 -->
+    <div class="selector-section">
+      <h2>选择要管理的数据表</h2>
+      <div class="selector-controls">
+        <label for="table-select">数据表：</label>
+        <select id="table-select">
+          <option value="">请选择一个数据表...</option>
+        </select>
+        <button class="btn btn-primary" id="open-table-btn" disabled>
+          打开表格
+        </button>
+      </div>
+    </div>
+
+    <!-- 表格卡片网格 -->
+    <div id="table-grid" class="table-grid">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 1rem; color: #718096;">加载数据表列表中...</p>
+      </div>
+    </div>
+
+    <!-- 底部信息 -->
+    <div class="footer">
+      <p>数据表管理系统 - 支持实时编辑和批量更新</p>
+      <p id="table-count" style="margin-top: 0.5rem;">当前共有 0 个数据表可管理</p>
+    </div>
+
+    <a href="test-center.html" class="back-link">← 返回测试中心</a>
+  </div>
+
+  <script>
+    let tables = [];
+    let tableConfigs = {};
+
+    // 更新版本时间
+    document.getElementById('currentVersion').textContent = new Date().toLocaleString('zh-CN');
+
+    // 加载表列表
+    async function loadTables() {
+      try {
+        const response = await fetch('/api/admin/tables');
+        const result = await response.json();
+        
+        if (result.success) {
+          tables = result.data.tables || [];
+          tableConfigs = result.data.configs || {};
+          
+          renderTableSelect();
+          renderTableGrid();
+          updateTableCount();
+        } else {
+          showError(result.error || '获取表列表失败');
+        }
+      } catch (err) {
+        console.error('获取表列表失败:', err);
+        showError('获取表列表失败，请稍后重试');
+      }
+    }
+
+    // 渲染表选择器
+    function renderTableSelect() {
+      const select = document.getElementById('table-select');
+      select.innerHTML = '<option value="">请选择一个数据表...</option>';
+      
+      tables.forEach(tableName => {
+        const config = tableConfigs[tableName] || {};
+        const displayName = config.displayName || tableName;
+        
+        const option = document.createElement('option');
+        option.value = tableName;
+        option.textContent = `${displayName} (${tableName})`;
+        select.appendChild(option);
+      });
+    }
+
+    // 渲染表格网格
+    function renderTableGrid() {
+      const grid = document.getElementById('table-grid');
+      
+      if (tables.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem; color: #2d3748;">暂无可用表</h3>
+            <p>系统中没有找到可管理的数据表</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = '';
+      
+      tables.forEach(tableName => {
+        const config = tableConfigs[tableName] || {};
+        const displayName = config.displayName || tableName;
+        
+        const card = document.createElement('div');
+        card.className = 'table-card';
+        card.onclick = () => openTable(tableName);
+        
+        card.innerHTML = `
+          <div class="table-card-content">
+            <div class="table-card-header">
+              <div class="table-icon">📊</div>
+              <div style="flex: 1;">
+                <h3>${displayName}</h3>
+                <div class="table-name">${tableName}</div>
+              </div>
+            </div>
+            ${config.isDangerous ? '<div style="color: #e53e3e; font-size: 0.75rem; margin-top: 0.5rem;">⚠️ 危险表：操作需谨慎</div>' : ''}
+          </div>
+        `;
+        
+        grid.appendChild(card);
+      });
+    }
+
+    // 更新表数量
+    function updateTableCount() {
+      document.getElementById('table-count').textContent = 
+        `当前共有 ${tables.length} 个数据表可管理`;
+    }
+
+    // 打开表格编辑页
+    function openTable(tableName) {
+      window.location.href = `admin-table-edit.html?table=${encodeURIComponent(tableName)}`;
+    }
+
+    // 显示错误
+    function showError(message) {
+      const grid = document.getElementById('table-grid');
+      grid.innerHTML = `
+        <div class="error">
+          <strong>⚠️ 错误：</strong>${message}
+        </div>
+      `;
+    }
+
+    // 表选择器变化
+    document.getElementById('table-select').addEventListener('change', (e) => {
+      const btn = document.getElementById('open-table-btn');
+      btn.disabled = !e.target.value;
+    });
+
+    // 打开表格按钮点击
+    document.getElementById('open-table-btn').addEventListener('click', () => {
+      const select = document.getElementById('table-select');
+      const tableName = select.value;
+      if (tableName) {
+        openTable(tableName);
+      }
+    });
+
+    // 页面加载时获取表列表
+    loadTables();
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

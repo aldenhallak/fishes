@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试GraphQL鱼查询</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .test-area {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            color: #d4d4d4;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #1177bb; }
+        pre {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            border: 1px solid #3e3e42;
+        }
+        .success { color: #4ec9b0; }
+        .error { color: #f48771; }
+    </style>
+</head>
+<body>
+    <h1>🔍 GraphQL鱼查询测试</h1>
+    
+    <div class="test-area">
+        <h2>测试鱼ID</h2>
+        <input type="text" id="fishId" placeholder="输入鱼ID，例如: 966fe72c-4bdd-4a71-a34a-5fcc3c9bc808" value="966fe72c-4bdd-4a71-a34a-5fcc3c9bc808">
+        <button onclick="testQuery()">🚀 测试查询</button>
+        <button onclick="testListAll()">📋 列出所有鱼（最近10条）</button>
+    </div>
+
+    <div class="test-area">
+        <h2>查询结果</h2>
+        <pre id="result">等待查询...</pre>
+    </div>
+
+    <div class="test-area">
+        <h2>错误信息</h2>
+        <pre id="error" class="error">无</pre>
+    </div>
+
+    <script>
+        async function testQuery() {
+            const fishId = document.getElementById('fishId').value;
+            const result = document.getElementById('result');
+            const errorEl = document.getElementById('error');
+            
+            if (!fishId) {
+                alert('请输入鱼ID');
+                return;
+            }
+
+            result.textContent = '正在查询...';
+            errorEl.textContent = '无';
+
+            const query = `
+                query GetFishById($fishId: uuid!) {
+                    fish_by_pk(id: $fishId) {
+                        id
+                        user_id
+                        artist
+                        image_url
+                        created_at
+                        upvotes
+                        fish_name
+                        personality
+                        is_approved
+                    }
+                }
+            `;
+
+            console.log('🔍 Testing GraphQL query for fish:', fishId);
+            console.log('📝 Query:', query);
+
+            try {
+                const response = await fetch('/api/graphql', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        query, 
+                        variables: { fishId } 
+                    })
+                });
+
+                console.log('📡 Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('📦 Response data:', data);
+
+                if (data.errors) {
+                    console.error('❌ GraphQL errors:', data.errors);
+                    errorEl.textContent = JSON.stringify(data.errors, null, 2);
+                    result.textContent = '查询失败，请查看错误信息';
+                    
+                    // 分析错误
+                    if (data.errors[0].message) {
+                        alert('GraphQL错误: ' + data.errors[0].message);
+                    }
+                } else if (data.data && data.data.fish_by_pk) {
+                    console.log('✅ Fish found:', data.data.fish_by_pk);
+                    result.textContent = JSON.stringify(data.data.fish_by_pk, null, 2);
+                    result.className = 'success';
+                    
+                    // 检查关键字段
+                    const fish = data.data.fish_by_pk;
+                    console.log('检查结果:');
+                    console.log('  ✅ ID:', fish.id);
+                    console.log('  ✅ 图片URL:', fish.image_url);
+                    console.log('  ✅ is_approved:', fish.is_approved);
+                    console.log('  ✅ 名称:', fish.fish_name);
+                } else {
+                    console.warn('⚠️ No fish found with ID:', fishId);
+                    result.textContent = `未找到ID为 ${fishId} 的鱼\n\n可能原因:\n1. 鱼不存在\n2. ID格式错误\n3. is_approved=false`;
+                    errorEl.textContent = '鱼不存在于数据库中';
+                }
+            } catch (error) {
+                console.error('❌ Request failed:', error);
+                errorEl.textContent = error.message + '\n\n' + error.stack;
+                result.textContent = '请求失败: ' + error.message;
+            }
+        }
+
+        async function testListAll() {
+            const result = document.getElementById('result');
+            const errorEl = document.getElementById('error');
+            
+            result.textContent = '正在查询最近的10条鱼...';
+            errorEl.textContent = '无';
+
+            const query = `
+                query GetRecentFish {
+                    fish(
+                        where: { is_approved: { _eq: true } }
+                        order_by: { created_at: desc }
+                        limit: 10
+                    ) {
+                        id
+                        fish_name
+                        artist
+                        created_at
+                        is_approved
+                        image_url
+                    }
+                }
+            `;
+
+            console.log('📋 Listing recent fish...');
+
+            try {
+                const response = await fetch('/api/graphql', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+                console.log('📦 Response data:', data);
+
+                if (data.errors) {
+                    console.error('❌ GraphQL errors:', data.errors);
+                    errorEl.textContent = JSON.stringify(data.errors, null, 2);
+                    result.textContent = '查询失败';
+                } else if (data.data && data.data.fish) {
+                    console.log(`✅ Found ${data.data.fish.length} fish`);
+                    result.textContent = JSON.stringify(data.data.fish, null, 2);
+                    result.className = 'success';
+                    
+                    // 显示最新的鱼ID
+                    if (data.data.fish.length > 0) {
+                        const latestFish = data.data.fish[0];
+                        console.log('最新的鱼:');
+                        console.log('  ID:', latestFish.id);
+                        console.log('  名称:', latestFish.fish_name);
+                        console.log('  创建时间:', latestFish.created_at);
+                        
+                        // 自动填充ID
+                        document.getElementById('fishId').value = latestFish.id;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Request failed:', error);
+                errorEl.textContent = error.message;
+                result.textContent = '请求失败: ' + error.message;
+            }
+        }
+
+        // 页面加载时自动列出最近的鱼
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ GraphQL测试页面已加载');
+            console.log('💡 提示: 点击"列出所有鱼"查看最近创建的鱼');
+        });
+    </script>
+</body>
+</html>
+

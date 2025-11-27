@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鱼攻击动画Demo - FishArt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        #demo-canvas {
+            width: 100%;
+            height: 400px;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            background: linear-gradient(to bottom, #e6f3ff 0%, #b3d9ff 100%);
+            display: block;
+            cursor: pointer;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        
+        .btn-attack {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+        }
+        
+        .btn-heal {
+            background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+            color: white;
+        }
+        
+        .btn-auto {
+            background: linear-gradient(135deg, #ffd43b 0%, #fab005 100%);
+            color: #333;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .fish-stat {
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        
+        .fish-stat h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+            font-size: 18px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .stat-label {
+            color: #666;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .health-bar {
+            width: 100%;
+            height: 20px;
+            background: #ffcccc;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #51cf66 0%, #37b24d 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e7f5ff;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1864ab;
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐟 鱼攻击动画Demo 🐟</h1>
+        <p class="subtitle">点击画布或按钮查看攻击效果</p>
+        
+        <canvas id="demo-canvas" width="800" height="400"></canvas>
+        
+        <div class="controls">
+            <button class="btn btn-attack" onclick="triggerAttack('left')">🔴 红鱼攻击</button>
+            <button class="btn btn-attack" onclick="triggerAttack('right')">🔵 蓝鱼攻击</button>
+            <button class="btn btn-heal" onclick="healAll()">💚 全体回血</button>
+            <button class="btn btn-auto" id="autoBtn" onclick="toggleAuto()">⚡ 自动战斗</button>
+        </div>
+        
+        <div class="stats">
+            <div class="fish-stat">
+                <h3>🔴 红鱼 (左)</h3>
+                <div class="stat-item">
+                    <span class="stat-label">攻击力:</span>
+                    <span class="stat-value" id="left-attack">15</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">防御力:</span>
+                    <span class="stat-value" id="left-defense">8</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">生命值:</span>
+                    <span class="stat-value" id="left-health">100/100</span>
+                </div>
+                <div class="health-bar">
+                    <div class="health-fill" id="left-health-bar" style="width: 100%;">100%</div>
+                </div>
+            </div>
+            
+            <div class="fish-stat">
+                <h3>🔵 蓝鱼 (右)</h3>
+                <div class="stat-item">
+                    <span class="stat-label">攻击力:</span>
+                    <span class="stat-value" id="right-attack">12</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">防御力:</span>
+                    <span class="stat-value" id="right-defense">10</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">生命值:</span>
+                    <span class="stat-value" id="right-health">100/100</span>
+                </div>
+                <div class="health-bar">
+                    <div class="health-fill" id="right-health-bar" style="width: 100%;">100%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info">
+            💡 提示: 点击画布上的鱼让它们攻击对方，或使用按钮控制。攻击会显示伤害数字和粒子效果！
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('demo-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 鱼的数据
+        let leftFish = {
+            x: 150,
+            y: 200,
+            width: 100,
+            height: 60,
+            color: '#ff6b6b',
+            direction: 1,
+            attack: 15,
+            defense: 8,
+            health: 100,
+            maxHealth: 100,
+            phase: 0,
+            wiggleTime: 0,
+            isAttacking: false,
+            attackCooldown: 0
+        };
+        
+        let rightFish = {
+            x: 550,
+            y: 200,
+            width: 100,
+            height: 60,
+            color: '#4dabf7',
+            direction: -1,
+            attack: 12,
+            defense: 10,
+            health: 100,
+            maxHealth: 100,
+            phase: Math.PI,
+            wiggleTime: 0,
+            isAttacking: false,
+            attackCooldown: 0
+        };
+        
+        // 粒子系统
+        let particles = [];
+        let damageNumbers = [];
+        let autoMode = false;
+        let autoInterval = null;
+        
+        // 绘制简单的鱼形状
+        function drawFish(fish, time) {
+            ctx.save();
+            
+            // 攻击时的震动效果
+            let shake = 0;
+            if (fish.isAttacking) {
+                shake = Math.sin(time * 50) * 3;
+            }
+            
+            // 计算摆尾
+            const tailWiggle = Math.sin(time * 3 + fish.phase) * 15;
+            
+            ctx.translate(fish.x + shake, fish.y);
+            
+            // 镜像（如果向左）
+            if (fish.direction === -1) {
+                ctx.scale(-1, 1);
+                ctx.translate(-fish.width, 0);
+            }
+            
+            // 鱼身体（椭圆）
+            ctx.fillStyle = fish.color;
+            ctx.beginPath();
+            ctx.ellipse(fish.width/2, fish.height/2, fish.width/2.5, fish.height/2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 鱼尾（三角形，带摆动）
+            ctx.fillStyle = fish.color;
+            ctx.beginPath();
+            ctx.moveTo(10, fish.height/2);
+            ctx.lineTo(0, fish.height/2 - 20 + tailWiggle);
+            ctx.lineTo(0, fish.height/2 + 20 + tailWiggle);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 眼睛
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(fish.width * 0.7, fish.height * 0.4, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(fish.width * 0.7, fish.height * 0.4, 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+            
+            // 血条
+            drawHealthBar(fish);
+        }
+        
+        // 绘制血条
+        function drawHealthBar(fish) {
+            const barWidth = fish.width;
+            const barHeight = 8;
+            const barX = fish.x;
+            const barY = fish.y - 20;
+            
+            // 背景
+            ctx.fillStyle = '#ffcccc';
+            ctx.fillRect(barX, barY, barWidth, barHeight);
+            
+            // 当前血量
+            const healthPercent = fish.health / fish.maxHealth;
+            ctx.fillStyle = healthPercent > 0.5 ? '#51cf66' : (healthPercent > 0.25 ? '#ffd43b' : '#ff6b6b');
+            ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
+            
+            // 边框
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(barX, barY, barWidth, barHeight);
+        }
+        
+        // 创建攻击粒子
+        function createAttackParticles(attacker, target) {
+            const midX = (attacker.x + target.x + target.width) / 2;
+            const midY = (attacker.y + target.y + target.height) / 2;
+            
+            // 创建冲击波粒子
+            for (let i = 0; i < 20; i++) {
+                const angle = (Math.PI * 2 * i) / 20;
+                particles.push({
+                    x: midX,
+                    y: midY,
+                    vx: Math.cos(angle) * (Math.random() * 3 + 2),
+                    vy: Math.sin(angle) * (Math.random() * 3 + 2),
+                    life: 1,
+                    maxLife: 1,
+                    size: Math.random() * 6 + 3,
+                    color: attacker.color
+                });
+            }
+            
+            // 创建击中特效
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: target.x + target.width / 2,
+                    y: target.y + target.height / 2,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 1,
+                    maxLife: 1,
+                    size: Math.random() * 4 + 2,
+                    color: '#ffffff'
+                });
+            }
+        }
+        
+        // 显示伤害数字
+        function showDamageNumber(target, damage) {
+            damageNumbers.push({
+                x: target.x + target.width / 2,
+                y: target.y,
+                damage: damage,
+                life: 1,
+                vy: -2
+            });
+        }
+        
+        // 执行攻击
+        function performAttack(attacker, target) {
+            if (attacker.attackCooldown > 0 || target.health <= 0) return;
+            
+            // 计算伤害
+            const damage = Math.max(1, attacker.attack - target.defense);
+            target.health = Math.max(0, target.health - damage);
+            
+            // 攻击动画
+            attacker.isAttacking = true;
+            attacker.attackCooldown = 60; // 1秒冷却（60帧）
+            
+            // 创建粒子效果
+            createAttackParticles(attacker, target);
+            
+            // 显示伤害数字
+            showDamageNumber(target, damage);
+            
+            // 震屏效果
+            canvas.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+                canvas.style.transform = 'scale(1)';
+            }, 100);
+            
+            // 更新UI
+            updateStats();
+            
+            // 0.3秒后结束攻击动画
+            setTimeout(() => {
+                attacker.isAttacking = false;
+            }, 300);
+        }
+        
+        // 更新统计数据
+        function updateStats() {
+            // 左鱼
+            document.getElementById('left-health').textContent = `${Math.ceil(leftFish.health)}/${leftFish.maxHealth}`;
+            const leftPercent = (leftFish.health / leftFish.maxHealth) * 100;
+            document.getElementById('left-health-bar').style.width = leftPercent + '%';
+            document.getElementById('left-health-bar').textContent = Math.ceil(leftPercent) + '%';
+            
+            // 右鱼
+            document.getElementById('right-health').textContent = `${Math.ceil(rightFish.health)}/${rightFish.maxHealth}`;
+            const rightPercent = (rightFish.health / rightFish.maxHealth) * 100;
+            document.getElementById('right-health-bar').style.width = rightPercent + '%';
+            document.getElementById('right-health-bar').textContent = Math.ceil(rightPercent) + '%';
+            
+            // 检查胜负
+            if (leftFish.health <= 0) {
+                setTimeout(() => alert('🔵 蓝鱼获胜！'), 100);
+                if (autoMode) toggleAuto();
+            } else if (rightFish.health <= 0) {
+                setTimeout(() => alert('🔴 红鱼获胜！'), 100);
+                if (autoMode) toggleAuto();
+            }
+        }
+        
+        // 触发攻击
+        function triggerAttack(side) {
+            if (side === 'left') {
+                performAttack(leftFish, rightFish);
+            } else {
+                performAttack(rightFish, leftFish);
+            }
+        }
+        
+        // 回血
+        function healAll() {
+            leftFish.health = leftFish.maxHealth;
+            rightFish.health = rightFish.maxHealth;
+            updateStats();
+        }
+        
+        // 自动战斗
+        function toggleAuto() {
+            autoMode = !autoMode;
+            const btn = document.getElementById('autoBtn');
+            
+            if (autoMode) {
+                btn.textContent = '⏸️ 停止战斗';
+                btn.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)';
+                autoInterval = setInterval(() => {
+                    if (leftFish.health > 0 && rightFish.health > 0) {
+                        // 随机选择攻击者
+                        if (Math.random() > 0.5) {
+                            performAttack(leftFish, rightFish);
+                        } else {
+                            performAttack(rightFish, leftFish);
+                        }
+                    } else {
+                        toggleAuto();
+                    }
+                }, 1500);
+            } else {
+                btn.textContent = '⚡ 自动战斗';
+                btn.style.background = 'linear-gradient(135deg, #ffd43b 0%, #fab005 100%)';
+                if (autoInterval) {
+                    clearInterval(autoInterval);
+                    autoInterval = null;
+                }
+            }
+        }
+        
+        // 画布点击事件
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // 检测点击了哪条鱼
+            if (x >= leftFish.x && x <= leftFish.x + leftFish.width &&
+                y >= leftFish.y && y <= leftFish.y + leftFish.height) {
+                triggerAttack('left');
+            } else if (x >= rightFish.x && x <= rightFish.x + rightFish.width &&
+                       y >= rightFish.y && y <= rightFish.y + rightFish.height) {
+                triggerAttack('right');
+            }
+        });
+        
+        // 主动画循环
+        let lastTime = 0;
+        function animate(currentTime) {
+            const deltaTime = (currentTime - lastTime) / 1000;
+            lastTime = currentTime;
+            const time = currentTime / 1000;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制背景波纹
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2, canvas.height / 2, 50 + i * 40 + (time * 30) % 200, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // 更新和绘制粒子
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= deltaTime;
+                
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+                
+                const alpha = p.life / p.maxLife;
+                ctx.fillStyle = p.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // 更新和绘制伤害数字
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            for (let i = damageNumbers.length - 1; i >= 0; i--) {
+                const dn = damageNumbers[i];
+                dn.y += dn.vy;
+                dn.life -= deltaTime;
+                
+                if (dn.life <= 0) {
+                    damageNumbers.splice(i, 1);
+                    continue;
+                }
+                
+                const alpha = dn.life;
+                ctx.fillStyle = `rgba(255, 50, 50, ${alpha})`;
+                ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.lineWidth = 3;
+                ctx.strokeText(`-${dn.damage}`, dn.x, dn.y);
+                ctx.fillText(`-${dn.damage}`, dn.x, dn.y);
+            }
+            
+            // 绘制鱼
+            drawFish(leftFish, time);
+            drawFish(rightFish, time);
+            
+            // 更新冷却时间
+            if (leftFish.attackCooldown > 0) leftFish.attackCooldown--;
+            if (rightFish.attackCooldown > 0) rightFish.attackCooldown--;
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // 启动动画
+        requestAnimationFrame(animate);
+        updateStats();
+    </script>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API测试中心 - Fish Art</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-w: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .test-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .test-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+    }
+
+    .test-card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .test-card-icon {
+      font-size: 2rem;
+      margin-right: 0.75rem;
+    }
+
+    .test-card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1a202c;
+    }
+
+    .test-card-description {
+      color: #4a5568;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .test-card-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-tag {
+      background: #e6f2ff;
+      color: #0066cc;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .test-card-footer {
+      display: flex;
+      align-items: center;
+      color: #0066cc;
+      font-weight: 500;
+    }
+
+    .test-card-footer svg {
+      margin-left: 0.5rem;
+      transition: transform 0.2s;
+    }
+
+    .test-card:hover .test-card-footer svg {
+      transform: translateX(4px);
+    }
+
+    .info-panel {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .info-panel h3 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      color: #1a202c;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .info-section h4 {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #2d3748;
+    }
+
+    .info-section ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-section li {
+      padding: 0.25rem 0;
+      color: #4a5568;
+      font-size: 0.9rem;
+    }
+
+    .info-section li::before {
+      content: "• ";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      background: #4a5568;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .back-button:hover {
+      background: #2d3748;
+    }
+
+    .back-button svg {
+      margin-right: 0.5rem;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .test-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <script src="public/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js"></script>
+  <script src="src/js/admin-auth.js"></script>
+  <script>
+    // 管理员权限检查
+    (async function() {
+      if (document.readyState === 'loading') {
+        await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+      }
+      if (!window.supabaseAuth) {
+        await new Promise(resolve => {
+          const checkInterval = setInterval(() => {
+            if (window.supabaseAuth) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+        });
+      }
+      await window.adminAuth.requireAdminAccess();
+    })();
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🧪 API 测试中心</h1>
+      <p>测试 Fish Art 项目的各种后端功能模块</p>
+    </div>
+
+    <div class="test-grid">
+      <!-- 七牛云上传测试 -->
+      <a href="test-qiniu-upload.html" class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-icon">📁</span>
+          <h2 class="test-card-title">七牛云上传测试</h2>
+        </div>
+        <p class="test-card-description">
+          测试七牛云图片上传功能，支持拖拽上传、预览和下载
+        </p>
+        <div class="test-card-features">
+          <span class="feature-tag">文件上传</span>
+          <span class="feature-tag">拖拽上传</span>
+          <span class="feature-tag">预览下载</span>
+          <span class="feature-tag">CDN加速</span>
+        </div>
+        <div class="test-card-footer">
+          <span>开始测试</span>
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- 鱼管理测试 -->
+      <a href="test-fish-management.html" class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-icon">🐟</span>
+          <h2 class="test-card-title">鱼管理测试</h2>
+        </div>
+        <p class="test-card-description">
+          测试鱼的提交、查询、更新和删除功能
+        </p>
+        <div class="test-card-features">
+          <span class="feature-tag">提交鱼</span>
+          <span class="feature-tag">查询鱼</span>
+          <span class="feature-tag">更新信息</span>
+          <span class="feature-tag">删除鱼</span>
+        </div>
+        <div class="test-card-footer">
+          <span>开始测试</span>
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- 投票举报测试 -->
+      <a href="test-vote-report.html" class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-icon">👍</span>
+          <h2 class="test-card-title">投票举报测试</h2>
+        </div>
+        <p class="test-card-description">
+          测试投票系统和举报功能
+        </p>
+        <div class="test-card-features">
+          <span class="feature-tag">点赞投票</span>
+          <span class="feature-tag">举报内容</span>
+          <span class="feature-tag">查询结果</span>
+        </div>
+        <div class="test-card-footer">
+          <span>开始测试</span>
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- 认证测试 -->
+      <a href="test-auth.html" class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-icon">🔐</span>
+          <h2 class="test-card-title">认证系统测试</h2>
+        </div>
+        <p class="test-card-description">
+          测试 Supabase 认证功能，包括登录、注册和密码重置
+        </p>
+        <div class="test-card-features">
+          <span class="feature-tag">用户登录</span>
+          <span class="feature-tag">用户注册</span>
+          <span class="feature-tag">密码重置</span>
+          <span class="feature-tag">Session管理</span>
+        </div>
+        <div class="test-card-footer">
+          <span>开始测试</span>
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- 战斗系统测试 -->
+      <a href="test-battle.html" class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-icon">⚔️</span>
+          <h2 class="test-card-title">战斗系统测试</h2>
+        </div>
+        <p class="test-card-description">
+          测试鱼的战斗匹配、战斗执行和结算功能
+        </p>
+        <div class="test-card-features">
+          <span class="feature-tag">匹配对手</span>
+          <span class="feature-tag">执行战斗</span>
+          <span class="feature-tag">查看历史</span>
+          <span class="feature-tag">Redis缓存</span>
+        </div>
+        <div class="test-card-footer">
+          <span>开始测试</span>
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- 经济系统测试 -->
+      <a href="test-economy.html" class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-icon">💰</span>
+          <h2 class="test-card-title">经济系统测试</h2>
+        </div>
+        <p class="test-card-description">
+          测试用户金币、奖励和交易功能
+        </p>
+        <div class="test-card-features">
+          <span class="feature-tag">查询余额</span>
+          <span class="feature-tag">发放奖励</span>
+          <span class="feature-tag">扣除金币</span>
+          <span class="feature-tag">交易历史</span>
+        </div>
+        <div class="test-card-footer">
+          <span>开始测试</span>
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- 数据表管理 -->
+      <a href="admin-table-manager.html" class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-icon">🗄️</span>
+          <h2 class="test-card-title">数据表管理</h2>
+        </div>
+        <p class="test-card-description">
+          可视化管理数据库表，支持在线编辑、批量操作
+        </p>
+        <div class="test-card-features">
+          <span class="feature-tag">在线编辑</span>
+          <span class="feature-tag">批量删除</span>
+          <span class="feature-tag">排序筛选</span>
+          <span class="feature-tag">实时保存</span>
+        </div>
+        <div class="test-card-footer">
+          <span>开始管理</span>
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- COZE AI 测试 -->
+      <a href="test-coze-comprehensive.html" class="test-card">
+        <div class="test-card-header">
+          <span class="test-card-icon">🤖</span>
+          <h2 class="test-card-title">COZE AI 测试</h2>
+        </div>
+        <p class="test-card-description">
+          测试 COZE AI 聊天功能，包括创建会话、发送消息、AI回复轮询
+        </p>
+        <div class="test-card-features">
+          <span class="feature-tag">创建会话</span>
+          <span class="feature-tag">发送消息</span>
+          <span class="feature-tag">AI回复</span>
+          <span class="feature-tag">日志查看</span>
+        </div>
+        <div class="test-card-footer">
+          <span>开始测试</span>
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+    </div>
+
+    <!-- 项目信息 -->
+    <div class="info-panel">
+      <h3>📊 项目信息</h3>
+      <div class="info-grid">
+        <div class="info-section">
+          <h4>技术栈</h4>
+          <ul>
+            <li>Supabase Auth</li>
+            <li>Vercel Serverless</li>
+            <li>PostgreSQL + Hasura</li>
+            <li>Redis (战斗系统)</li>
+            <li>七牛云 CDN</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4>API端点</h4>
+          <ul>
+            <li>15个后端API</li>
+            <li>认证保护</li>
+            <li>CORS支持</li>
+            <li>错误处理</li>
+          </ul>
+        </div>
+        <div class="info-section">
+          <h4>测试说明</h4>
+          <ul>
+            <li>✅ 开发阶段无需登录</li>
+            <li>配置环境变量</li>
+            <li>检查网络连接</li>
+            <li>查看控制台日志</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 返回按钮 -->
+    <div class="footer">
+      <a href="index.html" class="back-button">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        返回首页
+      </a>
+    </div>
+  </div>
+</body>
+</html>
+

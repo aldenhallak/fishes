@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鱼管理测试 - Fish Art</title>
+  <!-- <link rel="stylesheet" href="src/css/common.css"> -->
+  <style>
+    body {
+      background: #f7fafc;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .test-container {
+      max-w: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 2rem;
+    }
+
+    .test-header {
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 1rem;
+    }
+
+    .test-header h1 {
+      font-size: 2rem;
+      color: #1a202c;
+      margin-bottom: 0.5rem;
+    }
+
+    .test-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #718096;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: #667eea;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-primary:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+    }
+
+    .btn-danger {
+      background: #f56565;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #e53e3e;
+    }
+
+    .results-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+
+    .results-container {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .result-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .result-item.success {
+      background: #f0fff4;
+      border-color: #9ae6b4;
+    }
+
+    .result-item.error {
+      background: #fff5f5;
+      border-color: #fc8181;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .result-item.success .status-badge {
+      background: #9ae6b4;
+      color: #22543d;
+    }
+
+    .result-item.error .status-badge {
+      background: #fc8181;
+      color: #742a2a;
+    }
+
+    .json-result {
+      background: #1a202c;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 2rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .fish-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .fish-image {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .fish-info {
+      flex: 1;
+    }
+
+    .fish-info h4 {
+      margin-bottom: 0.5rem;
+      color: #1a202c;
+    }
+
+    .fish-info p {
+      color: #718096;
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .fish-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .info-box {
+      background: #edf2f7;
+      border-left: 4px solid #667eea;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 2rem;
+    }
+
+    .info-box h3 {
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-box ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-box li {
+      color: #4a5568;
+      padding: 0.25rem 0;
+      font-size: 0.9rem;
+    }
+
+    .info-box li::before {
+      content: "• ";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.toast-success {
+      background: #48bb78;
+      color: white;
+    }
+
+    .toast.toast-error {
+      background: #f56565;
+      color: white;
+    }
+  </style>
+  <script src="public/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js"></script>
+  <script src="src/js/admin-auth.js"></script>
+  <script>
+    // 管理员权限检查
+    (async function() {
+      if (document.readyState === 'loading') {
+        await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+      }
+      if (!window.supabaseAuth) {
+        await new Promise(resolve => {
+          const checkInterval = setInterval(() => {
+            if (window.supabaseAuth) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+        });
+      }
+      await window.adminAuth.requireAdminAccess();
+    })();
+  </script>
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>🐟 鱼管理测试</h1>
+      <p>测试鱼的提交、查询、更新和删除功能</p>
+    </div>
+
+    <!-- 提示信息 -->
+    <div class="info-box">
+      <h3>💡 测试说明</h3>
+      <ul>
+        <li>✅ 开发阶段无需登录即可测试</li>
+        <li>提交鱼需要先上传图片获取URL</li>
+        <li>查询功能可以查看用户的所有鱼</li>
+        <li>更新和删除功能需要提供鱼的ID</li>
+      </ul>
+    </div>
+
+    <!-- 标签页 -->
+    <div class="test-tabs">
+      <button class="tab active" data-tab="submit">提交鱼</button>
+      <button class="tab" data-tab="query">查询鱼</button>
+      <button class="tab" data-tab="update">更新信息</button>
+      <button class="tab" data-tab="delete">删除鱼</button>
+    </div>
+
+    <!-- 提交鱼 -->
+    <div class="tab-content active" id="submit">
+      <form id="submitForm">
+        <div class="form-group">
+          <label for="imageUrl">图片URL *</label>
+          <input type="url" id="imageUrl" required placeholder="https://cdn.example.com/fish/xxx.png">
+          <small style="color: #718096;">请先在<a href="test-qiniu-upload.html" target="_blank">上传测试页</a>上传图片获取URL</small>
+        </div>
+        <div class="form-group">
+          <label for="artist">作者名称</label>
+          <input type="text" id="artist" placeholder="输入作者名称（可选）">
+        </div>
+        <button type="submit" class="btn btn-primary">提交鱼</button>
+      </form>
+    </div>
+
+    <!-- 查询鱼 -->
+    <div class="tab-content" id="query">
+      <div class="form-group">
+        <label for="queryUserId">用户ID（可选，留空查询当前用户）</label>
+        <input type="text" id="queryUserId" placeholder="输入用户ID">
+      </div>
+      <button id="queryBtn" class="btn btn-primary">查询鱼列表</button>
+      
+      <div id="fishList" style="margin-top: 2rem;"></div>
+    </div>
+
+    <!-- 更新信息 -->
+    <div class="tab-content" id="update">
+      <form id="updateForm">
+        <div class="form-group">
+          <label for="updateFishId">鱼ID *</label>
+          <input type="text" id="updateFishId" required placeholder="输入要更新的鱼ID">
+        </div>
+        <div class="form-group">
+          <label for="updateImageUrl">新图片URL</label>
+          <input type="url" id="updateImageUrl" placeholder="https://cdn.example.com/fish/xxx.png">
+        </div>
+        <div class="form-group">
+          <label for="updateArtist">新作者名称</label>
+          <input type="text" id="updateArtist" placeholder="输入新作者名称">
+        </div>
+        <button type="submit" class="btn btn-primary">更新信息</button>
+      </form>
+    </div>
+
+    <!-- 删除鱼 -->
+    <div class="tab-content" id="delete">
+      <form id="deleteForm">
+        <div class="form-group">
+          <label for="deleteFishId">鱼ID *</label>
+          <input type="text" id="deleteFishId" required placeholder="输入要删除的鱼ID">
+        </div>
+        <button type="submit" class="btn btn-danger">删除鱼</button>
+      </form>
+    </div>
+
+    <!-- 结果展示 -->
+    <div class="results-section">
+      <h2 class="section-title">操作结果</h2>
+      <div class="results-container" id="resultsContainer"></div>
+    </div>
+
+    <a href="test-center.html" class="back-link">← 返回测试中心</a>
+  </div>
+
+  <!-- 加载依赖 -->
+  <!-- 开发环境：创建空的认证对象，避免Supabase错误 -->
+  <script>
+    window.supabaseAuth = {
+      getAccessToken: async () => null,
+      isLoggedIn: async () => false
+    };
+    // 设置后端API地址（开发环境为空字符串，使用相对路径）
+    window.BACKEND_URL = '';
+  </script>
+  <script src="src/js/test-utils.js"></script>
+  
+  <script>
+    // 标签页切换
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.dataset.tab;
+        
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    // 提交鱼表单
+    document.getElementById('submitForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const imageUrl = document.getElementById('imageUrl').value;
+      const artist = document.getElementById('artist').value;
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      
+      // 开发环境：使用测试用户ID
+      const userId = 'test-user-' + Date.now();
+      
+      const result = await apiCall(`${window.BACKEND_URL}/api/fish/submit`, {
+        method: 'POST',
+        body: {
+          userId,
+          imageUrl,
+          artist: artist || undefined
+        }
+      });
+      
+      setButtonLoading(submitBtn, false);
+      renderApiResult(result, resultsContainer);
+      
+      if (result.success) {
+        showToast('鱼提交成功！');
+        e.target.reset();
+      } else {
+        showToast('提交失败', 'error');
+      }
+    });
+
+    // 查询鱼
+    document.getElementById('queryBtn').addEventListener('click', async () => {
+      const userId = document.getElementById('queryUserId').value;
+      const queryBtn = document.getElementById('queryBtn');
+      const fishList = document.getElementById('fishList');
+      
+      setButtonLoading(queryBtn, true);
+      
+      // 构建查询URL
+      let url = `${window.BACKEND_URL}/api/fish/list`;
+      if (userId) {
+        url += `?userId=${encodeURIComponent(userId)}`;
+      }
+      
+      const result = await apiCall(url, {
+        method: 'GET'
+      });
+      
+      setButtonLoading(queryBtn, false);
+      
+      if (result.success && result.data.data) {
+        const fishes = result.data.data;
+        
+        if (fishes.length === 0) {
+          fishList.innerHTML = '<p style="color: #718096;">未找到任何鱼</p>';
+        } else {
+          fishList.innerHTML = fishes.map(fish => `
+            <div class="fish-card">
+              <img src="${fish.image_url}" alt="Fish" class="fish-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'120\\' height=\\'120\\'%3E%3Crect fill=\\'%23ddd\\' width=\\'120\\' height=\\'120\\'/%3E%3Ctext x=\\'50%25\\' y=\\'50%25\\' text-anchor=\\'middle\\' dy=\\'.3em\\' fill=\\'%23999\\'%3E无图片%3C/text%3E%3C/svg%3E'">
+              <div class="fish-info">
+                <h4>${fish.artist || '匿名作者'}</h4>
+                <p><strong>ID:</strong> ${fish.id}</p>
+                <p><strong>状态:</strong> ${fish.status}</p>
+                <p><strong>创建时间:</strong> ${formatDateTime(fish.created_at)}</p>
+                <div class="fish-actions">
+                  <button class="btn btn-primary btn-small" onclick="fillUpdateForm('${fish.id}', '${fish.image_url}', '${fish.artist || ''}')">填充到更新表单</button>
+                  <button class="btn btn-danger btn-small" onclick="fillDeleteForm('${fish.id}')">填充到删除表单</button>
+                </div>
+              </div>
+            </div>
+          `).join('');
+          
+          showToast('查询成功');
+        }
+      } else {
+        fishList.innerHTML = '<p style="color: #f56565;">查询失败</p>';
+        showToast('查询失败', 'error');
+      }
+      
+      renderApiResult(result, resultsContainer);
+    });
+
+    // 更新鱼表单
+    document.getElementById('updateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const fishId = document.getElementById('updateFishId').value;
+      const imageUrl = document.getElementById('updateImageUrl').value;
+      const artist = document.getElementById('updateArtist').value;
+      
+      const body = {};
+      if (imageUrl) body.imageUrl = imageUrl;
+      if (artist) body.artist = artist;
+      
+      if (Object.keys(body).length === 0) {
+        showToast('请至少填写一个要更新的字段', 'error');
+        return;
+      }
+      
+      const updateBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(updateBtn, true);
+      
+      const result = await apiCall(`${window.BACKEND_URL}/api/fish/update?fishId=${encodeURIComponent(fishId)}`, {
+        method: 'PUT',
+        body
+      });
+      
+      setButtonLoading(updateBtn, false);
+      renderApiResult(result, resultsContainer);
+      
+      if (result.success) {
+        showToast('更新成功！');
+        e.target.reset();
+      } else {
+        showToast('更新失败', 'error');
+      }
+    });
+
+    // 删除鱼表单
+    document.getElementById('deleteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const fishId = document.getElementById('deleteFishId').value;
+      
+      if (!confirm(`确定要删除ID为 ${fishId} 的鱼吗？此操作不可恢复！`)) {
+        return;
+      }
+      
+      const deleteBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(deleteBtn, true);
+      
+      const result = await apiCall(`${window.BACKEND_URL}/api/fish/delete?fishId=${encodeURIComponent(fishId)}`, {
+        method: 'DELETE'
+      });
+      
+      setButtonLoading(deleteBtn, false);
+      renderApiResult(result, resultsContainer);
+      
+      if (result.success) {
+        showToast('删除成功！');
+        e.target.reset();
+      } else {
+        showToast('删除失败', 'error');
+      }
+    });
+
+    // 填充更新表单
+    function fillUpdateForm(fishId, imageUrl, artist) {
+      document.querySelector('.tab[data-tab="update"]').click();
+      document.getElementById('updateFishId').value = fishId;
+      document.getElementById('updateImageUrl').value = imageUrl;
+      document.getElementById('updateArtist').value = artist;
+      showToast('已填充到更新表单', 'info');
+    }
+
+    // 填充删除表单
+    function fillDeleteForm(fishId) {
+      document.querySelector('.tab[data-tab="delete"]').click();
+      document.getElementById('deleteFishId').value = fishId;
+      showToast('已填充到删除表单', 'info');
+    }
+
+    // 开发阶段：跳过登录检查
+    // (async () => {
+    //   const isLoggedIn = await isUserLoggedIn();
+    //   if (!isLoggedIn) {
+    //     if (confirm('需要登录才能测试这些功能。是否前往登录页面？')) {
+    //       window.location.href = 'login.html';
+    //     }
+    //   }
+    // })();
+  </script>
+</body>
+</html>
+

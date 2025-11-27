@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="oceanBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e88e5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0d47a1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#oceanBlue)"/>
+  <circle cx="200" cy="150" r="30" fill="#90caf9" opacity="0.3"/>
+  <circle cx="1600" cy="300" r="50" fill="#90caf9" opacity="0.2"/>
+  <circle cx="800" cy="800" r="40" fill="#64b5f6" opacity="0.25"/>
+  <circle cx="1400" cy="600" r="35" fill="#64b5f6" opacity="0.2"/>
+  <text x="960" y="540" font-family="Arial" font-size="48" fill="white" opacity="0.3" text-anchor="middle">Ocean Blue</text>
+</svg>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

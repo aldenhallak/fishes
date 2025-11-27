@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新鱼加载流程测试</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .log-container {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #007acc;
+        }
+        .log-success { border-left-color: #4ec9b0; color: #4ec9b0; }
+        .log-error { border-left-color: #f48771; color: #f48771; }
+        .log-warning { border-left-color: #dcdcaa; color: #dcdcaa; }
+        .log-info { border-left-color: #569cd6; color: #569cd6; }
+        .test-button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .test-button:hover {
+            background: #1177bb;
+        }
+        .test-button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        h1 { color: #569cd6; }
+        h2 { color: #4ec9b0; margin-top: 30px; }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status-testing { background: #1e3a5f; color: #569cd6; }
+        .status-success { background: #1e4d2b; color: #4ec9b0; }
+        .status-error { background: #4d1e1e; color: #f48771; }
+        .json-viewer {
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 新鱼加载流程自动测试</h1>
+    
+    <div class="status status-testing" id="status">
+        ⏳ 准备就绪，等待测试...
+    </div>
+    
+    <div>
+        <button class="test-button" onclick="testNewFishFlow()">🚀 开始完整测试</button>
+        <button class="test-button" onclick="testFishQuery()">🔍 测试查询已存在的鱼</button>
+        <button class="test-button" onclick="clearLogs()">🗑️ 清空日志</button>
+    </div>
+
+    <h2>📋 测试步骤</h2>
+    <div class="json-viewer">
+        <pre>1. 模拟画鱼并提交（使用测试图片）
+2. 获取返回的鱼ID
+3. 构建跳转URL: tank.html?newFish={id}&sort=random
+4. 测试 getFishById() 加载鱼数据
+5. 检查图片URL和数据完整性
+6. 验证新鱼能否正常加载到鱼缸</pre>
+    </div>
+
+    <h2>📝 测试日志</h2>
+    <div class="log-container" id="logContainer"></div>
+
+    <h2>📊 测试结果</h2>
+    <div class="json-viewer" id="resultContainer"></div>
+
+    <script src="src/js/fish-utils.js"></script>
+    <script>
+        let testResults = {
+            steps: [],
+            errors: [],
+            fishId: null,
+            fishData: null
+        };
+
+        function log(message, type = 'info') {
+            const container = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString('zh-CN', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                fractionalSecondDigits: 3
+            });
+            
+            entry.innerHTML = `<span style="color: #858585">[${timestamp}]</span> ${message}`;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+
+            // 同时输出到浏览器控制台
+            const consoleMsg = `[测试] ${message.replace(/<[^>]*>/g, '')}`;
+            switch(type) {
+                case 'success': console.log('%c' + consoleMsg, 'color: #4ec9b0'); break;
+                case 'error': console.error(consoleMsg); break;
+                case 'warning': console.warn(consoleMsg); break;
+                default: console.log(consoleMsg);
+            }
+        }
+
+        function setStatus(message, type = 'testing') {
+            const status = document.getElementById('status');
+            status.className = `status status-${type}`;
+            status.innerHTML = message;
+        }
+
+        function showResults() {
+            const container = document.getElementById('resultContainer');
+            container.innerHTML = '<pre>' + JSON.stringify(testResults, null, 2) + '</pre>';
+        }
+
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '';
+            document.getElementById('resultContainer').innerHTML = '';
+            testResults = {
+                steps: [],
+                errors: [],
+                fishId: null,
+                fishData: null
+            };
+            setStatus('⏳ 日志已清空，准备新测试...', 'testing');
+        }
+
+        async function testFishQuery() {
+            const fishId = prompt('请输入要查询的鱼ID:');
+            if (!fishId) return;
+
+            setStatus('🔍 正在查询鱼数据...', 'testing');
+            log(`开始查询鱼ID: <strong>${fishId}</strong>`, 'info');
+
+            try {
+                log('调用 getFishById()...', 'info');
+                const fishData = await getFishById(fishId);
+                
+                if (fishData) {
+                    log('✅ 成功加载鱼数据！', 'success');
+                    log(`鱼名称: <strong>${fishData.fish_name || '未命名'}</strong>`, 'success');
+                    log(`艺术家: <strong>${fishData.artist || 'Anonymous'}</strong>`, 'success');
+                    log(`图片URL: <code>${fishData.image_url}</code>`, 'success');
+                    log(`is_approved: <strong>${fishData.is_approved}</strong>`, 'success');
+                    
+                    testResults.fishData = fishData;
+                    setStatus('✅ 查询成功！', 'success');
+                } else {
+                    log('❌ 未找到鱼数据', 'error');
+                    log('可能原因: 1) ID不存在 2) is_approved=false 3) 网络错误', 'warning');
+                    setStatus('❌ 查询失败', 'error');
+                }
+                
+                showResults();
+            } catch (error) {
+                log(`❌ 查询出错: ${error.message}`, 'error');
+                testResults.errors.push({ step: 'query', error: error.message });
+                setStatus('❌ 查询失败', 'error');
+                showResults();
+            }
+        }
+
+        async function testNewFishFlow() {
+            clearLogs();
+            setStatus('🚀 开始完整测试流程...', 'testing');
+            
+            log('<h3>🎨 步骤 1: 模拟画鱼提交</h3>', 'info');
+            log('⚠️ 注意: 这是模拟测试，需要实际画鱼来获取真实ID', 'warning');
+            log('请在实际应用中画一条鱼，然后查看控制台获取鱼ID', 'info');
+            
+            // 提示用户输入真实的鱼ID
+            const realFishId = prompt('请先在主页画一条鱼并提交，然后输入鱼ID（在控制台可以看到）:');
+            
+            if (!realFishId) {
+                log('❌ 测试取消：未提供鱼ID', 'error');
+                setStatus('❌ 测试取消', 'error');
+                return;
+            }
+            
+            testResults.fishId = realFishId;
+            log(`使用鱼ID: <strong>${realFishId}</strong>`, 'success');
+            testResults.steps.push({ step: 1, status: 'success', fishId: realFishId });
+
+            // 步骤 2: 构建URL
+            log('<h3>🔗 步骤 2: 构建跳转URL</h3>', 'info');
+            const tankUrl = `tank.html?newFish=${encodeURIComponent(realFishId)}&sort=random`;
+            log(`生成的URL: <code>${tankUrl}</code>`, 'success');
+            testResults.steps.push({ step: 2, status: 'success', url: tankUrl });
+
+            // 步骤 3: 测试 getFishById
+            log('<h3>🐠 步骤 3: 测试 getFishById()</h3>', 'info');
+            setStatus('🔍 正在从数据库加载鱼...', 'testing');
+            
+            try {
+                log('调用 getFishById() 加载鱼数据...', 'info');
+                const fishData = await getFishById(realFishId);
+                
+                if (!fishData) {
+                    log('❌ getFishById() 返回 null', 'error');
+                    log('这意味着新鱼无法被加载！', 'error');
+                    log('请检查: 1) 鱼是否已创建 2) ID是否正确 3) is_approved状态', 'warning');
+                    testResults.steps.push({ step: 3, status: 'error', reason: 'fishData is null' });
+                    testResults.errors.push({ step: 'getFishById', error: 'Returned null' });
+                    setStatus('❌ 测试失败：无法加载鱼数据', 'error');
+                    showResults();
+                    return;
+                }
+
+                log('✅ 成功获取鱼数据！', 'success');
+                testResults.fishData = fishData;
+                testResults.steps.push({ step: 3, status: 'success', data: fishData });
+
+                // 步骤 4: 验证数据完整性
+                log('<h3>✅ 步骤 4: 验证数据完整性</h3>', 'info');
+                
+                const checks = {
+                    hasId: !!fishData.id,
+                    hasImageUrl: !!fishData.image_url,
+                    imageUrlValid: fishData.image_url && fishData.image_url.startsWith('http'),
+                    hasArtist: !!fishData.artist,
+                    isApproved: fishData.is_approved === true
+                };
+
+                log(`鱼ID: ${fishData.id ? '✅' : '❌'} ${fishData.id}`, checks.hasId ? 'success' : 'error');
+                log(`鱼名称: ${fishData.fish_name || '未命名'}`, 'info');
+                log(`艺术家: ${fishData.artist ? '✅' : '❌'} ${fishData.artist || 'N/A'}`, checks.hasArtist ? 'success' : 'warning');
+                log(`图片URL: ${fishData.image_url ? '✅' : '❌'} ${fishData.image_url || 'N/A'}`, checks.hasImageUrl ? 'success' : 'error');
+                log(`URL格式: ${checks.imageUrlValid ? '✅ 有效' : '❌ 无效'}`, checks.imageUrlValid ? 'success' : 'error');
+                log(`is_approved: ${fishData.is_approved === true ? '✅ true' : fishData.is_approved === false ? '❌ false' : '⚠️ ' + fishData.is_approved}`, 
+                    fishData.is_approved === true ? 'success' : 'warning');
+
+                const allChecksPass = Object.values(checks).every(v => v);
+                testResults.steps.push({ step: 4, status: allChecksPass ? 'success' : 'warning', checks });
+
+                if (!allChecksPass) {
+                    log('⚠️ 部分检查未通过，可能影响加载', 'warning');
+                    if (!checks.imageUrlValid) {
+                        log('❌ 关键问题: 图片URL无效，鱼将无法显示！', 'error');
+                        testResults.errors.push({ step: 'validation', error: 'Invalid image URL' });
+                    }
+                }
+
+                // 步骤 5: 模拟加载到鱼缸
+                log('<h3>🏊 步骤 5: 模拟加载到鱼缸</h3>', 'info');
+                if (checks.imageUrlValid) {
+                    log('✅ 图片URL有效，可以调用 loadFishImageToTank()', 'success');
+                    log(`loadFishImageToTank("${fishData.image_url}", fishData)`, 'info');
+                    log('✅ 鱼应该能够成功加载并显示金色光环特效', 'success');
+                    testResults.steps.push({ step: 5, status: 'success' });
+                    
+                    setStatus('✅ 测试通过！新鱼应该能正常显示', 'success');
+                } else {
+                    log('❌ 图片URL无效，loadFishImageToTank() 将跳过这条鱼', 'error');
+                    log('这就是为什么新鱼没有出现在鱼缸中！', 'error');
+                    testResults.steps.push({ step: 5, status: 'error', reason: 'Invalid image URL' });
+                    testResults.errors.push({ step: 'loadToTank', error: 'Cannot load fish with invalid image URL' });
+                    
+                    setStatus('❌ 测试失败：图片URL无效', 'error');
+                }
+
+                // 总结
+                log('<h3>📊 测试总结</h3>', 'info');
+                const totalSteps = testResults.steps.length;
+                const successSteps = testResults.steps.filter(s => s.status === 'success').length;
+                const errorCount = testResults.errors.length;
+
+                log(`总步骤: ${totalSteps}`, 'info');
+                log(`成功: ${successSteps}/${totalSteps}`, successSteps === totalSteps ? 'success' : 'warning');
+                log(`错误: ${errorCount}`, errorCount === 0 ? 'success' : 'error');
+
+                if (errorCount === 0 && checks.imageUrlValid) {
+                    log('🎉 所有检查通过！新鱼应该能够正常加载和显示！', 'success');
+                    log(`💡 建议: 访问 <a href="${tankUrl}" target="_blank">${tankUrl}</a> 查看效果`, 'success');
+                } else {
+                    log('⚠️ 发现问题，请查看上方的错误详情', 'warning');
+                }
+
+            } catch (error) {
+                log(`❌ 测试过程中出错: ${error.message}`, 'error');
+                log(`错误堆栈: ${error.stack}`, 'error');
+                testResults.errors.push({ step: 'test', error: error.message, stack: error.stack });
+                setStatus('❌ 测试失败', 'error');
+            }
+
+            showResults();
+        }
+
+        // 页面加载时的初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            log('✅ 测试页面加载完成', 'success');
+            log('📌 请点击上方按钮开始测试', 'info');
+            log('💡 提示: 先在主页画一条鱼并提交，然后使用这个页面测试', 'info');
+        });
+    </script>
+</body>
+</html>
+
+
+

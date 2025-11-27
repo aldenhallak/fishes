@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简单上传测试</title>
+  <style>
+    body { padding: 2rem; font-family: sans-serif; }
+    button { padding: 1rem 2rem; font-size: 1rem; margin: 0.5rem; }
+    .result { margin-top: 1rem; padding: 1rem; background: #f0f0f0; border-radius: 4px; }
+    .error { background: #fee; color: #c00; }
+    .success { background: #efe; color: #060; }
+  </style>
+  <script src="public/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js"></script>
+  <script src="src/js/admin-auth.js"></script>
+  <script>
+    // 管理员权限检查
+    (async function() {
+      if (document.readyState === 'loading') {
+        await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+      }
+      if (!window.supabaseAuth) {
+        await new Promise(resolve => {
+          const checkInterval = setInterval(() => {
+            if (window.supabaseAuth) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+        });
+      }
+      await window.adminAuth.requireAdminAccess();
+    })();
+  </script>
+</head>
+<body>
+  <h1>七牛云上传测试</h1>
+  
+  <button onclick="testUpload()">测试上传（创建虚拟文件）</button>
+  <button onclick="testEmpty()">测试空请求</button>
+  
+  <div id="result"></div>
+
+  <script>
+    // 页面加载后自动执行测试
+    window.addEventListener('load', () => {
+      console.log('页面加载完成，3秒后自动测试...');
+      setTimeout(() => testUpload(), 3000);
+    });
+
+    // 创建一个1x1像素的PNG图片
+    function createTestImage() {
+      // base64编码的1x1透明PNG
+      const base64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+      
+      // 转换为blob
+      const binary = atob(base64);
+      const array = [];
+      for (let i = 0; i < binary.length; i++) {
+        array.push(binary.charCodeAt(i));
+      }
+      const blob = new Blob([new Uint8Array(array)], { type: 'image/png' });
+      
+      // 创建File对象
+      return new File([blob], 'test.png', { type: 'image/png' });
+    }
+
+    async function testUpload() {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '上传中...';
+      resultDiv.className = 'result';
+
+      try {
+        const file = createTestImage();
+        console.log('创建的测试文件:', file);
+        console.log('文件大小:', file.size, '字节');
+        console.log('文件类型:', file.type);
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        console.log('发送上传请求...');
+        const response = await fetch('/api/fish-api?action=upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        console.log('响应状态:', response.status);
+        const data = await response.json();
+        console.log('响应数据:', data);
+
+        if (data.success) {
+          resultDiv.className = 'result success';
+          resultDiv.innerHTML = `
+            <h3>✅ 上传成功！</h3>
+            <p><strong>URL:</strong> ${data.imageUrl}</p>
+            <p><strong>路径:</strong> ${data.data.path}</p>
+            <p><a href="${data.imageUrl}" target="_blank">查看图片</a></p>
+          `;
+        } else {
+          resultDiv.className = 'result error';
+          resultDiv.innerHTML = `
+            <h3>❌ 上传失败</h3>
+            <p><strong>错误:</strong> ${data.error}</p>
+          `;
+        }
+      } catch (error) {
+        console.error('上传错误:', error);
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `
+          <h3>❌ 请求失败</h3>
+          <p><strong>错误:</strong> ${error.message}</p>
+        `;
+      }
+    }
+
+    async function testEmpty() {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '测试中...';
+      resultDiv.className = 'result';
+
+      try {
+        const response = await fetch('/api/fish-api?action=upload', {
+          method: 'POST'
+        });
+
+        const data = await response.json();
+        console.log('空请求响应:', data);
+
+        resultDiv.innerHTML = `
+          <h3>空请求测试</h3>
+          <p><strong>状态:</strong> ${response.status}</p>
+          <p><strong>响应:</strong> ${JSON.stringify(data, null, 2)}</p>
+        `;
+      } catch (error) {
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `<p>错误: ${error.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
+

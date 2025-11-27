@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战斗系统自动测试 - Fish Art</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .status {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-weight: 600;
+            color: #666;
+            margin-right: 10px;
+            min-width: 120px;
+        }
+        
+        .status-value {
+            color: #333;
+        }
+        
+        .status-icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .log-box {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        
+        .log-success { color: #10b981; }
+        .log-error { color: #ef4444; }
+        .log-info { color: #3b82f6; }
+        .log-warning { color: #f59e0b; }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .test-checklist {
+            background: #fff9e6;
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .test-checklist h3 {
+            color: #d97706;
+            margin-bottom: 15px;
+        }
+        
+        .test-checklist ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .test-checklist li {
+            padding: 8px 0;
+            color: #666;
+        }
+        
+        .test-checklist li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐟 战斗系统自动测试</h1>
+        <p class="subtitle">自动登录并测试战斗系统</p>
+        
+        <!-- 加载状态 -->
+        <div id="loading-section" class="loading">
+            <div class="spinner"></div>
+            <p>正在初始化测试环境...</p>
+        </div>
+        
+        <!-- 测试凭据状态 -->
+        <div id="status-section" class="status hidden">
+            <div class="status-item">
+                <span class="status-icon">🔑</span>
+                <span class="status-label">测试账号:</span>
+                <span class="status-value" id="test-email">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-icon">🔒</span>
+                <span class="status-label">密码:</span>
+                <span class="status-value" id="test-password">-</span>
+            </div>
+            <div class="status-item">
+                <span class="status-icon">📡</span>
+                <span class="status-label">服务器状态:</span>
+                <span class="status-value" id="server-status">检查中...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-icon">👤</span>
+                <span class="status-label">登录状态:</span>
+                <span class="status-value" id="login-status">未登录</span>
+            </div>
+        </div>
+        
+        <!-- 操作按钮 -->
+        <div id="actions-section" class="hidden">
+            <button class="btn btn-primary" onclick="autoLogin()">🚀 自动登录</button>
+            <button class="btn btn-primary" onclick="gotoBattleDemo()">⚔️ 进入战斗测试</button>
+            <button class="btn btn-secondary" onclick="manualLogin()">🔓 手动登录</button>
+        </div>
+        
+        <!-- 测试检查清单 -->
+        <div class="test-checklist hidden" id="test-checklist">
+            <h3>🎯 测试要点</h3>
+            <ul>
+                <li>同一行的鱼是否能正常碰撞</li>
+                <li>不同行的鱼是否不会碰撞</li>
+                <li>碰撞效果是否立即显示在两鱼中间</li>
+                <li>所有鱼是否都显示状态UI（Lv, 血条）</li>
+                <li>碰撞动画是否流畅清晰</li>
+            </ul>
+        </div>
+        
+        <!-- 日志 -->
+        <div id="log-box" class="log-box">
+            <div class="log-entry log-info">系统就绪，等待初始化...</div>
+        </div>
+    </div>
+    
+    <!-- Supabase SDK -->
+    <script src="public/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="src/js/supabase-init.js"></script>
+    <script src="src/js/admin-auth.js"></script>
+    
+    <script>
+        // 管理员权限检查
+        (async function() {
+            if (document.readyState === 'loading') {
+                await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+            }
+            if (!window.supabaseAuth) {
+                await new Promise(resolve => {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabaseAuth) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                });
+            }
+            await window.adminAuth.requireAdminAccess();
+        })();
+    </script>
+    
+    <script>
+        let testCredentials = null;
+        
+        // 日志函数
+        function log(message, type = 'info') {
+            const logBox = document.getElementById('log-box');
+            const time = new Date().toLocaleTimeString('zh-CN');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${time}] ${message}`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+        
+        // 获取测试凭据
+        async function getTestCredentials() {
+            try {
+                log('正在获取测试凭据...', 'info');
+                const response = await fetch('/api/config/test-credentials');
+                const data = await response.json();
+                
+                if (data.email && data.password) {
+                    testCredentials = data;
+                    document.getElementById('test-email').textContent = data.email;
+                    document.getElementById('test-password').textContent = '••••••••';
+                    log('✅ 测试凭据获取成功', 'success');
+                    return true;
+                } else {
+                    log('❌ 测试凭据不可用', 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ 获取测试凭据失败: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        // 检查服务器状态
+        async function checkServer() {
+            try {
+                log('正在检查服务器状态...', 'info');
+                const response = await fetch('/api/config/battle');
+                if (response.ok) {
+                    document.getElementById('server-status').textContent = '✅ 在线';
+                    log('✅ 服务器在线', 'success');
+                    return true;
+                } else {
+                    document.getElementById('server-status').textContent = '❌ 离线';
+                    log('❌ 服务器离线', 'error');
+                    return false;
+                }
+            } catch (error) {
+                document.getElementById('server-status').textContent = '❌ 无法连接';
+                log(`❌ 服务器连接失败: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        // 检查登录状态
+        async function checkLoginStatus() {
+            try {
+                log('正在检查登录状态...', 'info');
+                if (window.supabaseAuth && window.supabaseAuth.getUser) {
+                    const user = await window.supabaseAuth.getUser();
+                    if (user) {
+                        document.getElementById('login-status').textContent = `✅ 已登录 (${user.email})`;
+                        log(`✅ 已登录: ${user.email}`, 'success');
+                        return true;
+                    }
+                }
+                document.getElementById('login-status').textContent = '❌ 未登录';
+                log('⚠ 未登录', 'warning');
+                return false;
+            } catch (error) {
+                log(`❌ 检查登录状态失败: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        // 自动登录
+        async function autoLogin() {
+            if (!testCredentials) {
+                log('❌ 没有可用的测试凭据', 'error');
+                alert('测试凭据不可用，请手动登录');
+                return;
+            }
+            
+            try {
+                log('正在自动登录...', 'info');
+                log(`使用账号: ${testCredentials.email}`, 'info');
+                
+                if (!window.supabaseAuth || !window.supabaseAuth.signIn) {
+                    log('❌ Supabase 未初始化', 'error');
+                    alert('认证系统未就绪，请稍后重试');
+                    return;
+                }
+                
+                const result = await window.supabaseAuth.signIn(
+                    testCredentials.email,
+                    testCredentials.password
+                );
+                
+                if (result.success) {
+                    log('✅ 登录成功！', 'success');
+                    document.getElementById('login-status').textContent = `✅ 已登录 (${testCredentials.email})`;
+                    alert('登录成功！点击"进入战斗测试"开始测试');
+                } else {
+                    log(`❌ 登录失败: ${result.error}`, 'error');
+                    alert(`登录失败: ${result.error}`);
+                }
+            } catch (error) {
+                log(`❌ 登录错误: ${error.message}`, 'error');
+                alert(`登录错误: ${error.message}`);
+            }
+        }
+        
+        // 进入战斗测试
+        function gotoBattleDemo() {
+            log('🎮 跳转到战斗测试页面...', 'info');
+            window.location.href = 'battle-demo.html';
+        }
+        
+        // 手动登录
+        function manualLogin() {
+            log('🔓 跳转到登录页面...', 'info');
+            window.location.href = 'login.html';
+        }
+        
+        // 初始化
+        async function initialize() {
+            log('🚀 初始化测试环境...', 'info');
+            
+            // 1. 获取测试凭据
+            const hasCredentials = await getTestCredentials();
+            
+            // 2. 检查服务器
+            const serverOnline = await checkServer();
+            
+            // 3. 检查登录状态
+            const isLoggedIn = await checkLoginStatus();
+            
+            // 隐藏加载，显示内容
+            document.getElementById('loading-section').classList.add('hidden');
+            document.getElementById('status-section').classList.remove('hidden');
+            document.getElementById('actions-section').classList.remove('hidden');
+            document.getElementById('test-checklist').classList.remove('hidden');
+            
+            if (hasCredentials && serverOnline) {
+                if (isLoggedIn) {
+                    log('✅ 已登录，可以直接开始测试', 'success');
+                    alert('您已登录！可以直接进入战斗测试');
+                } else {
+                    log('💡 点击"自动登录"按钮开始', 'info');
+                }
+            } else {
+                log('⚠ 请检查服务器状态或手动登录', 'warning');
+            }
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            // 等待 Supabase 初始化
+            setTimeout(initialize, 1000);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tank Settings - Fish Art</title>
+    <link rel="stylesheet" href="./src/css/global.css">
+    <link rel="stylesheet" href="./src/css/fish-settings.css">
+</head>
+<body>
+    <!-- Header / Navigation -->
+    <header>
+        <nav>
+            <div class="container">
+                <a href="index.html" class="logo">🐟 Fish Art</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="myfish.html">My Fish</a></li>
+                    <li><a href="rank.html">Rank</a></li>
+                    <li><a href="fish-settings.html" class="active">Settings</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+                <div id="auth-ui"></div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container" style="padding: 40px 20px; max-width: 1200px; margin: 0 auto;">
+        <h1 style="text-align: center; margin-bottom: 40px;">🐟 Tank Settings</h1>
+
+        <!-- Membership Info Card -->
+        <div class="card" style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+            <h2 style="margin-top: 0;">Your Membership Level</h2>
+            <div id="membership-info" style="font-size: 18px;">
+                <p>Loading...</p>
+            </div>
+        </div>
+
+        <!-- Fish List -->
+        <div class="card" style="padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+            <h2>My Fish (<span id="fish-count">0</span> / <span id="fish-max">-</span>)</h2>
+            <div id="fish-list" style="margin-top: 20px;">
+                <p style="text-align: center; color: #999;">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Chat Frequency Settings (Premium Only) -->
+        <div id="chat-frequency-section" class="card" style="margin-top: 30px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); display: none;">
+            <h2>🗣️ Chat Frequency Settings (Premium Only)</h2>
+            <p style="color: #666; margin-bottom: 20px;">Premium members can adjust the chat frequency for each fish (1-10 times/hour)</p>
+            <div id="chat-frequency-controls">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+        <!-- Locked Features (Free/Plus) -->
+        <div id="locked-features" class="card" style="margin-top: 30px; padding: 20px; background: #f9f9f9; border-radius: 12px; display: none;">
+            <h2>🔒 Premium Features</h2>
+            <p style="color: #666;">Upgrade to <strong>Premium</strong> to unlock:</p>
+            <ul style="color: #666; line-height: 1.8;">
+                <li>✨ Adjust fish chat frequency (1-10 times/hour)</li>
+                <li>🐟 Own up to 20 fish</li>
+                <li>💬 AI Chat Features</li>
+            </ul>
+            <button style="margin-top: 20px; padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                Upgrade to Premium
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="margin-top: 60px; padding: 20px; text-align: center; background: #f5f5f5;">
+        <p>&copy; 2024 Fish Art. All rights reserved.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="./src/js/config.js"></script>
+    <script src="./src/js/auth.js"></script>
+    <script src="./src/js/auth-ui.js"></script>
+    <script src="./src/js/fish-settings.js"></script>
+</body>
+</html>
+

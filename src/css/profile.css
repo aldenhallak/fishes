@@ -3,6 +3,11 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+    padding-bottom: 10px; /* 减少底部内边距 */
+    position: relative;
+    z-index: 1;
+    /* Sticky Footer: 让主内容区域填充剩余空间 */
+    flex: 1;
 }
 
 .profile-header {
@@ -11,18 +16,69 @@
 }
 
 .profile-header h1 {
-    margin: 0;
+    margin: 20px 0 10px;
     font-size: 2.5em;
-    color: #333;
+    color: white;
+    text-shadow: 
+        3px 3px 0 rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(255, 255, 255, 0.8),
+        0 0 50px rgba(255, 215, 0, 0.5);
+    font-weight: 900;
+    letter-spacing: 2px;
+    -webkit-text-stroke: 2px rgba(0, 0, 0, 0.2);
+    animation: titleBounce 1s ease;
 }
 
 .profile-card {
-    background: white;
-    border: 2px solid #ddd;
-    border-radius: 10px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 24px;
     padding: 30px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
+    box-shadow: 
+        0 6px 0 rgba(0, 0, 0, 0.2),
+        0 10px 24px rgba(0, 0, 0, 0.3);
+    margin-bottom: 10px;
+    animation: fadeInUp 0.5s ease;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* 顶部彩色条 */
+.profile-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, 
+        #FF9500 0%, 
+        #FFD700 25%, 
+        #4CD964 50%, 
+        #4A90E2 75%, 
+        #9B59B6 100%);
+    border-radius: 24px 24px 0 0;
+}
+
+/* 顶部光泽效果 */
+.profile-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+    border-radius: 24px 24px 0 0;
+    pointer-events: none;
+}
+
+.profile-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+        0 8px 0 rgba(0, 0, 0, 0.2),
+        0 16px 40px rgba(0, 0, 0, 0.35);
 }
 
 .profile-info {
@@ -36,6 +92,22 @@
     .profile-info {
         grid-template-columns: 1fr;
     }
+    
+    /* 确保会员信息在移动端也保持单行显示 */
+    .profile-membership {
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        gap: 6px; /* 减小间距以适应移动端 */
+        overflow: hidden; /* 防止内容溢出 */
+    }
+    
+    #membership-text {
+        font-size: 12px; /* 移动端稍微减小字体 */
+    }
+    
+    #membership-badge {
+        flex-shrink: 0; /* 防止图标被压缩 */
+    }
 }
 
 .profile-basic {
@@ -43,24 +115,41 @@
 }
 
 .profile-avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: #007bff;
-    color: white;
+    width: 100px;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
-    font-weight: bold;
     margin: 0 auto 20px;
+    position: relative;
+    overflow: visible;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
+/* When avatar contains membership badge, ensure no background */
+.profile-avatar:has(.membership-badge) {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.profile-avatar .membership-badge {
+    margin: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* 移除profile-avatar的所有动画和装饰效果 */
+
 .profile-name {
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 28px;
+    font-weight: 900;
     color: #333;
     margin-bottom: 5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .profile-email {
@@ -74,71 +163,240 @@
     font-size: 12px;
 }
 
+.profile-membership {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 10px 0;
+    flex-wrap: nowrap; /* 移动端也保持单行显示 */
+    white-space: nowrap; /* 防止文字换行 */
+}
+
+#membership-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#membership-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+}
+
+.upgrade-btn {
+    padding: 6px 16px;
+    border: none;
+    background: linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+    color: white;
+    cursor: pointer;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.15s ease;
+    box-shadow: 0 3px 0 rgba(255, 140, 0, 0.3);
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    border-bottom: 2px solid #FF8C00;
+}
+
+.upgrade-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+    border-radius: 12px 12px 0 0;
+    pointer-events: none;
+}
+
+.upgrade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 0 rgba(255, 140, 0, 0.3);
+    background: linear-gradient(180deg, #FFE44D 0%, #FFB347 50%, #FF9500 100%);
+}
+
+.upgrade-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 rgba(255, 140, 0, 0.3);
+}
+
 .profile-stats {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 15px;
+}
+
+/* 收藏数卡片特殊样式 - 橙色主题 */
+.stat-item:has(#favorite-count) {
+    border-top: 4px solid #FF9500;
+    position: relative;
+}
+
+.stat-item:has(#favorite-count)::before {
+    background: linear-gradient(90deg, 
+        rgba(255, 149, 0, 0.1) 0%, 
+        rgba(255, 149, 0, 0.05) 100%);
+}
+
+.stat-item:has(#favorite-count) .stat-value {
+    color: #FF9500;
+    text-shadow: 0 2px 4px rgba(255, 149, 0, 0.3);
+}
+
+.stat-item:has(#favorite-count) .stat-label {
+    color: #FF9500;
+    font-weight: 700;
+}
+
+/* 响应式: 在小屏幕上显示2列 */
+@media (max-width: 768px) {
+    .profile-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 在超小屏幕上显示1列 */
+@media (max-width: 480px) {
+    .profile-stats {
+        grid-template-columns: 1fr;
+    }
 }
 
 .stat-item {
     text-align: center;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
+    padding: 20px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+    border-radius: 16px;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 4px 0 rgba(0, 0, 0, 0.2),
+        0 6px 12px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 统计卡片顶部光泽 */
+.stat-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+    border-radius: 16px 16px 0 0;
+    pointer-events: none;
+}
+
+.stat-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+        0 6px 0 rgba(0, 0, 0, 0.2),
+        0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
 .stat-value {
-    font-size: 24px;
-    font-weight: bold;
-    color: #007bff;
-    margin-bottom: 5px;
+    font-size: 32px;
+    font-weight: 900;
+    color: #4A90E2;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);
 }
 
 .stat-label {
     color: #666;
     font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
 }
+
 
 .profile-actions {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 15px;
     flex-wrap: wrap;
 }
 
 .action-btn {
-    padding: 10px 20px;
-    border: 1px solid #ddd;
-    background: white;
+    padding: 12px 24px;
+    border: none;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 16px;
     text-decoration: none;
-    color: #333;
+    color: #4A90E2;
     font-size: 14px;
-    transition: all 0.2s ease;
+    font-weight: 700;
+    transition: all 0.15s ease;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    border-bottom: 3px solid #A0A0A0;
+}
+
+/* 按钮顶部光泽 */
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+    border-radius: 16px 16px 0 0;
+    pointer-events: none;
 }
 
 .action-btn:hover {
-    background: #f0f0f0;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+}
+
+.action-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
 }
 
 .action-btn.primary {
-    background: #007bff;
+    background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
     color: white;
-    border-color: #007bff;
+    border-bottom: 3px solid #2C5F8F;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .action-btn.primary:hover {
-    background: #0056b3;
+    background: linear-gradient(180deg, #74B4F0 0%, #5BA0E8 50%, #4088C5 100%);
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
 }
 
 .loading {
     text-align: center;
     padding: 40px;
     font-size: 18px;
-    color: #666;
+    color: #6366F1;
+    font-weight: 600;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 3px solid #C7D2FE;
+    border-top-color: #6366F1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
 }
 
 .error {
@@ -151,24 +409,33 @@
 .nav-links {
     text-align: center;
     margin-bottom: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 10px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+    border: 2px solid #C7D2FE;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .nav-links a {
-    color: #007bff;
+    color: white;
     text-decoration: none;
-    margin: 0 15px;
     font-size: 14px;
-    font-weight: 500;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: background 0.2s ease;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 15px;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    background: linear-gradient(135deg, #6366F1, #4F46E5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .nav-links a:hover {
-    background: #e9ecef;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
 }
 
 .profile-empty {
@@ -184,21 +451,23 @@
 
 /* Edit profile styles */
 .edit-name-input {
-    padding: 5px 10px;
-    border: 2px solid #007bff;
-    border-radius: 5px;
+    padding: 8px 15px;
+    border: 2px solid #6366F1;
+    border-radius: 15px;
     font-size: 20px;
     font-weight: bold;
     text-align: center;
     width: 100%;
     max-width: 300px;
     outline: none;
-    transition: border-color 0.2s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
 }
 
 .edit-name-input:focus {
-    border-color: #0056b3;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    transform: scale(1.02);
 }
 
 .edit-buttons {
@@ -209,36 +478,97 @@
 }
 
 .save-btn, .cancel-btn {
-    padding: 8px 16px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 15px;
     cursor: pointer;
     font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .save-btn {
-    background: #28a745;
+    background: linear-gradient(135deg, #6366F1, #4F46E5);
     color: white;
 }
 
 .save-btn:hover {
-    background: #218838;
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #4F46E5, #4338CA);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
 }
 
 .cancel-btn {
-    background: #dc3545;
-    color: white;
+    background: linear-gradient(135deg, #F5F5F5, #E0E0E0);
+    color: #666;
 }
 
 .cancel-btn:hover {
-    background: #c82333;
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #E0E0E0, #BDBDBD);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .saving {
-    background: #6c757d !important;
+    background: #9E9E9E !important;
     cursor: not-allowed !important;
+    opacity: 0.6;
+}
+
+/* Profile Messages Section */
+.profile-messages-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 24px;
+    box-shadow: 
+        0 6px 0 rgba(0, 0, 0, 0.2),
+        0 10px 24px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 顶部彩色条 */
+.profile-messages-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, 
+        #FF9500 0%, 
+        #FFD700 25%, 
+        #4CD964 50%, 
+        #4A90E2 75%, 
+        #9B59B6 100%);
+    border-radius: 24px 24px 0 0;
+}
+
+/* 顶部光泽效果 */
+.profile-messages-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+    border-radius: 24px 24px 0 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+#profile-messages-container {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    .profile-messages-section {
+        padding: 15px;
+        margin-top: 20px;
+    }
 }

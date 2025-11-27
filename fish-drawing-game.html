@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Doodle Game - Draw, Share & Compete Online | FishTalk.app</title>
+    <meta name="description" content="Play the ultimate fish doodle game! Draw fish, see them swim in our global tank with 50K+ doodles, compete to create the weirdest fish & share with artists worldwide.">
+    <meta name="keywords" content="fish doodle game, fish drawing game, online drawing game, weird fish contest, creative fish game, multiplayer doodle game, fish art community, draw fish online">
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="Fish Drawing Game - Draw, Compete & Share Online">
+    <meta property="og:description" content="Join the fun fish drawing game! Create fish art, watch them swim, and compete with artists worldwide. Free online game!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fishtalk.app/fish-drawing-game.html">
+    <meta property="og:image" content="https://fishtalk.app/fish_logo.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://fishtalk.app/fish-drawing-game.html">
+    
+    <link rel="stylesheet" href="src/css/animations.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
+    <link rel="stylesheet" href="src/css/style.css?v=2.0">
+    <link rel="stylesheet" href="src/css/traffic.css?v=2.0">
+    <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
+    <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
+    <link rel="stylesheet" href="src/css/cute-theme.css?v=2.0">
+    <link rel="icon" type="image/png" href="/fish_logo.png">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-601YXTKK0L"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-601YXTKK0L');
+    </script>
+    
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://fishtalk.app/"
+      },{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Fish Drawing Game",
+        "item": "https://fishtalk.app/fish-drawing-game.html"
+      }]
+    }
+    </script>
+    
+    <!-- Game Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Game",
+      "name": "Fish Drawing Game - FishTalk.app",
+      "description": "Free online fish drawing game with AI validation. Draw fish, watch them swim in a community tank, vote on other players' art, and compete for the top spot!",
+      "url": "https://fishtalk.app/fish-drawing-game.html",
+      "gamePlatform": "Web Browser",
+      "numberOfPlayers": {
+        "@type": "QuantitativeValue",
+        "value": "Multiplayer"
+      },
+      "genre": "Drawing Game",
+      "playMode": "MultiPlayer",
+      "applicationCategory": "Game",
+      "operatingSystem": "Any (Web-based)",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.7",
+        "ratingCount": "850",
+        "bestRating": "5"
+      }
+    }
+    </script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        .game-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            color: white;
+        }
+        
+        .game-header h1 {
+            font-size: 3em;
+            margin: 0 0 15px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .game-header .tagline {
+            font-size: 1.3em;
+            margin: 0;
+            opacity: 0.95;
+        }
+        
+        .play-button {
+            display: inline-block;
+            background: white;
+            color: #6366F1;
+            padding: 20px 50px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.3em;
+            margin-top: 30px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .play-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .breadcrumb {
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .breadcrumb a {
+            color: #6366F1;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .section {
+            margin: 50px 0;
+        }
+        
+        .section h2 {
+            color: #4F46E5;
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-left: 5px solid #6366F1;
+            padding-left: 20px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e9ecff 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid #e0e7ff;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.3);
+            border-color: #6366F1;
+        }
+        
+        .feature-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card h3 {
+            color: #4F46E5;
+            font-size: 1.5em;
+            margin: 15px 0;
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 1.05em;
+        }
+        
+        .game-modes {
+            background: #f8f9ff;
+            padding: 40px;
+            border-radius: 20px;
+            margin: 40px 0;
+        }
+        
+        .mode-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid #6366F1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .mode-card h3 {
+            color: #4F46E5;
+            font-size: 1.6em;
+            margin-top: 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .how-to-play {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            border: 3px solid #e0e7ff;
+        }
+        
+        .steps {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+        
+        .steps li {
+            counter-increment: step-counter;
+            margin: 25px 0;
+            padding-left: 60px;
+            position: relative;
+            font-size: 1.1em;
+        }
+        
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: -5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 50px 0;
+        }
+        
+        .cta-section h2 {
+            color: white;
+            border: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        
+        .testimonials {
+            margin: 50px 0;
+        }
+        
+        .testimonial {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #6366F1;
+        }
+        
+        .testimonial-text {
+            font-style: italic;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        
+        .testimonial-author {
+            color: #6366F1;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .game-header h1 {
+                font-size: 2em;
+            }
+            
+            .game-container {
+                padding: 20px 15px;
+            }
+            
+            .features-grid, .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .play-button {
+                padding: 15px 35px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body class="game-style">
+  <!-- 背景装饰 - 浮动气泡 -->
+  <div class="game-bubbles">
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+    <div class="game-bubble"></div>
+  </div>
+
+  <!-- Top Navigation Bar -->
+  <nav class="game-nav">
+    <!-- 汉堡菜单按钮 -->
+    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="Open Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <a href="index.html" class="game-logo" style="cursor: pointer; text-decoration: none; color: white;">
+      🐟 FishTalk.app
+    </a>
+    <div class="game-nav-links">
+      <a href="membership.html" class="game-btn game-btn-purple" id="nav-upgrade-btn" style="display: none;">
+        <img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle;">
+        <span>Upgrade</span>
+      </a>
+      <!-- 登录按钮和用户菜单将由 auth-ui.js 动态插入 -->
+    </div>
+  </nav>
+
+  <!-- 侧边栏菜单 -->
+  <div id="sidebar-menu" class="sidebar-menu">
+    <div class="sidebar-header">
+      <h3>🐟 Menu</h3>
+      <button id="close-sidebar-btn" class="close-sidebar-btn" aria-label="Close menu">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link">
+        <span class="sidebar-icon">🎨</span>
+        <span>Draw Fish</span>
+      </a>
+      <a href="tank.html" class="sidebar-link">
+        <span class="sidebar-icon">🌊</span>
+        <span>Global Tank</span>
+      </a>
+      <a href="tank.html?view=my" class="sidebar-link">
+        <span class="sidebar-icon">⭐</span>
+        <span>My Tank</span>
+      </a>
+      <a href="rank.html" class="sidebar-link">
+        <span class="sidebar-icon">🏆</span>
+        <span>Rank</span>
+      </a>
+      <a href="profile.html" class="sidebar-link">
+        <span class="sidebar-icon">👤</span>
+        <span>Profile</span>
+      </a>
+      <a href="membership.html" class="sidebar-link" id="sidebar-upgrade-link" style="display: none;">
+        <span class="sidebar-icon"><img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain;"></span>
+        <span>Upgrade</span>
+      </a>
+      <a href="#" id="sidebar-share-btn" class="sidebar-link">
+        <span class="sidebar-icon">📤</span>
+        <span>Share</span>
+      </a>
+    </nav>
+  </div>
+  
+  <!-- 侧边栏遮罩 -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <div class="game-container">
+        <div class="breadcrumb">
+            <a href="index.html">Home</a> / Fish Drawing Game
+        </div>
+        
+        <div class="game-header">
+            <h1>🐠 Fish Drawing Game 🎮</h1>
+            <p class="tagline">Draw, Compete & Share with Artists Worldwide!</p>
+            <a href="index.html" class="play-button">🎨 Play Now - It's Free!</a>
+        </div>
+        
+        <div class="section">
+            <h2>About the Fish Drawing Game</h2>
+            <p style="font-size: 1.15em; line-height: 1.8;">
+                Welcome to the most fun <strong>fish drawing game online</strong>! FishTalk.app combines creative drawing with competitive gaming. 
+                <strong>Draw a fish</strong>, watch it come alive and swim in our community tank, then compete with players from around the world to create the best fish art!
+            </p>
+            <p style="font-size: 1.15em; line-height: 1.8;">
+                Our unique <strong>AI-powered validation system</strong> recognizes your fish drawings in real-time, making this the perfect blend of art, technology, and gaming. 
+                Whether you're a kid, student, teacher, or professional artist, this free online drawing game offers endless creative fun!
+            </p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-number">50K+</div>
+                <div class="stat-label">My fish</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">1000+</div>
+                <div class="stat-label">Daily Players</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">15K+</div>
+                <div class="stat-label">Community Votes</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Free Forever</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Game Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Creative Drawing</h3>
+                    <p>Use our intuitive drawing tools to create unique fish art. Works with mouse, trackpad, or touch!</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI Validation</h3>
+                    <p>Real-time AI feedback helps you improve. Watch your fish probability score increase as you draw!</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🌊</div>
+                    <h3>Watch Them Swim</h3>
+                    <p>Your fish comes alive! See it swim in our animated community tank with realistic motion.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <h3>Voting System</h3>
+                    <p>Vote on other players' fish and compete to get the most votes for your creations!</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Rankings & Prizes</h3>
+                    <p>Climb the leaderboard! Top fish artists get featured and earn community recognition.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Multiplayer Fun</h3>
+                    <p>Join a vibrant community of artists. Share, discover, and get inspired by fish from around the world!</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Custom Collections</h3>
+                    <p>Create your own fish tank collections. Curate themed galleries of your favorite fish!</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Play Anywhere</h3>
+                    <p>No downloads needed! Play on phone, tablet, or computer. Fully responsive design.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-modes">
+            <h2 style="color: #4F46E5; text-align: center; margin-top: 0;">Game Modes</h2>
+            
+            <div class="mode-card">
+                <h3>🎨 Creative Mode (Free Play)</h3>
+                <p>Take your time to create the perfect fish. Experiment with different styles, colors, and designs. 
+                No pressure - just pure creative fun! Once you're happy with your creation, submit it to the community tank.</p>
+            </div>
+            
+            <div class="mode-card">
+                <h3>⚡ Challenge Mode (Coming Soon!)</h3>
+                <p>Race against time! Draw a fish within 60 seconds and see if the AI recognizes it. 
+                Perfect for quick gaming sessions and testing your speed-drawing skills.</p>
+            </div>
+            
+            <div class="mode-card">
+                <h3>🏆 Competition Mode</h3>
+                <p>Submit your best fish to compete in community rankings. Other players vote on fish drawings, 
+                and the most popular creations rise to the top. Can your fish become #1?</p>
+            </div>
+            
+            <div class="mode-card">
+                <h3>🎯 Collection Mode</h3>
+                <p>Create themed fish tank collections. Build galleries like "Tropical Paradise," "Deep Sea Creatures," 
+                or "Rainbow Fish." Share your collections and explore others' curated tanks!</p>
+            </div>
+        </div>
+        
+        <div class="how-to-play">
+            <h2 style="color: #4F46E5;">How to Play</h2>
+            <ul class="steps">
+                <li><strong>Click "Play Now"</strong> above to start the fish drawing game instantly - no signup required!</li>
+                <li><strong>Draw your fish</strong> on the canvas using the drawing tools. Remember: fish should face right!</li>
+                <li><strong>Watch the AI</strong> analyze your drawing in real-time. The probability meter shows how confident the AI is.</li>
+                <li><strong>Get validated</strong> when your fish reaches 60%+ probability. The "Make it Swim" button will activate!</li>
+                <li><strong>Submit & watch</strong> your fish swim in the community tank with creations from players worldwide.</li>
+                <li><strong>Vote & compete</strong> - rate other players' fish and try to earn votes for your own creations!</li>
+                <li><strong>Build collections</strong> - save your favorite fish to custom tank collections you can share.</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Why Play Fish Drawing Game?</h2>
+            <div style="font-size: 1.1em; line-height: 1.8;">
+                <p><strong>🎓 Educational:</strong> Perfect for learning drawing basics, understanding AI, and developing creativity. Teachers love using it in classrooms!</p>
+                
+                <p><strong>🧘 Relaxing:</strong> Drawing is therapeutic! Take a break from stress and create something beautiful. No pressure, no judgement.</p>
+                
+                <p><strong>🎮 Competitive:</strong> Challenge yourself and compete with friends. Who can create the most popular fish? Who can get the highest votes?</p>
+                
+                <p><strong>👨‍👩‍👧‍👦 Family-Friendly:</strong> Safe, fun, and appropriate for all ages. Play with kids, grandparents, or solo!</p>
+                
+                <p><strong>🌍 Global Community:</strong> Connect with artists worldwide. Get inspired by diverse styles and cultures.</p>
+                
+                <p><strong>💰 100% Free:</strong> No hidden costs, no premium features, no ads interrupting gameplay. Just pure creative fun!</p>
+            </div>
+        </div>
+        
+        <div class="testimonials">
+            <h2 style="color: #4F46E5;">What Players Say</h2>
+            
+            <div class="testimonial">
+                <p class="testimonial-text">"This is the most fun drawing game I've played online! My kids love watching their fish swim in the tank. We compete to see who can get the most votes!"</p>
+                <p class="testimonial-author">- Sarah M., Teacher & Mom</p>
+            </div>
+            
+            <div class="testimonial">
+                <p class="testimonial-text">"As a digital artist, I appreciate the AI feedback. It's amazing to see the technology recognize my drawings in real-time. Great tool for quick creative breaks!"</p>
+                <p class="testimonial-author">- Alex K., Digital Artist</p>
+            </div>
+            
+            <div class="testimonial">
+                <p class="testimonial-text">"I use this in my elementary art class. The students are so engaged! They love the instant feedback and seeing all the different fish swimming together."</p>
+                <p class="testimonial-author">- Ms. Johnson, Art Teacher</p>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <h2>Ready to Start Playing?</h2>
+            <p style="font-size: 1.2em; margin: 20px 0;">Join thousands of players in the best free fish drawing game online!</p>
+            <a href="index.html" class="play-button">🎮 Play Fish Drawing Game Now →</a>
+            <p style="margin-top: 25px; opacity: 0.9;">No download • No signup • 100% free • Works on all devices</p>
+        </div>
+        
+        <div class="section">
+            <h2>More to Explore</h2>
+            <ul style="font-size: 1.1em; line-height: 2;">
+                <li><a href="how-to-draw-a-fish.html" style="color: #6366F1;">How to Draw a Fish - Complete Tutorial</a></li>
+                <li><a href="tank.html" style="color: #6366F1;">Community Fish Tank - Watch All Fish Swim</a></li>
+                <li><a href="rank.html" style="color: #6366F1;">Fish Rankings - Vote on Best Drawings</a></li>
+                <li><a href="tank.html?view=my" style="color: #6366F1;">My Private Fish Tank</a></li>
+            </ul>
+        </div>
+        
+    </div>
+
+  <!-- Bottom Info Bar -->
+  <footer class="game-footer">
+    <!-- SEO Content Section -->
+    <div style="max-width: 1000px; margin: 10px auto; padding: 10px 20px; background: rgba(255, 255, 255, 0.08); border-radius: 12px; text-align: center;">
+      <p style="font-size: 14px; line-height: 1.5; color: rgba(255, 255, 255, 0.9); margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+        <strong>Draw a fish online</strong> and watch it swim in our <strong>global tank</strong> with 50,000+ doodles from artists worldwide! Our free AI tool validates your fish art in real-time. See <strong>weird, creative, and funny fish</strong> drawings. Perfect for artists, students, teachers.
+      </p>
+    </div>
+    
+    <div class="game-footer-links">
+      <a href="tank.html" class="game-footer-link">Global Fish Tank</a>
+      <a href="fish-doodle-community.html" class="game-footer-link">Community</a>
+      <a href="about.html" class="game-footer-link">About</a>
+      <a href="how-to-draw-a-fish.html" class="game-footer-link">How to Draw a Fish</a>
+      <a href="fish-drawing-game.html" class="game-footer-link">Fish Drawing Game</a>
+      <a href="faq.html" class="game-footer-link">FAQ</a>
+    </div>
+  </footer>
+
+  <!-- Supabase SDK -->
+  <script src="public/supabase-config.js?v=2.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js?v=2.3"></script>
+  
+  <script src="src/js/fish-utils.js?v=2.5"></script>
+  <script src="src/js/fishtank-favorites.js"></script>
+  <script src="src/js/social-config.js?v=2.1"></script>
+  <script src="src/js/social-share.js?v=2.1"></script>
+  <script src="src/js/membership-icons.js?v=1.0"></script>
+  <script src="src/js/auth-ui.js?v=2.5"></script>
+  <script src="src/js/fish-info-modal.js?v=1.0"></script>
+  <script src="src/js/hamburger-menu.js?v=1.0"></script>
+  <script>
+    // Initialize navigation authentication
+    if (typeof initializeAuthNavigation === 'function') {
+      initializeAuthNavigation();
+    }
+  </script>
+</body>
+</html>
+

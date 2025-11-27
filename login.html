@@ -5,91 +5,204 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fish Login</title>
-    <link rel="stylesheet" href="src/css/style.css">
+    <link rel="stylesheet" href="src/css/style.css?v=2.0">
+    <link rel="stylesheet" href="src/css/animations.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-theme.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=2.0">
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GS1GYSFBPX"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-601YXTKK0L"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
-        gtag('config', 'G-GS1GYSFBPX');
+        gtag('config', 'G-601YXTKK0L');
     </script>
 
     <style>
+        body {
+            background: linear-gradient(135deg, #F5F5F5 0%, #E8EAF6 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
         .login-container {
-            max-width: 350px;
+            max-width: 420px;
             margin: 50px auto;
-            border: 1px solid #000;
-            padding: 15px;
+            border: 3px solid #A5B4FC;
+            border-radius: 32px;
+            padding: 0;
+            background: linear-gradient(180deg, #FFF9E6 0%, #FFF4D6 100%);
+            box-shadow: 
+                0 8px 0 rgba(0, 0, 0, 0.2),
+                0 16px 40px rgba(0, 0, 0, 0.4);
+            animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+            border-radius: 32px 32px 0 0;
+            pointer-events: none;
+            z-index: 1;
         }
 
         .login-header {
-            padding: 4px 8px;
-            margin: -15px -15px 15px -15px;
-            font-weight: bold;
+            padding: 16px 24px;
+            font-weight: 900;
+            background: linear-gradient(180deg, #1A1A1D 0%, #0F0F0F 50%, #050505 100%);
+            color: white;
+            border-bottom: 2px solid #000000;
+            font-size: 24px;
+            text-align: center;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
+            letter-spacing: 1px;
+            z-index: 2;
         }
 
         .auth-tabs {
-            margin-bottom: 15px;
+            margin-top: 24px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
         }
 
         .auth-tab-btn {
-            margin-right: 5px;
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+            border-bottom: 3px solid #A0A0A0;
+            cursor: pointer;
+            border-radius: 24px;
+            font-weight: 700;
+            transition: all 0.15s ease;
+            color: #4A90E2;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+            transform: translateY(0);
+        }
+
+        .auth-tab-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+            border-radius: 24px 24px 0 0;
+            pointer-events: none;
+        }
+
+        .auth-tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+        }
+
+        .auth-tab-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
         }
 
         .auth-tab-btn.active {
-            background: #000;
+            background: linear-gradient(180deg, #63A4E8 0%, #4A90E2 50%, #357ABD 100%);
             color: white;
+            border-bottom: 3px solid #2A5F8F;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         .auth-form {
-            border: 1px solid #000;
-            padding: 10px;
-            margin-bottom: 15px;
+            border: none;
+            border-radius: 0;
+            padding: 40px;
+            padding-top: 32px;
+            margin-bottom: 0;
+            background: transparent;
             display: block;
+            position: relative;
+            z-index: 1;
         }
 
         .auth-form input {
             width: 100%;
-            padding: 2px;
-            border: 1px solid #000;
-            margin-bottom: 8px;
+            padding: 10px 15px;
+            border: 2px solid #C7D2FE;
+            border-radius: 10px;
+            margin-bottom: 15px;
             display: block;
             box-sizing: border-box;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #FFFFFF;
+            color: #000000;
+        }
+
+        .auth-form input:focus {
+            border-color: #6366F1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .auth-form strong {
+            color: #000000;
+            font-size: 14px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
         }
 
         .loading {
             display: none;
+            text-align: center;
+            color: #6366F1;
+            font-weight: 600;
+            padding: 10px;
         }
 
         .error {
             display: none;
-            color: #800000;
-            background: #ffcccc;
-            border: 1px solid #800000;
-            padding: 5px;
+            color: #DC2626;
+            background: #FEE2E2;
+            border: 2px solid #FCA5A5;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
         }
 
         .success {
             display: none;
-            color: #008000;
-            background: #ccffcc;
-            border: 1px solid #008000;
-            padding: 5px;
+            color: #059669;
+            background: #D1FAE5;
+            border: 2px solid #6EE7B7;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
         }
 
         .divider {
             text-align: center;
-            margin: 15px 0;
-            border-bottom: 1px solid #000;
-            height: 10px;
+            margin: 20px 0;
+            border-bottom: 2px solid #E0E0E0;
+            height: 12px;
         }
 
         .divider span {
             background: white;
-            padding: 0 10px;
+            padding: 0 15px;
+            color: #666;
+            font-weight: 600;
         }
 
         #already-logged-in h3 {
@@ -103,19 +216,82 @@
         }
 
         .btn {
-            padding: 10px 20px;
-            border: 2px solid #007bff;
-            background: #007bff;
+            padding: 12px 25px;
+            border: none;
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
             color: white;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 15px;
             font-size: 14px;
+            font-weight: 600;
             margin: 5px;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
         .btn:hover {
-            background: #0056b3;
-            border-color: #0056b3;
+            background: linear-gradient(135deg, #4F46E5, #4338CA);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* 优化提交按钮样式 */
+        button[type="submit"] {
+            width: 100%;
+            padding: 16px 24px;
+            border: none;
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            color: white;
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            margin: 10px 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button[type="submit"]::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        button[type="submit"]:hover::before {
+            left: 100%;
+        }
+
+        button[type="submit"]:hover {
+            background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        button[type="submit"]:disabled {
+            background: linear-gradient(135deg, #9CA3AF, #6B7280);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .home-btn-container {
@@ -125,19 +301,23 @@
 
         .home-btn {
             display: inline-block;
-            padding: 8px 16px;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            color: #333;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #C7D2FE;
+            color: #6366F1;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 15px;
             font-size: 14px;
-            transition: all 0.2s;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .home-btn:hover {
-            background: #e9ecef;
-            border-color: #adb5bd;
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+            border-color: #6366F1;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
         }
     </style>
 </head>
@@ -145,7 +325,7 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            Fish Login
+            Login with Email
         </div>
 
         <div class="auth-tabs">
@@ -154,30 +334,51 @@
         </div>
 
         <!-- Sign In Form -->
-        <form id="signin-form" class="auth-form">
+        <form id="signin-form" class="auth-form" novalidate>
             <strong>Email:</strong><br>
-            <input type="email" id="signin-email" required><br>
+            <input type="text" id="signin-email" inputmode="email" autocomplete="email"><br>
             <strong>Password:</strong><br>
             <input type="password" id="signin-password" required><br><br>
-            <button type="submit">Login</button>
+            <button type="submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                    <polyline points="10 17 15 12 10 7"></polyline>
+                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                <span>Login</span>
+            </button>
             <br><br>
             <a href="#" id="forgot-password-link" onclick="showForgotPasswordForm()">Forgot Password?</a>
         </form>
 
         <!-- Sign Up Form -->
-        <form id="signup-form" class="auth-form" style="display: none;">
+        <form id="signup-form" class="auth-form" style="display: none;" novalidate>
             <strong>Email:</strong><br>
-            <input type="email" id="signup-email" required><br>
+            <input type="text" id="signup-email" inputmode="email" autocomplete="email"><br>
             <strong>Password:</strong><br>
             <input type="password" id="signup-password" required><br><br>
-            <button type="submit">Register</button> 
+            <button type="submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                <span>Register</span>
+            </button> 
         </form>
 
         <!-- Forgot Password Form -->
-        <form id="forgot-password-form" class="auth-form" style="display: none;">
+        <form id="forgot-password-form" class="auth-form" style="display: none;" novalidate>
             <strong>Enter your email address:</strong><br>
-            <input type="email" id="forgot-email" required><br><br>
-            <button type="submit">Send Reset Email</button>
+            <input type="text" id="forgot-email" inputmode="email" autocomplete="email"><br><br>
+            <button type="submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                <span>Send Reset Email</span>
+            </button>
             <br><br>
             <a href="#" onclick="showAuthForm('signin')">Back to Sign In</a>
         </form>
@@ -204,7 +405,7 @@
         <div id="already-logged-in" class="auth-form" style="display: none; text-align: center;">
             <h3>You are already logged in!</h3>
             <p id="logged-in-user-info"></p>
-            <button type="button" class="btn" onclick="goToTanks()">Go to My Tanks</button>
+            <button type="button" class="btn" onclick="goToTanks()">Go to My Tank</button>
             <br><br>
             <button type="button" class="btn" onclick="logoutAndStay()" style="background: #dc3545; border-color: #dc3545;">Logout</button>
         </div>
@@ -217,8 +418,14 @@
     <!-- Load Google's auth2 -->
     <script src="src/js/footer-utils.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Supabase SDK -->
+    <script src="public/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="src/js/supabase-init.js"></script>
+    
     <script src="src/js/fish-utils.js"></script>
-    <script src="src/js/firebase-init.js"></script>
+    <script src="src/js/fishtank-favorites.js"></script>
     <script src="src/js/login.js"></script>
 </body>
 

@@ -1,0 +1,45 @@
+# 自动检测文本文件并标准化行结束符
+* text=auto
+
+# 明确指定文本文件应使用 LF 行结束符（跨平台标准）
+*.md text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.graphql text eol=lf
+*.sql text eol=lf
+*.txt text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# 环境变量配置文件使用 LF
+.env* text eol=lf
+env.* text eol=lf
+*.env text eol=lf
+*.example text eol=lf
+
+# 代码文件使用 LF
+*.py text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# 二进制文件
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.onnx binary
+*.xlsx binary
+
+# 其他文件
+*.log text eol=lf
+*.lock text eol=lf
+

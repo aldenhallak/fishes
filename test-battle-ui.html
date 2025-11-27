@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战斗UI样式测试</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+        
+        .info {
+            color: white;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .canvas-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        canvas {
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            display: block;
+        }
+        
+        .legend {
+            margin-top: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .legend h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+        
+        .user-fish {
+            background: #00FF00;
+        }
+        
+        .other-fish {
+            background: #FF4444;
+        }
+    </style>
+    <script src="public/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="src/js/supabase-init.js"></script>
+    <script src="src/js/admin-auth.js"></script>
+    <script>
+        // 管理员权限检查
+        (async function() {
+            if (document.readyState === 'loading') {
+                await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+            }
+            if (!window.supabaseAuth) {
+                await new Promise(resolve => {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabaseAuth) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                });
+            }
+            await window.adminAuth.requireAdminAccess();
+        })();
+    </script>
+</head>
+<body>
+    <h1>🐠 战斗UI样式测试 ⚔️</h1>
+    <div class="info">
+        <p>展示3种UI样式方案，请选择您喜欢的样式</p>
+    </div>
+    
+    <div class="canvas-container">
+        <canvas id="testCanvas" width="800" height="600"></canvas>
+    </div>
+    
+    <div class="legend">
+        <h3>🎨 图例说明</h3>
+        <div class="legend-item">
+            <div class="legend-color user-fish"></div>
+            <span><strong>绿色血条</strong> = 你的鱼</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color other-fish"></div>
+            <span><strong>红色血条</strong> = 其他玩家的鱼</span>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('testCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 示例鱼数据
+        const sampleFishes = [
+            // 样式1a: 紧凑型改进版 (左侧)
+            {
+                x: 100,
+                y: 100,
+                name: '样式1a：改进版',
+                level: 5,
+                health: 85,
+                maxHealth: 100,
+                experience: 45,
+                maxExp: 100,
+                isUser: true,
+                styleType: '1a'
+            },
+            {
+                x: 100,
+                y: 220,
+                name: '样式1a：改进版',
+                level: 3,
+                health: 30,
+                maxHealth: 100,
+                experience: 20,
+                maxExp: 100,
+                isUser: false,
+                styleType: '1a'
+            },
+            
+            // 样式2: 经典型 (中间)
+            {
+                x: 350,
+                y: 100,
+                name: '样式2：经典型',
+                level: 7,
+                health: 120,
+                maxHealth: 140,
+                experience: 78,
+                maxExp: 100,
+                isUser: true,
+                styleType: 2
+            },
+            {
+                x: 350,
+                y: 220,
+                name: '样式2：经典型',
+                level: 2,
+                health: 40,
+                maxHealth: 60,
+                experience: 15,
+                maxExp: 100,
+                isUser: false,
+                styleType: 2
+            },
+            
+            // 样式3: 详细型 (右侧)
+            {
+                x: 600,
+                y: 100,
+                name: '样式3：详细型',
+                level: 10,
+                health: 180,
+                maxHealth: 200,
+                experience: 92,
+                maxExp: 100,
+                isUser: true,
+                styleType: 3
+            },
+            {
+                x: 600,
+                y: 220,
+                name: '样式3：详细型',
+                level: 1,
+                health: 25,
+                maxHealth: 50,
+                experience: 5,
+                maxExp: 100,
+                isUser: false,
+                styleType: 3
+            }
+        ];
+        
+        // 绘制简单的鱼形状
+        function drawSimpleFish(x, y, width, height, direction, color) {
+            ctx.save();
+            ctx.translate(x, y);
+            if (direction < 0) {
+                ctx.scale(-1, 1);
+            }
+            
+            // 鱼身体
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, width/2, height/2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 鱼尾巴
+            ctx.beginPath();
+            ctx.moveTo(-width/2, 0);
+            ctx.lineTo(-width/2 - 15, -10);
+            ctx.lineTo(-width/2 - 15, 10);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 鱼眼睛
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(width/4, -5, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(width/4, -5, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+        
+        // 样式1: 紧凑型 - 只用图标和数字，水平排列（原版）
+        function drawStyle1UI(fish) {
+            const x = fish.x;
+            const y = fish.y - 50;
+            
+            ctx.save();
+            ctx.textAlign = 'left';
+            
+            // 等级
+            ctx.font = 'bold 16px Arial';
+            ctx.fillStyle = '#FFD700';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 3;
+            ctx.strokeText(`Lv.${fish.level}`, x - 30, y);
+            ctx.fillText(`Lv.${fish.level}`, x - 30, y);
+            
+            // 血条 - 心形 + 数字
+            ctx.font = '14px Arial';
+            ctx.fillText('❤️', x - 30, y + 18);
+            
+            ctx.font = '11px Arial';
+            ctx.fillStyle = fish.isUser ? '#00FF00' : '#FF4444';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2.5;
+            ctx.strokeText(`${fish.health}/${fish.maxHealth}`, x - 10, y + 18);
+            ctx.fillText(`${fish.health}/${fish.maxHealth}`, x - 10, y + 18);
+            
+            // 经验条 - 星星 + 数字
+            ctx.fillStyle = '#FFD700';
+            ctx.font = '13px Arial';
+            ctx.fillText('⭐', x - 30, y + 32);
+            
+            ctx.font = '10px Arial';
+            ctx.fillStyle = '#FFF';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.strokeText(`${fish.experience}/100`, x - 10, y + 32);
+            ctx.fillText(`${fish.experience}/100`, x - 10, y + 32);
+            
+            ctx.restore();
+        }
+        
+        // 样式1a: 紧凑型改进版 - 5颗红心 + 等级经验同行
+        function drawStyle1aUI(fish) {
+            const x = fish.x;
+            const y = fish.y - 45;
+            
+            ctx.save();
+            
+            // === 第一行：等级 + 经验百分比 ===
+            ctx.textAlign = 'center';
+            
+            // 等级
+            ctx.font = 'bold 15px Arial';
+            ctx.fillStyle = '#FFD700';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 3;
+            const levelText = `Lv.${fish.level}`;
+            ctx.strokeText(levelText, x - 25, y);
+            ctx.fillText(levelText, x - 25, y);
+            
+            // 经验百分比（去掉五角星）
+            const expPercent = Math.round((fish.experience / fish.maxExp) * 100);
+            ctx.font = 'bold 12px Arial';
+            ctx.fillStyle = '#FFD700';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2.5;
+            const expText = `${expPercent}%`;
+            ctx.strokeText(expText, x + 20, y);
+            ctx.fillText(expText, x + 20, y);
+            
+            // === 第二行：5颗红心表示血量 ===
+            const heartY = y + 18;
+            const heartSpacing = 17; // 增加红心之间的间距，从14改为17
+            const totalHearts = 5;
+            const filledHearts = Math.ceil((fish.health / fish.maxHealth) * totalHearts);
+            
+            // 从左到右绘制5颗心
+            const startX = x - (totalHearts * heartSpacing) / 2 + 8;
+            
+            ctx.font = '16px Arial';
+            for (let i = 0; i < totalHearts; i++) {
+                const heartX = startX + i * heartSpacing;
+                
+                if (i < filledHearts) {
+                    // 实心红心（未损失的血）
+                    ctx.fillStyle = fish.isUser ? '#00FF00' : '#FF4444';
+                    ctx.fillText('❤️', heartX, heartY);
+                } else {
+                    // 空心红心（损失的血）
+                    ctx.fillStyle = fish.isUser ? 'rgba(0,255,0,0.3)' : 'rgba(255,68,68,0.3)';
+                    ctx.fillText('🤍', heartX, heartY);
+                }
+            }
+            
+            ctx.restore();
+        }
+        
+        // 样式2: 经典型 - 图标 + 进度条 + 数字
+        function drawStyle2UI(fish) {
+            const x = fish.x;
+            const y = fish.y - 55;
+            const barWidth = 70;
+            
+            ctx.save();
+            
+            // 等级 - 圆形徽章
+            ctx.fillStyle = '#FFD700';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(fish.level, x, y + 4);
+            
+            // 血条
+            const hpY = y + 20;
+            
+            // 背景
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(x - barWidth/2, hpY - 5, barWidth, 8);
+            
+            // 血量条
+            const hpPercent = fish.health / fish.maxHealth;
+            ctx.fillStyle = fish.isUser ? '#00FF00' : '#FF4444';
+            ctx.fillRect(x - barWidth/2, hpY - 5, barWidth * hpPercent, 8);
+            
+            // 边框
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x - barWidth/2, hpY - 5, barWidth, 8);
+            
+            // 数字
+            ctx.font = '9px Arial';
+            ctx.fillStyle = '#FFF';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.textAlign = 'center';
+            const hpText = `${fish.health}/${fish.maxHealth}`;
+            ctx.strokeText(hpText, x, hpY + 13);
+            ctx.fillText(hpText, x, hpY + 13);
+            
+            // 经验条
+            const expY = hpY + 22;
+            
+            // 背景
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(x - barWidth/2, expY - 3, barWidth, 6);
+            
+            // 经验条
+            const expPercent = fish.experience / fish.maxExp;
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(x - barWidth/2, expY - 3, barWidth * expPercent, 6);
+            
+            // 边框
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x - barWidth/2, expY - 3, barWidth, 6);
+            
+            // 经验数字
+            ctx.font = '8px Arial';
+            ctx.fillStyle = '#FFF';
+            const expText = `${fish.experience}/100`;
+            ctx.strokeText(expText, x, expY + 10);
+            ctx.fillText(expText, x, expY + 10);
+            
+            ctx.restore();
+        }
+        
+        // 样式3: 详细型 - 带图标的进度条 + 百分比
+        function drawStyle3UI(fish) {
+            const x = fish.x;
+            const y = fish.y - 65;
+            const barWidth = 80;
+            
+            ctx.save();
+            
+            // 名字背景
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(x - 40, y - 10, 80, 16);
+            
+            // 等级显示
+            ctx.font = 'bold 14px Arial';
+            ctx.fillStyle = '#FFD700';
+            ctx.textAlign = 'center';
+            ctx.fillText(`⚔️ Lv.${fish.level}`, x, y + 2);
+            
+            // 血条部分
+            const hpY = y + 20;
+            
+            // 心形图标
+            ctx.font = '14px Arial';
+            ctx.fillText('❤️', x - barWidth/2 - 12, hpY + 4);
+            
+            // 血条背景
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.fillRect(x - barWidth/2, hpY - 5, barWidth, 10);
+            
+            // 血量条
+            const hpPercent = fish.health / fish.maxHealth;
+            const gradient = ctx.createLinearGradient(x - barWidth/2, 0, x + barWidth/2, 0);
+            if (fish.isUser) {
+                gradient.addColorStop(0, '#00FF00');
+                gradient.addColorStop(1, '#00CC00');
+            } else {
+                gradient.addColorStop(0, '#FF4444');
+                gradient.addColorStop(1, '#CC0000');
+            }
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x - barWidth/2, hpY - 5, barWidth * hpPercent, 10);
+            
+            // 边框
+            ctx.strokeStyle = fish.isUser ? '#00FF00' : '#FF4444';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x - barWidth/2, hpY - 5, barWidth, 10);
+            
+            // 数字
+            ctx.font = 'bold 10px Arial';
+            ctx.fillStyle = '#FFF';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2.5;
+            ctx.textAlign = 'center';
+            const hpText = `${fish.health}/${fish.maxHealth} (${Math.round(hpPercent * 100)}%)`;
+            ctx.strokeText(hpText, x, hpY + 16);
+            ctx.fillText(hpText, x, hpY + 16);
+            
+            // 经验条部分
+            const expY = hpY + 28;
+            
+            // 星星图标
+            ctx.font = '13px Arial';
+            ctx.fillStyle = '#FFD700';
+            ctx.fillText('⭐', x - barWidth/2 - 12, expY + 3);
+            
+            // 经验条背景
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.fillRect(x - barWidth/2, expY - 4, barWidth, 8);
+            
+            // 经验条
+            const expPercent = fish.experience / fish.maxExp;
+            const expGradient = ctx.createLinearGradient(x - barWidth/2, 0, x + barWidth/2, 0);
+            expGradient.addColorStop(0, '#FFD700');
+            expGradient.addColorStop(1, '#FFA500');
+            ctx.fillStyle = expGradient;
+            ctx.fillRect(x - barWidth/2, expY - 4, barWidth * expPercent, 8);
+            
+            // 边框
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(x - barWidth/2, expY - 4, barWidth, 8);
+            
+            // 经验数字
+            ctx.font = '9px Arial';
+            ctx.fillStyle = '#FFF';
+            ctx.lineWidth = 2;
+            const expText = `EXP: ${fish.experience}/100 (${Math.round(expPercent * 100)}%)`;
+            ctx.strokeText(expText, x, expY + 12);
+            ctx.fillText(expText, x, expY + 12);
+            
+            ctx.restore();
+        }
+        
+        // 渲染所有鱼和UI
+        function render() {
+            // 清空画布
+            ctx.fillStyle = '#E0F7FF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制标题
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            
+            ctx.fillText('样式1a: 改进版 ⭐', 130, 50);
+            ctx.fillText('样式2: 经典型', 380, 50);
+            ctx.fillText('样式3: 详细型', 640, 50);
+            
+            // 绘制分隔线
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(250, 60);
+            ctx.lineTo(250, 350);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(500, 60);
+            ctx.lineTo(500, 350);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // 绘制每条鱼
+            sampleFishes.forEach(fish => {
+                // 绘制鱼
+                const fishColor = fish.isUser ? '#4A90E2' : '#E27A4A';
+                drawSimpleFish(fish.x, fish.y + 30, 50, 30, 1, fishColor);
+                
+                // 根据样式类型绘制UI
+                switch(fish.styleType) {
+                    case 1:
+                        drawStyle1UI(fish);
+                        break;
+                    case '1a':
+                        drawStyle1aUI(fish);
+                        break;
+                    case 2:
+                        drawStyle2UI(fish);
+                        break;
+                    case 3:
+                        drawStyle3UI(fish);
+                        break;
+                }
+                
+                // 绘制标签
+                ctx.font = '11px Arial';
+                ctx.fillStyle = '#666';
+                ctx.textAlign = 'center';
+                ctx.fillText(fish.isUser ? '(你的鱼)' : '(其他玩家)', fish.x, fish.y + 70);
+            });
+            
+            // 底部说明
+            ctx.font = 'bold 14px Arial';
+            ctx.fillStyle = '#667eea';
+            ctx.textAlign = 'center';
+            ctx.fillText('👆 样式1a: 5颗红心血量 + 等级经验同行', canvas.width / 2, 400);
+            
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#666';
+            ctx.fillText('绿色心=你的鱼  |  红色心=其他鱼  |  空心=损失的血量', canvas.width / 2, 420);
+        }
+        
+        // 初始渲染
+        render();
+        
+        // 动画效果（可选）
+        let frame = 0;
+        function animate() {
+            frame++;
+            if (frame % 60 === 0) {
+                render();
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
+

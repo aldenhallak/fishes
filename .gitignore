@@ -1,10 +1,34 @@
-# Ignore .zencoder directory
-.zencoder/
+# 告诉 Cursor 不要忽略 .env 文件
+!.env.local
+!.env
+!.env.*
 
-# Ignore .vscode directory
-.vscode/
-
-# Common ignored files
+# Node modules
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel
+.vercel
+
+# 测试数据
+test-data/
+*.sql
+!temp-*.sql
+fish-images/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
 *.log

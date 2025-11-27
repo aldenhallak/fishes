@@ -1,23 +1,307 @@
-/* Minimal functional styles */
+/* ===== 画鱼页整体样式 ===== */
 body {
     text-align: center;
     margin: 0;
     padding: 10px;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 绘画区域整体居中 */
+#drawing-section {
+    text-align: center;
+}
+
+/* 页面主标题 */
+#drawing-section h1 {
+    font-size: 2.5em;
+    color: #4F46E5;
+    margin: 20px 0 10px;
+    text-shadow: 2px 2px 4px rgba(99, 102, 241, 0.3);
+    font-weight: 700;
+}
+
+#drawing-section h2 {
+    font-size: 1.2em;
+    color: #757575;
+    margin: 0 0 30px;
+    font-weight: 400;
 }
 
 /* Canvas styles */
 #draw-canvas {
-    border: 1px solid #000;
+    border: none;
     background: #ffffff;
     cursor: crosshair;
+    display: block;
+    position: relative;
+    z-index: 1;
 }
 
+/* 提交按钮容器 */
+.submit-button-container {
+    margin: 35px 0 30px; /* 增加与上下组件的距离 */
+    text-align: center;
+}
+
+.cute-submit-btn {
+    font-size: 1.3em !important;
+    padding: 16px 40px !important;
+    animation: pulse 2s ease-in-out infinite !important;
+}
+
+.cute-submit-btn:hover {
+    animation: heartbeat 0.8s ease-in-out !important;
+}
+
+/* 导航链接区域 */
+.nav-links-section {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 10px 0;
+}
+
+/* ===== 鱼缸页样式 ===== */
+
+/* 鱼缸容器 */
+.tank-wrapper {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(180deg, 
+        #B2EBF2 0%, 
+        #4FC3F7 30%, 
+        #0288D1 70%, 
+        #01579B 100%);
+}
+
+/* 鱼缸画布 */
 #swim-canvas {
     display: block;
-    margin: 20px auto;
-    background: #4fc3f7;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background: transparent;
+    border: none;
+    position: relative;
+    z-index: 10;
+}
+
+/* 装饰层容器 */
+.tank-decorations {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* 水草样式 */
+.seaweed {
+    position: absolute;
+    bottom: 0;
+    width: 60px;
+    height: 200px;
+    background: linear-gradient(180deg, 
+        transparent 0%, 
+        rgba(76, 175, 80, 0.3) 20%, 
+        rgba(76, 175, 80, 0.6) 100%);
+    border-radius: 30px 30px 0 0;
+    animation: sway 4s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+.seaweed::before,
+.seaweed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 40px;
+    height: 150px;
+    background: linear-gradient(180deg, 
+        transparent 0%, 
+        rgba(76, 175, 80, 0.4) 30%, 
+        rgba(76, 175, 80, 0.7) 100%);
+    border-radius: 20px 20px 0 0;
+    animation: sway 3.5s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+.seaweed::before {
+    left: -25px;
+    animation-delay: -0.5s;
+}
+
+.seaweed::after {
+    right: -25px;
+    animation-delay: -1s;
+}
+
+.seaweed-left {
+    left: 50px;
+    animation-delay: 0s;
+}
+
+.seaweed-right {
+    right: 50px;
+    animation-delay: -1.5s;
+}
+
+/* 底部沙地 */
+.sand-layer {
+    display: none; /* 隐藏底部沙地黄色条 */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background: linear-gradient(180deg, 
+        rgba(255, 224, 178, 0) 0%, 
+        rgba(255, 224, 178, 0.6) 50%, 
+        rgba(255, 193, 7, 0.8) 100%);
+    z-index: 20;
+}
+
+/* 装饰物 */
+.decoration {
+    position: absolute;
+    bottom: 60px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    z-index: 15;
+}
+
+.shell {
+    left: 20%;
+    background: radial-gradient(circle at 30% 30%, #FFE0B2, #FFAB91);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    animation: float 6s ease-in-out infinite;
+}
+
+.starfish {
+    right: 25%;
+    background: radial-gradient(circle at 30% 30%, #FFD54F, #FFA726);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    animation: sparkle 3s ease-in-out infinite;
+}
+
+.rock {
+    left: 50%;
+    bottom: 70px;
+    width: 60px;
+    height: 50px;
+    background: linear-gradient(135deg, #90A4AE, #607D8B);
+    border-radius: 60% 40% 30% 70% / 40% 60% 50% 60%;
+}
+
+/* 光线效果 */
+.light-beams {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 25;
+    overflow: hidden;
+}
+
+.light-beam {
+    position: absolute;
+    top: -50px;
+    width: 80px;
+    height: 300px;
+    background: linear-gradient(180deg, 
+        rgba(255, 255, 255, 0.2) 0%, 
+        rgba(255, 255, 255, 0.05) 50%, 
+        transparent 100%);
+    transform: skewX(-10deg);
+    animation: lightbeam 4s ease-in-out infinite;
+}
+
+.light-beam:nth-child(1) {
+    left: 20%;
+}
+
+.light-beam:nth-child(2) {
+    left: 50%;
+    animation-delay: 1.5s;
+}
+
+.light-beam:nth-child(3) {
+    left: 75%;
+    animation-delay: 3s;
+}
+
+/* 控制栏样式 */
+.cute-controls-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    border-top: 3px solid #C7D2FE;
+}
+
+.control-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.control-row:last-child {
+    margin-bottom: 0;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.control-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4F46E5;
+}
+
+.fish-count-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    justify-content: center;
+}
+
+.count-detail {
+    font-size: 12px;
+    color: #757575;
+    min-width: 120px;
+}
+
+.feed-hint {
+    text-align: center;
+    font-size: 13px;
+    color: #757575;
+    padding: 8px;
+    background: linear-gradient(135deg, #E3F2FD, #E0F2F1);
     border-radius: 10px;
-    border: 2px solid #0288d1;
+    margin-top: 5px;
 }
 
 /* Welcome back message styling */
@@ -72,20 +356,248 @@ body {
     border: 5px solid blue !important;
 }
 
-/* Mobile-friendly paint bar styles */
+/* ===== 工具栏样式优化 ===== */
 #paint-bar {
-    max-width: 100% !important;
+    max-width: 800px !important;
+    margin: 20px auto !important;
+    padding: 20px !important;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
     overflow: visible !important;
     box-sizing: border-box;
+    border: 2px solid #C7D2FE;
 }
 
-/* Ensure paint bar elements don't get cut off on mobile */
-@media (max-width: 480px) {
+#paint-bar > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 工具栏按钮 */
+#paint-bar button {
+    padding: 10px 20px;
+    border: 2px solid #E0E0E0;
+    background: white;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6366F1;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#paint-bar button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+    border-color: #6366F1;
+    background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+}
+
+#paint-bar button:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+/* 颜色按钮容器 */
+#paint-bar > div:first-child {
+    background: #F5F9FA;
+    padding: 12px;
+    border-radius: 15px;
+}
+
+/* 滑块容器 */
+#paint-bar input[type="range"] {
+    width: 120px;
+    height: 8px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #C7D2FE, #6366F1);
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+#paint-bar input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366F1, #4F46E5);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    border: 2px solid white;
+    transition: all 0.3s ease;
+}
+
+#paint-bar input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.3);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.6);
+}
+
+#paint-bar input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366F1, #4F46E5);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    border: 2px solid white;
+    transition: all 0.3s ease;
+}
+
+#paint-bar input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.3);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.6);
+}
+
+/* ===== 鱼概率显示优化 ===== */
+#fish-probability {
+    display: inline-block;
+    padding: 12px 24px;
+    margin: 15px 0;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 3px solid;
+    animation: fadeInUp 0.5s ease;
+}
+
+#fish-probability.high-probability {
+    border-color: #A5D6A7;
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    color: #2E7D32;
+}
+
+#fish-probability.low-probability {
+    border-color: #FF6B9D;
+    background: linear-gradient(135deg, #FFE5EC, #FFCDD2);
+    color: #C62828;
+}
+
+/* ===== 响应式设计 ===== */
+
+/* 平板和手机端 */
+@media (max-width: 768px) {
+    /* 画鱼页 */
+    #drawing-section h1 {
+        font-size: 2em;
+    }
+    
+    #drawing-section h2 {
+        font-size: 1em;
+    }
+    
+    .cute-canvas-container {
+        padding: 15px;
+    }
+    
     #paint-bar {
-        padding: 4px 5px !important;
-        margin: 4px auto !important;
+        padding: 15px !important;
+        margin: 15px auto !important;
+        max-width: 95% !important;
+    }
+    
+    .nav-links-section {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .nav-links-section a,
+    .nav-links-section button {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    
+    /* 鱼缸页 */
+    .tank-wrapper {
+        height: calc(100vh - 220px);
+    }
+    
+    .cute-controls-container {
+        padding: 12px;
+    }
+    
+    .control-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .control-group {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .control-group .cute-button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+    }
+    
+    .fish-count-control {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .cute-slider {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .feed-hint {
+        font-size: 11px;
+    }
+    
+    /* 水草在移动端缩小 */
+    .seaweed {
+        width: 40px;
+        height: 150px;
+    }
+    
+    .seaweed-left {
+        left: 20px;
+    }
+    
+    .seaweed-right {
+        right: 20px;
+    }
+}
+
+/* 小手机端 */
+@media (max-width: 480px) {
+    #drawing-section h1 {
+        font-size: 1.5em;
+        margin: 15px 0 8px;
+    }
+    
+    #drawing-section h2 {
+        font-size: 0.9em;
+        margin: 0 0 20px;
+    }
+    
+    .cute-canvas-container {
+        padding: 10px;
+    }
+    
+    #draw-canvas {
+        max-width: 100%;
+        width: 100% !important;
+        height: auto !important;
+    }
+    
+    #paint-bar {
+        padding: 10px !important;
+        margin: 10px auto !important;
         flex-direction: column !important;
-        gap: 4px !important;
+        gap: 8px !important;
     }
     
     #paint-bar > div {
@@ -93,24 +605,61 @@ body {
         justify-content: center !important;
     }
     
-    /* Make canvas responsive on mobile */
-    #draw-canvas {
-        max-width: 100%;
-        height: auto;
-    }
-    
-    /* Smaller buttons on mobile */
     #paint-bar button {
         font-size: 11px !important;
-        padding: 3px 6px !important;
-        height: 22px !important;
+        padding: 6px 12px !important;
     }
     
-    /* Smaller color buttons on mobile */
-    #paint-bar button[style*="border-radius: 50%"] {
-        width: 20px !important;
-        height: 20px !important;
-        min-width: 20px !important;
-        min-height: 20px !important;
+    .cute-color-button {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .cute-submit-btn {
+        font-size: 1.1em !important;
+        padding: 14px 30px !important;
+    }
+    
+    #fish-probability {
+        font-size: 0.95em;
+        padding: 10px 20px;
+    }
+    
+    /* 鱼缸页 */
+    .tank-wrapper {
+        height: calc(100vh - 250px);
+    }
+    
+    .cute-controls-container {
+        padding: 10px;
+    }
+    
+    .control-label {
+        font-size: 12px;
+    }
+    
+    .control-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .control-group .cute-button {
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    .cute-select {
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    .decoration {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .rock {
+        width: 40px;
+        height: 35px;
     }
 }

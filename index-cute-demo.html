@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐟 FishTalk AI - 休闲游戏风格示例</title>
+    <meta name="description" content="在线画鱼工具 - 鲜艳色彩、3D立体按钮的休闲游戏风格界面">
+    
+    <!-- 原有样式 -->
+    <link rel="stylesheet" href="src/css/animations.css?v=2.0">
+    
+    <!-- 新的可爱游戏风格 -->
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
+    
+    <link rel="icon" type="image/png" href="/fish_logo.png">
+    
+    <style>
+        /* 页面主容器 */
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 内容区域 */
+        .content-section {
+            margin: 40px 0;
+        }
+        
+        /* Hero区域 */
+        .hero-section {
+            text-align: center;
+            margin: 60px 0;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+            .hero-intro {
+            max-width: 800px;
+            margin: 0 auto 40px;
+            padding: 28px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(240, 240, 240, 0.95));
+            border-radius: 28px;
+            box-shadow: 
+                0 6px 0 rgba(0, 0, 0, 0.2),
+                0 10px 24px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.9);
+        }
+        
+        .hero-intro p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #333;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        /* 画布区域 */
+        .canvas-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px 0;
+        }
+        
+        /* 版本信息 */
+        .version-info {
+            text-align: center;
+            font-size: 16px;
+            color: white;
+            margin: 20px 0;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.9), rgba(53, 122, 189, 0.9));
+            border-radius: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 移动端底部社交栏 */
+        .mobile-social-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(74, 144, 226, 0.98), rgba(53, 122, 189, 0.98));
+            backdrop-filter: blur(8px);
+            padding: 12px;
+            display: none;
+            justify-content: space-around;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+            z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-social-bar {
+                display: flex;
+            }
+            
+            main {
+                padding-bottom: 80px;
+            }
+        }
+    </style>
+</head>
+<body class="game-style">
+    <!-- 背景装饰 - 浮动气泡 -->
+    <div class="game-bubbles">
+        <div class="game-bubble"></div>
+        <div class="game-bubble"></div>
+        <div class="game-bubble"></div>
+        <div class="game-bubble"></div>
+        <div class="game-bubble"></div>
+        <div class="game-bubble"></div>
+        <div class="game-bubble"></div>
+        <div class="game-bubble"></div>
+    </div>
+    
+    <!-- 顶部导航栏 -->
+    <nav class="game-nav">
+        <div class="game-logo">
+            FishTalk.app
+        </div>
+        <div class="game-nav-links">
+            <a href="#about" class="game-btn game-btn-white" style="display: none;">
+                <span>ℹ️</span>
+                <span>关于</span>
+            </a>
+            <a href="test-center.html" class="game-btn game-btn-white">
+                <span>🧪</span>
+                <span>测试</span>
+            </a>
+            <button class="game-btn game-btn-orange" id="login-btn">
+                <span>👤</span>
+                <span>登录</span>
+            </button>
+        </div>
+    </nav>
+    
+    <main role="main">
+        <!-- Hero区域 -->
+        <section class="hero-section">
+            <div class="version-info">
+                🎮 休闲游戏风格界面示例 | 版本生成时间: <span id="version-date"></span>
+            </div>
+            
+            <h1 class="game-title">
+                <span style="display: inline-block; transform: scaleX(-1);">🐠</span>
+                画一条鱼吧！
+                <span style="display: inline-block; transform: scaleX(-1);">🐠</span>
+            </h1>
+            
+            <h2 class="game-subtitle">
+                (请让它面向右边哦~)
+            </h2>
+            
+            <div class="hero-intro">
+                <p>
+                    <strong>🎨 在线画鱼</strong>，看它在我们的<strong>全球鱼缸</strong>里游泳！
+                    已有<strong>50,000+</strong>条来自世界各地艺术家的涂鸦。
+                    我们的<strong>免费AI工具</strong>会实时验证你的鱼画作。
+                    来看看那些<strong>奇怪、有创意又有趣的鱼</strong>，然后分享你的作品吧！
+                    加入<strong>1000+</strong>每日涂鸦者的终极画鱼社区！
+                </p>
+            </div>
+        </section>
+        
+        <!-- 画布区域 -->
+        <section class="canvas-section">
+            <!-- 工具栏 -->
+            <div class="game-toolbar" id="paint-bar">
+                <div class="game-toolbar-section">
+                    <button class="game-color-btn" style="background: #000000;" data-color="#000000" title="黑色"></button>
+                    <button class="game-color-btn" style="background: #FFFFFF; border: 2px solid #ddd;" data-color="#FFFFFF" title="白色"></button>
+                    <button class="game-color-btn" style="background: #FF0000;" data-color="#FF0000" title="大红"></button>
+                    <button class="game-color-btn" style="background: #FF6600;" data-color="#FF6600" title="大橙"></button>
+                    <button class="game-color-btn" style="background: #FFFF00;" data-color="#FFFF00" title="大黄"></button>
+                    <button class="game-color-btn" style="background: #00FF00;" data-color="#00FF00" title="大绿"></button>
+                    <button class="game-color-btn" style="background: #00CCFF;" data-color="#00CCFF" title="大青"></button>
+                    <button class="game-color-btn" style="background: #0066FF;" data-color="#0066FF" title="大蓝"></button>
+                    <button class="game-color-btn" style="background: #FF00FF;" data-color="#FF00FF" title="大紫"></button>
+                    <button class="game-color-btn" style="background: #FF1493;" data-color="#FF1493" title="玫红"></button>
+                </div>
+                
+                <div class="game-toolbar-section">
+                    <button class="game-btn game-btn-white" id="undo-btn">
+                        <span>↶</span>
+                        <span>撤销</span>
+                    </button>
+                    <button class="game-btn game-btn-white" id="clear-btn">
+                        <span>🗑️</span>
+                        <span>清空</span>
+                    </button>
+                </div>
+                
+                <div class="game-toolbar-section">
+                    <label style="color: var(--game-text); font-weight: 600;">笔刷大小:</label>
+                    <input type="range" id="brush-size" min="1" max="20" value="3" 
+                           style="width: 120px; accent-color: var(--game-primary);">
+                </div>
+            </div>
+            
+            <!-- 画布容器 -->
+            <div class="game-canvas-wrapper">
+                <!-- 角落装饰贴纸 -->
+                <div class="game-canvas-sticker top-left">🐟</div>
+                <div class="game-canvas-sticker top-right">🌊</div>
+                <div class="game-canvas-sticker bottom-left">🐠</div>
+                <div class="game-canvas-sticker bottom-right">⭐</div>
+                
+                <canvas id="draw-canvas" width="400" height="240" 
+                        style="background: white; cursor: crosshair; border-radius: 16px; display: block;"
+                        aria-label="Fish drawing canvas"></canvas>
+            </div>
+            
+            <!-- 鱼概率显示 -->
+            <div id="fish-probability" class="game-probability low" style="display: none;">
+                <span>🐠</span>
+                <span>鱼的概率: <strong>0.0%</strong></span>
+                <span>⚠️</span>
+            </div>
+            
+            <!-- 提交按钮 -->
+            <button class="game-btn game-btn-green game-btn-big" id="swim-btn">
+                <span>🌊</span>
+                <span>让它游起来！</span>
+                <span>🐟</span>
+            </button>
+        </section>
+        
+        <!-- 导航按钮组 -->
+        <section class="content-section">
+            <div class="game-btn-group">
+                <a href="tank.html" class="game-btn game-btn-blue">
+                    <span>🐠</span>
+                    <span>鱼缸</span>
+                </a>
+                <a href="rank.html" class="game-btn game-btn-orange">
+                    <span>⭐</span>
+                    <span>排行榜</span>
+                </a>
+                <a href="myfish.html" class="game-btn game-btn-green" id="my-fish-link">
+                    <span>🐟</span>
+                    <span>我的鱼</span>
+                </a>
+                <a href="tank.html?view=my" class="game-btn game-btn-yellow">
+                    <span>🏆</span>
+                    <span>我的鱼缸</span>
+                </a>
+                <a href="how-to-draw-a-fish.html" class="game-btn game-btn-purple">
+                    <span>📚</span>
+                    <span>教程</span>
+                </a>
+                <a href="faq.html" class="game-btn game-btn-red">
+                    <span>❓</span>
+                    <span>FAQ</span>
+                </a>
+                <button class="game-btn game-btn-white" id="share-btn">
+                    <span>📤</span>
+                    <span>分享</span>
+                </button>
+            </div>
+        </section>
+        
+        <!-- 特色介绍卡片 -->
+        <section class="content-section" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin: 60px 0;">
+            <div class="game-card" style="text-align: center;">
+                <div style="font-size: 56px; margin-bottom: 16px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));">🎨</div>
+                <h3 style="color: #4A90E2; margin-bottom: 12px; font-size: 22px; font-weight: 700;">AI实时验证</h3>
+                <p style="color: #666; font-size: 15px;">使用先进的AI技术，实时识别你画的是否是鱼</p>
+            </div>
+            
+            <div class="game-card" style="text-align: center;">
+                <div style="font-size: 56px; margin-bottom: 16px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));">🌊</div>
+                <h3 style="color: #FF9500; margin-bottom: 12px; font-size: 22px; font-weight: 700;">全球鱼缸</h3>
+                <p style="color: #666; font-size: 15px;">与全世界的艺术家分享你的作品</p>
+            </div>
+            
+            <div class="game-card" style="text-align: center;">
+                <div style="font-size: 56px; margin-bottom: 16px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));">⭐</div>
+                <h3 style="color: #4CD964; margin-bottom: 12px; font-size: 22px; font-weight: 700;">投票排行</h3>
+                <p style="color: #666; font-size: 15px;">为喜欢的鱼投票，看看哪条鱼最受欢迎</p>
+            </div>
+        </section>
+    </main>
+    
+    <!-- 底部栏 -->
+    <footer class="game-footer">
+        <div class="game-social-btns">
+            <button class="game-social-btn" id="twitter-btn" 
+                    style="background: linear-gradient(180deg, #333 0%, #000 50%, #000 100%); position: relative;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+            </button>
+            
+            <button class="game-social-btn" id="discord-btn"
+                    style="background: linear-gradient(180deg, #7289DA 0%, #5865F2 50%, #4752C4 100%); position: relative;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
+                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+                </svg>
+            </button>
+            
+            <button class="game-social-btn" id="share-footer-btn"
+                    style="background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E67E00 100%); position: relative;">
+                <span style="font-size: 26px;">📤</span>
+            </button>
+        </div>
+        
+        <div class="game-footer-links">
+            <a href="how-to-draw-a-fish.html" class="game-footer-link">如何画鱼</a>
+            <a href="fish-drawing-game.html" class="game-footer-link">画鱼游戏</a>
+            <a href="tank.html" class="game-footer-link">全球鱼缸</a>
+            <a href="fish-doodle-community.html" class="game-footer-link">社区</a>
+            <a href="about.html" class="game-footer-link">关于</a>
+            <a href="faq.html" class="game-footer-link">FAQ</a>
+        </div>
+        
+        <p style="margin: 20px 0; color: rgba(255, 255, 255, 0.9); font-size: 15px;">
+            🎨 基于
+            <a href="https://github.com/aldenhallak/fishes" target="_blank" rel="noopener" 
+               style="color: white; font-weight: 700; text-decoration: underline;">DrawAFish</a>
+            由
+            <a href="https://github.com/aldenhallak" target="_blank" rel="noopener"
+               style="color: white; font-weight: 700; text-decoration: underline;">aldenhallak</a>
+            开发
+        </p>
+    </footer>
+    
+    
+    <!-- JavaScript -->
+    <script>
+        // 显示版本生成时间
+        document.getElementById('version-date').textContent = new Date().toLocaleString('zh-CN');
+        
+        // 简单的画布功能
+        const canvas = document.getElementById('draw-canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let currentColor = '#000000';
+        let brushSize = 3;
+        
+        // 设置画布背景
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 颜色按钮事件
+        document.querySelectorAll('.game-color-btn').forEach((btn, index) => {
+            if (index === 0) btn.classList.add('active');
+            
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.game-color-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentColor = this.dataset.color;
+            });
+        });
+        
+        // 笔刷大小
+        document.getElementById('brush-size').addEventListener('input', function() {
+            brushSize = this.value;
+        });
+        
+        // 画布事件
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        
+        // 触摸事件
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const mouseEvent = new MouseEvent('mouseup', {});
+            canvas.dispatchEvent(mouseEvent);
+        });
+        
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            
+            // 显示鱼概率（模拟）
+            const probability = Math.random() * 100;
+            const probDiv = document.getElementById('fish-probability');
+            probDiv.style.display = 'inline-flex';
+            probDiv.querySelector('strong').textContent = probability.toFixed(1) + '%';
+            
+            if (probability > 60) {
+                probDiv.className = 'game-probability high';
+                probDiv.innerHTML = '<span>🐠</span><span>鱼的概率: <strong>' + probability.toFixed(1) + '%</strong></span><span>✓</span>';
+            } else {
+                probDiv.className = 'game-probability low';
+                probDiv.innerHTML = '<span>🐠</span><span>鱼的概率: <strong>' + probability.toFixed(1) + '%</strong></span><span>⚠️</span>';
+            }
+        }
+        
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+        
+        // 清空按钮
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('fish-probability').style.display = 'none';
+        });
+        
+        // 撤销按钮（简化实现）
+        document.getElementById('undo-btn').addEventListener('click', () => {
+            alert('撤销功能将在完整版本中实现！');
+        });
+        
+        // 提交按钮
+        document.getElementById('swim-btn').addEventListener('click', () => {
+            alert('🌊 你的鱼准备好游泳了！这是样式演示页面，完整功能请访问主页。');
+        });
+        
+        // 分享按钮
+        document.querySelectorAll('[id*="share"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                alert('📤 分享功能将在完整版本中实现！');
+            });
+        });
+        
+        // 社交媒体按钮
+        document.getElementById('twitter-btn').addEventListener('click', () => {
+            window.open('https://twitter.com/ZING__AI', '_blank');
+        });
+        
+        document.getElementById('discord-btn').addEventListener('click', () => {
+            alert('Discord链接将在完整版本中配置！');
+        });
+        
+        // 移动端按钮
+        document.getElementById('mobile-twitter-btn').addEventListener('click', () => {
+            window.open('https://twitter.com/ZING__AI', '_blank');
+        });
+        
+        document.getElementById('mobile-discord-btn').addEventListener('click', () => {
+            alert('Discord链接将在完整版本中配置！');
+        });
+        
+        // 登录按钮
+        document.getElementById('login-btn').addEventListener('click', () => {
+            alert('👤 登录功能将在完整版本中实现！');
+        });
+        
+        // 关于按钮
+        document.querySelector('a[href="#about"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('🎮 这是FishTalk AI的休闲游戏风格示例页面！\n\n特点：\n• 鲜艳饱和的色彩\n• 3D立体光泽按钮\n• 海洋主题背景\n• 强烈的视觉冲击力\n\n参考了经典休闲游戏的UI设计风格！');
+        });
+        
+        console.log('🎮 FishTalk AI - 休闲游戏风格示例页面已加载！');
+        console.log('✨ 这是一个全新的UI风格演示，展示了鲜艳色彩、3D立体按钮和光泽效果。');
+    </script>
+</body>
+</html>
+
+

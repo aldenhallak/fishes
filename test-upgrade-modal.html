@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>群聊限制弹窗测试</title>
+    
+    <!-- 引入项目样式 -->
+    <link rel="stylesheet" href="src/css/cute-game-style.css">
+    <link rel="stylesheet" href="src/css/animations.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(180deg, #87CEEB 0%, #4A9FD8 50%, #2874A6 100%);
+            min-height: 100vh;
+            font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .test-btn {
+            padding: 16px 32px;
+            background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E6850E 100%);
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            margin: 10px;
+        }
+        
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+        }
+        
+        .test-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+        }
+        
+        h1 {
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 40px;
+        }
+        
+        .description {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+    <script src="public/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="src/js/supabase-init.js"></script>
+    <script src="src/js/admin-auth.js"></script>
+    <script>
+        // 管理员权限检查
+        (async function() {
+            if (document.readyState === 'loading') {
+                await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+            }
+            if (!window.supabaseAuth) {
+                await new Promise(resolve => {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabaseAuth) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                });
+            }
+            await window.adminAuth.requireAdminAccess();
+        })();
+    </script>
+</head>
+<body>
+    <div class="test-container">
+        <h1>💬 AI Fish Group Chat Limit Modal Test</h1>
+        
+        <div class="description">
+            <h3>Modal Design Features</h3>
+            <p>Game-style upgrade limit modal with the following features:</p>
+            <ul style="text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>✨ Game-style gradient background and 3D buttons</li>
+                <li>🌈 Colorful top decoration bar</li>
+                <li>💎 Glossy effects and shadows</li>
+                <li>🎯 Optimized progress bar and usage display</li>
+                <li>🎮 Unified button interaction effects</li>
+                <li>📱 Responsive design</li>
+            </ul>
+        </div>
+        
+        <button class="test-btn" onclick="showTestModal(5, 5)">
+            Test: Limit Reached (5/5)
+        </button>
+        
+        <button class="test-btn" onclick="showTestModal(3, 5)">
+            Test: Partial Usage (3/5)
+        </button>
+        
+        <button class="test-btn" onclick="showTestModal(1, 5)">
+            Test: Just Started (1/5)
+        </button>
+    </div>
+
+    <script>
+        function showTestModal(usage, limit) {
+            // 模拟群聊限制弹窗
+            const message = `Free members can generate AI Fish Group Chat ${usage}/${limit} times per day.`;
+            const upgradeSuggestion = 'Upgrade to Plus or Premium membership for unlimited AI Fish Group Chat';
+            const limitInfo = { usage, limit };
+            
+            // 创建弹窗HTML（使用优化后的样式）
+            const modalHTML = `
+              <div class="modal" id="testUpgradeModal" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+              ">
+                <div class="modal-content" style="
+                  background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+                  border-radius: 32px;
+                  padding: 40px;
+                  max-width: 520px;
+                  width: 90%;
+                  box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.3),
+                    0 16px 40px rgba(0, 0, 0, 0.4);
+                  border: 3px solid rgba(255, 255, 255, 0.9);
+                  position: relative;
+                  animation: modalBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                ">
+                  <!-- 彩色顶部条 -->
+                  <div style="
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 6px;
+                    background: linear-gradient(90deg, #FF9500 0%, #4A90E2 25%, #4CD964 50%, #FFD700 75%, #FF3B30 100%);
+                    border-radius: 32px 32px 0 0;
+                  "></div>
+                  
+                  <!-- 光泽效果 -->
+                  <div style="
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 50%;
+                    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
+                    border-radius: 32px 32px 0 0;
+                    pointer-events: none;
+                  "></div>
+                  
+                  <!-- 关闭按钮 -->
+                  <span class="close" onclick="document.getElementById('testUpgradeModal').remove()" style="
+                    position: absolute;
+                    top: 16px;
+                    right: 16px;
+                    width: 32px;
+                    height: 32px;
+                    background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E6850E 100%);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: white;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    border-bottom: 3px solid #CC6E00;
+                    box-shadow: 
+                      0 4px 0 rgba(0, 0, 0, 0.25),
+                      inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                    transition: all 0.2s ease;
+                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                  " onmouseover="this.style.transform='translateY(-2px) rotate(90deg) scale(1.1)'; this.style.boxShadow='0 6px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.4)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3)'" onmousedown="this.style.transform='translateY(2px) rotate(90deg) scale(1.05)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.3)'">×</span>
+                  
+                  <!-- 内容区域 -->
+                  <div style="text-align: center; margin-bottom: 32px; padding-top: 16px;">
+                    <div style="
+                      width: 80px;
+                      height: 80px;
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      border-radius: 50%;
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 40px;
+                      margin-bottom: 20px;
+                      box-shadow: 
+                        0 8px 0 rgba(0, 0, 0, 0.25),
+                        inset 0 4px 8px rgba(255, 255, 255, 0.3);
+                      border: 3px solid rgba(255, 255, 255, 0.5);
+                    ">
+                      💭
+                    </div>
+                    <h2 style="
+                      font-size: 28px;
+                      font-weight: 900;
+                      color: #333333;
+                      margin: 0 0 12px 0;
+                      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    ">AI Fish Group Chat Limit Reached</h2>
+                    <p style="
+                      font-size: 16px;
+                      color: #666;
+                      margin: 0;
+                      line-height: 1.6;
+                    ">${message}</p>
+                  </div>
+                  
+                  <!-- 使用量显示 -->
+                  <div style="
+                    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                    border-radius: 16px;
+                    padding: 24px;
+                    margin-bottom: 24px;
+                    border: 2px solid rgba(255, 255, 255, 0.5);
+                    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+                  ">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                      <span style="color: #666; font-size: 16px; font-weight: 600;">Used Today</span>
+                      <span style="
+                        color: #667eea;
+                        font-size: 24px;
+                        font-weight: 900;
+                        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                      ">${limitInfo.usage} / ${limitInfo.limit}</span>
+                    </div>
+                    <div style="
+                      height: 12px;
+                      background: #e0e0e0;
+                      border-radius: 6px;
+                      overflow: hidden;
+                      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+                    ">
+                      <div style="
+                        height: 100%;
+                        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                        width: ${Math.min(100, (limitInfo.usage / limitInfo.limit) * 100)}%;
+                        transition: width 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                        box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+                      "></div>
+                    </div>
+                  </div>
+                  
+                  <!-- 升级提示 -->
+                  <div style="
+                    background: linear-gradient(135deg, #fff4e6 0%, #fef3cd 100%);
+                    border-left: 6px solid #f59e0b;
+                    padding: 20px;
+                    margin-bottom: 32px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 8px rgba(245, 158, 11, 0.2);
+                  ">
+                    <p style="
+                      margin: 0;
+                      color: #92400e;
+                      font-size: 15px;
+                      line-height: 1.6;
+                      font-weight: 500;
+                    ">
+                      💡 ${upgradeSuggestion}
+                    </p>
+                  </div>
+                  
+                  <!-- 按钮组 -->
+                  <div style="display: flex; gap: 16px;">
+                    <button onclick="document.getElementById('testUpgradeModal').remove()" style="
+                      flex: 1;
+                      padding: 16px 24px;
+                      background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
+                      border: none;
+                      border-radius: 16px;
+                      font-size: 16px;
+                      font-weight: 600;
+                      color: #495057;
+                      cursor: pointer;
+                      transition: all 0.2s ease;
+                      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                      border: 2px solid rgba(255, 255, 255, 0.5);
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 0 rgba(0, 0, 0, 0.25)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.25)'" onmousedown="this.style.transform='translateY(2px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.25)'">
+                      Maybe Later
+                    </button>
+                    <button onclick="alert('Redirecting to membership page'); document.getElementById('testUpgradeModal').remove()" style="
+                      flex: 1;
+                      padding: 16px 24px;
+                      background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E6850E 100%);
+                      border: none;
+                      border-radius: 16px;
+                      font-size: 16px;
+                      font-weight: 600;
+                      color: white;
+                      cursor: pointer;
+                      transition: all 0.2s ease;
+                      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+                      border: 2px solid rgba(255, 255, 255, 0.3);
+                      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 0 rgba(0, 0, 0, 0.25)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 0 rgba(0, 0, 0, 0.25)'" onmousedown="this.style.transform='translateY(2px)'; this.style.boxShadow='0 2px 0 rgba(0, 0, 0, 0.25)'">
+                      Upgrade Now ✨
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+            
+            // 添加弹窗到DOM
+            const modalDiv = document.createElement('div');
+            modalDiv.innerHTML = modalHTML;
+            document.body.appendChild(modalDiv);
+        }
+        
+        // 点击背景关闭弹窗
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.remove();
+            }
+        });
+    </script>
+</body>
+</html>

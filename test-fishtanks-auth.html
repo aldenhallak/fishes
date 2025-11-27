@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试我的鱼缸认证</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-box h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            padding: 10px 20px;
+            background: #6366F1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #4F46E5;
+        }
+        .code {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 我的鱼缸认证测试</h1>
+
+    <div class="test-box">
+        <h2>1. 检查登录状态</h2>
+        <div id="auth-status" class="status info">正在检查...</div>
+        <div class="code" id="auth-details"></div>
+        <button onclick="checkAuth()">重新检查</button>
+    </div>
+
+    <div class="test-box">
+        <h2>2. 测试访问我的鱼缸</h2>
+        <p>点击下面的按钮测试访问私人鱼缸</p>
+        <button onclick="testAccess()">访问我的鱼缸</button>
+        <button onclick="window.open('tank.html?view=my', '_blank')">在新窗口打开</button>
+        <div id="access-status" class="status info" style="display: none;"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>3. 快速操作</h2>
+        <button onclick="window.location.href='login.html?test=true'">登录测试账号</button>
+        <button onclick="logout()">退出登录</button>
+        <button onclick="window.location.href='index.html'">返回主页</button>
+    </div>
+
+    <script src="public/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="src/js/supabase-init.js"></script>
+    <script src="src/js/admin-auth.js"></script>
+
+    <script>
+        // 管理员权限检查
+        (async function() {
+            if (document.readyState === 'loading') {
+                await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+            }
+            if (!window.supabaseAuth) {
+                await new Promise(resolve => {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabaseAuth) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                });
+            }
+            await window.adminAuth.requireAdminAccess();
+        })();
+    </script>
+
+    <script>
+        async function checkAuth() {
+            const statusDiv = document.getElementById('auth-status');
+            const detailsDiv = document.getElementById('auth-details');
+            
+            statusDiv.textContent = '正在检查登录状态...';
+            statusDiv.className = 'status info';
+            
+            try {
+                // 等待 Supabase 初始化
+                await new Promise(resolve => {
+                    if (window.supabaseAuth && window.supabaseAuth.client) {
+                        resolve();
+                    } else {
+                        window.addEventListener('supabaseConfigReady', resolve, { once: true });
+                    }
+                });
+
+                const user = await window.supabaseAuth.getCurrentUser();
+                const session = await window.supabaseAuth.getSession();
+                
+                if (user) {
+                    statusDiv.textContent = '✅ 已登录';
+                    statusDiv.className = 'status success';
+                    
+                    detailsDiv.innerHTML = `
+                        <strong>用户信息:</strong><br>
+                        ID: ${user.id}<br>
+                        Email: ${user.email}<br>
+                        Name: ${user.user_metadata?.name || 'N/A'}<br>
+                        <br>
+                        <strong>Token:</strong> ${session?.access_token ? '✅ 有效' : '❌ 无效'}<br>
+                        <br>
+                        <strong>LocalStorage:</strong><br>
+                        userToken: ${localStorage.getItem('userToken') ? '✅' : '❌'}<br>
+                        userData: ${localStorage.getItem('userData') ? '✅' : '❌'}<br>
+                        userId: ${localStorage.getItem('userId') ? '✅' : '❌'}
+                    `;
+                } else {
+                    statusDiv.textContent = '❌ 未登录';
+                    statusDiv.className = 'status error';
+                    detailsDiv.innerHTML = `
+                        <strong>提示:</strong> 请先登录<br>
+                        <a href="login.html?test=true">点击此处使用测试账号登录</a>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.textContent = '❌ 检查失败: ' + error.message;
+                statusDiv.className = 'status error';
+                detailsDiv.textContent = error.stack;
+            }
+        }
+
+        function testAccess() {
+            const statusDiv = document.getElementById('access-status');
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = '正在跳转到我的鱼缸...';
+            statusDiv.className = 'status info';
+            
+            setTimeout(() => {
+                window.location.href = 'tank.html?view=my';
+            }, 500);
+        }
+
+        async function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                try {
+                    await window.supabaseAuth.signOut();
+                    localStorage.removeItem('userToken');
+                    localStorage.removeItem('userData');
+                    localStorage.removeItem('userId');
+                    alert('已退出登录');
+                    checkAuth();
+                } catch (error) {
+                    alert('退出失败: ' + error.message);
+                }
+            }
+        }
+
+        // 页面加载时自动检查
+        window.addEventListener('load', () => {
+            setTimeout(checkAuth, 1000);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

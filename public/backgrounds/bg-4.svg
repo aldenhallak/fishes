@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="sunsetOcean" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6f00;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ff8f00;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0277bd;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#sunsetOcean)"/>
+  <ellipse cx="960" cy="200" rx="150" ry="150" fill="#ffb74d" opacity="0.6"/>
+  <ellipse cx="960" cy="200" rx="120" ry="120" fill="#ffa726" opacity="0.5"/>
+  <circle cx="300" cy="600" r="35" fill="#ffcc80" opacity="0.3"/>
+  <circle cx="1600" cy="700" r="40" fill="#ffcc80" opacity="0.25"/>
+  <text x="960" y="540" font-family="Arial" font-size="48" fill="white" opacity="0.4" text-anchor="middle">Sunset Ocean</text>
+</svg>

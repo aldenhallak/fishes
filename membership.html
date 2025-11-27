@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership Plans - Upgrade Your Fish Art Experience | FishTalk.app</title>
+    <meta name="description" content="Choose the perfect membership plan for your fish art journey. Free, Plus, and Premium plans with different features and benefits.">
+    <meta name="keywords" content="membership, subscription, premium, fish art, upgrade, plans">
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="Membership Plans - FishTalk.app">
+    <meta property="og:description" content="Upgrade your fish art experience with Plus or Premium membership plans.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fishtalk.app/membership.html">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://fishtalk.app/membership.html">
+    
+    <link rel="stylesheet" href="src/css/animations.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
+    <link rel="stylesheet" href="src/css/style.css?v=2.0">
+    <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
+    <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
+    <link rel="stylesheet" href="src/css/membership.css?v=1.0">
+    <link rel="icon" type="image/png" href="/fish_logo.png">
+</head>
+<body class="game-style">
+  <!-- 海洋风格背景气泡 -->
+  <div class="background-bubbles"></div>
+
+  <!-- Top Navigation Bar -->
+  <nav class="game-nav">
+    <!-- 汉堡菜单按钮 -->
+    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="Open Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <div class="game-logo">
+      <a href="index.html" style="color: inherit; text-decoration: none;">FishTalk.app</a>
+    </div>
+    <div class="game-nav-links">
+      <a href="membership.html" class="game-btn game-btn-purple" id="nav-upgrade-btn" style="display: none;">
+        <img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle;">
+        <span>Upgrade</span>
+      </a>
+      <!-- 登录按钮和用户菜单将由 auth-ui.js 动态插入 -->
+    </div>
+  </nav>
+
+  <!-- 侧边栏菜单 -->
+  <div id="sidebar-menu" class="sidebar-menu">
+    <div class="sidebar-header">
+      <h3>🐟 Menu</h3>
+      <button id="close-sidebar-btn" class="close-sidebar-btn" aria-label="Close menu">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link">
+        <span class="sidebar-icon">🎨</span>
+        <span>Draw Fish</span>
+      </a>
+      <a href="tank.html" class="sidebar-link">
+        <span class="sidebar-icon">🌊</span>
+        <span>Global Tank</span>
+      </a>
+      <a href="tank.html?view=my" class="sidebar-link">
+        <span class="sidebar-icon">⭐</span>
+        <span>My Tank</span>
+      </a>
+      <a href="rank.html" class="sidebar-link">
+        <span class="sidebar-icon">🏆</span>
+        <span>Rank</span>
+      </a>
+      <a href="profile.html" class="sidebar-link">
+        <span class="sidebar-icon">👤</span>
+        <span>Profile</span>
+      </a>
+      <a href="membership.html" class="sidebar-link" id="sidebar-upgrade-link" style="display: none;">
+        <span class="sidebar-icon"><img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain;"></span>
+        <span>Upgrade</span>
+      </a>
+      <a href="#" id="sidebar-share-btn" class="sidebar-link">
+        <span class="sidebar-icon">📤</span>
+        <span>Share</span>
+      </a>
+    </nav>
+  </div>
+  
+  <!-- 侧边栏遮罩 -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <main role="main">
+    <div class="membership-container">
+      <!-- 页面标题 -->
+      <div class="membership-header">
+        <h1>💎 Choose Your Plan</h1>
+        <p>Unlock amazing features and create more fish art with our membership plans!</p>
+      </div>
+
+      <!-- 套餐卡片 -->
+      <div class="plans-grid" id="plans-grid">
+        <!-- 卡片将由 JavaScript 动态生成 -->
+      </div>
+
+      <!-- FAQ部分 -->
+      <div class="faq-section">
+        <h2>❓ Frequently Asked Questions</h2>
+        <div class="faq-item">
+          <h3>How do I upgrade my membership?</h3>
+          <p>Click the "Upgrade Now" button on any plan card above. You'll be redirected to our secure payment page powered by Stripe.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Can I cancel my subscription anytime?</h3>
+          <p>Yes! You can cancel your subscription at any time from your profile page. Your membership will remain active until the end of the current billing period.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What payment methods do you accept?</h3>
+          <p>We accept all major credit cards, debit cards, and other payment methods supported by Stripe, including Apple Pay and Google Pay.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Will I lose my fish if I downgrade?</h3>
+          <p>No, your existing fish will remain. However, if you have more fish than your new plan allows, you won't be able to create new fish until you delete some or upgrade again.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Is there a discount for annual plans?</h3>
+          <p>Yes! Annual plans offer significant savings compared to monthly billing. Check the pricing above for details.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Info Bar -->
+  <footer class="game-footer">
+    <div class="game-footer-links">
+      <a href="index.html" class="game-footer-link">Home</a>
+      <a href="tank.html" class="game-footer-link">Global Tank</a>
+      <a href="membership.html" class="game-footer-link">Membership</a>
+      <a href="about.html" class="game-footer-link">About</a>
+      <a href="faq.html" class="game-footer-link">FAQ</a>
+    </div>
+    
+    <p style="margin: 6px 0 4px; color: rgba(255, 255, 255, 0.9); font-size: 12px;">
+      &copy; 2024 FishTalk.app. All rights reserved.
+    </p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="public/supabase-config.js?v=2.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js?v=2.3"></script>
+  <script src="src/js/membership-icons.js?v=1.0"></script>
+  <script src="src/js/auth-ui.js?v=2.5"></script>
+  <script src="src/js/hamburger-menu.js?v=1.0"></script>
+  <script src="src/js/membership.js?v=1.0"></script>
+</body>
+</html>
+

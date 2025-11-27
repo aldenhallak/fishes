@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>战斗系统测试 - Fish Art</title>
+  <link rel="stylesheet" href="src/css/common.css">
+  <style>
+    body {
+      background: #f7fafc;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .test-container {
+      max-w: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 2rem;
+    }
+
+    .test-header {
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 1rem;
+    }
+
+    .test-header h1 {
+      font-size: 2rem;
+      color: #1a202c;
+      margin-bottom: 0.5rem;
+    }
+
+    .test-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e2e8f0;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #718096;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: #667eea;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-primary:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+    }
+
+    .btn-danger {
+      background: #f56565;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #e53e3e;
+    }
+
+    .results-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+
+    .results-container {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .result-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .result-item.success {
+      background: #f0fff4;
+      border-color: #9ae6b4;
+    }
+
+    .result-item.error {
+      background: #fff5f5;
+      border-color: #fc8181;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .result-item.success .status-badge {
+      background: #9ae6b4;
+      color: #22543d;
+    }
+
+    .result-item.error .status-badge {
+      background: #fc8181;
+      color: #742a2a;
+    }
+
+    .json-result {
+      background: #1a202c;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 2rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .info-box {
+      background: #edf2f7;
+      border-left: 4px solid #667eea;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 2rem;
+    }
+
+    .info-box h3 {
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-box ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .info-box li {
+      color: #4a5568;
+      padding: 0.25rem 0;
+      font-size: 0.9rem;
+    }
+
+    .info-box li::before {
+      content: "• ";
+      color: #667eea;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.toast-success {
+      background: #48bb78;
+      color: white;
+    }
+
+    .toast.toast-error {
+      background: #f56565;
+      color: white;
+    }
+
+    .battle-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      background: #f7fafc;
+    }
+
+    .battle-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .battle-id {
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .battle-result {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .battle-result.win {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    .battle-result.lose {
+      background: #fed7d7;
+      color: #742a2a;
+    }
+
+    .battle-result.draw {
+      background: #e2e8f0;
+      color: #2d3748;
+    }
+
+    .battle-info {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .fighter {
+      text-align: center;
+    }
+
+    .fighter-name {
+      font-weight: 600;
+      color: #1a202c;
+      margin-bottom: 0.25rem;
+    }
+
+    .fighter-stats {
+      font-size: 0.875rem;
+      color: #718096;
+    }
+
+    .vs-badge {
+      background: #667eea;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 50%;
+      font-weight: 700;
+    }
+
+    .battle-details {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.875rem;
+      color: #4a5568;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-header">
+      <h1>⚔️ 战斗系统测试</h1>
+      <p>测试鱼的战斗匹配、战斗执行和结算功能</p>
+    </div>
+
+    <!-- 提示信息 -->
+    <div class="info-box">
+      <h3>💡 测试说明</h3>
+      <ul>
+        <li>✅ 开发阶段无需登录即可测试</li>
+        <li>战斗系统使用Redis缓存提高性能</li>
+        <li>支持自动匹配和指定对手两种模式</li>
+        <li>战斗结果会记录在数据库中</li>
+        <li>可以查看历史战斗记录</li>
+      </ul>
+    </div>
+
+    <!-- 标签页 -->
+    <div class="test-tabs">
+      <button class="tab active" data-tab="match">匹配对手</button>
+      <button class="tab" data-tab="battle">执行战斗</button>
+      <button class="tab" data-tab="history">战斗历史</button>
+    </div>
+
+    <!-- 匹配对手 -->
+    <div class="tab-content active" id="match">
+      <p style="color: #718096; margin-bottom: 1.5rem;">
+        自动匹配一个合适的对手进行战斗
+      </p>
+      <form id="matchForm">
+        <div class="form-group">
+          <label for="matchFishId">鱼ID *</label>
+          <input type="text" id="matchFishId" required placeholder="输入要参战的鱼ID">
+        </div>
+        <button type="submit" class="btn btn-primary">匹配对手</button>
+      </form>
+    </div>
+
+    <!-- 执行战斗 -->
+    <div class="tab-content" id="battle">
+      <p style="color: #718096; margin-bottom: 1.5rem;">
+        指定两条鱼进行战斗
+      </p>
+      <form id="battleForm">
+        <div class="form-group">
+          <label for="attacker">攻击方鱼ID *</label>
+          <input type="text" id="attacker" required placeholder="输入攻击方鱼ID">
+        </div>
+        <div class="form-group">
+          <label for="defender">防守方鱼ID *</label>
+          <input type="text" id="defender" required placeholder="输入防守方鱼ID">
+        </div>
+        <button type="submit" class="btn btn-primary">开始战斗</button>
+      </form>
+    </div>
+
+    <!-- 战斗历史 -->
+    <div class="tab-content" id="history">
+      <p style="color: #718096; margin-bottom: 1.5rem;">
+        查看指定鱼的战斗历史记录
+      </p>
+      <form id="historyForm">
+        <div class="form-group">
+          <label for="historyFishId">鱼ID *</label>
+          <input type="text" id="historyFishId" required placeholder="输入要查询的鱼ID">
+        </div>
+        <button type="submit" class="btn btn-primary">查询历史</button>
+      </form>
+      
+      <div id="historyList" style="margin-top: 2rem;"></div>
+    </div>
+
+    <!-- 结果展示 -->
+    <div class="results-section">
+      <h2 class="section-title">操作结果</h2>
+      <div class="results-container" id="resultsContainer"></div>
+    </div>
+
+    <a href="test-center.html" class="back-link">← 返回测试中心</a>
+  </div>
+
+  <!-- 加载依赖 -->
+  <!-- 开发环境：设置后端API地址 -->
+  <script>
+    // 设置后端API地址（开发环境为空字符串，使用相对路径）
+    window.BACKEND_URL = '';
+  </script>
+  <script src="public/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="src/js/supabase-init.js"></script>
+  <script src="src/js/admin-auth.js"></script>
+  <script src="src/js/test-utils.js"></script>
+  
+  <script>
+    // 管理员权限检查
+    (async function() {
+      if (document.readyState === 'loading') {
+        await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+      }
+      if (!window.supabaseAuth) {
+        await new Promise(resolve => {
+          const checkInterval = setInterval(() => {
+            if (window.supabaseAuth) {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+        });
+      }
+      await window.adminAuth.requireAdminAccess();
+    })();
+  </script>
+  
+  <script>
+    // 标签页切换
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.dataset.tab;
+        
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    // 匹配对手表单
+    document.getElementById('matchForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const fishId = document.getElementById('matchFishId').value;
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      
+      const result = await apiCall(`${window.BACKEND_URL}/api/battle/match`, {
+        method: 'POST',
+        body: { fishId }
+      });
+      
+      setButtonLoading(submitBtn, false);
+      renderApiResult(result, resultsContainer);
+      
+      if (result.success) {
+        showToast('匹配成功！');
+        
+        // 如果返回了对手信息，可以自动填充到战斗表单
+        if (result.data.data && result.data.data.opponent) {
+          const opponent = result.data.data.opponent;
+          document.querySelector('.tab[data-tab="battle"]').click();
+          document.getElementById('attacker').value = fishId;
+          document.getElementById('defender').value = opponent.id || opponent.fishId;
+          showToast('已填充到战斗表单，可以直接执行战斗', 'info');
+        }
+      } else {
+        showToast('匹配失败', 'error');
+      }
+    });
+
+    // 执行战斗表单
+    document.getElementById('battleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const attacker = document.getElementById('attacker').value;
+      const defender = document.getElementById('defender').value;
+      
+      if (attacker === defender) {
+        showToast('不能与自己战斗', 'error');
+        return;
+      }
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      
+      const result = await apiCall(`${window.BACKEND_URL}/api/battle/execute`, {
+        method: 'POST',
+        body: {
+          attackerId: attacker,
+          defenderId: defender
+        }
+      });
+      
+      setButtonLoading(submitBtn, false);
+      renderApiResult(result, resultsContainer);
+      
+      if (result.success) {
+        showToast('战斗完成！');
+        e.target.reset();
+      } else {
+        showToast('战斗失败', 'error');
+      }
+    });
+
+    // 查询历史表单
+    document.getElementById('historyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const fishId = document.getElementById('historyFishId').value;
+      const historyList = document.getElementById('historyList');
+      
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      setButtonLoading(submitBtn, true);
+      
+      const result = await apiCall(`${window.BACKEND_URL}/api/battle/history?fishId=${encodeURIComponent(fishId)}`, {
+        method: 'GET'
+      });
+      
+      setButtonLoading(submitBtn, false);
+      
+      if (result.success && result.data.data) {
+        const battles = result.data.data;
+        
+        if (battles.length === 0) {
+          historyList.innerHTML = '<p style="color: #718096;">暂无战斗记录</p>';
+        } else {
+          historyList.innerHTML = battles.map(battle => {
+            const isAttacker = battle.attacker_id === fishId;
+            const opponent = isAttacker ? battle.defender_id : battle.attacker_id;
+            const resultClass = battle.winner_id === fishId ? 'win' : 
+                               (battle.winner_id === null ? 'draw' : 'lose');
+            const resultText = battle.winner_id === fishId ? '胜利' : 
+                              (battle.winner_id === null ? '平局' : '失败');
+            
+            return `
+              <div class="battle-card">
+                <div class="battle-header">
+                  <span class="battle-id">#${battle.id}</span>
+                  <span class="battle-result ${resultClass}">${resultText}</span>
+                </div>
+                <div class="battle-info">
+                  <div class="fighter">
+                    <div class="fighter-name">${isAttacker ? '我方' : '对方'}</div>
+                    <div class="fighter-stats">ID: ${isAttacker ? battle.attacker_id : battle.defender_id}</div>
+                  </div>
+                  <div class="vs-badge">VS</div>
+                  <div class="fighter">
+                    <div class="fighter-name">${isAttacker ? '对方' : '我方'}</div>
+                    <div class="fighter-stats">ID: ${opponent}</div>
+                  </div>
+                </div>
+                <div class="battle-details">
+                  <div><strong>战斗时间:</strong> ${formatDateTime(battle.created_at)}</div>
+                  ${battle.reward ? `<div><strong>奖励:</strong> ${battle.reward} 金币</div>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+          
+          showToast('查询成功');
+        }
+      } else {
+        historyList.innerHTML = '<p style="color: #f56565;">查询失败</p>';
+        showToast('查询失败', 'error');
+      }
+      
+      renderApiResult(result, resultsContainer);
+    });
+
+    // 开发阶段：跳过登录检查
+    // (async () => {
+    //   const isLoggedIn = await isUserLoggedIn();
+    //   if (!isLoggedIn) {
+    //     if (confirm('需要登录才能测试这些功能。是否前往登录页面？')) {
+    //       window.location.href = 'login.html';
+    //     }
+    //   }
+    // })();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战斗系统演示 - Fish Art Battle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .section h2 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        
+        .status-box {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .status-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .status-value {
+            color: #333;
+            font-weight: 700;
+        }
+        
+        .log-box {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        
+        .log-success { color: #10b981; }
+        .log-error { color: #ef4444; }
+        .log-info { color: #3b82f6; }
+        .log-warning { color: #f59e0b; }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-online {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-queue {
+            background: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐟 Fish Art Battle</h1>
+        <p class="subtitle">战斗系统集成演示</p>
+        
+        <!-- 用户配置 -->
+        <div class="section">
+            <h2>👤 用户配置</h2>
+            <div class="input-group">
+                <label>用户ID：</label>
+                <input type="text" id="userId" value="demo-user-001" placeholder="输入用户ID">
+            </div>
+            <div class="input-group">
+                <label>鱼ID：</label>
+                <input type="text" id="fishId" value="demo-fish-001" placeholder="输入鱼ID">
+            </div>
+        </div>
+        
+        <!-- 战斗系统 -->
+        <div class="section">
+            <h2>⚔️ 战斗系统</h2>
+            <div class="status-box">
+                <div class="status-item">
+                    <span class="status-label">战斗模式：</span>
+                    <span class="status-value">
+                        <span class="badge badge-offline" id="battleStatus">离线</span>
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">在线人数：</span>
+                    <span class="status-value" id="onlineUsers">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">队列位置：</span>
+                    <span class="status-value" id="queuePosition">-</span>
+                </div>
+            </div>
+            
+            <div class="control-panel">
+                <button class="btn-primary" onclick="enterBattleMode()">进入战斗模式</button>
+                <button class="btn-danger" onclick="leaveBattleMode()">离开战斗模式</button>
+                <button class="btn-warning" onclick="triggerTestBattle()">触发测试战斗</button>
+                <button class="btn-success" onclick="checkQueueStatus()">查询队列状态</button>
+            </div>
+        </div>
+        
+        <!-- 经济系统 -->
+        <div class="section">
+            <h2>💰 经济系统</h2>
+            <div class="status-box">
+                <div class="status-item">
+                    <span class="status-label">鱼食余额：</span>
+                    <span class="status-value" id="fishFoodBalance">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">最后签到：</span>
+                    <span class="status-value" id="lastBonus">-</span>
+                </div>
+            </div>
+            
+            <div class="control-panel">
+                <button class="btn-success" onclick="getBalance()">查询余额</button>
+                <button class="btn-primary" onclick="claimDaily()">每日签到</button>
+                <button class="btn-warning" onclick="feedFish()">喂食回血</button>
+                <button class="btn-danger" onclick="reviveFish()">复活鱼</button>
+            </div>
+        </div>
+        
+        <!-- 日志 -->
+        <div class="section">
+            <h2>📋 操作日志</h2>
+            <div class="log-box" id="logBox">
+                <div class="log-entry log-info">系统就绪，等待操作...</div>
+            </div>
+            <button class="btn-danger" style="margin-top: 10px;" onclick="clearLog()">清空日志</button>
+        </div>
+    </div>
+    
+    <script src="/src/js/battle-client.js"></script>
+    <script>
+        let heartbeatTimer = null;
+        
+        // 日志函数
+        function log(message, type = 'info') {
+            const logBox = document.getElementById('logBox');
+            const time = new Date().toLocaleTimeString('zh-CN');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${time}] ${message}`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('logBox').innerHTML = 
+                '<div class="log-entry log-info">日志已清空</div>';
+        }
+        
+        // 更新状态显示
+        function updateBattleStatus(inBattle) {
+            const badge = document.getElementById('battleStatus');
+            if (inBattle) {
+                badge.textContent = '在线';
+                badge.className = 'badge badge-online';
+            } else {
+                badge.textContent = '离线';
+                badge.className = 'badge badge-offline';
+            }
+        }
+        
+        // 进入战斗模式
+        async function enterBattleMode() {
+            const userId = document.getElementById('userId').value;
+            const fishId = document.getElementById('fishId').value;
+            
+            if (!userId || !fishId) {
+                log('请填写用户ID和鱼ID', 'error');
+                return;
+            }
+            
+            try {
+                log('正在进入战斗模式...', 'info');
+                const result = await BattleClient.enterBattleMode(userId, fishId);
+                
+                if (result.success) {
+                    log('✅ 成功进入战斗模式！', 'success');
+                    updateBattleStatus(true);
+                    document.getElementById('onlineUsers').textContent = 
+                        `${result.currentUsers}/${result.maxUsers}`;
+                } else if (result.inQueue) {
+                    log(`⏳ 战斗模式已满，已加入队列（位置：${result.position}）`, 'warning');
+                    document.getElementById('queuePosition').textContent = result.position;
+                    document.getElementById('battleStatus').className = 'badge badge-queue';
+                    document.getElementById('battleStatus').textContent = '排队中';
+                } else {
+                    log(`❌ ${result.message || result.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 错误: ${error.message}`, 'error');
+            }
+        }
+        
+        // 离开战斗模式
+        async function leaveBattleMode() {
+            const userId = document.getElementById('userId').value;
+            
+            try {
+                log('正在离开战斗模式...', 'info');
+                const result = await BattleClient.leaveBattleMode(userId);
+                
+                if (result.success) {
+                    log('✅ 已离开战斗模式', 'success');
+                    updateBattleStatus(false);
+                    document.getElementById('onlineUsers').textContent = 
+                        `${result.currentUsers}/${result.maxUsers}`;
+                }
+            } catch (error) {
+                log(`❌ 错误: ${error.message}`, 'error');
+            }
+        }
+        
+        // 查询队列状态
+        async function checkQueueStatus() {
+            const userId = document.getElementById('userId').value;
+            
+            try {
+                log('查询队列状态...', 'info');
+                const result = await BattleClient.checkQueueStatus(userId);
+                
+                if (result.canEnter) {
+                    log('✅ 可以进入战斗模式！', 'success');
+                } else if (result.inQueue) {
+                    log(`⏳ 队列位置: ${result.position}/${result.queueLength}`, 'warning');
+                    log(`   预计等待: ${result.estimatedWait}秒`, 'info');
+                } else if (result.inBattleMode) {
+                    log('✅ 已在战斗模式中', 'success');
+                } else {
+                    log('ℹ️ 未在队列中', 'info');
+                }
+            } catch (error) {
+                log(`❌ 错误: ${error.message}`, 'error');
+            }
+        }
+        
+        // 触发测试战斗
+        async function triggerTestBattle() {
+            const fishId = document.getElementById('fishId').value;
+            const defenderId = 'demo-fish-002'; // 测试对手
+            
+            try {
+                log('触发战斗...', 'info');
+                const result = await BattleClient.triggerBattle(fishId, defenderId);
+                
+                if (result.success) {
+                    const winner = result.attackerWins ? '你的鱼' : '对手的鱼';
+                    log(`⚔️ 战斗结束！胜者: ${winner}`, 'success');
+                    log(`   战斗力差距: ${result.battle.powerDiff.toFixed(2)}`, 'info');
+                    log(`   获得经验: ${result.changes.winner.expGained}`, 'success');
+                    log(`   损失血量: ${result.changes.loser.healthLost}`, 'warning');
+                    
+                    if (result.changes.winner.levelUp) {
+                        log(`🎉 恭喜升级！新等级: ${result.changes.winner.newLevel}`, 'success');
+                    }
+                    
+                    if (result.changes.loser.isDead) {
+                        log('💀 败者死亡', 'error');
+                    }
+                } else {
+                    log(`❌ ${result.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 错误: ${error.message}`, 'error');
+            }
+        }
+        
+        // 查询余额
+        async function getBalance() {
+            const userId = document.getElementById('userId').value;
+            
+            try {
+                log('查询鱼食余额...', 'info');
+                const result = await BattleClient.getBalance(userId);
+                
+                if (result.success) {
+                    log(`💰 当前余额: ${result.fishFood} 个鱼食`, 'success');
+                    document.getElementById('fishFoodBalance').textContent = result.fishFood;
+                    
+                    if (result.lastDailyBonus) {
+                        const lastBonus = new Date(result.lastDailyBonus).toLocaleDateString('zh-CN');
+                        document.getElementById('lastBonus').textContent = lastBonus;
+                    }
+                }
+            } catch (error) {
+                log(`❌ 错误: ${error.message}`, 'error');
+            }
+        }
+        
+        // 每日签到
+        async function claimDaily() {
+            const userId = document.getElementById('userId').value;
+            
+            try {
+                log('每日签到...', 'info');
+                const result = await BattleClient.claimDailyBonus(userId);
+                
+                if (result.success) {
+                    log(`✅ ${result.message}`, 'success');
+                    log(`   新余额: ${result.newBalance} 个鱼食`, 'success');
+                    document.getElementById('fishFoodBalance').textContent = result.newBalance;
+                } else if (result.alreadyClaimed) {
+                    log(`⏰ ${result.message}`, 'warning');
+                    log(`   下次签到: ${result.nextBonusIn.hours}小时${result.nextBonusIn.minutes}分钟后`, 'info');
+                }
+            } catch (error) {
+                log(`❌ 错误: ${error.message}`, 'error');
+            }
+        }
+        
+        // 喂食
+        async function feedFish() {
+            const userId = document.getElementById('userId').value;
+            const fishId = document.getElementById('fishId').value;
+            
+            try {
+                log('喂食中...', 'info');
+                const result = await BattleClient.feedFish(userId, fishId);
+                
+                if (result.success) {
+                    log(`✅ ${result.message}`, 'success');
+                    log(`   当前血量: ${result.fish.health}/${result.fish.maxHealth}`, 'info');
+                    log(`   剩余鱼食: ${result.economy.fishFood}`, 'info');
+                    document.getElementById('fishFoodBalance').textContent = result.economy.fishFood;
+                } else if (result.insufficientFunds) {
+                    log(`❌ ${result.message}`, 'error');
+                } else if (result.fullHealth) {
+                    log(`ℹ️ ${result.message}`, 'info');
+                }
+            } catch (error) {
+                log(`❌ 错误: ${error.message}`, 'error');
+            }
+        }
+        
+        // 复活
+        async function reviveFish() {
+            const userId = document.getElementById('userId').value;
+            const fishId = document.getElementById('fishId').value;
+            
+            try {
+                log('复活中...', 'info');
+                const result = await BattleClient.reviveFish(userId, fishId);
+                
+                if (result.success) {
+                    log(`✅ ${result.message}`, 'success');
+                    log(`   剩余鱼食: ${result.economy.fishFood}`, 'info');
+                    document.getElementById('fishFoodBalance').textContent = result.economy.fishFood;
+                } else if (result.insufficientFunds) {
+                    log(`❌ ${result.message}`, 'error');
+                } else if (result.alreadyAlive) {
+                    log(`ℹ️ ${result.message}`, 'info');
+                }
+            } catch (error) {
+                log(`❌ 错误: ${error.message}`, 'error');
+            }
+        }
+        
+        // 页面加载完成
+        window.addEventListener('load', () => {
+            log('页面加载完成，欢迎使用Fish Art Battle演示！', 'success');
+            log('请先配置用户ID和鱼ID，然后测试各项功能', 'info');
+        });
+    </script>
+</body>
+</html>
+
+
+

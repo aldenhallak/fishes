@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Card Layout Preview</title>
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        
+        .preview-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .column {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .column h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .fish-card {
+            border: 2px solid #C7D2FE;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 50%, #DDD6FE 100%);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+        }
+        
+        .fish-image-placeholder {
+            width: 120px;
+            height: 80px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 10px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        
+        .fish-info {
+            margin-bottom: 15px;
+        }
+        
+        .fish-artist {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        
+        .fish-date {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        
+        .fish-date a {
+            color: #6366F1;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .fish-date a:hover {
+            color: #4F46E5;
+            text-decoration: underline;
+        }
+        
+        .old-style .fish-artist {
+            font-size: 14px;
+        }
+        
+        .old-style .fish-date {
+            color: #666;
+        }
+        
+        .label {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .label.old {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .label.new {
+            background: #10b981;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <h1>🐠 Fish Card Layout Changes</h1>
+        
+        <div class="comparison">
+            <div class="column">
+                <h2>❌ Old Layout</h2>
+                <div class="fish-card old-style">
+                    <div class="fish-image-placeholder">🐟</div>
+                    <div class="fish-info">
+                        <div class="fish-artist">
+                            <a href="#" style="color: inherit; text-decoration: none;">
+                                hotguy
+                            </a>
+                        </div>
+                        <div class="fish-date">2 days ago</div>
+                    </div>
+                    <span class="label old">OLD</span>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-radius: 10px; color: white; font-size: 13px;">
+                    <strong>问题：</strong>
+                    <ul style="margin: 10px 0; padding-left: 20px; text-align: left;">
+                        <li>只显示艺术家名字，看不到鱼的名称</li>
+                        <li>日期信息太简单</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="column">
+                <h2>✅ New Layout</h2>
+                <div class="fish-card">
+                    <div class="fish-image-placeholder">🐠</div>
+                    <div class="fish-info">
+                        <div class="fish-artist">
+                            Golden Bubbles
+                        </div>
+                        <div class="fish-date">
+                            by <a href="#">hotguy</a> • 2 days ago
+                        </div>
+                    </div>
+                    <span class="label new">NEW</span>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; color: white; font-size: 13px;">
+                    <strong>改进：</strong>
+                    <ul style="margin: 10px 0; padding-left: 20px; text-align: left;">
+                        <li>✨ 显示鱼的名称（更直观）</li>
+                        <li>👤 显示艺术家名字（可点击）</li>
+                        <li>📅 显示创建时间</li>
+                        <li>🎨 更清晰的信息层级</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.08); border-radius: 15px; color: white;">
+            <h3 style="margin-top: 0;">📋 More Examples</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+                <div class="fish-card" style="padding: 15px;">
+                    <div style="font-weight: bold; color: #333; margin-bottom: 5px; font-size: 16px;">
+                        Rainbow Swimmer
+                    </div>
+                    <div style="color: #666; font-size: 12px;">
+                        by <a href="#" style="color: #6366F1; font-weight: 600; text-decoration: none;">fishartist123</a> • 1 hour ago
+                    </div>
+                </div>
+                
+                <div class="fish-card" style="padding: 15px;">
+                    <div style="font-weight: bold; color: #333; margin-bottom: 5px; font-size: 16px;">
+                        Deep Sea Dragon
+                    </div>
+                    <div style="color: #666; font-size: 12px;">
+                        by <a href="#" style="color: #6366F1; font-weight: 600; text-decoration: none;">oceanexplorer</a> • 3 days ago
+                    </div>
+                </div>
+                
+                <div class="fish-card" style="padding: 15px;">
+                    <div style="font-weight: bold; color: #333; margin-bottom: 5px; font-size: 16px;">
+                        Unnamed Fish
+                    </div>
+                    <div style="color: #666; font-size: 12px;">
+                        by <a href="#" style="color: #6366F1; font-weight: 600; text-decoration: none;">Anonymous</a> • Just now
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="rank.html" style="
+                display: inline-block;
+                padding: 15px 30px;
+                background: linear-gradient(180deg, #10B981 0%, #059669 50%, #047857 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 12px;
+                font-weight: 700;
+                box-shadow: 0 4px 0 0 #065F46, 0 6px 12px rgba(0, 0, 0, 0.3);
+                transition: all 0.15s ease;
+                position: relative;
+                top: 0;
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 0 0 #065F46, 0 8px 16px rgba(0, 0, 0, 0.4)'"
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 0 0 #065F46, 0 6px 12px rgba(0, 0, 0, 0.3)'"
+               onmousedown="this.style.transform='translateY(2px)'; this.style.boxShadow='0 2px 0 0 #065F46, 0 3px 6px rgba(0, 0, 0, 0.3)'"
+               onmouseup="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 0 0 #065F46, 0 8px 16px rgba(0, 0, 0, 0.4)'">
+                🚀 View Full Rank Page
+            </a>
+        </div>
+    </div>
+</body>
+</html>
+

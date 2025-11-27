@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试页面 - FishArt</title>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-601YXTKK0L"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-601YXTKK0L');
+    </script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .debug-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐟 FishArt 调试工具</h1>
+
+    <div class="debug-section">
+        <h2>1. 环境检测</h2>
+        <div id="env-status"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>2. BACKEND_URL 检测</h2>
+        <div id="backend-status"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>3. 依赖库检测</h2>
+        <div id="libs-status"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>4. API 连通性测试</h2>
+        <button id="test-backend">测试后端连接</button>
+        <div id="api-test-result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>5. 浏览器控制台日志</h2>
+        <p>请打开浏览器开发者工具（F12）查看详细日志</p>
+        <div id="console-logs"></div>
+    </div>
+
+    <!-- 加载必要的脚本 -->
+    <script src="src/js/fish-utils.js"></script>
+    
+    <script>
+        // 捕获控制台日志
+        const logs = [];
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn
+        };
+
+        ['log', 'error', 'warn'].forEach(method => {
+            console[method] = function(...args) {
+                logs.push({ type: method, message: args.join(' '), time: new Date().toLocaleTimeString() });
+                originalConsole[method].apply(console, args);
+                updateConsoleLogs();
+            };
+        });
+
+        function updateConsoleLogs() {
+            const logsDiv = document.getElementById('console-logs');
+            logsDiv.innerHTML = '<pre>' + logs.map(log => 
+                `[${log.time}] [${log.type.toUpperCase()}] ${log.message}`
+            ).join('\n') + '</pre>';
+        }
+
+        // 1. 环境检测
+        function checkEnvironment() {
+            const envDiv = document.getElementById('env-status');
+            const hostname = window.location.hostname;
+            const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+            
+            envDiv.innerHTML = `
+                <div class="status info">
+                    <strong>当前域名：</strong> <code>${hostname}</code><br>
+                    <strong>协议：</strong> <code>${window.location.protocol}</code><br>
+                    <strong>环境：</strong> <code>${isLocal ? '本地开发' : '生产环境'}</code>
+                </div>
+            `;
+        }
+
+        // 2. BACKEND_URL 检测
+        function checkBackendURL() {
+            const backendDiv = document.getElementById('backend-status');
+            
+            if (typeof window.BACKEND_URL === 'undefined') {
+                backendDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ 错误：</strong> <code>window.BACKEND_URL</code> 未定义<br>
+                        <strong>原因：</strong> fish-utils.js 可能未正确加载<br>
+                        <strong>解决：</strong> 检查 fish-utils.js 文件路径是否正确
+                    </div>
+                `;
+            } else {
+                backendDiv.innerHTML = `
+                    <div class="status success">
+                        <strong>✅ BACKEND_URL 已定义：</strong> <code>${window.BACKEND_URL}</code>
+                    </div>
+                `;
+            }
+        }
+
+        // 3. 依赖库检测
+        function checkLibraries() {
+            const libsDiv = document.getElementById('libs-status');
+            const checks = [
+                { name: 'Firebase', check: () => typeof firebase !== 'undefined' },
+                { name: 'ONNX Runtime', check: () => typeof window.ort !== 'undefined' },
+                { name: 'fish-utils.js', check: () => typeof window.BACKEND_URL !== 'undefined' }
+            ];
+
+            const results = checks.map(lib => {
+                const status = lib.check();
+                return `<div class="status ${status ? 'success' : 'error'}">
+                    ${status ? '✅' : '❌'} ${lib.name}: ${status ? '已加载' : '未加载'}
+                </div>`;
+            });
+
+            libsDiv.innerHTML = results.join('');
+        }
+
+        // 4. API 连通性测试
+        document.getElementById('test-backend').addEventListener('click', async function() {
+            const button = this;
+            const resultDiv = document.getElementById('api-test-result');
+            
+            button.disabled = true;
+            resultDiv.innerHTML = '<div class="status info">⏳ 正在测试后端连接...</div>';
+
+            try {
+                if (typeof window.BACKEND_URL === 'undefined') {
+                    throw new Error('BACKEND_URL 未定义');
+                }
+
+                console.log('Testing backend URL:', window.BACKEND_URL);
+                
+                // 测试一个简单的 API 端点
+                const response = await fetch(`${window.BACKEND_URL}/api/fish?limit=1`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            <strong>✅ 后端连接成功！</strong><br>
+                            状态码: ${response.status}<br>
+                            响应数据: <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Backend test failed:', error);
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        <strong>❌ 后端连接失败</strong><br>
+                        错误信息: <code>${error.message}</code><br>
+                        <strong>可能的原因：</strong><br>
+                        1. 后端服务器未启动或不可访问<br>
+                        2. CORS 配置问题<br>
+                        3. 网络连接问题<br>
+                        4. URL 配置错误
+                    </div>
+                `;
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        // 页面加载时执行所有检查
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Debug page loaded');
+            checkEnvironment();
+            checkBackendURL();
+            checkLibraries();
+        });
+
+        // 如果 fish-utils.js 加载失败，显示错误
+        window.addEventListener('error', (e) => {
+            if (e.filename && e.filename.includes('fish-utils.js')) {
+                document.getElementById('backend-status').innerHTML = `
+                    <div class="status error">
+                        <strong>❌ 加载失败：</strong> fish-utils.js 文件加载失败<br>
+                        错误: ${e.message}<br>
+                        文件: ${e.filename}
+                    </div>
+                `;
+            }
+        }, true);
+    </script>
+</body>
+</html>
+
+

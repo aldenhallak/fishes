@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="glacierWaters" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e1f5fe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#01579b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#glacierWaters)"/>
+  <polygon points="100,800 300,750 250,1080 0,1080" fill="#b3e5fc" opacity="0.6"/>
+  <polygon points="1500,700 1750,650 1920,1080 1400,1080" fill="#b3e5fc" opacity="0.5"/>
+  <polygon points="700,850 900,800 850,1080 650,1080" fill="#81d4fa" opacity="0.4"/>
+  <circle cx="400" cy="300" r="30" fill="#e1f5fe" opacity="0.5"/>
+  <circle cx="1200" cy="250" r="40" fill="#e1f5fe" opacity="0.4"/>
+  <circle cx="800" cy="400" r="25" fill="#b3e5fc" opacity="0.5"/>
+  <text x="960" y="540" font-family="Arial" font-size="48" fill="#01579b" opacity="0.4" text-anchor="middle">Glacier Waters</text>
+</svg>

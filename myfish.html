@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Fish Collection | FishTalk.app</title>
+    <meta name="description" content="View your created and favorited fish. Manage your personal fish collection, view statistics and detailed information.">
+    <meta name="keywords" content="my fish, fish collection, personal tank, created fish, favorited fish">
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="My Fish Collection - Personal Fish Gallery">
+    <meta property="og:description" content="View and manage your created and favorited fish.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://fishtalk.app/myfish.html">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://fishtalk.app/myfish.html">
+    
+    <link rel="stylesheet" href="src/css/animations.css?v=2.0">
+    <link rel="stylesheet" href="src/css/cute-game-style.css?v=1.0">
+    <link rel="stylesheet" href="src/css/style.css?v=2.0">
+    <link rel="stylesheet" href="src/css/auth-ui.css?v=2.3">
+    <link rel="stylesheet" href="src/css/hamburger-menu.css?v=1.0">
+    <link rel="icon" type="image/png" href="/fish_logo.png">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-601YXTKK0L"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-601YXTKK0L');
+    </script>
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "My Fish Collection - Personal Gallery",
+      "description": "View and manage your created and favorited fish collection.",
+      "url": "https://fishtalk.app/myfish.html"
+    }
+    </script>
+    
+    <style>
+        /* Main container */
+        .ranking-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+            padding-top: 70px; /* 为导航栏留出空间 */
+        }
+        
+        .ranking-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .ranking-header h1 {
+            margin: 20px 0 10px;
+            font-size: 2.5em;
+            color: #4F46E5;
+            text-shadow: 2px 2px 4px rgba(99, 102, 241, 0.3);
+            font-weight: 700;
+        }
+        
+        /* Stats display */
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+            border-radius: 15px;
+            border: 2px solid #C7D2FE;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4F46E5;
+        }
+        
+        /* Sort controls */
+        .sort-controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .sort-btn {
+            padding: 10px 20px;
+            border: 2px solid #E0E0E0;
+            background: white;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6366F1;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sort-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+            border-color: #6366F1;
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+        }
+        
+        .sort-btn.active {
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            color: white;
+            border-color: #6366F1;
+        }
+        
+        .sort-btn.active:hover {
+            background: linear-gradient(135deg, #4F46E5, #4338CA);
+        }
+        
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #6366F1;
+            font-weight: 600;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            border: 3px solid #C7D2FE;
+            border-top-color: #6366F1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Grid layout for fish */
+        .fish-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .fish-card {
+            border: 2px solid #C7D2FE;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            background: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            animation: fadeInUp 0.5s ease;
+            position: relative;
+        }
+        
+        .fish-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            border-color: #6366F1;
+        }
+        
+        /* Fish type badge */
+        .fish-type-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .fish-type-badge.own {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+        
+        .fish-type-badge.favorited {
+            background: linear-gradient(135deg, #EC4899, #DB2777);
+            color: white;
+        }
+        
+        .fish-type-badge.dead {
+            background: linear-gradient(135deg, #6B7280, #4B5563);
+            color: white;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .fish-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .fish-image-container {
+            margin-bottom: 15px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .fish-image {
+            max-width: 150px;
+            max-height: 100px;
+            border-radius: 5px;
+        }
+        
+        .fish-info {
+            margin-bottom: 10px;
+        }
+        
+        .fish-artist {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .fish-date {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .fish-level {
+            color: #6366F1;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .fish-health {
+            font-size: 12px;
+            color: #059669;
+            margin-bottom: 10px;
+        }
+        
+        .add-to-tank-hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        /* Navigation */
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+            border: 2px solid #C7D2FE;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 15px;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-links a:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state h2 {
+            color: #4F46E5;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state a {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .empty-state a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .ranking-header h1 {
+                font-size: 2em;
+            }
+            
+            .sort-controls {
+                gap: 8px;
+            }
+            
+            .sort-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            
+            .nav-links {
+                padding: 15px;
+            }
+            
+            .nav-links a {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            
+            .stats-container {
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 10px 15px;
+                min-width: 90px;
+            }
+            
+            .stat-value {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="game-style">
+  <!-- 海洋风格背景气泡 -->
+  <div class="background-bubbles"></div>
+
+  <!-- Top Navigation Bar -->
+  <nav class="game-nav">
+    <!-- 汉堡菜单按钮 -->
+    <button id="hamburger-menu-btn" class="hamburger-menu-btn" aria-label="Open Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <div class="game-logo">
+      FishTalk.app
+    </div>
+    <div class="game-nav-links">
+      <a href="membership.html" class="game-btn game-btn-purple" id="nav-upgrade-btn" style="display: none;">
+        <img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle;">
+        <span>Upgrade</span>
+      </a>
+      <a href="test-center.html" class="game-btn game-btn-white">
+        <span>🧪</span>
+        <span>Test</span>
+      </a>
+      <!-- 登录按钮和用户菜单将由 auth-ui.js 动态插入 -->
+    </div>
+  </nav>
+
+  <!-- 侧边栏菜单 -->
+  <div id="sidebar-menu" class="sidebar-menu">
+    <div class="sidebar-header">
+      <h3>🐟 Menu</h3>
+      <button id="close-sidebar-btn" class="close-sidebar-btn" aria-label="Close menu">&times;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link">
+        <span class="sidebar-icon">🎨</span>
+        <span>Draw Fish</span>
+      </a>
+      <a href="tank.html" class="sidebar-link">
+        <span class="sidebar-icon">🌊</span>
+        <span>Global Tank</span>
+      </a>
+      <a href="tank.html?view=my" class="sidebar-link">
+        <span class="sidebar-icon">⭐</span>
+        <span>My Tank</span>
+      </a>
+      <a href="rank.html" class="sidebar-link">
+        <span class="sidebar-icon">🏆</span>
+        <span>Rank</span>
+      </a>
+      <a href="profile.html" class="sidebar-link">
+        <span class="sidebar-icon">👤</span>
+        <span>Profile</span>
+      </a>
+      <a href="membership.html" class="sidebar-link" id="sidebar-upgrade-link" style="display: none;">
+        <span class="sidebar-icon"><img src="https://cdn.fishart.online/fishart_web/icon/premium.svg" alt="Premium" style="width: 28px; height: 28px; object-fit: contain;"></span>
+        <span>Upgrade</span>
+      </a>
+      <a href="#" id="sidebar-share-btn" class="sidebar-link">
+        <span class="sidebar-icon">📤</span>
+        <span>Share</span>
+      </a>
+    </nav>
+  </div>
+  
+  <!-- 侧边栏遮罩 -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+    
+    <div class="ranking-container">
+        <div class="ranking-header animate-fadeInUp">
+            <h1>🐟 My Fish Collection</h1>
+        </div>
+        
+        <!-- Stats display -->
+        <div class="stats-container animate-fadeInUp delay-1" id="stats-container" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-label">Total</div>
+                <div class="stat-value" id="stat-total">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Created by Me</div>
+                <div class="stat-value" id="stat-own">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Favorited</div>
+                <div class="stat-value" id="stat-favorited">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Alive</div>
+                <div class="stat-value" id="stat-alive">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Level</div>
+                <div class="stat-value" id="stat-avg-level">0</div>
+            </div>
+        </div>
+        
+        <div class="sort-controls animate-fadeInUp delay-2">
+            <button class="sort-btn active" data-sort="date">📅 By Date</button>
+            <button class="sort-btn" data-sort="level">⭐ By Level</button>
+            <button class="sort-btn" data-sort="name">🔤 By Name</button>
+            <button class="sort-btn" data-sort="type">🏷️ By Type</button>
+        </div>
+        
+        <div id="loading" class="loading">
+            Loading... 
+        </div>
+        
+        <div id="fish-grid" class="fish-grid" style="display: none;">
+            <!-- Fish cards will be populated here -->
+        </div>
+        
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <h2>No fish yet!</h2>
+            <p>Start creating your first fish, or browse the tank to favorite some fish!</p>
+            <a href="index.html">🎨 Start Drawing</a>
+            <a href="tank.html" style="margin-left: 10px;">🐠 Browse Tank</a>
+        </div>
+    </div>
+    
+    <!-- Modals are handled by modal-utils.js -->
+    
+    <!-- Bottom Info Bar -->
+    <footer class="game-footer">
+      <!-- SEO Content Section -->
+      <div style="max-width: 1000px; margin: 4px auto; padding: 6px 16px; background: rgba(255, 255, 255, 0.08); border-radius: 12px; text-align: center;">
+        <p style="font-size: 12px; line-height: 1.4; color: rgba(255, 255, 255, 0.9); margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+          <strong>Draw a fish online</strong> and watch it swim in our <strong>global tank</strong> with 50,000+ doodles from artists worldwide! Our free AI tool validates your fish art in real-time. See <strong>weird, creative, and funny fish</strong> drawings. Perfect for artists, students, teachers.
+        </p>
+      </div>
+      
+      <div class="game-footer-links">
+        <a href="tank.html" class="game-footer-link">Global Fish Tank</a>
+        <a href="fish-doodle-community.html" class="game-footer-link">Community</a>
+        <a href="about.html" class="game-footer-link">About</a>
+        <a href="how-to-draw-a-fish.html" class="game-footer-link">How to Draw a Fish</a>
+        <a href="fish-drawing-game.html" class="game-footer-link">Fish Drawing Game</a>
+        <a href="faq.html" class="game-footer-link">FAQ</a>
+      </div>
+      
+      <p style="margin: 6px 0 4px; color: rgba(255, 255, 255, 0.9); font-size: 12px;">
+        🎨 Based on 
+        <a href="https://github.com/aldenhallak/fishes" target="_blank" rel="noopener noreferrer" 
+           style="color: white; font-weight: 700; text-decoration: underline;">DrawAFish</a>
+        by
+        <a href="https://github.com/aldenhallak" target="_blank" rel="noopener noreferrer"
+           style="color: white; font-weight: 700; text-decoration: underline;">aldenhallak</a>
+      </p>
+    </footer>
+
+    <script src="src/js/footer-utils.js"></script>
+    <!-- Supabase SDK -->
+    <script src="public/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="src/js/supabase-init.js"></script>
+    <script src="src/js/auth-cache.js?v=1.0"></script>
+    <script src="src/js/fish-utils.js"></script>
+    <script src="src/js/social-config.js?v=2.1"></script>
+    <script src="src/js/social-share.js?v=2.1"></script>
+    <script src="src/js/membership-icons.js?v=1.0"></script>
+    <script src="src/js/auth-ui.js"></script>
+    <script src="src/js/fish-info-modal.js?v=1.0"></script>
+    <script src="src/js/hamburger-menu.js?v=1.0"></script>
+    <script src="src/js/modal-utils.js"></script>
+    <script src="src/js/myfish.js"></script>
+    <script>
+        // Initialize navigation authentication
+        initializeAuthNavigation();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

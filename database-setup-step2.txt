@@ -1,0 +1,54 @@
+-- ============================================
+-- 群聊功能数据库设置 - 第二步（跳过字段创建）
+-- initiator_user_id 字段已存在，继续后续步骤
+-- ============================================
+
+-- 步骤1: 添加外键约束，确保数据完整性
+ALTER TABLE group_chat 
+ADD CONSTRAINT fk_group_chat_initiator_user 
+FOREIGN KEY (initiator_user_id) REFERENCES users(id);
+
+-- 步骤2: 添加索引以提高查询性能
+CREATE INDEX IF NOT EXISTS idx_group_chat_initiator_user_id 
+ON group_chat(initiator_user_id);
+
+CREATE INDEX IF NOT EXISTS idx_group_chat_created_at 
+ON group_chat(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_group_chat_usage_query 
+ON group_chat(initiator_user_id, created_at);
+
+-- ============================================
+-- 验证设置是否成功
+-- ============================================
+
+-- 检查外键约束是否存在
+SELECT 
+    tc.constraint_name,
+    tc.table_name,
+    kcu.column_name,
+    ccu.table_name AS foreign_table_name,
+    ccu.column_name AS foreign_column_name
+FROM information_schema.table_constraints AS tc
+JOIN information_schema.key_column_usage AS kcu
+    ON tc.constraint_name = kcu.constraint_name
+    AND tc.table_schema = kcu.table_schema
+JOIN information_schema.constraint_column_usage AS ccu
+    ON ccu.constraint_name = tc.constraint_name
+    AND ccu.table_schema = tc.table_schema
+WHERE tc.constraint_type = 'FOREIGN KEY'
+    AND tc.table_name = 'group_chat'
+    AND kcu.column_name = 'initiator_user_id';
+
+-- 检查索引是否存在
+SELECT indexname, indexdef
+FROM pg_indexes
+WHERE tablename = 'group_chat'
+AND indexname LIKE '%initiator_user_id%';
+
+-- 统计当前群聊记录
+SELECT 
+    COUNT(*) as total_group_chats,
+    COUNT(initiator_user_id) as with_initiator_id,
+    COUNT(*) - COUNT(initiator_user_id) as without_initiator_id
+FROM group_chat;

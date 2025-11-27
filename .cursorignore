@@ -1,0 +1,4 @@
+# 确保不忽略 .env 文件
+!.env.local
+!.env
+!.env.*

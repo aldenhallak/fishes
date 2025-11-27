@@ -1,0 +1,1522 @@
+/* ===== 休闲游戏风格 - 鲜艳、光泽、立体感 ===== */
+/* 参考经典休闲游戏UI设计：高饱和度色彩、强烈光泽效果、3D立体按钮 */
+
+/* ===== 配色系统 - 鲜艳饱和色调 ===== */
+:root {
+  /* 主色调 - 鲜艳蓝色 */
+  --game-primary: #4A90E2;
+  --game-primary-light: #63A4E8;
+  --game-primary-dark: #357ABD;
+  
+  /* 按钮色 - 高饱和度 */
+  --game-blue: #4A90E2;
+  --game-blue-light: #63A4E8;
+  --game-orange: #FF9500;
+  --game-orange-light: #FFB340;
+  --game-green: #4CD964;
+  --game-green-light: #6FE77D;
+  --game-yellow: #FFD700;
+  --game-yellow-light: #FFE55C;
+  --game-red: #FF3B30;
+  --game-red-light: #FF6259;
+  --game-purple: #9B59B6;
+  --game-purple-light: #B07CC6;
+  
+  /* 海洋背景渐变 */
+  --ocean-top: #87CEEB;
+  --ocean-mid: #4A9FD8;
+  --ocean-bottom: #2874A6;
+  --ocean-gradient: linear-gradient(180deg, #87CEEB 0%, #4A9FD8 50%, #2874A6 100%);
+  
+  /* 中性色 */
+  --game-white: #FFFFFF;
+  --game-light: #F5F5F5;
+  --game-gray: #999999;
+  --game-dark: #333333;
+  
+  /* 立体阴影系统 */
+  --shadow-btn: 0 4px 0 rgba(0, 0, 0, 0.25);
+  --shadow-btn-hover: 0 6px 0 rgba(0, 0, 0, 0.25);
+  --shadow-btn-active: 0 2px 0 rgba(0, 0, 0, 0.25);
+  --shadow-card: 0 6px 12px rgba(0, 0, 0, 0.3);
+  --shadow-float: 0 8px 20px rgba(0, 0, 0, 0.35);
+  
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-round: 50%;
+  
+  /* 间距 */
+  --space-xs: 6px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 32px;
+  --space-xl: 48px;
+}
+
+/* ===== 全局样式 ===== */
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body.game-style {
+  font-family: 'Arial', 'Microsoft YaHei', '微软雅黑', sans-serif;
+  background: var(--ocean-gradient);
+  background-attachment: fixed;
+  color: var(--game-dark);
+  line-height: 1.6;
+  overflow-x: hidden;
+  position: relative;
+  margin: 0 !important;
+  padding: 0 !important;
+  padding-top: 0 !important;
+  /* Sticky Footer 布局 */
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 为main元素添加顶部间距，避免被固定导航栏遮挡 */
+main {
+  padding-top: 60px !important; /* 导航栏高度 + 一些额外间距 */
+  flex: 1; /* 占据剩余空间 */
+}
+
+/* 确保section内的按钮组与footer之间有20px间距 */
+main section:last-child .game-btn-group {
+  margin-bottom: 20px !important;
+}
+
+/* 确保按钮组与footer之间有20px间距 */
+.game-btn-group {
+  margin-bottom: 20px !important;
+}
+
+/* ===== 海洋背景装饰 ===== */
+.game-ocean-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* 气泡效果 */
+.game-bubbles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.game-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.3));
+  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.6);
+  animation: bubbleFloat 10s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.game-bubble:nth-child(1) { width: 40px; height: 40px; left: 10%; animation-delay: 0s; animation-duration: 8s; }
+.game-bubble:nth-child(2) { width: 25px; height: 25px; left: 25%; animation-delay: 2s; animation-duration: 10s; }
+.game-bubble:nth-child(3) { width: 50px; height: 50px; left: 45%; animation-delay: 4s; animation-duration: 12s; }
+.game-bubble:nth-child(4) { width: 30px; height: 30px; left: 65%; animation-delay: 1s; animation-duration: 9s; }
+.game-bubble:nth-child(5) { width: 35px; height: 35px; left: 80%; animation-delay: 3s; animation-duration: 11s; }
+.game-bubble:nth-child(6) { width: 20px; height: 20px; left: 15%; animation-delay: 5s; animation-duration: 7s; }
+.game-bubble:nth-child(7) { width: 45px; height: 45px; left: 55%; animation-delay: 2.5s; animation-duration: 10s; }
+.game-bubble:nth-child(8) { width: 28px; height: 28px; left: 90%; animation-delay: 4.5s; animation-duration: 9s; }
+
+/* 背景气泡容器 - 用于JavaScript动态创建的气泡 */
+.background-bubbles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* 单个气泡样式 - 用于JavaScript动态创建的气泡 */
+.bubble {
+  position: absolute;
+  bottom: -60px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: float-up 7s ease-in infinite;
+  box-shadow: 
+    inset 0 0 10px rgba(255, 255, 255, 0.5),
+    0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+/* ===== 顶部导航栏 - 游戏风格 ===== */
+.game-nav {
+  background: linear-gradient(180deg, rgba(74, 144, 226, 0.95) 0%, rgba(53, 122, 189, 0.95) 100%);
+  backdrop-filter: blur(8px);
+  padding: 6px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px; /* 添加间距 */
+  animation: slideDown 0.5s ease;
+  flex-shrink: 0; /* 防止导航栏被压缩 */
+  margin: 0 !important; /* 确保没有上边距 */
+  margin-top: 0 !important;
+  min-height: 48px; /* 缩小最小高度 */
+  box-sizing: border-box;
+}
+
+.game-logo {
+  font-size: 24px;
+  font-weight: 900;
+  color: white;
+  text-shadow: 
+    2px 2px 0 rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: logoFloat 3s ease-in-out infinite;
+  flex-shrink: 0; /* 防止logo被压缩 */
+  white-space: nowrap; /* 防止文字换行 */
+}
+
+.game-nav-links {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0; /* 防止链接区域被压缩 */
+  min-width: 0; /* 允许在空间不足时收缩 */
+}
+
+/* 导航栏小按钮 */
+.game-nav-links .game-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  gap: 4px;
+}
+
+/* ===== 3D光泽按钮系统 ===== */
+.game-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color: white;
+  box-shadow: var(--shadow-btn);
+  transform: translateY(0);
+  box-sizing: border-box;
+}
+
+/* 确保 button 元素没有默认的 min-width */
+button.game-btn {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* 顶部光泽效果 */
+.game-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  pointer-events: none;
+}
+
+/* 底部加深效果 */
+.game-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  pointer-events: none;
+}
+
+.game-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-hover);
+}
+
+.game-btn:active {
+  transform: translateY(2px);
+  box-shadow: var(--shadow-btn-active);
+}
+
+/* 按钮颜色变体 - 3D光泽效果 */
+.game-btn-blue {
+  background: linear-gradient(180deg, #FFB340 0%, #FF9500 50%, #E67E00 100%);
+  border-bottom: 3px solid #CC6E00;
+}
+
+.game-btn-orange {
+  background: linear-gradient(180deg, var(--game-orange-light) 0%, var(--game-orange) 50%, #E67E00 100%);
+  border-bottom: 3px solid #CC6E00;
+}
+
+.game-btn-green {
+  background: linear-gradient(180deg, var(--game-green-light) 0%, var(--game-green) 50%, #3CB54A 100%);
+  border-bottom: 3px solid #2E8B3A;
+}
+
+.game-btn-yellow {
+  background: linear-gradient(180deg, var(--game-yellow-light) 0%, var(--game-yellow) 50%, #E5BF00 100%);
+  border-bottom: 3px solid #BFA000;
+  color: #5D4E00;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.game-btn-red {
+  background: linear-gradient(180deg, var(--game-red-light) 0%, var(--game-red) 50%, #CC2920 100%);
+  border-bottom: 3px solid #991F19;
+}
+
+.game-btn-purple {
+  background: linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #E6850E 100%);
+  border-bottom: 3px solid #BFA000;
+  color: #5D4E00;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.game-btn-white {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 50%, #D0D0D0 100%);
+  border-bottom: 3px solid #A0A0A0;
+  color: var(--game-blue);
+  text-shadow: none;
+}
+
+/* 主要操作按钮 - 更大更醒目 */
+.game-btn-primary {
+  background: linear-gradient(180deg, var(--game-blue-light) 0%, var(--game-blue) 50%, var(--game-blue-dark) 100%);
+  border-bottom: 3px solid #2C5F8F;
+}
+
+/* 大按钮 */
+.game-btn-big {
+  padding: 18px 44px;
+  font-size: 22px;
+  border-radius: var(--radius-xl);
+  animation: bigBtnPulse 2s ease-in-out infinite;
+  box-shadow: 
+    var(--shadow-btn),
+    0 0 30px rgba(74, 144, 226, 0.5);
+  /* 确保在旧浏览器中也能居中 */
+  display: block;
+  width: -moz-fit-content;  /* Firefox 兼容 */
+  width: -webkit-fit-content;  /* Safari/Chrome 兼容 */
+  width: fit-content;  /* 宽度适应内容 */
+  max-width: 100%;  /* 防止超出屏幕 */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.game-btn-big:hover {
+  animation: none;
+  transform: translateY(-3px) scale(1.02);
+}
+
+/* ===== 圆形按钮 - 类似参考图右侧按钮 ===== */
+.game-btn-round {
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 28px;
+  box-shadow: 
+    var(--shadow-btn),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.game-btn-round::before {
+  border-radius: 50%;
+}
+
+.game-btn-round::after {
+  border-radius: 50%;
+}
+
+/* ===== 卡片容器 - 3D效果 ===== */
+.game-card {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--game-space-lg);
+  box-shadow: var(--shadow-card);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* 顶部光泽条 */
+.game-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    var(--game-orange) 0%, 
+    var(--game-yellow) 25%, 
+    var(--game-green) 50%, 
+    var(--game-blue) 75%, 
+    var(--game-purple) 100%);
+}
+
+.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-float);
+}
+
+/* ===== 画布容器 - 木质画板效果 ===== */
+.game-canvas-wrapper {
+  position: relative;
+  display: block;  /* 改为 block 以便更好地居中 */
+  width: -moz-fit-content;  /* Firefox 兼容 */
+  width: -webkit-fit-content;  /* Safari/Chrome 兼容 */
+  width: fit-content;  /* 宽度适应内容 */
+  max-width: 100%;  /* 防止超出屏幕 */
+  margin-left: auto;  /* 左右自动边距实现居中 */
+  margin-right: auto;
+  padding: 24px;
+  /* 木质纹理渐变背景 */
+  background: 
+    linear-gradient(135deg, 
+      rgba(139, 90, 43, 0.1) 0%, 
+      transparent 50%, 
+      rgba(101, 67, 33, 0.1) 100%),
+    linear-gradient(90deg, 
+      #D2A679 0%, 
+      #C9A372 25%, 
+      #BF9866 50%, 
+      #C9A372 75%, 
+      #D2A679 100%);
+  border-radius: 8px;
+  /* 立体木框效果 */
+  box-shadow: 
+    /* 外部阴影（去掉底部厚边缘） */
+    0 8px 25px rgba(0, 0, 0, 0.3),
+    /* 顶部高光 */
+    inset 0 4px 8px rgba(255, 255, 255, 0.4),
+    /* 底部阴影 */
+    inset 0 -3px 6px rgba(101, 67, 33, 0.3),
+    /* 左侧高光 */
+    inset 4px 0 6px rgba(255, 255, 255, 0.2),
+    /* 右侧阴影 */
+    inset -3px 0 6px rgba(101, 67, 33, 0.2);
+  /* 木框边缘 */
+  border: 3px solid #A67C52;
+  border-top: 4px solid #D4B896;
+  border-left: 4px solid #D4B896;
+  border-right: 3px solid #8B6F47;
+  border-bottom: 3px solid #8B6F47;
+  margin-top: var(--game-space-lg);
+  margin-bottom: var(--game-space-lg);
+  animation: canvasFloat 4s ease-in-out infinite;
+}
+
+/* 木纹纹理效果 */
+.game-canvas-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(101, 67, 33, 0.03) 2px,
+      rgba(101, 67, 33, 0.03) 4px
+    );
+  pointer-events: none;
+  border-radius: 8px;
+}
+
+/* 画布提示文字 - 居中覆盖层 */
+.canvas-hint {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;  /* 不阻挡鼠标事件 */
+  color: rgba(139, 90, 43, 0.5);  /* 木质色调，半透明 */
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  transition: opacity 0.3s ease;
+  user-select: none;
+}
+
+.canvas-hint.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Canvas - 内嵌效果 */
+.game-canvas-wrapper canvas {
+  position: relative;
+  z-index: 1;
+  border: 2px solid #B8956A;
+  border-radius: 4px;
+  /* 内嵌的凹陷感 */
+  box-shadow: 
+    inset 0 3px 6px rgba(0, 0, 0, 0.15),
+    inset 0 -1px 3px rgba(255, 255, 255, 0.3),
+    0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* ===== 鱼概率显示 ===== */
+.game-probability {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  margin: 0;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 100%);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-btn);
+  font-size: 16px;
+  font-weight: 700;
+  border: 3px solid;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.5s ease;
+  color: #333;
+}
+
+.game-probability.high {
+  border-color: var(--color-green);
+}
+
+.game-probability.low {
+  border-color: var(--color-orange);
+}
+
+.game-probability::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  pointer-events: none;
+}
+
+.game-probability.high {
+  border-color: var(--game-green);
+  color: #2E8B3A;
+  box-shadow: 
+    var(--shadow-btn),
+    0 0 20px rgba(76, 217, 100, 0.5);
+}
+
+.game-probability.low {
+  border-color: var(--game-red);
+  color: #991F19;
+  box-shadow: 
+    var(--shadow-btn),
+    0 0 20px rgba(255, 59, 48, 0.5);
+}
+
+/* ===== 工具栏 - 3D效果 ===== */
+.game-toolbar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(240, 240, 240, 0.98));
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-xl);
+  padding: var(--game-space-lg);
+  box-shadow: 
+    0 6px 0 rgba(0, 0, 0, 0.2),
+    0 10px 24px rgba(0, 0, 0, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  margin: var(--game-space-lg) auto;
+  max-width: 900px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--game-space-md);
+  justify-content: center;
+  align-items: center;
+}
+
+.game-toolbar-section {
+  display: flex;
+  gap: var(--game-space-sm);
+  align-items: center;
+  padding: var(--game-space-sm);
+  background: linear-gradient(145deg, #F8F8F8, #E8E8E8);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 颜色按钮 - 3D光泽 */
+.game-color-btn {
+  width: 52px;
+  height: 52px;
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 4px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  position: relative;
+  transform: translateY(0);
+}
+
+/* 颜色按钮高光 */
+.game-color-btn::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  height: 40%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.game-color-btn:hover {
+  transform: translateY(-2px) scale(1.1);
+  box-shadow: 
+    0 6px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.game-color-btn:active {
+  transform: translateY(2px) scale(1.05);
+  box-shadow: 
+    0 2px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.game-color-btn.active {
+  border-width: 5px;
+  border-color: var(--game-yellow);
+  box-shadow: 
+    0 4px 0 rgba(0, 0, 0, 0.25),
+    0 0 20px var(--game-yellow),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  animation: colorPulse 1s ease-in-out infinite;
+}
+
+/* ===== 按钮组 ===== */
+.game-btn-group {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: var(--game-space-md) 0 20px 0 !important; /* 底部间距20px */
+}
+
+/* 确保按钮组中的所有按钮（包括 button 和 a 元素）宽度一致 */
+.game-btn-group > .game-btn {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+/* ===== 标题样式 - 游戏风格 ===== */
+.game-title {
+  font-size: 56px;
+  font-weight: 900;
+  text-align: center;
+  color: white;
+  text-shadow: 
+    3px 3px 0 rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(255, 255, 255, 0.8),
+    0 0 50px rgba(255, 215, 0, 0.5);
+  margin: var(--game-space-lg) 0;
+  animation: titleBounce 1s ease;
+  letter-spacing: 2px;
+  -webkit-text-stroke: 2px rgba(0, 0, 0, 0.2);
+}
+
+.game-subtitle {
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.95);
+  text-align: center;
+  margin: var(--game-space-sm) 0 var(--game-space-xl);
+  font-weight: 600;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== 底部栏 ===== */
+.game-footer {
+  background: linear-gradient(180deg, rgba(74, 144, 226, 0.95) 0%, rgba(53, 122, 189, 0.95) 100%);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px; /* 进一步压缩内边距 */
+  text-align: center;
+  border-top: 2px solid rgba(255, 255, 255, 0.3);
+  margin-top: auto; /* 自动推到底部 */
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+  color: white;
+  flex-shrink: 0; /* 防止 footer 被压缩 */
+}
+
+.game-footer-links {
+  display: flex;
+  gap: 16px; /* 减小间隔 */
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 4px 0; /* 进一步减小上下边距 */
+}
+
+.game-footer-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 400;
+  padding: 4px 12px; /* 减小内边距 */
+  border-radius: 6px; /* 圆角让每个链接更独立 */
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.1); /* 半透明背景 */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* 边框增强分隔感 */
+  box-shadow: none;
+  white-space: nowrap; /* 防止文字换行 */
+  font-size: 13px; /* 减小字体 */
+}
+
+.game-footer-link:hover {
+  background: rgba(255, 255, 255, 0.2); /* 悬停时背景变亮 */
+  transform: translateY(-2px); /* 轻微上浮效果 */
+  border-color: rgba(255, 255, 255, 0.4); /* 边框变亮 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+  text-decoration: none;
+}
+
+/* 社交按钮组 */
+.game-social-btns {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin: var(--game-space-lg) 0;
+}
+
+.game-social-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 4px 0 rgba(0, 0, 0, 0.3),
+    0 6px 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(0);
+}
+
+.game-social-btn::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  height: 40%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.game-social-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 6px 0 rgba(0, 0, 0, 0.3),
+    0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.game-social-btn:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 2px 0 rgba(0, 0, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== 动画关键帧 ===== */
+
+/* 气泡上浮 */
+@keyframes bubbleFloat {
+  0% { 
+    transform: translateY(100vh) translateX(0) scale(0); 
+    opacity: 0; 
+  }
+  10% { 
+    opacity: 0.8; 
+  }
+  50% {
+    transform: translateY(50vh) translateX(20px) scale(1);
+  }
+  90% { 
+    opacity: 0.8; 
+  }
+  100% { 
+    transform: translateY(-10vh) translateX(-20px) scale(0.8); 
+    opacity: 0; 
+  }
+}
+
+/* 气泡上浮动画 - 用于JavaScript动态创建的气泡 */
+@keyframes float-up {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-50vh) translateX(20px) scale(1.1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(-20px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Logo浮动 */
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+/* 大按钮脉冲 */
+@keyframes bigBtnPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* 画布浮动 */
+@keyframes canvasFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+/* 贴纸摇摆 */
+@keyframes stickerWiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-12deg) scale(1.05); }
+  75% { transform: rotate(12deg) scale(1.05); }
+}
+
+/* 颜色按钮脉冲 */
+@keyframes colorPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* 标题弹跳入场 */
+@keyframes titleBounce {
+  0% { 
+    transform: translateY(-60px) scale(0.8); 
+    opacity: 0; 
+  }
+  50% { 
+    transform: translateY(10px) scale(1.1); 
+    opacity: 1; 
+  }
+  70% { 
+    transform: translateY(-5px) scale(0.95); 
+  }
+  100% { 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+/* 导航栏滑下 */
+@keyframes slideDown {
+  0% { transform: translateY(-100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* 淡入上移 */
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 响应式设计 ===== */
+/* Canvas响应式 */
+#draw-canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .game-title {
+    font-size: 40px;
+  }
+  
+  .game-subtitle {
+    font-size: 18px;
+  }
+  
+  .game-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .game-btn-big {
+    padding: 16px 36px;
+    font-size: 18px;
+  }
+  
+  .game-btn-group {
+    gap: 12px;
+    flex-wrap: wrap;         /* 允许换行 */
+    justify-content: center; /* 居中对齐 */
+  }
+  
+  .game-btn-group .game-btn {
+    flex: 0 1 calc(50% - 6px);  /* 平板端每行2个 */
+    max-width: 200px;
+    min-width: 160px;
+  }
+  
+  .game-social-btns {
+    gap: 16px;
+  }
+  
+  .game-footer-links {
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .game-footer-link {
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+  
+  .game-btn-round {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+  }
+  
+  .game-toolbar {
+    padding: var(--game-space-md);
+  }
+  
+  .game-color-btn {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .game-nav {
+    padding: 10px 16px;
+  }
+  
+  .game-logo {
+    font-size: 26px;
+  }
+  
+  .game-canvas-wrapper {
+    padding: var(--game-space-md);
+  }
+  
+  .game-social-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-title {
+    font-size: 32px;
+  }
+  
+  .game-subtitle {
+    font-size: 16px;
+  }
+  
+  .game-btn-group {
+    flex-direction: row;  /* 改为横向排列 */
+    flex-wrap: wrap;      /* 允许换行 */
+    width: 100%;
+    gap: 10px;            /* 减小间隔 */
+    margin-bottom: 20px !important;
+    justify-content: center;  /* 居中对齐 */
+  }
+  
+  .game-btn {
+    width: calc(50% - 5px) !important;  /* 每行2个，减去间隔 */
+    max-width: 180px !important;         /* 限制最大宽度 */
+    min-width: 140px !important;         /* 设置最小宽度 */
+    display: flex !important;
+    padding: 10px 16px !important;       /* 调整内边距 */
+    font-size: 14px !important;          /* 调整字体大小 */
+  }
+  
+  /* 确保 button 元素也应用相同的宽度 */
+  button.game-btn {
+    width: calc(50% - 5px) !important;
+    max-width: 180px !important;
+    min-width: 140px !important;
+    display: flex !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+  }
+  
+  /* 大按钮在移动端也居中 */
+  .game-btn-big {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  .game-social-btns {
+    gap: 12px;
+  }
+  
+  .game-social-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+}
+
+/* 480px 媒体查询已经在上面定义，这里是额外的样式补充 */
+@media (max-width: 480px) {
+  .game-toolbar {
+    flex-direction: column;
+  }
+  
+  .game-footer-links {
+    flex-direction: row; /* 改为横向排列 */
+    flex-wrap: wrap; /* 允许换行 */
+    gap: 8px; /* 减小间隔 */
+    justify-content: center; /* 居中对齐 */
+  }
+  
+  .game-footer-link {
+    flex: 0 0 auto; /* 不拉伸 */
+    min-width: auto; /* 移除最小宽度限制 */
+    padding: 4px 10px; /* 减小内边距 */
+    font-size: 12px; /* 减小字体 */
+    text-align: center;
+    white-space: nowrap; /* 防止文字换行 */
+  }
+}
+
+/* ===== 游戏风格弹窗系统 ===== */
+.modal {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: linear-gradient(180deg, #FFF9E6 0%, #FFF4D6 100%);
+  border-radius: var(--radius-xl);
+  padding: 0;
+  position: relative;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow: visible; /* 允许关闭按钮溢出 */
+  min-width: 350px;
+  width: auto;
+  height: auto; /* 高度自适应内容 */
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 8px 0 rgba(0, 0, 0, 0.2),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  border: 3px solid #A5B4FC;
+}
+
+/* 有标题横幅的弹窗使用更大的最小宽度 */
+.modal-content.has-title-banner {
+  min-width: 500px;
+  width: auto;
+}
+
+/* 弹窗内容区域（当没有标题横幅时使用padding） - 压缩内边距 */
+.modal-content:not(.has-title-banner) {
+  padding: 16px;
+  height: auto; /* 高度自适应内容 */
+}
+
+/* 弹窗顶部光泽效果 */
+.modal-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 标题横幅样式 */
+.modal-title-banner {
+  background: linear-gradient(180deg, #4A4A4D 0%, #3A3A3D 50%, #2A2A2D 100%) !important;
+  padding: 16px 24px;
+  border-bottom: 2px solid #1A1A1D !important;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 255, 255, 0.1);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+}
+
+.modal-title-banner h2 {
+  color: #FFFFFF !important;
+  margin: 0;
+  margin-right: 50px; /* 为关闭按钮留出空间 */
+  font-size: 24px;
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.2);
+  letter-spacing: 1px;
+  padding-right: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0; /* 允许flex收缩 */
+}
+
+/* 弹窗内容区域（有标题横幅时） - 压缩内边距 */
+.modal-content-area {
+  padding: 20px;
+  padding-top: 16px;
+  position: relative;
+  z-index: 1;
+  height: auto; /* 高度自适应内容 */
+}
+
+/* 宽弹窗样式 - 自适应宽度和高度 */
+.modal-content.wide {
+  width: auto; /* 自适应宽度 */
+  height: auto; /* 自适应高度 */
+  min-width: 320px; /* 最小宽度保证内容不被挤压 */
+  max-width: 85vw; /* 最大宽度限制 */
+  max-height: 85vh; /* 限制最大高度 */
+}
+
+/* 关闭按钮 - 移动到弹窗右上角 */
+.modal .close,
+.modal-close-btn {
+  position: absolute;
+  top: -15px; /* 移出内容区域顶部 */
+  right: -15px; /* 移出内容区域右侧 */
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #FF6B6B 0%, #EE5A52 50%, #E53935 100%); /* 使用醒目的红色 */
+  border: none;
+  border-bottom: 2px solid #C62828;
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  transition: all 0.15s ease;
+  z-index: 20; /* 提高层级 */
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.modal .close::before,
+.modal-close-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+  border-radius: 50% 50% 0 0;
+  pointer-events: none;
+}
+
+.modal .close:hover,
+.modal-close-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 
+    0 5px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+.modal .close:active,
+.modal-close-btn:active {
+  transform: scale(0.95);
+  box-shadow: 
+    0 2px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* 弹窗标题 */
+.modal-content h2,
+.modal-content h3 {
+  color: var(--game-dark);
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.modal-content h2 {
+  font-size: 28px;
+}
+
+.modal-content h3 {
+  font-size: 22px;
+}
+
+/* 弹窗内容文本 */
+.modal-content p,
+.modal-content .fish-details {
+  color: #666;
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 12px 0;
+}
+
+/* 弹窗内的按钮组 */
+.modal-content .voting-controls,
+.modal-content .game-btn-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+/* 弹窗内的投票按钮 */
+.modal-content .vote-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color: white;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  transform: translateY(0);
+}
+
+.modal-content .vote-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  pointer-events: none;
+}
+
+.modal-content .vote-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+}
+
+.modal-content .vote-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.modal-content .upvote-btn {
+  background: linear-gradient(180deg, var(--game-green-light) 0%, var(--game-green) 50%, #3CB54A 100%);
+  border-bottom: 3px solid #2E8B3A;
+}
+
+.modal-content .report-btn {
+  background: linear-gradient(180deg, var(--game-yellow-light) 0%, var(--game-yellow) 50%, #E5BF00 100%);
+  border-bottom: 3px solid #BFA000;
+  color: #5D4E00;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* 弹窗内的鱼信息 */
+.modal-content .fish-info-modal {
+  text-align: center;
+}
+
+/* 美化滚动条 - fish-info-modal */
+.fish-info-modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.fish-info-modal::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.fish-info-modal::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+.fish-info-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.5);
+}
+
+.modal-content .fish-score {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--game-blue);
+  margin: 16px 0;
+  text-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);
+}
+
+/* 弹窗内的投票计数 */
+.modal-content .vote-count {
+  font-weight: 900;
+  font-size: 16px;
+}
+
+/* 弹窗动画 */
+@keyframes modalBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.8);
+  }
+  50% {
+    transform: translateY(10px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* 响应式弹窗 */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 85vw;
+    margin: 15px;
+    min-width: 0 !important; /* 移除固定最小宽度，允许在移动端自适应 */
+    max-width: calc(100vw - 30px) !important; /* 减少边距，节省空间 */
+    max-height: 75vh; /* 减少最大高度 */
+    overflow-y: auto; /* 允许滚动 */
+  }
+  
+  .modal-content.has-title-banner {
+    min-width: 0 !important; /* 覆盖固定最小宽度 */
+    width: calc(100vw - 30px) !important; /* 减少边距 */
+    max-width: calc(100vw - 30px) !important;
+  }
+  
+  .modal-content:not(.has-title-banner) {
+    padding: 16px;
+  }
+  
+  .modal-content-area {
+    padding: 16px;
+    padding-top: 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* 移动端鱼信息弹窗优化 */
+  .modal-content .fish-info-modal {
+    padding: 12px !important;
+  }
+  
+  /* 移动端鱼信息弹窗图片容器优化 - 进一步压缩 */
+  .modal-content .fish-info-modal > div:first-child {
+    min-height: 100px !important;
+    margin-bottom: 10px !important;
+  }
+  
+  /* 移动端鱼信息弹窗图片优化 - 进一步压缩 */
+  .modal-content .fish-info-modal img {
+    max-width: min(300px, 65vw) !important;
+    max-height: min(180px, 22vh) !important;
+  }
+  
+  /* 移动端按钮组优化 - 进一步压缩 */
+  .modal-content .voting-controls,
+  .modal-content .modal-controls {
+    flex-wrap: wrap;
+    gap: 6px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .modal-content .vote-btn,
+  .modal-content .add-to-tank-btn,
+  .modal-content .report-btn {
+    font-size: 11px !important;
+    padding: 6px 8px !important;
+    border-radius: 6px !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25) !important;
+  }
+  
+  /* 确保 auth-modal-content 的 modal-content-area 在移动端占满宽度 */
+  .auth-modal-content .modal-content-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  /* 确保 auth-modal-content 在移动端正确居中且没有额外的margin */
+  .auth-modal-content {
+    margin: 0 auto !important;
+  }
+  
+  /* 确保 auth-modal-body 在移动端占满宽度 */
+  .auth-modal-content .auth-modal-body {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* 确保所有按钮在移动端占满宽度 */
+  .auth-modal-content .auth-modal-body .oauth-btn,
+  .auth-modal-content .auth-modal-body button {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    flex-shrink: 0 !important;
+    align-self: stretch !important;
+  }
+  
+  .modal-content.wide {
+    width: 95vw;
+  }
+  
+  .modal-title-banner {
+    background: linear-gradient(180deg, #4A4A4D 0%, #3A3A3D 50%, #2A2A2D 100%) !important;
+    border-bottom: 2px solid #1A1A1D !important;
+    z-index: 3 !important;
+  }
+  
+  .modal-title-banner h2 {
+    color: #FFFFFF !important;
+    font-size: 20px;
+    margin-right: 45px !important; /* 为关闭按钮留出空间 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .modal-content h2 {
+    font-size: 24px;
+  }
+  
+  .modal-content h3 {
+    font-size: 20px;
+  }
+  
+  .modal .close {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    top: 12px;
+    right: 12px;
+  }
+}
