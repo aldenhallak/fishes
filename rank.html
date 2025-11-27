@@ -104,34 +104,50 @@
         
         .category-tabs {
             display: inline-flex;
-            background: white;
-            border-radius: 12px;
-            padding: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border: 2px solid #E0E7FF;
+            gap: 12px;
         }
         
         .category-tab {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            background: transparent;
-            border-radius: 8px;
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: #6366F1;
-            transition: all 0.2s ease;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 0 0 #B8860B, 0 6px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.15s ease;
             white-space: nowrap;
+            position: relative;
+            top: 0;
         }
         
         .category-tab:hover {
-            background: #EEF2FF;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 0 #B8860B, 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+        
+        .category-tab:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #B8860B, 0 3px 6px rgba(0, 0, 0, 0.3);
         }
         
         .category-tab.active {
-            background: linear-gradient(135deg, #6366F1, #4F46E5);
-            color: white;
-            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+            background: linear-gradient(180deg, #6366F1 0%, #4F46E5 50%, #3730A3 100%);
+            box-shadow: 0 4px 0 0 #312E81, 0 6px 12px rgba(99, 102, 241, 0.4);
+            transform: translateY(0);
+        }
+        
+        .category-tab.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 0 #312E81, 0 8px 16px rgba(99, 102, 241, 0.5);
+        }
+        
+        .category-tab.active:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #312E81, 0 3px 6px rgba(99, 102, 241, 0.4);
         }
         
         /* Compact Sort Controls */
@@ -139,37 +155,57 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
             margin-bottom: 20px;
         }
         
         .sort-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #666;
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
-        .sort-select {
-            padding: 6px 12px;
-            border: 2px solid #E0E7FF;
-            border-radius: 8px;
-            background: white;
-            color: #6366F1;
-            font-size: 14px;
-            font-weight: 600;
+        .sort-btn {
+            padding: 10px 20px;
+            border: none;
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            outline: none;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 0 0 #B8860B, 0 6px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.15s ease;
+            white-space: nowrap;
+            position: relative;
+            top: 0;
         }
         
-        .sort-select:hover {
-            border-color: #6366F1;
-            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+        .sort-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 0 #B8860B, 0 8px 16px rgba(0, 0, 0, 0.4);
         }
         
-        .sort-select:focus {
-            border-color: #4F46E5;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        .sort-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #B8860B, 0 3px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sort-btn.active {
+            background: linear-gradient(180deg, #6366F1 0%, #4F46E5 50%, #3730A3 100%);
+            box-shadow: 0 4px 0 0 #312E81, 0 6px 12px rgba(99, 102, 241, 0.4);
+        }
+        
+        .sort-btn.active:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 0 #312E81, 0 8px 16px rgba(99, 102, 241, 0.5);
+        }
+        
+        .sort-btn.active:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #312E81, 0 3px 6px rgba(99, 102, 241, 0.4);
         }
         
         /* Loading state */
@@ -244,17 +280,24 @@
             font-weight: bold;
             color: #333;
             margin-bottom: 5px;
-        }
-        
-        .fish-artist a:hover {
-            color: #007bff !important;
-            text-decoration: underline !important;
+            font-size: 16px;
         }
         
         .fish-date {
             color: #666;
             font-size: 12px;
             margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        
+        .fish-date a {
+            color: #6366F1;
+            font-weight: 600;
+        }
+        
+        .fish-date a:hover {
+            color: #4F46E5;
+            text-decoration: underline;
         }
         
         .fish-score {
@@ -593,10 +636,12 @@
         <!-- Compact Sort Controls -->
         <div class="sort-controls-compact">
             <span class="sort-label">Sort:</span>
-            <select id="sort-select" class="sort-select">
-                <option value="hot">🔥 Hot</option>
-                <option value="date" selected>📅 Date</option>
-            </select>
+            <button id="sort-hot-btn" class="sort-btn" data-sort="hot">
+                🔥 Hot
+            </button>
+            <button id="sort-date-btn" class="sort-btn active" data-sort="date">
+                📅 Date
+            </button>
         </div>
         
         <div id="loading" class="loading">

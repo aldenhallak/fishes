@@ -224,12 +224,14 @@ function createFishCard(fish) {
             </div>
             <div class="fish-info">
                 <div class="fish-artist">
-                    <a href="profile.html?userId=${encodeURIComponent(fish.userId || 'Anonymous')}" 
+                    ${escapeHtml(fish.fish_name || fish.Artist || 'Unnamed Fish')}
+                </div>
+                <div class="fish-date">
+                    by <a href="profile.html?userId=${encodeURIComponent(fish.userId || 'Anonymous')}" 
                        style="color: inherit; text-decoration: none;">
                         ${escapeHtml(fish.Artist || 'Anonymous')}
-                    </a>
+                    </a> • ${formatDate(fish.CreatedAt)}
                 </div>
-                <div class="fish-date">${formatDate(fish.CreatedAt)}</div>
             </div>
             <div class="voting-controls">
                 <button class="vote-btn upvote-btn" onclick="handleVote('${fish.docId}', 'up', this)">
@@ -332,10 +334,18 @@ async function handleSortChange(sortType) {
     totalFishCount = 0; // Reset total count (will be recalculated on next load)
     totalPages = 1; // Reset total pages
 
-    // Update sort select
-    const sortSelect = document.getElementById('sort-select');
-    if (sortSelect) {
-        sortSelect.value = sortType;
+    // Update sort buttons
+    const sortHotBtn = document.getElementById('sort-hot-btn');
+    const sortDateBtn = document.getElementById('sort-date-btn');
+    
+    if (sortHotBtn && sortDateBtn) {
+        if (sortType === 'hot') {
+            sortHotBtn.classList.add('active');
+            sortDateBtn.classList.remove('active');
+        } else {
+            sortDateBtn.classList.add('active');
+            sortHotBtn.classList.remove('active');
+        }
     }
 
     // Show loading and reload data with new sort
@@ -634,6 +644,12 @@ async function loadFavoriteFish(isInitialLoad = true, page = currentPage) {
         if (!userToken) {
             throw new Error('Please login to view favorites');
         }
+        
+        // Ensure category filter is visible
+        const filterElement = document.getElementById('fish-category-filter');
+        if (filterElement) {
+            filterElement.style.display = 'flex';
+        }
 
         // Get favorites from API
         const API_BASE = typeof BACKEND_URL !== 'undefined' ? BACKEND_URL : '';
@@ -714,7 +730,7 @@ async function loadFavoriteFish(isInitialLoad = true, page = currentPage) {
         updateStatusMessage();
 
         // Update page header
-        const pageHeader = document.querySelector('.page-header h1');
+        const pageHeader = document.querySelector('.ranking-header h1');
         if (pageHeader) {
             pageHeader.textContent = '⭐ My Favorites';
         }
@@ -782,9 +798,10 @@ async function loadUserFishCategories() {
         document.getElementById('my-fish-count').textContent = myFishData.length;
         document.getElementById('favorites-count').textContent = favoritesData.length;
         
-        // Show filter if user has fish
-        if (myFishData.length > 0 || favoritesData.length > 0) {
-            document.getElementById('fish-category-filter').style.display = 'flex';
+        // Show filter if user is logged in (show even if no fish yet)
+        const filterElement = document.getElementById('fish-category-filter');
+        if (filterElement && user) {
+            filterElement.style.display = 'flex';
         }
         
         console.log(`✅ Loaded ${myFishData.length} my fish, ${favoritesData.length} favorites`);
@@ -855,13 +872,39 @@ window.addEventListener('DOMContentLoaded', async () => {
         console.log('✅ User cache initialized for rank page');
     }
     
-    // Load user's fish categories
-    await loadUserFishCategories();
-    
-    // Check for URL parameters
+    // Check for URL parameters first
     const urlParams = new URLSearchParams(window.location.search);
     const showFavorites = urlParams.get('favorites') === 'true';
     currentUserId = urlParams.get('userId');
+    
+    // Load user's fish categories
+    await loadUserFishCategories();
+    
+    // Force show category filter if we're in favorites mode
+    if (showFavorites) {
+        const filterElement = document.getElementById('fish-category-filter');
+        if (filterElement) {
+            filterElement.style.display = 'flex';
+        }
+        
+        // Set active tab to favorites
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            const category = tab.getAttribute('data-category');
+            if (category === 'favorites') {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+        
+        currentCategory = 'favorites';
+        
+        // Update page title
+        const pageHeader = document.querySelector('.ranking-header h1');
+        if (pageHeader) {
+            pageHeader.textContent = '⭐ My Favorites';
+        }
+    }
     
     // Hide user filter header if present
     const userFilterNote = document.querySelector('.user-filter-note');
@@ -876,11 +919,31 @@ window.addEventListener('DOMContentLoaded', async () => {
         });
     });
     
-    // Set up sort select listener
-    const sortSelect = document.getElementById('sort-select');
-    if (sortSelect) {
-        sortSelect.addEventListener('change', async () => {
-            await handleSortChange(sortSelect.value);
+    // Set up sort button listeners
+    const sortHotBtn = document.getElementById('sort-hot-btn');
+    const sortDateBtn = document.getElementById('sort-date-btn');
+    
+    if (sortHotBtn) {
+        sortHotBtn.addEventListener('click', async () => {
+            if (sortHotBtn.classList.contains('active')) return; // Already active
+            
+            // Toggle active states
+            sortHotBtn.classList.add('active');
+            sortDateBtn.classList.remove('active');
+            
+            await handleSortChange('hot');
+        });
+    }
+    
+    if (sortDateBtn) {
+        sortDateBtn.addEventListener('click', async () => {
+            if (sortDateBtn.classList.contains('active')) return; // Already active
+            
+            // Toggle active states
+            sortDateBtn.classList.add('active');
+            sortHotBtn.classList.remove('active');
+            
+            await handleSortChange('date');
         });
     }
 

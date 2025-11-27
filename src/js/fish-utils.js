@@ -382,10 +382,10 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
     // 动态构建查询变量声明
     const variableDeclarations = ['$limit: Int!', '$offset: Int!'];
     if (userId) {
-        variableDeclarations.push('$userId: String!');
+        variableDeclarations.push('$userId: uuid!');
     }
     if (hasExcludeIds) {
-        variableDeclarations.push('$excludeIds: [String!]');
+        variableDeclarations.push('$excludeIds: [uuid!]');
     }
     
     const query = `
@@ -510,7 +510,7 @@ async function getFishById(fishId) {
     // 如果使用Hasura
     if (backendConfig.useHasura) {
         const query = `
-            query GetFishById($fishId: String!) {
+            query GetFishById($fishId: uuid!) {
                 fish_by_pk(id: $fishId) {
                     id
                     user_id
@@ -542,7 +542,10 @@ async function getFishById(fishId) {
             const result = await response.json();
 
             if (result.errors) {
-                console.error('GraphQL errors:', result.errors);
+                console.error('❌ [FISH LOADER] GraphQL errors:', result.errors);
+                console.error('❌ [FISH LOADER] Error details:', JSON.stringify(result.errors, null, 2));
+                console.error('❌ [FISH LOADER] Query was for fishId:', fishId);
+                console.error('❌ [FISH LOADER] Full response:', result);
                 return null;
             }
 
