@@ -317,7 +317,7 @@ async function getRandomFish(limit = 25, userId = null) {
 /**
  * 从Hasura获取鱼数据
  */
-async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null, battleModeOnly = false) {
+async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null, battleModeOnly = false, excludeFishIds = []) {
     // 确定排序字段
     let orderByClause = '{ created_at: desc }';
     
@@ -376,13 +376,26 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
     // 构建GraphQL查询 - 直接在查询字符串中插入 order_by
     // 添加 upvotes 不为 null 的条件，避免 GraphQL 非空类型错误
     // 同时获取总数用于分页
+    // 🆕 添加排除ID支持
+    const hasExcludeIds = excludeFishIds && excludeFishIds.length > 0;
+    
+    // 动态构建查询变量声明
+    const variableDeclarations = ['$limit: Int!', '$offset: Int!'];
+    if (userId) {
+        variableDeclarations.push('$userId: String!');
+    }
+    if (hasExcludeIds) {
+        variableDeclarations.push('$excludeIds: [String!]');
+    }
+    
     const query = `
-        query GetFish($limit: Int!, $offset: Int!, $userId: String) {
+        query GetFish(${variableDeclarations.join(', ')}) {
             fish(
                 where: {
                     is_approved: { _eq: true }
                     upvotes: { _is_null: false }
                     ${userId ? ', user_id: { _eq: $userId }' : ''}
+                    ${hasExcludeIds ? ', id: { _nin: $excludeIds }' : ''}
                 }
                 limit: $limit
                 offset: $offset
@@ -402,6 +415,7 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
                     is_approved: { _eq: true }
                     upvotes: { _is_null: false }
                     ${userId ? ', user_id: { _eq: $userId }' : ''}
+                    ${hasExcludeIds ? ', id: { _nin: $excludeIds }' : ''}
                 }
             ) {
                 aggregate {
@@ -427,8 +441,15 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
     if (userId) {
         variables.userId = userId;
     }
+    
+    // 🆕 添加排除ID参数
+    if (hasExcludeIds) {
+        variables.excludeIds = excludeFishIds;
+    }
 
     try {
+        console.log('🐟 Fetching fish from Hasura:', { sortType, limit: safeLimit, offset: safeOffset, userId, excludeFishIds: excludeFishIds?.length || 0 });
+        
         const response = await fetch('/api/graphql', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -436,14 +457,19 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('GraphQL request failed:', response.status, errorText);
             throw new Error(`GraphQL request failed: ${response.status}`);
         }
 
         const result = await response.json();
 
         if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
             throw new Error(result.errors[0].message);
         }
+        
+        console.log('✅ Successfully fetched', result.data.fish?.length || 0, 'fish from Hasura');
 
         // 获取总数
         const totalCount = result.data.fish_aggregate?.aggregate?.count || 0;
@@ -472,15 +498,126 @@ async function getFishFromHasura(sortType, limit = 25, offset = 0, userId = null
     }
 }
 
+/**
+ * 通过ID获取单条鱼的数据
+ * @param {string} fishId - 鱼的ID
+ * @returns {Object|null} 鱼数据对象，如果未找到则返回null
+ */
+async function getFishById(fishId) {
+    // 先加载配置
+    await loadBackendConfig();
+
+    // 如果使用Hasura
+    if (backendConfig.useHasura) {
+        const query = `
+            query GetFishById($fishId: String!) {
+                fish_by_pk(id: $fishId) {
+                    id
+                    user_id
+                    artist
+                    image_url
+                    created_at
+                    upvotes
+                    fish_name
+                    personality
+                    is_approved
+                }
+            }
+        `;
+
+        try {
+            const response = await fetch('/api/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    query, 
+                    variables: { fishId } 
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`GraphQL request failed: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.errors) {
+                console.error('GraphQL errors:', result.errors);
+                return null;
+            }
+
+            const fish = result.data.fish_by_pk;
+            
+            if (!fish) {
+                console.warn(`Fish with ID ${fishId} not found`);
+                return null;
+            }
+            
+            // 🔍 只排除明确标记为未审核的鱼（is_approved === false）
+            // 默认创建的鱼 is_approved = true，所以这里只检查明确的 false
+            if (fish.is_approved === false) {
+                console.warn(`Fish with ID ${fishId} is explicitly not approved (is_approved: false)`);
+                return null;
+            }
+            
+            console.log(`✅ [FISH LOADER] Found fish by ID:`, {
+                id: fish.id,
+                name: fish.fish_name,
+                is_approved: fish.is_approved,
+                image_url: fish.image_url,
+                artist: fish.artist
+            });
+
+            // 转换为标准格式
+            return {
+                id: fish.id,
+                user_id: fish.user_id,
+                artist: fish.artist,
+                image_url: fish.image_url,
+                created_at: fish.created_at,
+                upvotes: fish.upvotes ?? 0,
+                fish_name: fish.fish_name,
+                personality: fish.personality,
+                is_approved: fish.is_approved,
+                Artist: fish.artist,
+                Image: fish.image_url,
+                CreatedAt: { _seconds: new Date(fish.created_at).getTime() / 1000 }
+            };
+        } catch (error) {
+            console.error('Error fetching fish by ID from Hasura:', error);
+            return null;
+        }
+    }
+
+    // 使用原作者后端API
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/fish/${fishId}`);
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                console.warn(`Fish with ID ${fishId} not found`);
+                return null;
+            }
+            throw new Error(`Backend API failed: ${response.status}`);
+        }
+
+        const fish = await response.json();
+        return fish;
+    } catch (error) {
+        console.error('Error fetching fish by ID from backend:', error);
+        return null;
+    }
+}
+
 // Get fish from backend API with caching
-async function getFishBySort(sortType, limit = 25, startAfter = null, direction = 'desc', userId = null, battleModeOnly = false) {
+async function getFishBySort(sortType, limit = 25, startAfter = null, direction = 'desc', userId = null, battleModeOnly = false, excludeFishIds = []) {
     // 先加载配置
     await loadBackendConfig();
 
     // 如果使用Hasura
     if (backendConfig.useHasura) {
         const offset = startAfter || 0;
-        return await getFishFromHasura(sortType, limit, offset, userId, battleModeOnly);
+        return await getFishFromHasura(sortType, limit, offset, userId, battleModeOnly, excludeFishIds);
     }
 
     // 使用原作者后端API
@@ -823,4 +960,5 @@ window.redirectToLogin = redirectToLogin;
 window.isUserLoggedIn = isUserLoggedIn;
 window.getCurrentUser = getCurrentUser;
 window.getCurrentUserId = getCurrentUserId;
+window.initializeUserCache = initializeUserCache;
 window.isUserFish = isUserFish;

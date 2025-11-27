@@ -57,6 +57,7 @@ const server = http.createServer(async (req, res) => {
   
   // API 路由
   if (pathname.startsWith('/api/')) {
+    console.log(`[API] ${req.method} ${pathname}`);
     try {
       // 添加 query 到 req 对象
       req.query = parsedUrl.query;
@@ -95,23 +96,45 @@ const server = http.createServer(async (req, res) => {
         return await handler(req, res);
       }
       
-      // 检查动态路由 (例如 /api/profile/[userId])
+      // 检查动态路由 (例如 /api/profile/[userId] 或 /api/admin/tables/[tableName])
       const pathParts = apiPath.split('/');
+      console.log(`[Dynamic Route Check] pathParts:`, pathParts);
       if (pathParts.length >= 2) {
         const basePath = pathParts.slice(0, -1).join('/');
         const dynamicParam = pathParts[pathParts.length - 1];
-        const dynamicHandlerFile = `./api/${basePath}/[${pathParts[0] === 'profile' ? 'userId' : 'id'}].js`;
+        console.log(`[Dynamic Route] basePath: ${basePath}, dynamicParam: ${dynamicParam}`);
         
-        if (fs.existsSync(dynamicHandlerFile)) {
+        // 尝试不同的动态参数名称
+        let dynamicHandlerFile = null;
+        let paramName = null;
+        
+        // 特殊处理：admin/tables/[tableName]
+        if (basePath === 'admin/tables') {
+          dynamicHandlerFile = `./api/${basePath}/[tableName].js`;
+          paramName = 'tableName';
+          console.log(`[Dynamic Route] Matched admin/tables pattern`);
+        }
+        // profile/[userId]
+        else if (pathParts[0] === 'profile') {
+          dynamicHandlerFile = `./api/${basePath}/[userId].js`;
+          paramName = 'userId';
+          console.log(`[Dynamic Route] Matched profile pattern`);
+        }
+        // 默认使用 [id]
+        else {
+          dynamicHandlerFile = `./api/${basePath}/[id].js`;
+          paramName = 'id';
+          console.log(`[Dynamic Route] Using default pattern`);
+        }
+        
+        console.log(`[Dynamic Route] Checking file: ${dynamicHandlerFile}, exists: ${dynamicHandlerFile && fs.existsSync(dynamicHandlerFile)}`);
+        
+        if (dynamicHandlerFile && fs.existsSync(dynamicHandlerFile)) {
           const handler = require(dynamicHandlerFile);
           
           // 添加动态参数到 req.query
           req.query = req.query || {};
-          if (pathParts[0] === 'profile') {
-            req.query.userId = dynamicParam;
-          } else {
-            req.query.id = dynamicParam;
-          }
+          req.query[paramName] = dynamicParam;
           
           // 包装响应对象
           res.status = (code) => {

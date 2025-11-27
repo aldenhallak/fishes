@@ -918,8 +918,22 @@ function showUserAlert(options) {
 }
 
 // Enhanced success modal with social sharing (Fish Group Chat style)
-function showSuccessModal(fishImageUrl, needsModeration) {
+function showSuccessModal(fishImageUrl, needsModeration, fishId = null) {
     const config = window.SOCIAL_CONFIG;
+    
+    // 🔍 调试：确认收到的参数
+    console.log(`🔍 [SUCCESS MODAL] showSuccessModal called with:`, {
+        fishImageUrl,
+        needsModeration,
+        fishId
+    });
+    
+    // 构建跳转URL，如果有fishId则添加到URL中
+    const tankUrl = fishId 
+        ? `tank.html?newFish=${encodeURIComponent(fishId)}&sort=random`
+        : 'tank.html?sort=random';
+    
+    console.log(`🔗 [SUCCESS MODAL] Generated tank URL: ${tankUrl}`);
     
     const modalHTML = `
         <div class="modal-title-banner">
@@ -1057,7 +1071,7 @@ function showSuccessModal(fishImageUrl, needsModeration) {
             
             <!-- Let's Swim Button -->
             <div style="text-align: center; margin-top: 24px;">
-                <button id="lets-swim-btn" onclick="window.location.href='tank.html'" 
+                <button id="lets-swim-btn" onclick="window.location.href='${tankUrl}'" 
                         class="game-btn game-btn-blue" style="
                             width: 100%;
                             padding: 16px 28px;
@@ -1277,12 +1291,31 @@ async function submitFish(artist, needsModeration = false, fishName = null, pers
         
         if (submitResult.success && submitResult.fish) {
             console.log('✅ 鱼提交成功！');
+            console.log('  新鱼ID:', submitResult.fish.id);
+            console.log('  完整鱼数据:', submitResult.fish);
+            
+            // 🔍 调试：检查ID是否有效
+            const fishId = submitResult.fish.id;
+            if (!fishId) {
+                console.error('❌ 警告: submitResult.fish.id 为空或undefined！');
+                console.error('  submitResult.fish:', submitResult.fish);
+            } else {
+                console.log('✅ 鱼ID有效，将传递给 showSuccessModal');
+            }
+            
             // Save today's date to track fish submission
             const today = new Date().toDateString();
             localStorage.setItem('lastFishDate', today);
             
-            // 显示社交分享成功弹窗
-            showSuccessModal(uploadResult.imageUrl, needsModeration);
+            // 临时保存鱼ID到localStorage，用于调试
+            if (fishId) {
+                localStorage.setItem('lastSubmittedFishId', fishId);
+                console.log('💾 已保存鱼ID到localStorage:', fishId);
+            }
+            
+            // 显示社交分享成功弹窗，传入新鱼ID
+            console.log(`🔗 准备调用 showSuccessModal，fishId: ${fishId}`);
+            showSuccessModal(uploadResult.imageUrl, needsModeration, fishId);
         } else {
             console.error('❌ 提交失败:', submitResult);
             

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Rank Page with UserId</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4F46E5;
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        .status.loading {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+        .status.success {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+        .status.error {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+        .fish-list {
+            margin-top: 20px;
+        }
+        .fish-item {
+            padding: 10px;
+            margin: 10px 0;
+            background: #f9f9f9;
+            border-left: 4px solid #4F46E5;
+            border-radius: 4px;
+        }
+        .log {
+            background: #f5f5f5;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        button {
+            padding: 10px 20px;
+            background: #4F46E5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #3730A3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐟 Test Rank Page with UserId Filter</h1>
+        
+        <div>
+            <label for="userId">User ID:</label>
+            <input type="text" id="userId" value="11312701-f1d2-43f8-a13d-260eac812b7a" style="width: 400px; padding: 8px; margin: 10px 0;">
+            <br>
+            <button onclick="testFetch()">Test Fetch Fish</button>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div id="status" class="status loading">Waiting for test...</div>
+        
+        <div class="fish-list" id="fishList"></div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <!-- Load dependencies -->
+    <script src="public/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="src/js/supabase-init.js"></script>
+    <script src="src/js/fish-utils.js"></script>
+
+    <script>
+        const logContainer = document.getElementById('log');
+        const statusDiv = document.getElementById('status');
+        const fishListDiv = document.getElementById('fishList');
+
+        // Override console.log to capture logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLogEntry('LOG', args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLogEntry('ERROR', args.join(' '), true);
+        };
+
+        function addLogEntry(type, message, isError = false) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.style.color = isError ? '#C62828' : '#333';
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] [${type}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        async function testFetch() {
+            const userId = document.getElementById('userId').value.trim();
+            
+            addLogEntry('TEST', `Starting test with userId: ${userId || '(none)'}`);
+            
+            statusDiv.textContent = 'Loading fish...';
+            statusDiv.className = 'status loading';
+            fishListDiv.innerHTML = '';
+
+            try {
+                addLogEntry('TEST', 'Calling getFishBySort...');
+                
+                // Test the getFishBySort function
+                const result = await getFishBySort('date', 10, 0, 'desc', userId || null);
+                
+                addLogEntry('TEST', `Received ${result?.length || 0} fish`);
+                
+                if (result && result.length > 0) {
+                    statusDiv.textContent = `✅ Success! Found ${result.length} fish`;
+                    statusDiv.className = 'status success';
+                    
+                    // Display fish
+                    result.forEach((fishDoc, index) => {
+                        const fish = fishDoc.data();
+                        const fishItem = document.createElement('div');
+                        fishItem.className = 'fish-item';
+                        fishItem.innerHTML = `
+                            <strong>#${index + 1}</strong> - 
+                            ${fish.fish_name || fish.Artist || 'Unnamed'} 
+                            (by ${fish.artist || fish.Artist || 'Unknown'})
+                            <br><small>User ID: ${fish.user_id || fish.userId || 'N/A'}</small>
+                        `;
+                        fishListDiv.appendChild(fishItem);
+                    });
+                } else {
+                    statusDiv.textContent = 'No fish found';
+                    statusDiv.className = 'status success';
+                }
+            } catch (error) {
+                addLogEntry('ERROR', `Test failed: ${error.message}`);
+                addLogEntry('ERROR', error.stack);
+                
+                statusDiv.textContent = `❌ Error: ${error.message}`;
+                statusDiv.className = 'status error';
+            }
+        }
+
+        function clearLog() {
+            logContainer.innerHTML = '';
+        }
+
+        // Run test on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            addLogEntry('INIT', 'Page loaded, ready to test');
+        });
+    </script>
+</body>
+</html>
+

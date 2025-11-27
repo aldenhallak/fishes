@@ -791,10 +791,39 @@
   }
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .oauth-btn:disabled {
-  opacity: 0.5;
   cursor: not-allowed;
-  animation: pulse 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* 加载状态 */
+.oauth-btn.loading {
+  opacity: 0.9;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: linear-gradient(180deg, #E8E8E8 0%, #D8D8D8 50%, #C8C8C8 100%);
+}
+
+.oauth-btn.loading:hover {
+  transform: translateY(0);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.oauth-btn.loading .oauth-btn-icon svg {
+  animation: spin 1s linear infinite;
+}
+
+.oauth-btn.loading .oauth-btn-text {
+  color: #666;
 }
 
 /* ============================================

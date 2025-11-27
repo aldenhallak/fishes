@@ -11,6 +11,7 @@
  * - unfavorite: 取消收藏
  * - upload: 上传图片
  * - update-info: 更新鱼信息
+ * - delete: 删除鱼
  * - update-chat-settings: 更新聊天设置
  * - get-battle-fish: 获取战斗鱼
  * - community-chat: 社区聊天
@@ -24,7 +25,7 @@ const path = require('path');
 
 // 动态加载 handler，避免启动时出错
 let listHandler, submitHandler, myTankHandler, favoriteHandler, unfavoriteHandler, uploadHandler;
-let updateInfoHandler, updateChatSettingsHandler, getBattleFishHandler, communityChatHandler;
+let updateInfoHandler, deleteHandler, updateChatSettingsHandler, getBattleFishHandler, communityChatHandler;
 let groupChatHandler, monologueHandler, chatUsageHandler, moderationCheckHandler, createHandler;
 let userChatMessageHandler;
 
@@ -67,6 +68,7 @@ module.exports = async function handler(req, res) {
     unfavoriteHandler = loadHandler('../lib/api_handlers/fish/unfavorite.js');
     uploadHandler = loadHandler('../lib/api_handlers/fish/upload.js');
     updateInfoHandler = loadHandler('../lib/api_handlers/fish/update-info.js');
+    deleteHandler = loadHandler('../lib/api_handlers/fish/delete.js');
     updateChatSettingsHandler = loadHandler('../lib/api_handlers/fish/update-chat-settings.js');
     getBattleFishHandler = loadHandler('../lib/api_handlers/fish/get-battle-fish.js');
     communityChatHandler = loadHandler('../lib/api_handlers/fish/community-chat.js');
@@ -111,6 +113,9 @@ module.exports = async function handler(req, res) {
       case 'update-info':
         if (!updateInfoHandler) return res.status(500).json({ error: 'Update info handler not available' });
         return await updateInfoHandler(req, res);
+      case 'delete':
+        if (!deleteHandler) return res.status(500).json({ error: 'Delete handler not available' });
+        return await deleteHandler(req, res);
       case 'update-chat-settings':
         if (!updateChatSettingsHandler) return res.status(500).json({ error: 'Update chat settings handler not available' });
         return await updateChatSettingsHandler(req, res);
@@ -144,7 +149,7 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ 
           error: 'Invalid action',
           available: ['list', 'submit', 'create', 'my-tank', 'favorite', 'unfavorite', 'upload', 
-                      'update-info', 'update-chat-settings', 'get-battle-fish', 'community-chat',
+                      'update-info', 'delete', 'update-chat-settings', 'get-battle-fish', 'community-chat',
                       'group-chat', 'monologue', 'chat-usage', 'moderation-check']
         });
     }

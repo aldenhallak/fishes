@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Out UI Update Test - FishTalk</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .test-container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .test-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid #6366F1;
+    }
+    .test-section h2 {
+      color: #4A90E2;
+      font-size: 18px;
+      margin-bottom: 15px;
+      margin-top: 0;
+    }
+    .btn {
+      padding: 12px 24px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #6366F1;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #4F46E5;
+      transform: translateY(-2px);
+    }
+    .btn-danger {
+      background: #EF4444;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #DC2626;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: #10B981;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .status.info {
+      background: #E3F2FD;
+      border: 1px solid #2196F3;
+      color: #1565C0;
+    }
+    .status.success {
+      background: #E8F5E9;
+      border: 1px solid #4CAF50;
+      color: #2E7D32;
+    }
+    .status.warning {
+      background: #FFF3E0;
+      border: 1px solid #FF9800;
+      color: #E65100;
+    }
+    .status.error {
+      background: #FFEBEE;
+      border: 1px solid #F44336;
+      color: #C62828;
+    }
+    code {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+    .log-viewer {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 15px;
+    }
+    .log-entry {
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 3px;
+    }
+    .log-entry.success {
+      color: #4CAF50;
+    }
+    .log-entry.error {
+      color: #EF4444;
+    }
+    .log-entry.info {
+      color: #2196F3;
+    }
+    .current-value {
+      font-weight: bold;
+      color: #6366F1;
+    }
+    ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    li {
+      margin: 8px 0;
+      line-height: 1.6;
+    }
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+    .checklist li {
+      padding-left: 30px;
+      position: relative;
+    }
+    .checklist li:before {
+      content: '☐';
+      position: absolute;
+      left: 0;
+      font-size: 18px;
+      color: #999;
+    }
+    .checklist li.checked:before {
+      content: '☑';
+      color: #4CAF50;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🧪 Sign Out UI 更新测试</h1>
+    <div class="subtitle">测试退出登录后 UI 是否立即更新，不显示旧用户名</div>
+
+    <!-- 当前状态 -->
+    <div class="test-section">
+      <h2>📊 当前状态</h2>
+      <div>
+        <strong>登录状态：</strong> 
+        <span class="current-value" id="login-status">检查中...</span>
+      </div>
+      <div style="margin-top: 10px;">
+        <strong>当前用户：</strong> 
+        <span class="current-value" id="current-user">检查中...</span>
+      </div>
+      <div style="margin-top: 10px;">
+        <strong>localStorage.userId：</strong> 
+        <span class="current-value" id="storage-userid"></span>
+      </div>
+      <div style="margin-top: 10px;">
+        <strong>authCache.user：</strong> 
+        <span class="current-value" id="cache-user"></span>
+      </div>
+      <button class="btn btn-secondary" onclick="refreshStatus()">🔄 刷新状态</button>
+    </div>
+
+    <!-- 测试步骤 -->
+    <div class="test-section">
+      <h2>🧪 测试步骤</h2>
+      <ol>
+        <li>确保你已经登录系统</li>
+        <li>点击下面的"前往主页"按钮</li>
+        <li>在主页上观察导航栏显示的用户名</li>
+        <li>点击用户菜单 → Sign Out</li>
+        <li>确认退出</li>
+        <li>⚠️ <strong>关键检查点</strong>：观察导航栏是否：
+          <ul>
+            <li>✅ 立即显示"👤 Sign In"按钮</li>
+            <li>❌ <strong>不会</strong>短暂显示之前的用户名</li>
+          </ul>
+        </li>
+        <li>返回本测试页面查看日志</li>
+      </ol>
+      <button class="btn btn-primary" onclick="goToIndex()">🏠 前往主页测试</button>
+    </div>
+
+    <!-- 自动测试 -->
+    <div class="test-section">
+      <h2>🤖 自动监控测试</h2>
+      <p>在本页面监听认证状态变化和 UI 更新事件。</p>
+      <button class="btn btn-primary" onclick="startMonitoring()">▶️ 开始监控</button>
+      <button class="btn btn-danger" onclick="stopMonitoring()">⏹️ 停止监控</button>
+      <button class="btn btn-secondary" onclick="clearLogs()">🗑️ 清除日志</button>
+      
+      <div id="monitoring-status" class="status info">
+        ⏸️ 监控未启动
+      </div>
+      
+      <div class="log-viewer" id="log-viewer">
+        <div class="log-entry info">等待事件...</div>
+      </div>
+    </div>
+
+    <!-- 手动检查清单 -->
+    <div class="test-section">
+      <h2>✅ 检查清单</h2>
+      <ul class="checklist">
+        <li id="check-1">退出前：导航栏显示用户名</li>
+        <li id="check-2">点击 Sign Out 后：立即显示登录按钮</li>
+        <li id="check-3">没有短暂显示旧用户名</li>
+        <li id="check-4">localStorage 已清除</li>
+        <li id="check-5">authCache 已清除</li>
+        <li id="check-6">控制台显示正确的日志</li>
+        <li id="check-7">重新登录正常</li>
+      </ul>
+      <button class="btn btn-secondary" onclick="toggleCheck(event)">点击项目标记为完成</button>
+    </div>
+
+    <!-- 预期日志 -->
+    <div class="test-section">
+      <h2>📋 预期控制台日志</h2>
+      <p>退出登录时，浏览器控制台应该按顺序显示：</p>
+      <div class="log-viewer">
+        <div class="log-entry info">👋 Signing out...</div>
+        <div class="log-entry success">✅ 登出成功</div>
+        <div class="log-entry info">🗑️ 清除登录状态缓存</div>
+        <div class="log-entry success">✅ 已从localStorage清除用户信息</div>
+        <div class="log-entry success">✅ Signed out successfully</div>
+        <div class="log-entry info">ℹ️ 用户未登录</div>
+        <div class="log-entry success">✅ 已从localStorage清除用户信息</div>
+        <div class="log-entry success">✅ 已显示登录按钮并清除用户信息</div>
+        <div class="log-entry info">🔔 认证状态变化: SIGNED_OUT undefined</div>
+      </div>
+    </div>
+
+    <!-- 返回主页 -->
+    <div style="text-align: center; margin-top: 30px;">
+      <button class="btn btn-secondary" onclick="window.location.href='index.html'">
+        🏠 返回主页
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let monitoringInterval = null;
+    let originalConsoleLog = null;
+
+    // 刷新当前状态
+    async function refreshStatus() {
+      // 检查登录状态
+      const userId = localStorage.getItem('userId');
+      const userData = localStorage.getItem('userData');
+      const cachedUser = window.authCache ? window.authCache.getCachedUser() : null;
+      
+      let loginStatus = '未登录';
+      let currentUser = '(无)';
+      
+      if (window.supabaseAuth) {
+        try {
+          const user = await window.supabaseAuth.getCurrentUser();
+          if (user) {
+            loginStatus = '已登录';
+            currentUser = user.email || user.id;
+          }
+        } catch (error) {
+          console.error('Error getting user:', error);
+        }
+      }
+      
+      document.getElementById('login-status').textContent = loginStatus;
+      document.getElementById('current-user').textContent = currentUser;
+      document.getElementById('storage-userid').textContent = userId || '(未设置)';
+      document.getElementById('cache-user').textContent = cachedUser ? cachedUser.email : '(未缓存)';
+      
+      console.log('📊 Status refreshed:', {
+        loginStatus,
+        currentUser,
+        userId,
+        cachedUser: cachedUser?.email
+      });
+    }
+
+    // 前往主页
+    function goToIndex() {
+      console.log('📍 Navigating to index.html');
+      window.location.href = 'index.html';
+    }
+
+    // 添加日志
+    function addLog(message, type = 'info') {
+      const logViewer = document.getElementById('log-viewer');
+      const logEntry = document.createElement('div');
+      logEntry.className = `log-entry ${type}`;
+      const timestamp = new Date().toLocaleTimeString();
+      logEntry.textContent = `[${timestamp}] ${message}`;
+      logViewer.appendChild(logEntry);
+      logViewer.scrollTop = logViewer.scrollHeight;
+    }
+
+    // 清除日志
+    function clearLogs() {
+      const logViewer = document.getElementById('log-viewer');
+      logViewer.innerHTML = '<div class="log-entry info">日志已清除，等待新事件...</div>';
+    }
+
+    // 开始监控
+    function startMonitoring() {
+      if (monitoringInterval) {
+        addLog('监控已在运行中', 'warning');
+        return;
+      }
+
+      const statusDiv = document.getElementById('monitoring-status');
+      statusDiv.className = 'status success';
+      statusDiv.innerHTML = '▶️ 监控中...';
+      
+      addLog('开始监控认证状态和 UI 更新', 'success');
+
+      // 监听 localStorage 变化
+      window.addEventListener('storage', handleStorageChange);
+      
+      // 监听 DOM 变化
+      observeDOMChanges();
+      
+      // 定期检查状态
+      monitoringInterval = setInterval(() => {
+        checkAuthState();
+      }, 1000);
+      
+      // 劫持 console.log 捕获日志
+      interceptConsoleLog();
+    }
+
+    // 停止监控
+    function stopMonitoring() {
+      if (!monitoringInterval) {
+        addLog('监控未启动', 'warning');
+        return;
+      }
+
+      clearInterval(monitoringInterval);
+      monitoringInterval = null;
+      
+      window.removeEventListener('storage', handleStorageChange);
+      
+      if (originalConsoleLog) {
+        console.log = originalConsoleLog;
+        originalConsoleLog = null;
+      }
+
+      const statusDiv = document.getElementById('monitoring-status');
+      statusDiv.className = 'status info';
+      statusDiv.innerHTML = '⏸️ 监控已停止';
+      
+      addLog('监控已停止', 'info');
+    }
+
+    // 处理 storage 变化
+    function handleStorageChange(event) {
+      addLog(`localStorage 变化: ${event.key} = ${event.newValue}`, 'info');
+    }
+
+    // 检查认证状态
+    let lastAuthState = null;
+    async function checkAuthState() {
+      const userId = localStorage.getItem('userId');
+      const currentState = userId ? 'logged-in' : 'logged-out';
+      
+      if (lastAuthState !== currentState) {
+        if (currentState === 'logged-out') {
+          addLog('检测到退出登录！', 'error');
+          addLog('检查 UI 是否已更新...', 'info');
+          
+          // 检查 UI 更新
+          setTimeout(() => {
+            const loginBtn = document.querySelector('#login-btn');
+            const userContainer = document.querySelector('#user-container');
+            
+            if (loginBtn && loginBtn.style.display !== 'none') {
+              addLog('✅ 登录按钮已显示', 'success');
+            } else {
+              addLog('❌ 登录按钮未显示！', 'error');
+            }
+            
+            if (userContainer && userContainer.style.display === 'none') {
+              addLog('✅ 用户容器已隐藏', 'success');
+            } else {
+              addLog('❌ 用户容器仍然可见！', 'error');
+            }
+          }, 100);
+        } else {
+          addLog('检测到登录', 'success');
+        }
+        lastAuthState = currentState;
+      }
+    }
+
+    // 观察 DOM 变化
+    function observeDOMChanges() {
+      // 这里可以添加 MutationObserver 来监听 DOM 变化
+      // 由于跨页面限制，这里只做简单演示
+    }
+
+    // 劫持 console.log
+    function interceptConsoleLog() {
+      originalConsoleLog = console.log;
+      console.log = function(...args) {
+        const message = args.join(' ');
+        
+        // 捕获特定的日志
+        if (message.includes('Signing out')) {
+          addLog(message, 'info');
+        } else if (message.includes('Signed out successfully')) {
+          addLog(message, 'success');
+        } else if (message.includes('清除')) {
+          addLog(message, 'info');
+        } else if (message.includes('用户未登录')) {
+          addLog(message, 'info');
+        } else if (message.includes('显示登录按钮')) {
+          addLog(message, 'success');
+        }
+        
+        // 调用原始 console.log
+        originalConsoleLog.apply(console, args);
+      };
+    }
+
+    // 切换检查项状态
+    function toggleCheck(event) {
+      // 等待用户点击检查项
+      const checkItems = document.querySelectorAll('.checklist li');
+      checkItems.forEach(item => {
+        item.style.cursor = 'pointer';
+        item.onclick = function() {
+          this.classList.toggle('checked');
+        };
+      });
+      
+      event.target.textContent = '点击上方项目标记完成状态';
+      event.target.disabled = true;
+    }
+
+    // 页面加载时刷新状态
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(refreshStatus, 500);
+    });
+
+    // 检查是否从主页返回
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('after_signout')) {
+      addLog('从主页返回，检测到退出登录操作', 'info');
+      refreshStatus();
+    }
+  </script>
+</body>
+</html>
+

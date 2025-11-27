@@ -197,6 +197,17 @@ function createFishCard(fish) {
     // Check if this is the current user's fish
     const isCurrentUserFish = isUserFish(fish);
     
+    // Debug log (only for first few fish to avoid spam)
+    if (window.debugFishCard !== false && Math.random() < 0.1) {
+        console.log('🐟 Fish card debug:', {
+            fishId: fish.docId,
+            fishUserId: fish.userId,
+            isCurrentUserFish,
+            hasEditButtons: isCurrentUserFish
+        });
+        window.debugFishCard = false; // Only log once per page load
+    }
+    
     // Add highlighting classes and styles for user's fish
     const userFishClass = isCurrentUserFish ? ' user-fish-highlight' : '';
 
@@ -207,7 +218,7 @@ function createFishCard(fish) {
     const showFavoriteButton = userToken && !isCurrentUserFish;
     
     return `
-        <div class="fish-card${userFishClass}" data-fish-id="${fish.docId}">
+        <div class="fish-card${userFishClass}" data-fish-id="${fish.docId}" data-fish-name="${escapeHtml(fish.fish_name || fish.Artist || 'Unnamed')}" data-fish-personality="${escapeHtml(fish.personality || 'random')}">
             ${fishImageContainer}
                 <img class="fish-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" alt="Fish" data-fish-id="${fish.docId}">
             </div>
@@ -229,9 +240,18 @@ function createFishCard(fish) {
                     <span class="star-icon">☆</span>
                 </button>
                 ` : ''}
+                ${isCurrentUserFish ? `
+                <button class="edit-btn" onclick="showEditFishModal('${fish.docId}')" title="Edit fish information" style="padding: 10px 14px; border: 2px solid #E0E0E0; background: white; cursor: pointer; border-radius: 15px; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); color: #2196F3; font-weight: 600;">
+                    ✏️
+                </button>
+                <button class="delete-btn" onclick="showDeleteFishModal('${fish.docId}')" title="Delete fish" style="padding: 10px 14px; border: 2px solid #E0E0E0; background: white; cursor: pointer; border-radius: 15px; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); color: #F44336; font-weight: 600;">
+                    🗑️
+                </button>
+                ` : `
                 <button class="report-btn" onclick="handleReport('${fish.docId}', this)" title="Report inappropriate content">
                     🚩
                 </button>
+                `}
             </div>
         </div>
     `;
@@ -295,52 +315,15 @@ function sortAndDisplayFish() {
     displayFish(sortedFish);
 }
 
-// Update button text with sort direction arrows
-function updateSortButtonText() {
-    document.querySelectorAll('.sort-btn').forEach(btn => {
-        const sortType = btn.getAttribute('data-sort');
-        let baseText = '';
-        let arrow = '';
-        let tooltip = '';
-
-        switch (sortType) {
-            case 'hot':
-                baseText = 'Sort by Hot';
-                break;
-            case 'date':
-                baseText = 'Sort by Date';
-                break;
-            case 'random':
-                baseText = 'Random Order';
-                tooltip = 'Show fish in random order';
-                break;
-        }
-
-        // Add arrow for current sort (except random)
-        if (sortType === currentSort && sortType !== 'random') {
-            arrow = sortDirection === 'desc' ? ' ↓' : ' ↑';
-            tooltip = sortDirection === 'desc' ? 'Newest first' : 'Oldest first';
-        } else if (sortType !== 'random') {
-            tooltip = `Click to sort by ${sortType}. Click again to reverse order.`;
-        }
-
-        btn.textContent = baseText + arrow;
-        btn.title = tooltip;
-    });
-}
+// Removed updateSortButtonText - no longer using buttons
 
 // Handle sort button clicks
 async function handleSortChange(sortType) {
-    // If clicking the same sort button, toggle direction
-    if (currentSort === sortType && sortType !== 'random') {
-        sortDirection = sortDirection === 'desc' ? 'asc' : 'desc';
-    } else {
-        // New sort type, use default direction
-        currentSort = sortType;
-        sortDirection = sortType === 'date' ? 'desc' : 'desc'; // Default to descending for most sorts
-    }
+    // New sort type, use default direction
+    currentSort = sortType;
+    sortDirection = sortType === 'date' ? 'desc' : 'desc'; // Default to descending for most sorts
 
-    // Reset pagination state whenever sort changes (including direction)
+    // Reset pagination state whenever sort changes
     lastDoc = null;
     hasMoreFish = true;
     loadedCount = 0;
@@ -349,14 +332,11 @@ async function handleSortChange(sortType) {
     totalFishCount = 0; // Reset total count (will be recalculated on next load)
     totalPages = 1; // Reset total pages
 
-    // Update active button
-    document.querySelectorAll('.sort-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelector(`[data-sort="${sortType}"]`).classList.add('active');
-
-    // Update button text with arrows
-    updateSortButtonText();
+    // Update sort select
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect) {
+        sortSelect.value = sortType;
+    }
 
     // Show loading and reload data with new sort
     document.getElementById('loading').style.display = 'block';
@@ -451,12 +431,27 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true, page =
         }
 
         // Map fish documents to objects
-        const newFish = fishDocs.map(doc => {
+        const newFish = fishDocs.map((doc, index) => {
             const data = doc.data();
             const fish = {
                 ...data,
-                docId: doc.id
+                docId: doc.id,
+                // Ensure userId is available (may be user_id in data)
+                userId: data.userId || data.user_id || data.UserId
             };
+            
+            // Debug log for first fish to check structure
+            if (index === 0) {
+                console.log('🐟 Sample fish data structure:', {
+                    docId: fish.docId,
+                    userId: fish.userId,
+                    user_id: data.user_id,
+                    Artist: fish.Artist,
+                    fish_name: fish.fish_name,
+                    personality: fish.personality
+                });
+            }
+            
             return fish;
         });
 
@@ -511,12 +506,8 @@ function updateStatusMessage() {
     if (!loadingElement) return;
 
     if (!hasMoreFish && loadedCount > 0) {
-        loadingElement.textContent = `Showing all ${loadedCount} fish 🐟`;
-        loadingElement.style.display = 'block';
-        loadingElement.style.color = '#666';
-        loadingElement.style.fontSize = '0.9em';
-        loadingElement.style.padding = '20px';
-        // 移除 loading 类以停止转圈动画
+        // Hide the "Showing all X fish" message
+        loadingElement.style.display = 'none';
         loadingElement.classList.remove('loading');
     } else if (loadedCount === 0 && !isLoading) {
         // 如果没有鱼且不在加载中，隐藏 loading 元素
@@ -528,12 +519,7 @@ function updateStatusMessage() {
     } else {
         // 其他情况，确保移除 loading 类并隐藏
         loadingElement.classList.remove('loading');
-        if (loadingElement.textContent.includes('Showing all')) {
-            // 如果显示最终消息，保持显示但不转圈
-            loadingElement.style.display = 'block';
-        } else {
-            loadingElement.style.display = 'none';
-        }
+        loadingElement.style.display = 'none';
     }
 }
 
@@ -607,52 +593,11 @@ function handleScroll() {
     }
 }
 
-// Update page header when filtering by user
+// Update page header when filtering by user (disabled in new UI)
 async function updatePageHeaderForUser(userId) {
-    try {
-        // Fetch user profile to get display name
-        const profile = await getUserProfile(userId);
-        const displayName = getDisplayName(profile);
-        
-        const headerElement = document.querySelector('.ranking-header h1');
-        if (headerElement) {
-            headerElement.textContent = `Fish by ${displayName}`;
-        }
-        
-        // Update page title
-        document.title = `Fish by ${displayName} - Fish Ranking`;
-        
-        // Add a note about the filter
-        const existingNote = document.querySelector('.user-filter-note');
-        if (!existingNote) {
-            const note = document.createElement('p');
-            note.className = 'user-filter-note';
-            note.style.textAlign = 'center';
-            note.style.color = '#666';
-            note.style.marginBottom = '20px';
-            note.textContent = `Showing all fish created by ${displayName}`;
-            
-            const headerContainer = document.querySelector('.ranking-header');
-            if (headerContainer) {
-                headerContainer.appendChild(note);
-                
-                // Add back to profile link
-                const backLink = document.createElement('p');
-                backLink.style.textAlign = 'center';
-                backLink.style.marginTop = '10px';
-                backLink.innerHTML = `<a href="profile.html?userId=${encodeURIComponent(userId)}" style="color: #007bff; text-decoration: none;">&larr; Back to ${displayName}'s Profile</a>`;
-                headerContainer.appendChild(backLink);
-            }
-        }
-    } catch (error) {
-        console.error('Error updating page header for user:', error);
-        // Fallback to using userId if profile fetch fails
-        const headerElement = document.querySelector('.ranking-header h1');
-        if (headerElement) {
-            headerElement.textContent = `Fish by ${userId}`;
-        }
-        document.title = `Fish by ${userId} - Fish Ranking`;
-    }
+    // User filter header is now hidden in the new UI
+    // Users can use the category tabs instead
+    console.log('User filter header hidden - use category tabs instead');
 }
 
 // Throttle scroll event to improve performance
@@ -799,28 +744,145 @@ async function loadFavoriteFish(isInitialLoad = true, page = currentPage) {
     }
 }
 
+// Fish category management
+let currentCategory = 'all'; // 'all', 'my-fish', 'favorites'
+let myFishData = [];
+let favoritesData = [];
+
+// Load user's fish and favorites
+async function loadUserFishCategories() {
+    try {
+        const user = await window.supabaseAuth.getCurrentUser();
+        if (!user) return;
+        
+        const userToken = localStorage.getItem('userToken');
+        if (!userToken) return;
+        
+        // Load from my-tank API
+        const BACKEND_URL = window.BACKEND_URL || '';
+        const response = await fetch(`${BACKEND_URL}/api/fish-api?action=my-tank`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${userToken}`
+            }
+        });
+        
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        if (!data.success) return;
+        
+        const allUserFish = data.fish || [];
+        
+        // Separate into my fish and favorites
+        myFishData = allUserFish.filter(f => f.is_own || f.isOwn);
+        favoritesData = allUserFish.filter(f => f.is_favorited || f.isFavorited);
+        
+        // Update counts
+        document.getElementById('my-fish-count').textContent = myFishData.length;
+        document.getElementById('favorites-count').textContent = favoritesData.length;
+        
+        // Show filter if user has fish
+        if (myFishData.length > 0 || favoritesData.length > 0) {
+            document.getElementById('fish-category-filter').style.display = 'flex';
+        }
+        
+        console.log(`✅ Loaded ${myFishData.length} my fish, ${favoritesData.length} favorites`);
+    } catch (error) {
+        console.error('Error loading user fish categories:', error);
+    }
+}
+
+// Handle category change
+function handleCategoryChange(category) {
+    currentCategory = category;
+    
+    // Update active tab
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`[data-category="${category}"]`).classList.add('active');
+    
+    // Load appropriate data
+    if (category === 'my-fish') {
+        displayCategoryFish(myFishData);
+    } else if (category === 'favorites') {
+        displayCategoryFish(favoritesData);
+    }
+}
+
+// Display fish from category
+function displayCategoryFish(fishArray) {
+    const gridElement = document.getElementById('fish-grid');
+    const loadingElement = document.getElementById('loading');
+    const paginationControls = document.getElementById('pagination-controls');
+    
+    if (!fishArray || fishArray.length === 0) {
+        gridElement.style.display = 'none';
+        paginationControls.style.display = 'none';
+        loadingElement.textContent = currentCategory === 'my-fish' ? 
+            'No fish created yet. Go draw some!' : 
+            'No favorites yet. Start adding fish to favorites!';
+        loadingElement.style.display = 'block';
+        loadingElement.classList.remove('loading');
+        return;
+    }
+    
+    // Map to display format
+    allFishData = fishArray.map(fish => ({
+        ...fish,
+        docId: fish.id,
+        Artist: fish.artist || fish.Artist,
+        CreatedAt: fish.created_at || fish.CreatedAt,
+        userId: fish.user_id || fish.userId,
+        Image: fish.image_url || fish.Image,
+        image: fish.image_url || fish.image,
+        upvotes: fish.upvotes || 0
+    }));
+    
+    loadingElement.style.display = 'none';
+    gridElement.style.display = 'grid';
+    paginationControls.style.display = 'none'; // Hide pagination for user's own fish
+    
+    displayFish(allFishData, false);
+}
+
 // Initialize page
 window.addEventListener('DOMContentLoaded', async () => {
+    // Initialize user cache first (critical for identifying user's fish)
+    if (window.initializeUserCache) {
+        await window.initializeUserCache();
+        console.log('✅ User cache initialized for rank page');
+    }
+    
+    // Load user's fish categories
+    await loadUserFishCategories();
+    
     // Check for URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const showFavorites = urlParams.get('favorites') === 'true';
     currentUserId = urlParams.get('userId');
     
-    if (showFavorites) {
-        // Load favorite fish
-        await loadFavoriteFish();
-    } else {
-    // Update page header if filtering by user
-    if (currentUserId) {
-        await updatePageHeaderForUser(currentUserId);
+    // Hide user filter header if present
+    const userFilterNote = document.querySelector('.user-filter-note');
+    if (userFilterNote) {
+        userFilterNote.style.display = 'none';
     }
     
-    // Set up sort button event listeners
-    document.querySelectorAll('.sort-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            await handleSortChange(btn.getAttribute('data-sort'));
+    // Set up category tab listeners
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            handleCategoryChange(tab.getAttribute('data-category'));
         });
     });
+    
+    // Set up sort select listener
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', async () => {
+            await handleSortChange(sortSelect.value);
+        });
+    }
 
     // Set up pagination button event listeners
     const prevBtn = document.getElementById('prev-page-btn');
@@ -834,15 +896,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         nextBtn.addEventListener('click', goToNextPage);
     }
 
-    // Disable infinite scroll (we're using pagination buttons now)
-    // Commented out to use pagination instead of infinite scroll
-    // window.addEventListener('scroll', throttledScroll);
-
-    // Initialize button text with arrows
-    updateSortButtonText();
-
-    // Load initial fish data
-    loadFishData();
+    // Load data based on URL parameters
+    if (showFavorites) {
+        // Load favorite fish
+        await loadFavoriteFish();
+    } else {
+        // Load initial fish data (all fish or filtered by user)
+        await loadFishData();
     }
     
     // Initialize favorite buttons if user is logged in
@@ -853,6 +913,448 @@ window.addEventListener('DOMContentLoaded', async () => {
 function handleReport(fishId, button) {
     handleReportGeneric(fishId, button);
 }
+
+// ===== Fish Edit and Delete Functions =====
+
+// Preset personalities list
+const PRESET_PERSONALITIES = [
+    { value: 'funny', label: '😂 Funny', emoji: '😂' },
+    { value: 'cheerful', label: '😊 Cheerful', emoji: '😊' },
+    { value: 'brave', label: '💪 Brave', emoji: '💪' },
+    { value: 'playful', label: '🎮 Playful', emoji: '🎮' },
+    { value: 'curious', label: '🔍 Curious', emoji: '🔍' },
+    { value: 'energetic', label: '⚡ Energetic', emoji: '⚡' },
+    { value: 'calm', label: '😌 Calm', emoji: '😌' },
+    { value: 'gentle', label: '🌸 Gentle', emoji: '🌸' },
+    { value: 'sarcastic', label: '😏 Sarcastic', emoji: '😏' },
+    { value: 'dramatic', label: '🎭 Dramatic', emoji: '🎭' },
+    { value: 'naive', label: '🦋 Naive', emoji: '🦋' },
+    { value: 'shy', label: '😳 Shy', emoji: '😳' },
+    { value: 'anxious', label: '😰 Anxious', emoji: '😰' },
+    { value: 'stubborn', label: '🤨 Stubborn', emoji: '🤨' },
+    { value: 'serious', label: '😐 Serious', emoji: '😐' },
+    { value: 'lazy', label: '😴 Lazy', emoji: '😴' },
+    { value: 'grumpy', label: '😠 Grumpy', emoji: '😠' },
+    { value: 'aggressive', label: '👊 Aggressive', emoji: '👊' },
+    { value: 'cynical', label: '🙄 Cynical', emoji: '🙄' },
+    { value: 'crude', label: '🐻 Crude', emoji: '🐻' }
+];
+
+// Check if user has premium membership
+async function checkUserMembership() {
+    try {
+        const userToken = localStorage.getItem('userToken');
+        if (!userToken) return 'free';
+        
+        const BACKEND_URL = window.BACKEND_URL || '';
+        const response = await fetch(`${BACKEND_URL}/api/config-api?action=hasura`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${userToken}`
+            }
+        });
+        
+        if (!response.ok) return 'free';
+        
+        const config = await response.json();
+        
+        // Query user's membership from Hasura
+        const hasuraEndpoint = config.endpoint || '/api/graphql';
+        const hasuraSecret = config.secret;
+        
+        const user = await window.supabaseAuth.getCurrentUser();
+        if (!user) return 'free';
+        
+        const query = `
+            query GetUserMembership($userId: String!) {
+                users_by_pk(id: $userId) {
+                    user_subscriptions(
+                        where: { is_active: { _eq: true } }
+                        order_by: { created_at: desc }
+                        limit: 1
+                    ) {
+                        plan
+                    }
+                }
+            }
+        `;
+        
+        const graphqlResponse = await fetch(hasuraEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-hasura-admin-secret': hasuraSecret
+            },
+            body: JSON.stringify({
+                query,
+                variables: { userId: user.id }
+            })
+        });
+        
+        const result = await graphqlResponse.json();
+        const subscription = result.data?.users_by_pk?.user_subscriptions?.[0];
+        
+        return subscription?.plan || 'free';
+    } catch (error) {
+        console.error('Error checking membership:', error);
+        return 'free';
+    }
+}
+
+// Show edit fish modal
+async function showEditFishModal(fishId) {
+    const fishCard = document.querySelector(`.fish-card[data-fish-id="${fishId}"]`);
+    if (!fishCard) {
+        console.error('Fish card not found:', fishId);
+        return;
+    }
+    
+    const fishName = fishCard.getAttribute('data-fish-name') || 'Unnamed';
+    const fishPersonality = fishCard.getAttribute('data-fish-personality') || 'random';
+    
+    // Check if personality is a preset or custom
+    const isPresetPersonality = PRESET_PERSONALITIES.some(p => p.value === fishPersonality);
+    const selectedPersonality = isPresetPersonality ? fishPersonality : 'custom';
+    const customPersonalityValue = isPresetPersonality ? '' : fishPersonality;
+    
+    // Check user membership for custom personality
+    const userMembership = await checkUserMembership();
+    const canUseCustom = userMembership === 'premium' || userMembership === 'plus';
+    
+    const modalHTML = `
+        <div class="modal" id="edit-fish-modal" style="display: block;">
+            <div class="modal-content" style="max-width: 500px;">
+                <span class="close" onclick="closeEditFishModal()">&times;</span>
+                <h2 style="margin-top: 0; color: #4F46E5;">✏️ Edit Fish</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                        Fish Name <span style="color: #F44336;">*</span>
+                    </label>
+                    <input type="text" id="edit-fish-name" value="${escapeHtml(fishName)}" 
+                        maxlength="30" placeholder="Enter fish name"
+                        style="width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                    <small style="color: #666; font-size: 12px;">Maximum 30 characters</small>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                        Personality
+                    </label>
+                    <select id="edit-fish-personality" onchange="toggleCustomPersonalityInput()"
+                        style="width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-size: 14px;">
+                        <option value="random" ${selectedPersonality === 'random' ? 'selected' : ''}>🎲 Random</option>
+                        ${PRESET_PERSONALITIES.map(p => `
+                            <option value="${p.value}" ${selectedPersonality === p.value ? 'selected' : ''}>${p.label}</option>
+                        `).join('')}
+                        <option value="custom" ${selectedPersonality === 'custom' ? 'selected' : ''}>
+                            ✨ Custom ${canUseCustom ? '' : '(Premium Only)'}
+                        </option>
+                    </select>
+                </div>
+                
+                <div id="custom-personality-container" style="margin-bottom: 20px; display: ${selectedPersonality === 'custom' ? 'block' : 'none'};">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
+                        Custom Personality
+                        ${canUseCustom ? '' : '<span style="color: #F44336; font-size: 12px;">(Upgrade to Premium)</span>'}
+                    </label>
+                    <input type="text" id="edit-custom-personality" value="${escapeHtml(customPersonalityValue)}"
+                        maxlength="50" placeholder="Describe your fish's personality"
+                        ${canUseCustom ? '' : 'disabled'}
+                        style="width: 100%; padding: 12px; border: 2px solid #E0E0E0; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                    <small style="color: #666; font-size: 12px;">Maximum 50 characters</small>
+                    ${canUseCustom ? '' : `
+                        <div style="margin-top: 10px; padding: 10px; background: #FFF3E0; border-radius: 6px; font-size: 13px; color: #E65100;">
+                            💎 Custom personalities are available for Premium and Plus members.
+                            <a href="membership.html" style="color: #2196F3; text-decoration: underline;">Upgrade now</a>
+                        </div>
+                    `}
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
+                    <button onclick="closeEditFishModal()" 
+                        style="padding: 10px 20px; border: 2px solid #E0E0E0; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #666;">
+                        Cancel
+                    </button>
+                    <button onclick="saveEditedFish('${fishId}')" 
+                        style="padding: 10px 20px; border: none; background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// Toggle custom personality input visibility
+function toggleCustomPersonalityInput() {
+    const select = document.getElementById('edit-fish-personality');
+    const container = document.getElementById('custom-personality-container');
+    
+    if (select && container) {
+        container.style.display = select.value === 'custom' ? 'block' : 'none';
+    }
+}
+
+// Close edit fish modal
+function closeEditFishModal() {
+    const modal = document.getElementById('edit-fish-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Save edited fish
+async function saveEditedFish(fishId) {
+    try {
+        const fishName = document.getElementById('edit-fish-name').value.trim();
+        const personalitySelect = document.getElementById('edit-fish-personality').value;
+        const customPersonality = document.getElementById('edit-custom-personality')?.value.trim();
+        
+        // Validation
+        if (!fishName) {
+            alert('Please enter a fish name');
+            return;
+        }
+        
+        if (fishName.length > 30) {
+            alert('Fish name must be 30 characters or less');
+            return;
+        }
+        
+        let personality = personalitySelect;
+        let isCustomPersonality = false;
+        
+        if (personalitySelect === 'custom') {
+            if (!customPersonality) {
+                alert('Please enter a custom personality or select a preset');
+                return;
+            }
+            if (customPersonality.length > 50) {
+                alert('Custom personality must be 50 characters or less');
+                return;
+            }
+            personality = customPersonality;
+            isCustomPersonality = true;
+        }
+        
+        // Show loading state
+        const saveButton = event.target;
+        const originalText = saveButton.textContent;
+        saveButton.textContent = 'Saving...';
+        saveButton.disabled = true;
+        
+        // Get user ID
+        const user = await window.supabaseAuth.getCurrentUser();
+        if (!user) {
+            alert('Please login to edit fish');
+            closeEditFishModal();
+            return;
+        }
+        
+        // Call API
+        const BACKEND_URL = window.BACKEND_URL || '';
+        const response = await fetch(`${BACKEND_URL}/api/fish-api?action=update-info`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fishId,
+                fishName,
+                personality,
+                isCustomPersonality,
+                userId: user.id
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Update the fish card
+            const fishCard = document.querySelector(`.fish-card[data-fish-id="${fishId}"]`);
+            if (fishCard) {
+                fishCard.setAttribute('data-fish-name', fishName);
+                fishCard.setAttribute('data-fish-personality', personality);
+            }
+            
+            // Show success message
+            showToast('Fish updated successfully!', 'success');
+            closeEditFishModal();
+            
+            // Reload the page to show updated data
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            throw new Error(result.error || result.details || 'Failed to update fish');
+        }
+        
+    } catch (error) {
+        console.error('Error saving fish:', error);
+        alert('Failed to update fish: ' + error.message);
+        
+        // Restore button
+        const saveButton = event.target;
+        if (saveButton) {
+            saveButton.textContent = 'Save Changes';
+            saveButton.disabled = false;
+        }
+    }
+}
+
+// Show delete confirmation modal
+function showDeleteFishModal(fishId) {
+    const fishCard = document.querySelector(`.fish-card[data-fish-id="${fishId}"]`);
+    const fishName = fishCard?.getAttribute('data-fish-name') || 'this fish';
+    
+    const modalHTML = `
+        <div class="modal" id="delete-fish-modal" style="display: block;">
+            <div class="modal-content" style="max-width: 400px;">
+                <span class="close" onclick="closeDeleteFishModal()">&times;</span>
+                <h2 style="margin-top: 0; color: #F44336;">🗑️ Delete Fish</h2>
+                
+                <p style="color: #666; line-height: 1.6;">
+                    Are you sure you want to delete <strong>${escapeHtml(fishName)}</strong>?
+                </p>
+                
+                <div style="padding: 12px; background: #FFEBEE; border-left: 4px solid #F44336; margin: 16px 0; border-radius: 4px;">
+                    <strong style="color: #C62828;">⚠️ Warning:</strong>
+                    <p style="margin: 8px 0 0 0; color: #D32F2F; font-size: 14px;">
+                        This action cannot be undone. The fish will be permanently removed.
+                    </p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
+                    <button onclick="closeDeleteFishModal()" 
+                        style="padding: 10px 20px; border: 2px solid #E0E0E0; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #666;">
+                        Cancel
+                    </button>
+                    <button onclick="confirmDeleteFish('${fishId}')" 
+                        style="padding: 10px 20px; border: none; background: linear-gradient(135deg, #F44336, #D32F2F); color: white; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        Delete Forever
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// Close delete fish modal
+function closeDeleteFishModal() {
+    const modal = document.getElementById('delete-fish-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Confirm and delete fish
+async function confirmDeleteFish(fishId) {
+    try {
+        // Show loading state
+        const deleteButton = event.target;
+        const originalText = deleteButton.textContent;
+        deleteButton.textContent = 'Deleting...';
+        deleteButton.disabled = true;
+        
+        // Get user ID
+        const user = await window.supabaseAuth.getCurrentUser();
+        if (!user) {
+            alert('Please login to delete fish');
+            closeDeleteFishModal();
+            return;
+        }
+        
+        // Call API
+        const BACKEND_URL = window.BACKEND_URL || '';
+        const response = await fetch(`${BACKEND_URL}/api/fish-api?action=delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fishId,
+                userId: user.id
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Remove the fish card from DOM
+            const fishCard = document.querySelector(`.fish-card[data-fish-id="${fishId}"]`);
+            if (fishCard) {
+                fishCard.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                fishCard.style.opacity = '0';
+                fishCard.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    fishCard.remove();
+                }, 300);
+            }
+            
+            // Remove from allFishData
+            const index = allFishData.findIndex(f => f.docId === fishId);
+            if (index !== -1) {
+                allFishData.splice(index, 1);
+            }
+            
+            // Show success message
+            showToast('Fish deleted successfully', 'success');
+            closeDeleteFishModal();
+        } else {
+            throw new Error(result.error || 'Failed to delete fish');
+        }
+        
+    } catch (error) {
+        console.error('Error deleting fish:', error);
+        alert('Failed to delete fish: ' + error.message);
+        
+        // Restore button
+        const deleteButton = event.target;
+        if (deleteButton) {
+            deleteButton.textContent = 'Delete Forever';
+            deleteButton.disabled = false;
+        }
+    }
+}
+
+// Show toast notification
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#F44336' : '#2196F3'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        font-weight: 600;
+        animation: slideIn 0.3s ease;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Make edit/delete functions globally available
+window.showEditFishModal = showEditFishModal;
+window.closeEditFishModal = closeEditFishModal;
+window.saveEditedFish = saveEditedFish;
+window.toggleCustomPersonalityInput = toggleCustomPersonalityInput;
+window.showDeleteFishModal = showDeleteFishModal;
+window.closeDeleteFishModal = closeDeleteFishModal;
+window.confirmDeleteFish = confirmDeleteFish;
 
 // Add to Tank functionality now handled by modal-utils.js
 // The showAddToTankModal function is now available globally from modal-utils.js

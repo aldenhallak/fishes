@@ -1305,6 +1305,10 @@
         if (sortSelectSidebar) {
           sortSelectSidebar.addEventListener('change', () => {
             const selectedSort = sortSelectSidebar.value;
+            
+            // 🆕 保存排序选择到 localStorage
+            localStorage.setItem('tankSortPreference', selectedSort);
+            
             if (typeof loadFishIntoTank === 'function') {
               loadFishIntoTank(selectedSort);
             }

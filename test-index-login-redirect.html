@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Index Login Redirect Test - FishTalk</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .test-container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .test-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid #6366F1;
+    }
+    .test-section h2 {
+      color: #4A90E2;
+      font-size: 18px;
+      margin-bottom: 15px;
+      margin-top: 0;
+    }
+    .btn {
+      padding: 12px 24px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #6366F1;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #4F46E5;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: #10B981;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+    .btn-danger {
+      background: #EF4444;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #DC2626;
+      transform: translateY(-2px);
+    }
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .status.info {
+      background: #E3F2FD;
+      border: 1px solid #2196F3;
+      color: #1565C0;
+    }
+    .status.success {
+      background: #E8F5E9;
+      border: 1px solid #4CAF50;
+      color: #2E7D32;
+    }
+    .status.warning {
+      background: #FFF3E0;
+      border: 1px solid #FF9800;
+      color: #E65100;
+    }
+    .status.error {
+      background: #FFEBEE;
+      border: 1px solid #F44336;
+      color: #C62828;
+    }
+    code {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+    .current-value {
+      font-weight: bold;
+      color: #6366F1;
+    }
+    ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    li {
+      margin: 8px 0;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🧪 主页登录重定向测试</h1>
+    <div class="subtitle">测试主页登录后不会跳转到 tank 页面的修复</div>
+
+    <!-- 当前状态显示 -->
+    <div class="test-section">
+      <h2>📊 当前状态</h2>
+      <div>
+        <strong>当前页面：</strong> 
+        <span class="current-value" id="current-page"></span>
+      </div>
+      <div style="margin-top: 10px;">
+        <strong>localStorage.loginRedirect：</strong> 
+        <span class="current-value" id="current-redirect"></span>
+      </div>
+      <button class="btn btn-secondary" onclick="refreshStatus()">🔄 刷新状态</button>
+    </div>
+
+    <!-- 测试1：模拟设置旧的 loginRedirect -->
+    <div class="test-section">
+      <h2>测试 1：模拟旧的 loginRedirect</h2>
+      <p>模拟用户之前访问过 tank 页面，系统保存了 loginRedirect。</p>
+      <button class="btn btn-primary" onclick="setOldRedirect()">
+        设置 loginRedirect = "tank.html?view=my"
+      </button>
+      <button class="btn btn-danger" onclick="clearRedirect()">
+        清除 loginRedirect
+      </button>
+      <div id="test1-status" class="status info">
+        ⏳ 点击按钮设置测试数据...
+      </div>
+    </div>
+
+    <!-- 测试2：检查主页登录行为 -->
+    <div class="test-section">
+      <h2>测试 2：检查主页登录行为</h2>
+      <p>验证在主页打开登录模态框时是否清除旧的 loginRedirect。</p>
+      <div style="margin-bottom: 15px;">
+        <strong>前置条件：</strong> 先运行测试1设置旧的 loginRedirect
+      </div>
+      <button class="btn btn-primary" onclick="goToIndex()">
+        📍 跳转到主页测试
+      </button>
+      <div id="test2-status" class="status info">
+        <strong>测试步骤：</strong>
+        <ol>
+          <li>点击上面的按钮跳转到主页</li>
+          <li>在主页点击"Sign In"按钮</li>
+          <li>观察控制台输出是否有：<br>
+              <code>🧹 Clearing existing loginRedirect on index page</code>
+          </li>
+          <li>点击任意 OAuth 按钮（Google/Discord）</li>
+          <li>观察控制台输出是否有：<br>
+              <code>🧹 Clearing existing loginRedirect before OAuth</code>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- 测试3：检查邮箱登录行为 -->
+    <div class="test-section">
+      <h2>测试 3：检查邮箱登录行为</h2>
+      <p>验证从主页点击邮箱登录时使用的 redirectUrl。</p>
+      <button class="btn btn-primary" onclick="testEmailLogin()">
+        📧 测试邮箱登录（不会真正跳转）
+      </button>
+      <div id="test3-status" class="status info">
+        <strong>预期行为：</strong><br>
+        从主页点击邮箱登录时，应该使用 <code>window.location.href</code>（当前页面），<br>
+        而不是旧的 <code>localStorage.loginRedirect</code>。
+      </div>
+    </div>
+
+    <!-- 测试4：完整流程测试 -->
+    <div class="test-section">
+      <h2>测试 4：完整流程（需要真实登录）</h2>
+      <p>完整测试从设置到登录的整个流程。</p>
+      <div style="margin-bottom: 15px;">
+        <strong>⚠️ 注意：</strong> 此测试需要真实的 OAuth 登录，请确保有测试账号。
+      </div>
+      <ol>
+        <li>运行测试1，设置 <code>loginRedirect = "tank.html?view=my"</code></li>
+        <li>点击"跳转到主页测试"</li>
+        <li>在主页点击"Sign In"按钮</li>
+        <li>选择 Google 或 Discord 登录</li>
+        <li>完成 OAuth 登录</li>
+        <li>✅ 验证：登录后应该留在主页，而不是跳转到 tank 页面</li>
+      </ol>
+      <button class="btn btn-primary" onclick="startFullTest()">
+        🚀 开始完整测试
+      </button>
+      <div id="test4-status" class="status info">
+        ⏳ 点击按钮开始完整测试...
+      </div>
+    </div>
+
+    <!-- 预期行为 -->
+    <div class="test-section">
+      <h2>✅ 预期行为总结</h2>
+      <ul>
+        <li>✨ 在主页打开登录模态框时，清除旧的 loginRedirect</li>
+        <li>✨ 在主页点击 OAuth 登录时，清除旧的 loginRedirect</li>
+        <li>✨ 在主页点击邮箱登录时，忽略旧的 loginRedirect，使用当前页面</li>
+        <li>✨ 从其他页面登录时，仍然正常使用 loginRedirect（保持现有功能）</li>
+        <li>✨ 登录后留在主页，不跳转到 tank 或其他页面</li>
+      </ul>
+    </div>
+
+    <!-- 回到主页 -->
+    <div style="text-align: center; margin-top: 30px;">
+      <button class="btn btn-secondary" onclick="window.location.href='index.html'">
+        🏠 返回主页
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // 刷新当前状态
+    function refreshStatus() {
+      const currentPage = window.location.pathname;
+      const currentRedirect = localStorage.getItem('loginRedirect') || '(未设置)';
+      
+      document.getElementById('current-page').textContent = currentPage;
+      document.getElementById('current-redirect').textContent = currentRedirect;
+      
+      console.log('📊 Current status:', { currentPage, currentRedirect });
+    }
+
+    // 设置旧的 loginRedirect
+    function setOldRedirect() {
+      localStorage.setItem('loginRedirect', 'tank.html?view=my');
+      refreshStatus();
+      
+      const status = document.getElementById('test1-status');
+      status.className = 'status success';
+      status.innerHTML = '✅ 已设置 loginRedirect = "tank.html?view=my"<br><small>现在可以进行后续测试了</small>';
+      
+      console.log('✅ Set loginRedirect to tank.html?view=my');
+    }
+
+    // 清除 loginRedirect
+    function clearRedirect() {
+      localStorage.removeItem('loginRedirect');
+      refreshStatus();
+      
+      const status = document.getElementById('test1-status');
+      status.className = 'status info';
+      status.innerHTML = 'ℹ️ 已清除 loginRedirect';
+      
+      console.log('🧹 Cleared loginRedirect');
+    }
+
+    // 跳转到主页测试
+    function goToIndex() {
+      const currentRedirect = localStorage.getItem('loginRedirect');
+      
+      if (!currentRedirect) {
+        const status = document.getElementById('test2-status');
+        status.className = 'status warning';
+        status.innerHTML = '⚠️ 请先运行测试1设置 loginRedirect';
+        return;
+      }
+      
+      console.log('📍 Navigating to index.html with loginRedirect:', currentRedirect);
+      window.location.href = 'index.html';
+    }
+
+    // 测试邮箱登录（不真正跳转）
+    function testEmailLogin() {
+      const currentPath = window.location.pathname;
+      const isOnIndex = currentPath === '/' || 
+                        currentPath === '/index.html' || 
+                        currentPath.endsWith('/index.html');
+      
+      let redirectUrl;
+      if (isOnIndex) {
+        redirectUrl = window.location.href;
+        console.log('📍 Email login from index page, redirectUrl:', redirectUrl);
+      } else {
+        redirectUrl = localStorage.getItem('loginRedirect') || window.location.href;
+        console.log('📍 Email login from other page, redirectUrl:', redirectUrl);
+      }
+      
+      const status = document.getElementById('test3-status');
+      status.className = 'status success';
+      status.innerHTML = `
+        ✅ 模拟邮箱登录逻辑：<br>
+        <strong>当前页面：</strong> ${currentPath}<br>
+        <strong>是否在主页：</strong> ${isOnIndex ? '是' : '否'}<br>
+        <strong>使用的 redirectUrl：</strong> <code>${redirectUrl}</code><br>
+        <br>
+        ${isOnIndex ? 
+          '✅ 正确：在主页使用当前页面，忽略旧的 loginRedirect' : 
+          '✅ 正确：在其他页面使用 loginRedirect 或当前页面'}
+      `;
+    }
+
+    // 开始完整测试
+    function startFullTest() {
+      // 设置 loginRedirect
+      localStorage.setItem('loginRedirect', 'tank.html?view=my');
+      
+      const status = document.getElementById('test4-status');
+      status.className = 'status warning';
+      status.innerHTML = `
+        🚀 完整测试已开始！<br>
+        <br>
+        <strong>步骤：</strong><br>
+        1. ✅ 已设置 loginRedirect = "tank.html?view=my"<br>
+        2. ⏳ 即将跳转到主页...<br>
+        3. 📋 请在主页完成登录<br>
+        4. 🎯 验证登录后是否留在主页
+      `;
+      
+      console.log('🚀 Full test started, navigating to index.html in 2 seconds...');
+      
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 2000);
+    }
+
+    // 页面加载时刷新状态
+    refreshStatus();
+
+    // 检查是否从主页返回
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('from_index')) {
+      const redirectValue = localStorage.getItem('loginRedirect');
+      if (redirectValue) {
+        const status = document.getElementById('test2-status');
+        status.className = 'status error';
+        status.innerHTML = `
+          ❌ 测试失败！<br>
+          loginRedirect 仍然存在：<code>${redirectValue}</code><br>
+          <br>
+          <strong>可能原因：</strong><br>
+          - 修复代码未生效<br>
+          - 未在主页点击登录按钮
+        `;
+      } else {
+        const status = document.getElementById('test2-status');
+        status.className = 'status success';
+        status.innerHTML = '✅ 测试通过！loginRedirect 已被清除。';
+      }
+    }
+  </script>
+</body>
+</html>
+

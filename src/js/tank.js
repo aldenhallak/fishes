@@ -545,6 +545,13 @@ function loadFishImageToTank(imgUrl, fishData, onDone) {
                 attack: fishData.attack || 10,
                 defense: fishData.defense || 5
             });
+            
+            // 🌟 新鱼特效标记
+            if (fishData.isNewlyCreated) {
+                fishObj.isNewlyCreated = true;
+                fishObj.createdDisplayTime = Date.now();
+                console.log(`✨ Fish marked as newly created with special glow effect`);
+            }
 
             // Add entrance animation for new fish
             if (fishData.docId && fishes.length >= maxTankCapacity - 1) {
@@ -867,6 +874,50 @@ function showNewFishNotification(artistName) {
     }, 3000);
 }
 
+/**
+ * 通过ID加载单条鱼的数据
+ * @param {string} fishId - 鱼的ID
+ * @returns {Object|null} 鱼数据对象，如果未找到则返回null
+ */
+async function loadSingleFish(fishId) {
+    if (!fishId) {
+        console.warn('loadSingleFish: fishId is required');
+        return null;
+    }
+
+    try {
+        console.log(`🐠 [NEW FISH] Attempting to load fish with ID: ${fishId}`);
+        
+        // 添加重试机制，因为新创建的鱼可能需要一点时间才能在数据库中可用
+        let fishData = null;
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        while (!fishData && retryCount < maxRetries) {
+            if (retryCount > 0) {
+                console.log(`🔄 [NEW FISH] Retry ${retryCount}/${maxRetries} for fish ${fishId}...`);
+                await new Promise(resolve => setTimeout(resolve, 500)); // 等待500ms
+            }
+            
+            fishData = await getFishById(fishId);
+            retryCount++;
+        }
+        
+        if (!fishData) {
+            console.warn(`⚠️ [NEW FISH] Fish with ID ${fishId} not found after ${maxRetries} retries`);
+            console.warn(`⚠️ [NEW FISH] Possible reasons: 1) Fish not yet in DB 2) Fish not approved 3) Network error`);
+            return null;
+        }
+
+        console.log(`✅ [NEW FISH] Successfully loaded: "${fishData.fish_name || 'Unnamed'}" (ID: ${fishId})`);
+        console.log(`✅ [NEW FISH] Image URL: ${fishData.image_url}`);
+        return fishData;
+    } catch (error) {
+        console.error('❌ [NEW FISH] Error loading single fish:', error);
+        return null;
+    }
+}
+
 // Load initial fish into tank based on sort type
 async function loadInitialFish(sortType = 'recent') {
     // Show loading indicator
@@ -879,19 +930,57 @@ async function loadInitialFish(sortType = 'recent') {
     fishes.length = 0;
 
     try {
-        // 新逻辑：优先保证显示足够数量的鱼，然后再限制用户自己的鱼数量
-        // Load more fish than needed to account for filtering
-        const loadAmount = Math.ceil(maxTankCapacity * 1.5); // 加载1.5倍的数量
-        console.log(`🐠 Loading ${loadAmount} fish (target: ${maxTankCapacity}) with sort type: ${sortType}`);
+        // 🆕 检查是否有新鱼ID（用户刚画的鱼）
+        const urlParams = new URLSearchParams(window.location.search);
+        const newFishId = urlParams.get('newFish');
+        
+        // 🔍 详细的URL调试信息
+        console.log(`🔍 [URL DEBUG] Current URL: ${window.location.href}`);
+        console.log(`🔍 [URL DEBUG] Search params: ${window.location.search}`);
+        console.log(`🔍 [URL DEBUG] newFish parameter: ${newFishId}`);
+        console.log(`🔍 [URL DEBUG] All URL params:`, Object.fromEntries(urlParams.entries()));
+        
+        let newFishData = null;
+        
+        if (newFishId) {
+            console.log(`🌟 Detected newly created fish: ${newFishId}`);
+            newFishData = await loadSingleFish(newFishId);
+            
+            if (newFishData) {
+                console.log(`✨ Successfully loaded new fish, will add special effect`);
+                // 标记为新创建的鱼，用于特效显示
+                newFishData.isNewlyCreated = true;
+                newFishData.docId = newFishId;
+            } else {
+                console.warn(`⚠️ Could not load new fish ${newFishId}, will load normally`);
+            }
+        }
+        
+        // 计算需要加载的鱼数量（如果有新鱼，则少加载一条）
+        const fishToLoad = newFishData ? maxTankCapacity - 1 : maxTankCapacity;
+        const loadAmount = Math.ceil(fishToLoad * 1.5); // 加载1.5倍的数量
+        
+        console.log(`🐠 Loading ${loadAmount} fish (target: ${fishToLoad}${newFishData ? ' + 1 new fish' : ''}) with sort type: ${sortType}`);
+        
         // IMPORTANT: In global tank mode, do NOT pass userId to getFishBySort
         // This ensures we get fish from ALL users, not just the current user
         const allFishDocs = await getFishBySort(sortType, loadAmount, null, 'desc', null);
         console.log(`🐠 Received ${allFishDocs ? allFishDocs.length : 0} fish documents`);
         
+        // 🆕 如果有新鱼，从加载的鱼中排除它（避免重复）
+        let filteredAllFishDocs = allFishDocs;
+        if (newFishData && allFishDocs) {
+            filteredAllFishDocs = allFishDocs.filter(doc => {
+                const docId = doc.id || doc.docId;
+                return docId !== newFishId;
+            });
+            console.log(`🐠 Filtered out new fish from loaded docs: ${allFishDocs.length} -> ${filteredAllFishDocs.length}`);
+        }
+        
         // Debug: Check if we got fish from multiple users
-        if (allFishDocs && allFishDocs.length > 0) {
+        if (filteredAllFishDocs && filteredAllFishDocs.length > 0) {
             const userIds = new Set();
-            allFishDocs.forEach(doc => {
+            filteredAllFishDocs.forEach(doc => {
                 let data;
                 if (typeof doc.data === 'function') {
                     data = doc.data();
@@ -919,7 +1008,7 @@ async function loadInitialFish(sortType = 'recent') {
         }
 
         // New filtering logic: Limit user's own fish while ensuring enough total fish
-        let filteredFishDocs = allFishDocs;
+        let filteredFishDocs = filteredAllFishDocs;
         if (currentUserId) {
             const userFishDocs = [];
             const otherFishDocs = [];
@@ -927,7 +1016,7 @@ async function loadInitialFish(sortType = 'recent') {
             // Debug: Log all fish user IDs to help diagnose the issue
             const allFishUserIds = new Set();
             
-            allFishDocs.forEach(doc => {
+            filteredAllFishDocs.forEach(doc => {
                 // Handle different possible backend API formats
                 let data;
                 if (typeof doc.data === 'function') {
@@ -958,7 +1047,7 @@ async function loadInitialFish(sortType = 'recent') {
             
             // Debug: Log statistics
             const stats = {
-                totalFish: allFishDocs.length,
+                totalFish: filteredAllFishDocs.length,
                 currentUserId: currentUserId,
                 userFishCount: userFishDocs.length,
                 otherFishCount: otherFishDocs.length,
@@ -1208,6 +1297,63 @@ async function loadInitialFish(sortType = 'recent') {
             
             loadFishImageToTank(imageUrl, normalizedGlobalFishData);
         });
+        
+        // 🆕 最后加载新鱼（如果有），确保它在鱼缸中
+        if (newFishData) {
+            console.log(`🌟 [NEW FISH] Loading newly created fish with special effect`);
+            console.log(`🌟 [NEW FISH] Fish data:`, {
+                id: newFishData.id || newFishData.docId,
+                name: newFishData.fish_name,
+                artist: newFishData.artist,
+                image_url: newFishData.image_url,
+                is_approved: newFishData.is_approved
+            });
+            
+            const imageUrl = newFishData.image_url || newFishData.Image || newFishData.image || newFishData.imageUrl;
+            
+            console.log(`🌟 [NEW FISH] Image URL: ${imageUrl}`);
+            
+            if (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('http')) {
+                // 标准化新鱼数据
+                const normalizedNewFishData = {
+                    ...newFishData,
+                    speed: newFishData.speed || 2,
+                    phase: newFishData.phase || 0,
+                    amplitude: newFishData.amplitude || 24,
+                    peduncle: newFishData.peduncle || 0.4,
+                    isNewlyCreated: true  // 保持标记
+                };
+                
+                console.log(`🌟 [NEW FISH] Calling loadFishImageToTank...`);
+                loadFishImageToTank(imageUrl, normalizedNewFishData, (fishObj) => {
+                    if (fishObj) {
+                        console.log(`✨ [NEW FISH] Successfully added to tank! Fish object:`, {
+                            id: fishObj.id,
+                            docId: fishObj.docId,
+                            isNewlyCreated: fishObj.isNewlyCreated,
+                            createdDisplayTime: fishObj.createdDisplayTime
+                        });
+                    } else {
+                        console.error(`❌ [NEW FISH] Failed to create fish object`);
+                    }
+                });
+                console.log(`✨ [NEW FISH] Load request sent`);
+            } else {
+                console.error(`❌ [NEW FISH] Invalid image URL:`, {
+                    imageUrl,
+                    type: typeof imageUrl,
+                    startsWithHttp: imageUrl ? imageUrl.startsWith('http') : 'N/A',
+                    allFields: {
+                        image_url: newFishData.image_url,
+                        Image: newFishData.Image,
+                        image: newFishData.image,
+                        imageUrl: newFishData.imageUrl
+                    }
+                });
+            }
+        } else {
+            console.log(`ℹ️ [NEW FISH] No new fish to load (newFishData is null)`);
+        }
     } catch (error) {
         console.error('Error loading initial fish:', error);
     } finally {
@@ -2019,15 +2165,24 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Check for URL parameters to set initial sort and capacity
     const sortParam = tankUrlParams.get('sort');
     const capacityParam = tankUrlParams.get('capacity');
-    let initialSort = 'recent'; // default
+    
+    // 🆕 读取上次的排序选择（持久化）
+    const savedSort = localStorage.getItem('tankSortPreference') || 'random';
+    
+    // 优先级：URL参数 > localStorage > 默认值(random)
+    let initialSort = sortParam || savedSort;
 
     // Validate sort parameter and set dropdown
-    if (sortParam && ['recent', 'popular', 'random'].includes(sortParam)) {
-        initialSort = sortParam;
+    if (initialSort && ['recent', 'popular', 'random'].includes(initialSort)) {
         if (sortSelect) {
-            sortSelect.value = sortParam;
+            sortSelect.value = initialSort;
         }
+    } else {
+        // 如果无效，使用默认值
+        initialSort = 'random';
     }
+    
+    console.log(`🔧 Initial sort: ${initialSort} (from ${sortParam ? 'URL' : savedSort !== 'random' ? 'localStorage' : 'default'})`);
 
     // Initialize capacity from URL parameter (if present), otherwise use default (20)
     if (capacityParam) {
@@ -2113,6 +2268,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (sortSelect && VIEW_MODE !== 'my') {
         sortSelect.addEventListener('change', () => {
             const selectedSort = sortSelect.value;
+            
+            // 🆕 保存排序选择到 localStorage
+            localStorage.setItem('tankSortPreference', selectedSort);
+            console.log(`💾 Saved sort preference: ${selectedSort}`);
 
             // Clean up existing listener before switching modes
             if (newFishListener) {
@@ -3296,6 +3455,48 @@ function animateFishes() {
             // Reduce sine wave amplitude when attracted to food for more realistic movement
             const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.3 : fish.amplitude;
             swimY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
+        }
+        
+        // 🌟 绘制新鱼的发光特效
+        if (fish.isNewlyCreated) {
+            const now = Date.now();
+            const elapsed = now - (fish.createdDisplayTime || now);
+            
+            // 特效持续60秒
+            if (elapsed < 60000) {
+                // 脉动效果：0.5-1.0之间变化
+                const pulse = 0.5 + 0.5 * Math.sin(now / 300);
+                
+                swimCtx.save();
+                
+                // 绘制金色光晕（多层）
+                swimCtx.shadowColor = `rgba(255, 215, 0, ${pulse})`;
+                swimCtx.shadowBlur = 20 + pulse * 15;
+                
+                // 外层光环
+                swimCtx.strokeStyle = `rgba(255, 215, 0, ${pulse * 0.6})`;
+                swimCtx.lineWidth = 3;
+                swimCtx.beginPath();
+                const glowRadius = Math.max(fish.width, fish.height) * 0.6;
+                const centerX = fish.x + fish.width / 2;
+                const centerY = swimY + fish.height / 2;
+                swimCtx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2);
+                swimCtx.stroke();
+                
+                // 内层光环（更亮）
+                swimCtx.strokeStyle = `rgba(255, 215, 0, ${pulse * 0.8})`;
+                swimCtx.lineWidth = 2;
+                swimCtx.beginPath();
+                swimCtx.arc(centerX, centerY, glowRadius * 0.7, 0, Math.PI * 2);
+                swimCtx.stroke();
+                
+                swimCtx.restore();
+            } else {
+                // 60秒后移除标记
+                delete fish.isNewlyCreated;
+                delete fish.createdDisplayTime;
+                console.log(`⏰ New fish glow effect expired for fish: ${fish.docId}`);
+            }
         }
 
         drawWigglingFish(fish, fish.x, swimY, fish.direction, time, fish.phase);

@@ -500,6 +500,21 @@ class AuthUI {
     console.log('🔐 showLoginModal() called');
     console.log('Modal element:', this.modal);
     
+    // 🔧 修复：在主页显示登录模态框时，清除任何现有的 loginRedirect
+    // 避免用户在主页登录后跳转到其他页面（如 tank.html）
+    const currentPath = window.location.pathname;
+    const isOnIndex = currentPath === '/' || 
+                      currentPath === '/index.html' || 
+                      currentPath.endsWith('/index.html');
+    
+    if (isOnIndex) {
+      const existingRedirect = localStorage.getItem('loginRedirect');
+      if (existingRedirect) {
+        console.log('🧹 Clearing existing loginRedirect on index page:', existingRedirect);
+        localStorage.removeItem('loginRedirect');
+      }
+    }
+    
     if (this.modal) {
       console.log('Setting modal display to flex');
       this.modal.style.display = 'flex';
@@ -526,8 +541,22 @@ class AuthUI {
     // 隐藏当前模态框
     this.hideLoginModal();
     
-    // 保存当前页面用于登录后重定向
-    const redirectUrl = localStorage.getItem('loginRedirect') || window.location.href;
+    // 🔧 修复：从主页登录时，使用当前页面而不是旧的 loginRedirect
+    const currentPath = window.location.pathname;
+    const isOnIndex = currentPath === '/' || 
+                      currentPath === '/index.html' || 
+                      currentPath.endsWith('/index.html');
+    
+    let redirectUrl;
+    if (isOnIndex) {
+      // 在主页：忽略旧的 loginRedirect，使用当前页面
+      redirectUrl = window.location.href;
+      console.log('📍 Email login from index page, redirectUrl:', redirectUrl);
+    } else {
+      // 在其他页面：使用 loginRedirect 或当前页面
+      redirectUrl = localStorage.getItem('loginRedirect') || window.location.href;
+      console.log('📍 Email login from other page, redirectUrl:', redirectUrl);
+    }
     
     // 跳转到邮箱登录页面
     window.location.href = `/login.html?redirect=${encodeURIComponent(redirectUrl)}`;
@@ -539,8 +568,54 @@ class AuthUI {
   async handleOAuthLogin(provider) {
     console.log(`🔐 Attempting to sign in with ${provider}...`);
     
+    // 🔧 修复：在主页 OAuth 登录时，清除任何现有的 loginRedirect
+    // 确保登录后回到主页，而不是跳转到其他页面
+    const currentPath = window.location.pathname;
+    const isOnIndex = currentPath === '/' || 
+                      currentPath === '/index.html' || 
+                      currentPath.endsWith('/index.html');
+    
+    if (isOnIndex) {
+      const existingRedirect = localStorage.getItem('loginRedirect');
+      if (existingRedirect) {
+        console.log('🧹 Clearing existing loginRedirect before OAuth:', existingRedirect);
+        localStorage.removeItem('loginRedirect');
+      }
+    }
+    
+    // 获取点击的按钮
+    const btn = this.modal.querySelector(`.oauth-btn[data-provider="${provider}"]`);
+    const originalBtnContent = btn ? btn.innerHTML : '';
+    
+    // 显示加载状态
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btn.innerHTML = `
+        <span class="oauth-btn-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" opacity="0.25"></circle>
+            <path d="M12 2 A10 10 0 0 1 22 12" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+        </span>
+        <span class="oauth-btn-text">Connecting...</span>
+      `;
+    }
+    
+    // 恢复按钮状态的辅助函数
+    const restoreButton = () => {
+      if (btn) {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.innerHTML = originalBtnContent;
+      }
+    };
+    
     if (!window.supabaseAuth) {
       console.error('❌ window.supabaseAuth is not available');
+      restoreButton();
       this.showError('Authentication system not initialized. Please refresh the page and try again.');
       return;
     }
@@ -559,12 +634,14 @@ class AuthUI {
       console.error('   1. Supabase configuration not loaded');
       console.error('   2. Network issues preventing CDN from loading');
       console.error('   3. Invalid SUPABASE_URL or SUPABASE_ANON_KEY');
+      restoreButton();
       this.showError('Supabase client not initialized. Please check your configuration and network connection.');
       return;
     }
     
     if (!window.supabaseAuth.signInWithOAuth) {
       console.error('❌ signInWithOAuth function not available');
+      restoreButton();
       this.showError('OAuth login function not available. Please refresh the page and try again.');
       return;
     }
@@ -574,13 +651,16 @@ class AuthUI {
       
       if (error) {
         console.error('Sign-in error:', error);
+        restoreButton();
         this.handleOAuthError(provider, error);
       } else {
         console.log('✅ OAuth sign-in initiated successfully');
-        // OAuth will auto-redirect, no need to manually close modal
+        // OAuth will auto-redirect, no need to manually close modal or restore button
+        // Keep loading state until redirect happens
       }
     } catch (error) {
       console.error('Sign-in exception:', error);
+      restoreButton();
       this.handleOAuthError(provider, error);
     }
   }
@@ -681,7 +761,17 @@ class AuthUI {
         alert(`Sign-out failed: ${error.message}`);
       } else {
         console.log('✅ Signed out successfully');
-        await this.updateAuthUI();
+        
+        // 🔧 修复：立即清除缓存和 localStorage，避免时序问题
+        // 确保 UI 更新时不会读取到旧的用户信息
+        if (window.authCache) {
+          window.authCache.clear();
+        }
+        this.clearUserFromLocalStorage();
+        
+        // 🔧 修复：传递 null 给 updateAuthUI，而不是让它重新获取用户
+        // 避免在 onAuthStateChange 触发之前读取到缓存的用户信息
+        await this.updateAuthUI(null);
       }
     }
   }
@@ -711,15 +801,25 @@ class AuthUI {
 
   /**
    * 更新认证UI状态
-   * @param {User|null} userFromSession - 从 session 中传入的用户对象（可选）
+   * @param {User|null|undefined} userFromSession - 从 session 中传入的用户对象
+   *   - undefined: 重新获取用户（默认行为）
+   *   - null: 明确表示用户已登出，不重新获取
+   *   - User object: 使用传入的用户对象
    */
-  async updateAuthUI(userFromSession = null) {
+  async updateAuthUI(userFromSession) {
     if (!window.supabaseAuth) return;
     
-    // 优先使用传入的 user，否则重新获取
-    let user = userFromSession;
-    if (user === null) {
+    // 🔧 修复：区分"没有传参数"和"明确传递 null"
+    // undefined = 需要重新获取用户
+    // null = 用户已登出，不需要重新获取
+    // User object = 使用传入的用户
+    let user;
+    if (userFromSession === undefined) {
+      // 没有传参数，重新获取用户
       user = await window.supabaseAuth.getCurrentUser();
+    } else {
+      // 明确传递了 null 或 User object
+      user = userFromSession;
     }
     
     this.currentUser = user;
@@ -907,8 +1007,28 @@ class AuthUI {
       // 移除隐藏类
       this.loginBtn.classList.remove('auth-hidden');
     }
+    
     if (this.userContainer) {
       this.userContainer.style.display = 'none';
+      
+      // 🔧 修复：清除用户容器中的用户名，防止下次显示时出现旧数据
+      const userName = this.userContainer.querySelector('.user-name');
+      if (userName) {
+        userName.textContent = '';
+      }
+      
+      // 清除会员图标
+      const trigger = this.userContainer.querySelector('.user-menu-trigger');
+      if (trigger) {
+        const membershipIcon = trigger.querySelector('.membership-icon');
+        if (membershipIcon) {
+          membershipIcon.remove();
+        }
+      }
+      
+      // 清除未读消息徽章
+      const badges = this.userContainer.querySelectorAll('.unread-badge');
+      badges.forEach(badge => badge.remove());
     }
     
     // 隐藏"我的鱼"链接
@@ -922,6 +1042,8 @@ class AuthUI {
     if (settingsLink) {
       settingsLink.style.display = 'none';
     }
+    
+    console.log('✅ 已显示登录按钮并清除用户信息');
   }
 
   /**

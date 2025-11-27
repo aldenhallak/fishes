@@ -95,81 +95,81 @@
             font-weight: 700;
         }
         
-        /* Sort controls - Game Style */
-        .sort-controls {
+        /* Fish Category Filter */
+        .fish-category-filter {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            margin-bottom: 20px;
         }
         
-        .sort-btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: var(--radius-lg);
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 700;
-            color: white;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-            box-shadow: var(--shadow-btn);
-            transform: translateY(0);
-            transition: all 0.15s ease;
-            position: relative;
-            overflow: hidden;
+        .category-tabs {
             display: inline-flex;
-            align-items: center;
+            background: white;
+            border-radius: 12px;
+            padding: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 2px solid #E0E7FF;
+        }
+        
+        .category-tab {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6366F1;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .category-tab:hover {
+            background: #EEF2FF;
+        }
+        
+        .category-tab.active {
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            color: white;
+            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Compact Sort Controls */
+        .sort-controls-compact {
+            display: flex;
             justify-content: center;
-            gap: 6px;
-            background: linear-gradient(180deg, var(--game-blue-light) 0%, var(--game-blue) 50%, var(--game-blue-dark) 100%);
-            border-bottom: 3px solid #2C5F8F;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
         }
         
-        /* 顶部光泽效果 */
-        .sort-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            pointer-events: none;
+        .sort-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
         }
         
-        /* 底部加深效果 */
-        .sort-btn::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
-            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-            pointer-events: none;
+        .sort-select {
+            padding: 6px 12px;
+            border: 2px solid #E0E7FF;
+            border-radius: 8px;
+            background: white;
+            color: #6366F1;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
         }
         
-        .sort-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-btn-hover);
+        .sort-select:hover {
+            border-color: #6366F1;
+            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
         }
         
-        .sort-btn:active {
-            transform: translateY(2px);
-            box-shadow: var(--shadow-btn-active);
-        }
-        
-        .sort-btn.active {
-            background: linear-gradient(180deg, var(--game-orange-light) 0%, var(--game-orange) 50%, #E67E00 100%);
-            border-bottom: 3px solid #CC6E00;
-        }
-        
-        .sort-btn.active:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-btn-hover);
+        .sort-select:focus {
+            border-color: #4F46E5;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
         
         /* Loading state */
@@ -578,9 +578,25 @@
             <h1>🐠 Fish Ranking 🏆</h1>
         </div>
         
-        <div class="sort-controls">
-            <button class="sort-btn active" data-sort="hot">🔥 Sort by Hot</button>
-            <button class="sort-btn" data-sort="date">📅 Sort by Date</button>
+        <!-- Fish Category Filter (My Fish / Favorites) -->
+        <div id="fish-category-filter" class="fish-category-filter" style="display: none;">
+            <div class="category-tabs">
+                <button class="category-tab active" data-category="my-fish">
+                    🎨 My Fish (<span id="my-fish-count">0</span>)
+                </button>
+                <button class="category-tab" data-category="favorites">
+                    ⭐ Favorites (<span id="favorites-count">0</span>)
+                </button>
+            </div>
+        </div>
+        
+        <!-- Compact Sort Controls -->
+        <div class="sort-controls-compact">
+            <span class="sort-label">Sort:</span>
+            <select id="sort-select" class="sort-select">
+                <option value="hot">🔥 Hot</option>
+                <option value="date" selected>📅 Date</option>
+            </select>
         </div>
         
         <div id="loading" class="loading">
