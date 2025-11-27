@@ -1707,25 +1707,48 @@
           
           // 根据fish_talk状态显示或隐藏聊天面板
           if (fishTalkEnabled) {
-            // Fish Talk启用时，显示聊天面板（默认展开）
-            chatPanel.style.display = 'flex';
-            chatPanel.style.visibility = 'visible';
-            // 使用setTimeout确保display先生效
-            setTimeout(() => {
-              chatPanel.style.right = '0';
-            }, 10);
-            // 隐藏重新打开按钮
-            if (chatReopenBtn) {
-              chatReopenBtn.style.display = 'none';
-            }
-            console.log('✅ 聊天面板已显示（Fish Talk已启用）');
+            // Fish Talk启用时，根据localStorage中保存的状态决定是否展开
+            const chatPanelOpen = localStorage.getItem('chatPanelOpen');
+            const shouldOpen = chatPanelOpen !== 'false'; // 默认展开，除非用户明确关闭过
             
-            // 滚动到底部
-            setTimeout(() => {
-              if (typeof scrollChatToBottom === 'function') {
-                scrollChatToBottom();
+            if (shouldOpen) {
+              // 显示聊天面板
+              chatPanel.style.display = 'flex';
+              chatPanel.style.visibility = 'visible';
+              // 使用setTimeout确保display先生效
+              setTimeout(() => {
+                chatPanel.style.right = '0';
+              }, 10);
+              // 隐藏重新打开按钮
+              if (chatReopenBtn) {
+                chatReopenBtn.style.display = 'none';
               }
-            }, 100);
+              // 同步更新全局状态变量
+              if (window.isChatPanelOpen !== undefined) {
+                window.isChatPanelOpen = true;
+              }
+              console.log('✅ 聊天面板已显示（Fish Talk已启用，用户之前打开）');
+              
+              // 滚动到底部
+              setTimeout(() => {
+                if (typeof scrollChatToBottom === 'function') {
+                  scrollChatToBottom();
+                }
+              }, 100);
+            } else {
+              // 用户之前关闭了聊天面板，保持关闭状态但显示重新打开按钮
+              chatPanel.style.right = '-420px';
+              chatPanel.style.display = 'none';
+              chatPanel.style.visibility = 'hidden';
+              if (chatReopenBtn) {
+                chatReopenBtn.style.display = 'flex';
+              }
+              // 同步更新全局状态变量
+              if (window.isChatPanelOpen !== undefined) {
+                window.isChatPanelOpen = false;
+              }
+              console.log('✅ 聊天面板已隐藏（Fish Talk已启用，但用户之前关闭）');
+            }
           } else {
             // Fish Talk禁用时，隐藏聊天面板和重新打开按钮
             chatPanel.style.right = '-420px';
@@ -1737,6 +1760,10 @@
               chatPanel.style.display = 'none';
               chatPanel.style.visibility = 'hidden';
             }, 400);
+            // 同步更新全局状态变量
+            if (window.isChatPanelOpen !== undefined) {
+              window.isChatPanelOpen = false;
+            }
             console.log('❌ 聊天面板已隐藏（Fish Talk未启用）');
           }
         };

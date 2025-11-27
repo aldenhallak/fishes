@@ -4994,10 +4994,17 @@ const closeChatBtn = document.getElementById('close-chat-panel');
 const chatReopenBtn = document.getElementById('chat-reopen-btn');
 const tankWrapper = document.getElementById('tank-wrapper-main');
 
-let isChatPanelOpen = false;
+// 从localStorage读取聊天面板状态，默认为false
+let isChatPanelOpen = localStorage.getItem('chatPanelOpen') === 'true';
+// 导出到window对象，让其他地方也能访问和修改
+window.isChatPanelOpen = isChatPanelOpen;
 
 function toggleChatPanel() {
     isChatPanelOpen = !isChatPanelOpen;
+    window.isChatPanelOpen = isChatPanelOpen;
+    
+    // 保存状态到localStorage
+    localStorage.setItem('chatPanelOpen', isChatPanelOpen.toString());
     
     if (isChatPanelOpen) {
         // 显示聊天面板（右下角）
