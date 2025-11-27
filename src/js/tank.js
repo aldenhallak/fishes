@@ -2000,8 +2000,8 @@ async function createPrivateFishObject(fishData) {
                 Image: imageUrl,
                 image_url: imageUrl,
                 imageUrl: imageUrl,
-                // 🔧 修复：强制设置游动参数为固定值，确保与全局鱼缸完全一致
-                speed: 2,  // 强制设置为2，忽略API返回值
+                // 🔧 修复：强制设置游动参数为固定值，私人鱼缸速度降低50%
+                speed: 1,  // 私人鱼缸速度降低50%（原为2）
                 phase: 0,  // 强制设置为0，忽略API返回值
                 amplitude: 24,  // 强制设置为24，忽略API返回值
                 peduncle: 0.4,  // 强制设置为0.4，忽略API返回值
@@ -2033,13 +2033,13 @@ async function createPrivateFishObject(fishData) {
                     fishObj.isFavorited = fishData.is_favorited || fishData.isFavorited || false;
                     fishObj.is_alive = fishData.is_alive !== false;
                     
-                    // 🔧 修复：确保游动参数与全局鱼缸100%一致，强制覆盖任何可能的差异
-                    fishObj.speed = 2;
+                    // 🔧 修复：私人鱼缸速度降低50%，强制覆盖任何可能的差异
+                    fishObj.speed = 1;  // 私人鱼缸速度降低50%（原为2）
                     fishObj.phase = 0;
                     fishObj.amplitude = 24;  // 与全局鱼缸createFishObject中的默认值一致
                     fishObj.peduncle = 0.4;
                     
-                    console.log(`🔧 私人鱼缸鱼游动参数已统一: speed=${fishObj.speed}, amplitude=${fishObj.amplitude}, phase=${fishObj.phase}, peduncle=${fishObj.peduncle}`);
+                    console.log(`🔧 私人鱼缸鱼游动参数已设置: speed=${fishObj.speed} (降低50%), amplitude=${fishObj.amplitude}, phase=${fishObj.phase}, peduncle=${fishObj.peduncle}`);
                 }
                 resolve(fishObj || null);
             });
