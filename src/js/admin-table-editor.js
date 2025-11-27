@@ -28,6 +28,9 @@ let selectedRows = new Set();
 let editingCell = null;
 let sortColumn = null; // 将在加载数据后根据表结构设置
 let sortDirection = 'desc';
+let currentPage = 1;
+let pageSize = 50;
+let totalCount = 0;
 
 // 获取只读字段列表
 function getReadOnlyColumns(columns) {
@@ -98,6 +101,16 @@ async function init() {
   const batchDeleteBtn = document.getElementById('batch-delete-btn');
   if (batchDeleteBtn) {
     batchDeleteBtn.addEventListener('click', handleBatchDelete);
+  }
+
+  const prevPageBtn = document.getElementById('prev-page-btn');
+  if (prevPageBtn) {
+    prevPageBtn.addEventListener('click', handlePrevPage);
+  }
+
+  const nextPageBtn = document.getElementById('next-page-btn');
+  if (nextPageBtn) {
+    nextPageBtn.addEventListener('click', handleNextPage);
   }
 
   // 加载数据
@@ -222,9 +235,10 @@ async function loadTableData(clearCache = false) {
       }
     }
     
+    const offset = (currentPage - 1) * pageSize;
     const params = new URLSearchParams({
-      limit: '100',
-      offset: '0',
+      limit: pageSize.toString(),
+      offset: offset.toString(),
       order_by: sortColumn,
       order_direction: sortDirection
     });
@@ -238,8 +252,12 @@ async function loadTableData(clearCache = false) {
 
     if (result.success) {
       tableData = result.data;
+      if (tableData.pagination && tableData.pagination.total !== undefined) {
+        totalCount = tableData.pagination.total;
+      }
       renderTable();
       updateStats();
+      updatePagination();
     } else {
       showError(result.error || '加载表数据失败');
     }
@@ -685,6 +703,7 @@ async function handleRefresh() {
     pendingUpdates = {};
     selectedRows.clear();
     
+    // 刷新时保持当前页码，但重新加载数据
     // 对于 group_chat 表，保持按 created_at 倒序排列
     if (currentTable === 'group_chat') {
       sortColumn = 'created_at';
@@ -838,9 +857,16 @@ function updateStats() {
 
   const sortedColumns = sortColumnsForDisplay(tableData.columns);
   document.getElementById('column-count').textContent = sortedColumns.length;
-  document.getElementById('row-count').textContent = tableData.rows.length;
-  document.getElementById('display-range').textContent = 
-    `${tableData.pagination.offset + 1} - ${tableData.pagination.offset + tableData.rows.length}`;
+  document.getElementById('total-count').textContent = totalCount;
+  
+  const totalPages = Math.ceil(totalCount / pageSize);
+  document.getElementById('current-page').textContent = currentPage;
+  document.getElementById('total-pages').textContent = totalPages;
+  
+  const startRange = totalCount === 0 ? 0 : tableData.pagination.offset + 1;
+  const endRange = tableData.pagination.offset + tableData.rows.length;
+  document.getElementById('display-range').textContent = `${startRange} - ${endRange}`;
+  
   document.getElementById('update-time').textContent = new Date().toLocaleString('zh-CN', {
     timeZone: 'Asia/Shanghai',
     year: 'numeric',
@@ -851,6 +877,69 @@ function updateStats() {
     second: '2-digit',
     hour12: false
   });
+}
+
+// 更新分页按钮状态
+function updatePagination() {
+  const totalPages = Math.ceil(totalCount / pageSize);
+  
+  const prevBtn = document.getElementById('prev-page-btn');
+  const nextBtn = document.getElementById('next-page-btn');
+  const pageIndicator = document.getElementById('page-indicator');
+  const pageTotal = document.getElementById('page-total');
+  
+  if (prevBtn) {
+    prevBtn.disabled = currentPage <= 1;
+  }
+  
+  if (nextBtn) {
+    nextBtn.disabled = currentPage >= totalPages;
+  }
+  
+  if (pageIndicator) {
+    pageIndicator.textContent = currentPage;
+  }
+  
+  if (pageTotal) {
+    pageTotal.textContent = totalPages;
+  }
+}
+
+// 处理上一页
+async function handlePrevPage() {
+  if (currentPage > 1) {
+    // 检查是否有未保存的更改
+    if (Object.keys(pendingUpdates).length > 0) {
+      if (!confirm('有未保存的更改，切换页面将丢失这些更改。确定要继续吗？')) {
+        return;
+      }
+      pendingUpdates = {};
+      updateChangesIndicator();
+    }
+    
+    currentPage--;
+    selectedRows.clear();
+    await loadTableData();
+  }
+}
+
+// 处理下一页
+async function handleNextPage() {
+  const totalPages = Math.ceil(totalCount / pageSize);
+  if (currentPage < totalPages) {
+    // 检查是否有未保存的更改
+    if (Object.keys(pendingUpdates).length > 0) {
+      if (!confirm('有未保存的更改，切换页面将丢失这些更改。确定要继续吗？')) {
+        return;
+      }
+      pendingUpdates = {};
+      updateChangesIndicator();
+    }
+    
+    currentPage++;
+    selectedRows.clear();
+    await loadTableData();
+  }
 }
 
 // 显示错误

@@ -309,8 +309,8 @@ function createPlanCard(plan) {
                 <span class="feature-text">Fish talk about you</span>
             </li>
             <li>
-                <span class="feature-icon">${plan.id === 'free' ? '❌' : '✅'}</span>
-                <span class="feature-text">Join fish chat</span>
+                <span class="feature-icon">✅</span>
+                <span class="feature-text">Join fish chat${plan.group_chat_daily_limit && plan.group_chat_daily_limit !== 'unlimited' ? ` (${plan.group_chat_daily_limit} per day)` : plan.group_chat_daily_limit === 'unlimited' ? ' (unlimited)' : ''}</span>
             </li>
         </ul>
         

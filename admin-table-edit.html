@@ -421,8 +421,12 @@
           <span class="stat-value" id="column-count">0</span>
         </div>
         <div class="stat-item">
-          <span class="stat-label">当前行数：</span>
-          <span class="stat-value" id="row-count">0</span>
+          <span class="stat-label">总记录数：</span>
+          <span class="stat-value" id="total-count">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">当前页：</span>
+          <span class="stat-value" id="current-page">1</span> / <span class="stat-value" id="total-pages">1</span>
         </div>
         <div class="stat-item">
           <span class="stat-label">显示范围：</span>
@@ -433,6 +437,15 @@
           <span class="stat-value" id="update-time">...</span>
         </div>
       </div>
+    </div>
+
+    <!-- 分页控制 -->
+    <div class="stats-section" style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
+      <button class="btn btn-secondary" id="prev-page-btn" disabled>← 上一页</button>
+      <span style="color: #4a5568; font-size: 0.875rem;">
+        第 <span id="page-indicator">1</span> 页，共 <span id="page-total">1</span> 页
+      </span>
+      <button class="btn btn-secondary" id="next-page-btn" disabled>下一页 →</button>
     </div>
 
     <!-- 数据表格 -->
