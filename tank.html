@@ -1,473 +1,852 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fish Tank - Watch Community Fish Swim | DrawAFish.com</title>
-    <meta name="description" content="Watch all the community-created fish swim together in our interactive fish tank. View the most recent, popular, or random fish drawings from our creative community.">
-    <meta name="keywords" content="fish tank, swimming fish, community art, fish animation, digital aquarium, fish gallery">
-    
-    <!-- Open Graph tags -->
-    <meta property="og:title" content="Fish Tank - Watch Community Fish Swim">
-    <meta property="og:description" content="Watch all the community-created fish swim together in our interactive fish tank. View recent, popular, or random fish drawings.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://drawafish.com/tank.html">
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://drawafish.com/tank.html">
+    <title>画鱼游戏 - 鱼缸</title>
+    <meta name="description" content="观看你画的鱼在虚拟鱼缸中游泳。">
+    <meta name="keywords" content="画鱼, 鱼缸, 动画, 虚拟鱼">
     
     <link rel="stylesheet" href="src/css/style.css">
-    <link rel="icon" href="public/favicon.ico">
+    <link rel="icon" href="favicon.ico">
     
     <style>
-        /* Modal styling - matching rank page design */
-        .modal {
-            display: none;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .header {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
+            right: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        .modal-content {
-            background: white;
-            margin: 100px auto;
-            padding: 20px;
-            width: 400px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        
-        /* Special styling for add-to-tank modal */
-        .modal-content.wide {
-            width: 600px;
-            max-width: 90vw;
-        }
-        
-        .close {
-            float: right;
-            cursor: pointer;
-            font-size: 24px;
-            color: #666;
-        }
-        
-        .close:hover {
-            color: #333;
-        }
-        
-        /* Fish info modal specific styles */
-        .fish-info-modal {
-            text-align: center;
-        }
-        
-        .fish-info-modal h3 {
-            margin-top: 0;
-            color: #333;
-            font-size: 18px;
-        }
-        
-        .fish-info-modal .fish-details {
-            margin: 15px 0;
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .fish-info-modal .fish-score {
-            font-size: 16px;
-            font-weight: bold;
-            color: #007bff;
-            margin: 10px 0;
-        }
-        
-        /* Voting controls styling */
-        .voting-controls {
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
             gap: 10px;
-            align-items: center;
-            margin-top: 15px;
         }
         
-        .vote-btn {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: all 0.2s ease;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .vote-btn:hover {
-            background: #f0f0f0;
-            transform: translateY(-1px);
-        }
-        
-        .upvote-btn:hover {
-            background: #d4edda;
-            border-color: #28a745;
-        }
-        
-        .downvote-btn:hover {
-            background: #f8d7da;
-            border-color: #dc3545;
-        }
-        
-        .report-btn {
-            padding: 8px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: all 0.2s ease;
-        }
-        
-        .report-btn:hover {
-            background: #fff3cd;
-            border-color: #ffc107;
-        }
-        
-        .vote-count {
-            font-weight: bold;
-        }
-        
-        /* Tank selection in modal */
-        .tank-selection-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 5px;
-        }
-        
-        .tank-selection-item {
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 16px;
-            background: white;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .tank-selection-item:hover {
-            border-color: #007bff;
-            background: #f8f9fa;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
-        }
-        
-        .tank-selection-item h4 {
-            margin: 0 0 8px 0;
+        .header h1 {
+            font-size: 1.2em;
             color: #333;
-            font-size: 1.1em;
-            font-weight: 600;
         }
         
-        .tank-selection-item .tank-description {
-            margin: 0 0 8px 0;
-            color: #666;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        
-        .tank-selection-stats {
+        .nav-links {
             display: flex;
             gap: 15px;
-            margin: 8px 0 12px 0;
-            font-size: 13px;
-            color: #666;
-        }
-        
-        .tank-selection-stats .stat-item {
-            display: flex;
             align-items: center;
-            gap: 4px;
+            flex-wrap: wrap;
         }
         
-        .tank-privacy-indicator {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        
-        .tank-privacy-indicator.public {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .tank-privacy-indicator.private {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .add-to-tank-btn {
-            width: 100%;
-            padding: 10px 15px;
-            border: 2px solid #007bff;
-            background: #007bff;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
             font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 20px;
             transition: all 0.2s ease;
         }
         
-        .add-to-tank-btn:hover {
-            background: #0056b3;
-            border-color: #0056b3;
-            transform: translateY(-1px);
+        .nav-links a:hover {
+            background: #667eea;
+            color: white;
         }
         
-        .no-tanks-message {
-            text-align: center;
-            padding: 30px 20px;
-            border: 2px dashed #ddd;
-            border-radius: 12px;
+        .nav-links a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .controls select,
+        .controls button {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .controls select:hover,
+        .controls button:hover {
+            border-color: #667eea;
+        }
+        
+        .controls button {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .controls button:hover {
+            background: #5a67d8;
+        }
+        
+        .fish-count {
+            font-size: 14px;
+            color: #666;
             background: #f8f9fa;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        
+        #swim-canvas {
+            display: block;
+            background: linear-gradient(180deg, #87CEEB 0%, #4682B4 50%, #1e3c72 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 12px;
             color: #666;
         }
         
-        .no-tanks-message h3 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 1.2em;
+        .footer strong {
+            color: #667eea;
         }
         
-        .no-tanks-message p {
-            margin: 0 0 15px 0;
-            line-height: 1.5;
-        }
-        
-        .no-tanks-message .btn {
-            display: inline-block;
-            text-decoration: none;
-            padding: 10px 20px;
-            border: 2px solid #007bff;
-            background: white;
-            color: #007bff;
-            border-radius: 5px;
-            transition: all 0.2s ease;
-        }
-        
-        .no-tanks-message .btn:hover {
-            background: #007bff;
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        /* Mobile-specific styles */
         @media (max-width: 768px) {
-            .modal-content {
-                width: 90%;
-                margin: 50px auto;
+            .header {
+                padding: 8px 10px;
             }
             
-            body {
-                margin: 0;
-                padding: 0;
-                touch-action: manipulation; /* Prevent zoom on double-tap */
-                display: flex;
+            .header-content {
                 flex-direction: column;
-                height: 100vh;
+                gap: 8px;
             }
             
-            #swim-canvas {
-                width: 100vw !important;
-                height: calc(100vh - 120px) !important;
-                max-width: 100vw !important;
-                border: none !important;
-                display: block !important;
-                margin: 0 !important;
-                flex: 1;
-                touch-action: manipulation;
-                position: relative;
-                z-index: 1;
-            }
-            
-            .controls-container {
-                position: static !important;
-                transform: none !important;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 8px;
-                border-top: 1px solid #ddd;
-                font-size: 11px;
-                text-align: center;
-                backdrop-filter: blur(10px);
-                flex-shrink: 0;
-            }
-            
-            .controls-container select,
-            .controls-container button,
-            .controls-container input[type="range"] {
-                margin: 2px;
-                font-size: 12px;
-            }
-            
-            .desktop-only {
-                display: none;
-            }
-            
-            .mobile-only {
-                display: inline;
-            }
-            
-            footer {
-                position: static !important;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 8px 5px;
-                font-size: 10px;
-                backdrop-filter: blur(10px);
-                border-top: 1px solid #ddd;
-                flex-shrink: 0;
-                margin: 0;
-            }
-        }
-        
-        @media (min-width: 769px) {
-            .desktop-only {
-                display: inline;
-            }
-            
-            .mobile-only {
-                display: none;
-            }
-            
-            body {
-                margin: 0;
-                padding: 0;
-            }
-            
-            #swim-canvas {
-                width: 100vw !important;
-                height: 100vh !important;
-                max-width: 100vw !important;
-                border: none !important;
-                display: block !important;
-                margin: 0 !important;
-            }
-            
-            .controls-container {
-                position: static;
-                transform: none;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 15px;
-                border-top: 1px solid #ddd;
-                backdrop-filter: blur(10px);
-                text-align: center;
-                margin: 0;
-            }
-        }
-        
-        /* Responsive design for tank selection modal */
-        @media (max-width: 768px) {
-            .modal-content.wide {
-                width: 95% !important;
-                margin: 50px auto;
-            }
-            
-            .tank-selection-grid {
-                max-height: 300px;
-                gap: 10px;
-            }
-            
-            .tank-selection-item {
-                padding: 12px;
-            }
-            
-            .tank-selection-item h4 {
+            .header h1 {
                 font-size: 1em;
             }
             
-            .tank-selection-stats {
-                font-size: 12px;
-                gap: 12px;
+            .nav-links,
+            .controls {
+                gap: 8px;
             }
             
-            .add-to-tank-btn {
-                padding: 8px 12px;
-                font-size: 13px;
+            .nav-links a,
+            .controls select,
+            .controls button {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            .footer {
+                bottom: 10px;
+                padding: 8px 15px;
+                font-size: 11px;
+            }
+            
+            #swim-canvas {
+                padding-top: 80px;
             }
         }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+        }
     </style>
-    
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GS1GYSFBPX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-GS1GYSFBPX');
-    </script>
 </head>
 <body>
-  <canvas id="swim-canvas" width="800" height="400" style="border:1px solid #888; background:#e0f7fa; display:block; margin: 0 auto 0 auto;"></canvas>
-  
-  <div class="controls-container" style="text-align: center; margin-top: 15px; font-size: 12px; color: #666;">
-    View: 
-    <select id="tank-sort" style="font-size: 11px; margin: 0 5px;">
-      <option value="recent">Most Recent</option>
-      <option value="popular">Most Popular</option>
-      <option value="random">Random</option>
-    </select>
-    <button id="refresh-tank" style="font-size: 11px; margin-left: 5px;">refresh</button>
-    | 
-    <label style="font-size: 11px; margin-left: 5px;">
-      <input type="checkbox" id="notifications-toggle" checked style="margin-right: 3px;">
-      notifications
-    </label>
-    | 
-    <a href="rank.html" style="color: #0066cc; text-decoration: underline; font-size: 11px;">rankings</a>
-    | 
-    <a href="profile.html" style="color: #0066cc; text-decoration: underline; font-size: 11px;">profile</a>
-    | 
-    <a href="fishtanks.html" id="my-tanks-link" style="color: #0066cc; text-decoration: underline; font-size: 11px;">my tanks</a>
-    
-    <div style="margin-top: 8px;">
-      <label style="font-size: 11px; color: #666;">
-        Fish count: <span id="fish-count-display" style="font-weight: 500;">50</span>
-        <input type="range" id="fish-count-slider" min="1" max="100" value="50" 
-               style="width: 120px; margin: 0 8px; vertical-align: middle; cursor: pointer;">
-        <span id="current-fish-count" style="font-size: 10px; color: #999;"></span>
-      </label>
+    <div class="header">
+        <div class="header-content">
+            <h1>🐟 鱼缸</h1>
+            
+            <div class="nav-links">
+                <a href="index.html">画画</a>
+                <a href="tank.html" class="active">鱼缸</a>
+            </div>
+            
+            <div class="controls">
+                <select id="fish-count-select">
+                    <option value="10">10条鱼</option>
+                    <option value="20">20条鱼</option>
+                    <option value="30" selected>30条鱼</option>
+                    <option value="50">50条鱼</option>
+                </select>
+                <button id="refresh-btn">刷新</button>
+            </div>
+            
+            <div class="fish-count">
+                当前: <span id="current-count">0</span> 条鱼
+            </div>
+        </div>
     </div>
     
-    <div style="margin-top: 8px; font-size: 11px; color: #666;">
-      <strong>Feed the fish:</strong> 
-      <span class="desktop-only">Hold Shift + Click or Right-click</span>
-      <span class="mobile-only">Double-tap or Long-press</span>
-      to drop food pellets
+    <canvas id="swim-canvas"></canvas>
+    
+    <div class="footer">
+        提示: 点击水面可以吓跑鱼 | <strong>双击</strong> 或 <strong>长按</strong> 可以投喂食物
     </div>
     
-    <div id="loading-indicator" style="display: none; font-size: 11px; color: #999; margin-top: 5px;">
-      loading...
-    </div>
-  </div>
-  <script src="src/js/footer-utils.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="src/js/firebase-init.js"></script>
-  <script src="src/js/fish-utils.js"></script>
-  <script src="src/js/modal-utils.js"></script>
-  <script src="src/js/tank.js"></script>
-  <script>
-    // Initialize navigation authentication
-    initializeAuthNavigation();
-  </script>
+    <script>
+        // 画布设置
+        const swimCanvas = document.getElementById('swim-canvas');
+        const swimCtx = swimCanvas.getContext('2d');
+        
+        // 鱼群数据
+        const fishes = [];
+        const foodPellets = [];
+        
+        // 配置
+        let maxFishCount = 30;
+        const FOOD_SIZE = 8;
+        const FOOD_FALL_SPEED = 0.02;
+        const FOOD_DETECTION_RADIUS = 150;
+        const FOOD_LIFESPAN = 15000;
+        const FOOD_ATTRACTION_FORCE = 0.005;
+        
+        // 示例鱼图案（当本地没有鱼时使用）
+        const sampleFishPatterns = [
+            { name: '小红鱼', color: '#ff6b6b', pattern: 'simple' },
+            { name: '小蓝鱼', color: '#4dabf7', pattern: 'simple' },
+            { name: '小绿鱼', color: '#51cf66', pattern: 'simple' },
+            { name: '小黄鱼', color: '#ffd43b', pattern: 'simple' },
+            { name: '小紫鱼', color: '#cc5de8', pattern: 'simple' },
+            { name: '小橙鱼', color: '#ff922b', pattern: 'simple' },
+        ];
+        
+        // 生成示例鱼
+        function createSampleFishCanvas(pattern, width = 80, height = 48) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            
+            const fishWidth = width * 0.7;
+            const fishHeight = height * 0.6;
+            const startX = (width - fishWidth) / 2;
+            const startY = (height - fishHeight) / 2;
+            
+            // 鱼身体
+            ctx.fillStyle = pattern.color;
+            ctx.beginPath();
+            ctx.ellipse(startX + fishWidth * 0.4, startY + fishHeight * 0.5, fishWidth * 0.4, fishHeight * 0.45, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 鱼尾
+            ctx.beginPath();
+            ctx.moveTo(startX + fishWidth * 0.1, startY + fishHeight * 0.5);
+            ctx.lineTo(startX - fishWidth * 0.15, startY + fishHeight * 0.1);
+            ctx.lineTo(startX - fishWidth * 0.15, startY + fishHeight * 0.9);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 背鳍
+            ctx.beginPath();
+            ctx.moveTo(startX + fishWidth * 0.35, startY + fishHeight * 0.1);
+            ctx.lineTo(startX + fishWidth * 0.5, startY - fishHeight * 0.1);
+            ctx.lineTo(startX + fishWidth * 0.65, startY + fishHeight * 0.1);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 腹鳍
+            ctx.beginPath();
+            ctx.moveTo(startX + fishWidth * 0.4, startY + fishHeight * 0.85);
+            ctx.lineTo(startX + fishWidth * 0.3, startY + fishHeight * 1.1);
+            ctx.lineTo(startX + fishWidth * 0.5, startY + fishHeight * 0.85);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 眼睛
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(startX + fishWidth * 0.65, startY + fishHeight * 0.35, fishWidth * 0.1, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(startX + fishWidth * 0.68, startY + fishHeight * 0.35, fishWidth * 0.05, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 鱼鳃
+            ctx.strokeStyle = pattern.color;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.7;
+            ctx.beginPath();
+            ctx.arc(startX + fishWidth * 0.3, startY + fishHeight * 0.5, fishWidth * 0.15, -Math.PI * 0.4, Math.PI * 0.4);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+            
+            return canvas;
+        }
+        
+        // 调整画布大小
+        function resizeCanvas() {
+            swimCanvas.width = window.innerWidth;
+            swimCanvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // 鱼对象
+        function createFish(fishCanvas, options = {}) {
+            const baseSize = calculateFishSize();
+            const width = options.width || baseSize.width;
+            const height = options.height || baseSize.height;
+            
+            return {
+                canvas: fishCanvas,
+                x: Math.random() * (swimCanvas.width - width),
+                y: Math.random() * (swimCanvas.height - height),
+                width: width,
+                height: height,
+                direction: Math.random() < 0.5 ? 1 : -1,
+                speed: 0.5 + Math.random() * 1.5,
+                vx: 0,
+                vy: 0,
+                phase: Math.random() * Math.PI * 2,
+                amplitude: 10 + Math.random() * 20,
+                artist: options.artist || '匿名画家',
+                createdAt: options.createdAt || new Date().toISOString(),
+                isDying: false,
+                isEntering: true,
+                enterStartTime: Date.now(),
+                enterDuration: 1000,
+                opacity: 0,
+                scale: 0.3
+            };
+        }
+        
+        // 计算鱼大小
+        function calculateFishSize() {
+            const baseDimension = Math.min(swimCanvas.width, swimCanvas.height);
+            const fishWidth = Math.floor(baseDimension * 0.08);
+            const fishHeight = Math.floor(fishWidth * 0.6);
+            
+            return {
+                width: Math.max(40, Math.min(100, fishWidth)),
+                height: Math.max(24, Math.min(60, fishHeight))
+            };
+        }
+        
+        // 从图片数据创建画布
+        function createCanvasFromImageData(imageData, width = 80, height = 48) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // 裁剪和缩放
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = img.width;
+                    tempCanvas.height = img.height;
+                    tempCanvas.getContext('2d').drawImage(img, 0, 0);
+                    
+                    // 裁剪空白区域
+                    const cropped = cropCanvasToContent(tempCanvas);
+                    
+                    // 缩放
+                    const scale = Math.min(width / cropped.width, height / cropped.height);
+                    const drawW = cropped.width * scale;
+                    const drawH = cropped.height * scale;
+                    const dx = (width - drawW) / 2;
+                    const dy = (height - drawH) / 2;
+                    
+                    ctx.drawImage(cropped, 0, 0, cropped.width, cropped.height, dx, dy, drawW, drawH);
+                    
+                    resolve(canvas);
+                };
+                img.onerror = () => {
+                    // 如果图片加载失败，使用默认鱼
+                    resolve(createSampleFishCanvas(sampleFishPatterns[0]));
+                };
+                img.src = imageData;
+            });
+        }
+        
+        // 裁剪画布空白区域
+        function cropCanvasToContent(srcCanvas) {
+            const ctx = srcCanvas.getContext('2d');
+            const w = srcCanvas.width;
+            const h = srcCanvas.height;
+            const imgData = ctx.getImageData(0, 0, w, h);
+            let minX = w, minY = h, maxX = 0, maxY = 0;
+            let found = false;
+            
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const i = (y * w + x) * 4;
+                    const r = imgData.data[i];
+                    const g = imgData.data[i + 1];
+                    const b = imgData.data[i + 2];
+                    const a = imgData.data[i + 3];
+                    
+                    if (a > 16 && !(r > 240 && g > 240 && b > 240)) {
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
+                        found = true;
+                    }
+                }
+            }
+            
+            if (!found) return srcCanvas;
+            
+            const cropW = maxX - minX + 1;
+            const cropH = maxY - minY + 1;
+            const cropped = document.createElement('canvas');
+            cropped.width = cropW;
+            cropped.height = cropH;
+            cropped.getContext('2d').drawImage(srcCanvas, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+            
+            return cropped;
+        }
+        
+        // 加载鱼
+        async function loadFishes() {
+            fishes.length = 0;
+            
+            // 从本地存储获取鱼
+            const localFishes = JSON.parse(localStorage.getItem('localFishes') || '[]');
+            const fishSize = calculateFishSize();
+            
+            // 加载本地鱼
+            for (const fishData of localFishes.slice(0, maxFishCount)) {
+                try {
+                    const canvas = await createCanvasFromImageData(fishData.imageData, fishSize.width, fishSize.height);
+                    const fish = createFish(canvas, {
+                        artist: fishData.artist,
+                        createdAt: fishData.createdAt,
+                        width: fishSize.width,
+                        height: fishSize.height
+                    });
+                    fishes.push(fish);
+                } catch (e) {
+                    console.error('加载鱼失败:', e);
+                }
+            }
+            
+            // 如果鱼不够，用示例鱼填充
+            const remainingSlots = maxFishCount - fishes.length;
+            for (let i = 0; i < remainingSlots; i++) {
+                const pattern = sampleFishPatterns[Math.floor(Math.random() * sampleFishPatterns.length)];
+                const canvas = createSampleFishCanvas(pattern, fishSize.width, fishSize.height);
+                const fish = createFish(canvas, {
+                    artist: pattern.name,
+                    width: fishSize.width,
+                    height: fishSize.height
+                });
+                fishes.push(fish);
+            }
+            
+            updateFishCount();
+        }
+        
+        // 更新鱼数量显示
+        function updateFishCount() {
+            document.getElementById('current-count').textContent = fishes.length;
+        }
+        
+        // 创建食物
+        function createFoodPellet(x, y) {
+            return {
+                x: x,
+                y: y,
+                vy: 0,
+                createdAt: Date.now(),
+                consumed: false,
+                size: FOOD_SIZE
+            };
+        }
+        
+        // 投放食物
+        function dropFoodPellet(x, y) {
+            const pelletCount = Math.floor(Math.random() * 3) + 2;
+            for (let i = 0; i < pelletCount; i++) {
+                const offsetX = (Math.random() - 0.5) * 20;
+                const offsetY = (Math.random() - 0.5) * 10;
+                foodPellets.push(createFoodPellet(x + offsetX, y + offsetY));
+            }
+        }
+        
+        // 更新食物
+        function updateFoodPellets() {
+            for (let i = foodPellets.length - 1; i >= 0; i--) {
+                const pellet = foodPellets[i];
+                
+                if (pellet.consumed || Date.now() - pellet.createdAt > FOOD_LIFESPAN) {
+                    foodPellets.splice(i, 1);
+                    continue;
+                }
+                
+                pellet.vy += FOOD_FALL_SPEED;
+                pellet.y += pellet.vy;
+                
+                if (pellet.y > swimCanvas.height - pellet.size) {
+                    pellet.y = swimCanvas.height - pellet.size;
+                    pellet.vy = 0;
+                }
+                
+                for (let fish of fishes) {
+                    if (fish.isDying || fish.isEntering) continue;
+                    
+                    const fishCenterX = fish.x + fish.width / 2;
+                    const fishCenterY = fish.y + fish.height / 2;
+                    const dx = pellet.x - fishCenterX;
+                    const dy = pellet.y - fishCenterY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < fish.width / 2 + pellet.size) {
+                        pellet.consumed = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // 渲染食物
+        function renderFoodPellets() {
+            if (foodPellets.length > 0) {
+                swimCtx.fillStyle = '#FF6B35';
+                for (const pellet of foodPellets) {
+                    if (!pellet.consumed) {
+                        swimCtx.beginPath();
+                        swimCtx.arc(pellet.x, pellet.y, pellet.size, 0, Math.PI * 2);
+                        swimCtx.fill();
+                        
+                        // 高光
+                        swimCtx.fillStyle = '#FFD700';
+                        swimCtx.beginPath();
+                        swimCtx.arc(pellet.x - 2, pellet.y - 2, pellet.size * 0.3, 0, Math.PI * 2);
+                        swimCtx.fill();
+                        swimCtx.fillStyle = '#FF6B35';
+                    }
+                }
+            }
+        }
+        
+        // 动画循环
+        function animate() {
+            swimCtx.clearRect(0, 0, swimCanvas.width, swimCanvas.height);
+            
+            // 绘制水泡
+            drawBubbles();
+            
+            // 更新食物
+            updateFoodPellets();
+            
+            const time = Date.now() / 500;
+            
+            for (const fish of fishes) {
+                // 入场动画
+                if (fish.isEntering) {
+                    const elapsed = Date.now() - fish.enterStartTime;
+                    const progress = Math.min(elapsed / fish.enterDuration, 1);
+                    
+                    fish.opacity = progress;
+                    fish.scale = 0.3 + (progress * 0.7);
+                    
+                    if (progress >= 1) {
+                        fish.isEntering = false;
+                        fish.opacity = 1;
+                        fish.scale = 1;
+                    }
+                }
+                
+                // 检查食物
+                let hasNearbyFood = false;
+                let foodAttractionX = 0;
+                let foodAttractionY = 0;
+                
+                for (const pellet of foodPellets) {
+                    if (pellet.consumed) continue;
+                    
+                    const fishCenterX = fish.x + fish.width / 2;
+                    const fishCenterY = fish.y + fish.height / 2;
+                    const dx = pellet.x - fishCenterX;
+                    const dy = pellet.y - fishCenterY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < FOOD_DETECTION_RADIUS) {
+                        hasNearbyFood = true;
+                        const force = FOOD_ATTRACTION_FORCE * (1 - distance / FOOD_DETECTION_RADIUS);
+                        foodAttractionX += (dx / distance) * force;
+                        foodAttractionY += (dy / distance) * force;
+                    }
+                }
+                
+                // 应用食物吸引力
+                if (hasNearbyFood) {
+                    fish.vx += foodAttractionX;
+                    fish.vy += foodAttractionY;
+                    
+                    // 更新方向
+                    if (Math.abs(foodAttractionX) > 0.01) {
+                        fish.direction = foodAttractionX > 0 ? 1 : -1;
+                    }
+                }
+                
+                // 基础移动
+                const baseSpeed = hasNearbyFood ? fish.speed * 1.5 : fish.speed;
+                fish.vx += fish.direction * baseSpeed * 0.01;
+                
+                // 摩擦
+                fish.vx *= 0.98;
+                fish.vy *= 0.95;
+                
+                // 限制速度
+                const maxSpeed = hasNearbyFood ? baseSpeed * 2 : baseSpeed;
+                fish.vx = Math.max(-maxSpeed, Math.min(maxSpeed, fish.vx));
+                fish.vy = Math.max(-maxSpeed * 0.5, Math.min(maxSpeed * 0.5, fish.vy));
+                
+                // 应用速度
+                fish.x += fish.vx;
+                fish.y += fish.vy;
+                
+                // 边界检测
+                if (fish.x < 0) {
+                    fish.x = 0;
+                    fish.direction = 1;
+                    fish.vx = Math.abs(fish.vx);
+                }
+                if (fish.x > swimCanvas.width - fish.width) {
+                    fish.x = swimCanvas.width - fish.width;
+                    fish.direction = -1;
+                    fish.vx = -Math.abs(fish.vx);
+                }
+                if (fish.y < 60) {
+                    fish.y = 60;
+                    fish.vy = Math.abs(fish.vy);
+                }
+                if (fish.y > swimCanvas.height - fish.height - 60) {
+                    fish.y = swimCanvas.height - fish.height - 60;
+                    fish.vy = -Math.abs(fish.vy);
+                }
+                
+                // 随机改变方向
+                if (Math.random() < 0.002 && !hasNearbyFood) {
+                    if (Math.random() < 0.3) {
+                        fish.direction *= -1;
+                    }
+                }
+                
+                // 绘制鱼
+                const currentAmplitude = hasNearbyFood ? fish.amplitude * 0.2 : fish.amplitude;
+                const fishY = fish.y + Math.sin(time + fish.phase) * currentAmplitude;
+                
+                swimCtx.save();
+                swimCtx.globalAlpha = fish.opacity;
+                
+                if (fish.direction === -1) {
+                    swimCtx.translate(fish.x + fish.width, fishY);
+                    swimCtx.scale(-1 * fish.scale, fish.scale);
+                    swimCtx.drawImage(fish.canvas, 0, 0);
+                } else {
+                    swimCtx.translate(fish.x, fishY);
+                    swimCtx.scale(fish.scale, fish.scale);
+                    swimCtx.drawImage(fish.canvas, 0, 0);
+                }
+                
+                swimCtx.restore();
+            }
+            
+            // 渲染食物
+            renderFoodPellets();
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // 水泡效果
+        const bubbles = [];
+        
+        function createBubble() {
+            bubbles.push({
+                x: Math.random() * swimCanvas.width,
+                y: swimCanvas.height + 20,
+                size: Math.random() * 4 + 2,
+                speed: Math.random() * 0.5 + 0.2,
+                phase: Math.random() * Math.PI * 2
+            });
+        }
+        
+        function drawBubbles() {
+            // 创建新水泡
+            if (Math.random() < 0.02) {
+                createBubble();
+            }
+            
+            swimCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            swimCtx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            swimCtx.lineWidth = 1;
+            
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                const bubble = bubbles[i];
+                bubble.y -= bubble.speed;
+                bubble.x += Math.sin(Date.now() / 1000 + bubble.phase) * 0.3;
+                
+                if (bubble.y < -10) {
+                    bubbles.splice(i, 1);
+                    continue;
+                }
+                
+                swimCtx.beginPath();
+                swimCtx.arc(bubble.x, bubble.y, bubble.size, 0, Math.PI * 2);
+                swimCtx.fill();
+                swimCtx.stroke();
+            }
+        }
+        
+        // 触摸/点击处理
+        let lastTapTime = 0;
+        let touchStartTime = 0;
+        let touchStartPos = { x: 0, y: 0 };
+        
+        swimCanvas.addEventListener('mousedown', handleClick);
+        swimCanvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            handleClick(e, true);
+        });
+        
+        swimCanvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartTime = Date.now();
+            const rect = swimCanvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            touchStartPos = {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top
+            };
+        });
+        
+        swimCanvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const currentTime = Date.now();
+            const touchDuration = currentTime - touchStartTime;
+            const rect = swimCanvas.getBoundingClientRect();
+            const touch = e.changedTouches[0];
+            const tapX = touch.clientX - rect.left;
+            const tapY = touch.clientY - rect.top;
+            
+            const moveDistance = Math.sqrt(
+                Math.pow(tapX - touchStartPos.x, 2) +
+                Math.pow(tapY - touchStartPos.y, 2)
+            );
+            
+            // 长按
+            if (touchDuration >= 500 && moveDistance < 20) {
+                dropFoodPellet(tapX, tapY);
+                return;
+            }
+            
+            // 双击
+            if (currentTime - lastTapTime < 300 && moveDistance < 20) {
+                dropFoodPellet(tapX, tapY);
+                return;
+            }
+            
+            // 单击 - 吓跑鱼
+            const mockEvent = {
+                clientX: rect.left + tapX,
+                clientY: rect.top + tapY,
+                offsetX: tapX,
+                offsetY: tapY
+            };
+            handleClick(mockEvent, false);
+            
+            lastTapTime = currentTime;
+        });
+        
+        function handleClick(e, isFeeding = false) {
+            const rect = swimCanvas.getBoundingClientRect();
+            let tapX, tapY;
+            
+            if (e.touches && e.touches.length > 0) {
+                tapX = e.touches[0].clientX - rect.left;
+                tapY = e.touches[0].clientY - rect.top;
+            } else {
+                tapX = e.offsetX;
+                tapY = e.offsetY;
+            }
+            
+            if (isFeeding || e.button === 2 || e.shiftKey) {
+                dropFoodPellet(tapX, tapY);
+                e.preventDefault();
+                return;
+            }
+            
+            // 吓跑鱼
+            const radius = 150;
+            fishes.forEach(fish => {
+                if (fish.isDying || fish.isEntering) return;
+                
+                const fx = fish.x + fish.width / 2;
+                const fy = fish.y + fish.height / 2;
+                const dx = fx - tapX;
+                const dy = fy - tapY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < radius) {
+                    const force = 8 * (1 - dist / radius);
+                    const norm = Math.sqrt(dx * dx + dy * dy) || 1;
+                    fish.vx = (dx / norm) * force;
+                    fish.vy = (dy / norm) * force;
+                    fish.direction = dx > 0 ? 1 : -1;
+                }
+            });
+        }
+        
+        // 控制按钮
+        document.getElementById('refresh-btn').addEventListener('click', loadFishes);
+        document.getElementById('fish-count-select').addEventListener('change', (e) => {
+            maxFishCount = parseInt(e.target.value);
+            loadFishes();
+        });
+        
+        // 初始化
+        loadFishes();
+        animate();
+    </script>
 </body>
 </html>
