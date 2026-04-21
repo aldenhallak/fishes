@@ -1,150 +1,616 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DrawAFish.com</title>
-    <meta name="description" content="Draw a fish and watch it swim in the global tank with everyone else's fish. Create, share, and vote on fish drawings.">
-    <meta name="keywords" content="draw a fish, fish drawing game, online drawing, fish tank, community art, digital drawing, draw fish online, fish art game">
-    <meta name="author" content="fifteen.games">
-    
-    <!-- Open Graph tags for social media -->
-    <meta property="og:title" content="Draw a Fish">
-    <meta property="og:description" content="Draw a fish and watch it swim in the global tank with everyone else's fish. Create, share, and vote on fish drawings in this simple online drawing game.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://drawafish.com">
-    <meta property="og:image" content="https://drawafish.com/favicon.ico">
-    <meta property="og:site_name" content="DrawAFish.com">
-    <meta property="og:locale" content="en_US">
-    
-    <!-- Twitter Card tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:creator" content="@AldenHallak">
-    <meta name="twitter:title" content="Draw a Fish">
-    <meta name="twitter:description" content="Draw a fish and watch it swim in the global tank with everyone else's fish. Create, share, and vote on fish drawings in this simple online drawing game.">
-    <meta name="twitter:image" content="https://drawafish.com/favicon.ico">
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://drawafish.com">
+    <title>画鱼游戏 - 画一条鱼</title>
+    <meta name="description" content="画一条鱼，让它在虚拟鱼缸中畅游。">
+    <meta name="keywords" content="画鱼, 画画游戏, 虚拟鱼缸, 绘画">
     
     <link rel="stylesheet" href="src/css/style.css">
-    <link rel="icon" href="public/favicon.ico">
+    <link rel="icon" href="favicon.ico">
     
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GS1GYSFBPX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-GS1GYSFBPX');
-    </script>
-    
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Draw a Fish Online - DrawAFish.com",
-      "alternateName": "DrawAFish",
-      "description": "Online fish drawing game where users can draw fish, watch them swim in virtual tanks, vote on community creations, and create custom aquariums",
-      "url": "https://drawafish.com",
-      "applicationCategory": "GameApplication",
-      "genre": "Drawing Game",
-      "operatingSystem": "Web Browser",
-      "browserRequirements": "HTML5 Canvas support",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD",
-        "availability": "https://schema.org/InStock"
-      },
-      "author": {
-        "@type": "Organization",
-        "name": "fifteen.games",
-        "url": "https://fifteen.games"
-      },
-      "keywords": "draw fish, fish drawing, online drawing tool, fish art, digital drawing, fish drawing game, fish tank game",
-      "screenshot": "https://drawafish.com/favicon.ico",
-      "featureList": [
-        "Draw a fish",
-        "Watch fish swim in global tank",
-        "Community voting system", 
-        "Animated fish tank display",
-        "User profiles and statistics",
-        "Custom fish tank collections",
-        "Share fish drawings with community"
-      ],
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "https://drawafish.com"
-      },
-      "audience": {
-        "@type": "Audience",
-        "audienceType": "Artists, Game Players, Children, Adults"
-      },
-      "isAccessibleForFree": true,
-      "inLanguage": "en-US"
-    }
-    </script>
-    
-    <!-- Additional Schema for CreativeWork -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork",
-      "name": "Fish Drawing Tool",
-      "description": "Online tool to draw fish and create digital fish art",
-      "url": "https://drawafish.com",
-      "creator": {
-        "@type": "Organization",
-        "name": "fifteen.games"
-      },
-      "about": "Fish Drawing",
-      "genre": "Digital Art Tool",
-      "isAccessibleForFree": true
-    }
-    </script>
-</head>
-<body>  
-  <main role="main">
-    <!-- Hidden SEO content for search engines -->
-    <div style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;">
-      <h1>Draw a Fish virtual fishtank</h1>
-      <p>Draw a fish and watch it swim in the global tank with everyone else's fish. Create, share, and vote on fish drawings in this simple online drawing game.</p>
-      <p>Features: draw a fish tank, online fish sketching, digital fish art creation, fish drawing game, fish illustration maker, virtual fish tank, community fish gallery.</p>
-    </div>
-    
-    <div id="draw-ui">
-      <!-- The paint bar will be injected here by JS -->
-      <!-- Welcome back message for returning users -->
-      <div id="welcome-back-message" style="display: none; margin: 10px auto; padding: 8px 12px; background: #ffffcc; border: 1px solid #cccc99; border-radius: 4px; text-align: center; max-width: 400px; font-size: 12px; color: #666;">
-      </div>
-      
-      <section id="drawing-section">
-        <h1>Draw a Fish!</h1>
-        <h2>(facing right please)</h2>
-        <canvas id="draw-canvas" width="400" height="240" aria-label="Fish drawing canvas for creating digital fish art"></canvas>
-        <br><br>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
         
-        <nav role="navigation" aria-label="Action buttons">
-          <a href="tank.html" title="View Community Fish Tank">tank</a>
-          <button id="swim-btn" title="Make your fish swim in the tank">make it swim!</button>
-          <a href="rank.html" title="Vote on fish drawings">rank</a>
-          <a href="fishtanks.html" id="my-tanks-link" title="Create custom fish tanks">my tanks</a>
-        </nav>
-      </section>
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1em;
+            font-weight: normal;
+        }
+        
+        #draw-canvas {
+            border: 3px solid #ddd;
+            background: #ffffff;
+            cursor: crosshair;
+            display: block;
+            margin: 0 auto;
+            border-radius: 10px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+        
+        #paint-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        #paint-bar button {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        #paint-bar button:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+        
+        .color-btn {
+            width: 30px !important;
+            height: 30px !important;
+            border-radius: 50% !important;
+            padding: 0 !important;
+            min-width: 30px;
+            min-height: 30px;
+        }
+        
+        .color-btn:hover {
+            transform: scale(1.2);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-buttons a,
+        .nav-buttons button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-buttons button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .nav-buttons button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .nav-buttons a {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+        
+        .nav-buttons a:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+        
+        #fish-probability {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .width-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .width-control input[type="range"] {
+            width: 80px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .modal-content h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.5em;
+        }
+        
+        .modal-content p {
+            color: #666;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .modal-content input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .modal-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .modal-buttons button:first-child {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .modal-buttons button:last-child {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+        
+        .success-icon {
+            font-size: 48px;
+            margin: 10px 0;
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            #draw-canvas {
+                max-width: 100%;
+                height: auto;
+            }
+            
+            .nav-buttons a,
+            .nav-buttons button {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>画一条鱼！</h1>
+        <h2>（请朝右边画）</h2>
+        
+        <div id="paint-bar"></div>
+        
+        <canvas id="draw-canvas" width="400" height="240" aria-label="鱼画画布"></canvas>
+        
+        <div id="fish-probability" style="display: none;"></div>
+        
+        <div class="nav-buttons">
+            <a href="tank.html" title="查看鱼缸">鱼缸</a>
+            <button id="swim-btn" title="让你的鱼在鱼缸中游泳">让它游泳！</button>
+        </div>
     </div>
-  </main>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="src/js/firebase-init.js"></script>
-  <script src="src/js/fish-utils.js"></script>
-  <script src="src/js/app.js"></script>
-  <script>
-    // Initialize navigation authentication
-    initializeAuthNavigation();
-  </script>
+    
+    <!-- 提交成功模态框 -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <div class="success-icon">🐟</div>
+            <h3>太棒了！</h3>
+            <p id="success-message">你的鱼已经成功添加到鱼缸中！</p>
+            <div class="modal-buttons">
+                <button id="go-to-tank">去看鱼缸</button>
+                <button id="close-modal">继续画画</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 提交模态框 -->
+    <div id="submit-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="submit-title">很棒的鱼！</h3>
+            <p id="submit-message">为你的作品签名：</p>
+            <input type="text" id="artist-name" placeholder="你的名字" maxlength="20">
+            <div class="modal-buttons">
+                <button id="confirm-submit">提交</button>
+                <button id="cancel-submit">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 工具函数
+        function escapeHtml(unsafe) {
+            if (typeof unsafe !== 'string') {
+                return String(unsafe || '');
+            }
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        
+        // 本地存储鱼数据
+        function saveLocalFish(canvas, artistName) {
+            const fishData = {
+                id: 'fish_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                imageData: canvas.toDataURL(),
+                artist: artistName || '匿名画家',
+                createdAt: new Date().toISOString()
+            };
+            
+            let localFishes = JSON.parse(localStorage.getItem('localFishes') || '[]');
+            localFishes.unshift(fishData);
+            if (localFishes.length > 50) {
+                localFishes = localFishes.slice(0, 50);
+            }
+            localStorage.setItem('localFishes', JSON.stringify(localFishes));
+            
+            return fishData;
+        }
+        
+        // 画布逻辑
+        const canvas = document.getElementById('draw-canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.lineWidth = 6;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        let drawing = false;
+        let undoStack = [];
+        
+        // 颜色和工具
+        const colors = ['#000000', '#ff0000', '#00cc00', '#0000ff', '#ffff00', '#ff8800', '#ffffff'];
+        let currentColor = colors[0];
+        let currentLineWidth = 6;
+        
+        // 保存画布状态
+        function saveState() {
+            undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+            if (undoStack.length > 30) undoStack.shift();
+        }
+        
+        // 撤销
+        function undo() {
+            if (undoStack.length > 0) {
+                const imgData = undoStack.pop();
+                ctx.putImageData(imgData, 0, 0);
+            }
+        }
+        
+        // 清除画布
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            saveState();
+        }
+        
+        // 水平翻转
+        function flipCanvas() {
+            saveState();
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            tempCtx.putImageData(imageData, 0, 0);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.scale(-1, 1);
+            ctx.translate(-canvas.width, 0);
+            ctx.drawImage(tempCanvas, 0, 0);
+            ctx.restore();
+        }
+        
+        // 鼠标事件
+        canvas.addEventListener('mousedown', (e) => {
+            saveState();
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (drawing) {
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+            }
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            drawing = false;
+        });
+        
+        // 触摸事件
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            saveState();
+            drawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            ctx.beginPath();
+            ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (drawing) {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+                ctx.stroke();
+            }
+        });
+        
+        canvas.addEventListener('touchend', () => {
+            drawing = false;
+        });
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                undo();
+            }
+        });
+        
+        // 创建绘画工具栏
+        function createPaintOptions() {
+            const paintBar = document.getElementById('paint-bar');
+            paintBar.innerHTML = '';
+            
+            // 颜色按钮
+            colors.forEach(color => {
+                const btn = document.createElement('button');
+                btn.className = 'color-btn';
+                btn.style.background = color;
+                btn.style.border = color === '#ffffff' ? '2px solid #ccc' : 'none';
+                btn.title = color;
+                btn.onclick = () => {
+                    ctx.globalCompositeOperation = 'source-over';
+                    currentColor = color;
+                    ctx.strokeStyle = color;
+                };
+                paintBar.appendChild(btn);
+            });
+            
+            // 橡皮擦
+            const eraserBtn = document.createElement('button');
+            eraserBtn.textContent = '橡皮擦';
+            eraserBtn.onclick = () => {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.strokeStyle = '#000000';
+            };
+            paintBar.appendChild(eraserBtn);
+            
+            // 画笔大小
+            const widthContainer = document.createElement('div');
+            widthContainer.className = 'width-control';
+            
+            const widthLabel = document.createElement('span');
+            widthLabel.textContent = '大小:';
+            widthContainer.appendChild(widthLabel);
+            
+            const widthSlider = document.createElement('input');
+            widthSlider.type = 'range';
+            widthSlider.min = 1;
+            widthSlider.max = 20;
+            widthSlider.value = currentLineWidth;
+            widthSlider.oninput = () => {
+                currentLineWidth = widthSlider.value;
+                ctx.lineWidth = currentLineWidth;
+            };
+            widthContainer.appendChild(widthSlider);
+            paintBar.appendChild(widthContainer);
+            
+            // 撤销按钮
+            const undoBtn = document.createElement('button');
+            undoBtn.textContent = '撤销';
+            undoBtn.onclick = undo;
+            paintBar.appendChild(undoBtn);
+            
+            // 清除按钮
+            const clearBtn = document.createElement('button');
+            clearBtn.textContent = '清除';
+            clearBtn.onclick = clearCanvas;
+            paintBar.appendChild(clearBtn);
+            
+            // 翻转按钮
+            const flipBtn = document.createElement('button');
+            flipBtn.textContent = '翻转';
+            flipBtn.onclick = flipCanvas;
+            paintBar.appendChild(flipBtn);
+        }
+        
+        createPaintOptions();
+        
+        // 更新画笔设置
+        canvas.addEventListener('mousedown', () => {
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentLineWidth;
+        });
+        
+        canvas.addEventListener('touchstart', () => {
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentLineWidth;
+        });
+        
+        // 模态框控制
+        const submitModal = document.getElementById('submit-modal');
+        const successModal = document.getElementById('success-modal');
+        const submitTitle = document.getElementById('submit-title');
+        const submitMessage = document.getElementById('submit-message');
+        const artistNameInput = document.getElementById('artist-name');
+        const successMessage = document.getElementById('success-message');
+        
+        // 显示提交模态框
+        function showSubmitModal(isGoodFish) {
+            if (isGoodFish) {
+                submitTitle.textContent = '很棒的鱼！';
+                submitTitle.style.color = '#28a745';
+                submitMessage.textContent = '为你的作品签名，让它加入鱼缸：';
+            } else {
+                submitTitle.textContent = '看起来不像鱼...';
+                submitTitle.style.color = '#ff6b35';
+                submitMessage.textContent = '这看起来不太像鱼，但你可以试试看：';
+            }
+            
+            // 恢复之前的名字
+            const savedArtist = localStorage.getItem('artistName');
+            artistNameInput.value = savedArtist && savedArtist !== 'Anonymous' ? savedArtist : '';
+            
+            submitModal.classList.add('active');
+        }
+        
+        // 显示成功模态框
+        function showSuccessModal() {
+            submitModal.classList.remove('active');
+            successModal.classList.add('active');
+        }
+        
+        // 关闭模态框
+        function closeAllModals() {
+            submitModal.classList.remove('active');
+            successModal.classList.remove('active');
+        }
+        
+        // 按钮事件
+        document.getElementById('confirm-submit').onclick = () => {
+            const artistName = artistNameInput.value.trim() || '匿名画家';
+            localStorage.setItem('artistName', artistName);
+            saveLocalFish(canvas, artistName);
+            showSuccessModal();
+        };
+        
+        document.getElementById('cancel-submit').onclick = closeAllModals;
+        document.getElementById('close-modal').onclick = closeAllModals;
+        document.getElementById('go-to-tank').onclick = () => {
+            window.location.href = 'tank.html';
+        };
+        
+        // 游泳按钮
+        const swimBtn = document.getElementById('swim-btn');
+        swimBtn.addEventListener('click', () => {
+            // 检查画布是否为空
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let hasContent = false;
+            for (let i = 3; i < imageData.data.length; i += 4) {
+                if (imageData.data[i] > 16) {
+                    hasContent = true;
+                    break;
+                }
+            }
+            
+            if (!hasContent) {
+                alert('请先画一条鱼！');
+                return;
+            }
+            
+            // 简单的检查：画布上有内容就算是"鱼"
+            showSubmitModal(true);
+        });
+        
+        // 点击模态框外部关闭
+        submitModal.addEventListener('click', (e) => {
+            if (e.target === submitModal) closeAllModals();
+        });
+        
+        successModal.addEventListener('click', (e) => {
+            if (e.target === successModal) closeAllModals();
+        });
+    </script>
 </body>
 </html>
