@@ -172,13 +172,24 @@ async function loadMyTanks() {
                 'Authorization': `Bearer ${token}`
             }
         });
-        
+
+        // Expired/invalid token: clear stale auth and show logged-out state
+        if (response.status === 401) {
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('userData');
+            currentUser = null;
+            updateAuthUI(false);
+            error.innerHTML = 'Your session has expired. <a href="login.html">Log in again</a> to see your tanks.';
+            error.style.display = 'block';
+            return;
+        }
+
         if (!response.ok) {
             throw new Error('Failed to load tanks');
         }
-        
+
         const data = await response.json();
-        
+
         if (data.fishtanks.length === 0) {
             empty.style.display = 'block';
         } else {

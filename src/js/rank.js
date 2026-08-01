@@ -5,6 +5,7 @@ let allFishData = [];
 let currentSort = 'hot';
 let sortDirection = 'desc'; // 'asc' or 'desc'
 let isLoading = false;
+let loadGeneration = 0; // Bumped on every sort change so stale in-flight loads get discarded
 let hasMoreFish = true;
 let lastDoc = null; // For pagination with Firestore
 let loadedCount = 0; // Track total loaded fish count
@@ -385,13 +386,16 @@ async function handleSortChange(sortType) {
 }
 
 // Filter fish with working images
-async function filterValidFish(fishArray) {
+async function filterValidFish(fishArray, gen = null) {
     const validFish = [];
     const batchSize = 10; // Test images in batches to avoid overwhelming the browser
 
     document.getElementById('loading').textContent = 'Checking fish images...';
 
     for (let i = 0; i < fishArray.length; i += batchSize) {
+        // Stop early if a newer sort change superseded this load
+        if (gen !== null && gen !== loadGeneration) return validFish;
+
         const batch = fishArray.slice(i, i + batchSize);
 
         // Update loading message with progress
@@ -428,9 +432,13 @@ async function filterValidFish(fishArray) {
 
 // Load fish data with efficient querying and pagination
 async function loadFishData(sortType = currentSort, isInitialLoad = true) {
-    if (isLoading || (!hasMoreFish && !isInitialLoad)) {
+    // Scroll-triggered appends wait their turn; initial loads (sort changes)
+    // supersede whatever is in flight instead of being silently dropped —
+    // otherwise the old load finishes and writes stale fish into the new sort.
+    if (!isInitialLoad && (isLoading || !hasMoreFish)) {
         return;
     }
+    const gen = isInitialLoad ? ++loadGeneration : loadGeneration;
 
     isLoading = true;
 
@@ -449,6 +457,7 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
         }
 
         const fishDocs = await getFishBySort(sortType, 25, lastDoc, sortDirection, currentUserId); // Reduced from 50 to 25
+        if (gen !== loadGeneration) return; // superseded by a newer sort change
 
         // Check if we got fewer docs than requested (indicates end of data)
         if (fishDocs.length < 25 && sortType !== 'random') {
@@ -472,7 +481,8 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
         });
 
         // Filter to only fish with working images
-        const validFish = await filterValidFish(newFish);
+        const validFish = await filterValidFish(newFish, gen);
+        if (gen !== loadGeneration) return; // superseded by a newer sort change
 
         // Update lastDoc for pagination (except for random sorting)
         if (fishDocs.length > 0 && sortType !== 'random') {
@@ -518,9 +528,14 @@ async function loadFishData(sortType = currentSort, isInitialLoad = true) {
 
     } catch (error) {
         console.error('Error loading fish:', error);
-        document.getElementById('loading').textContent = 'Error loading fish. Please try again.';
+        if (gen === loadGeneration) {
+            document.getElementById('loading').textContent = 'Error loading fish. Please try again.';
+        }
     } finally {
-        isLoading = false;
+        // A superseded load must not clear the flag out from under the load that replaced it
+        if (gen === loadGeneration) {
+            isLoading = false;
+        }
     }
 }
 

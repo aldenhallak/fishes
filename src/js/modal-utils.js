@@ -16,8 +16,9 @@ class ModalManager {
         }
         
         this.selectedFishId = fishId;
-        await this.loadUserTanks();
-        
+        const loaded = await this.loadUserTanks();
+        if (!loaded) return; // stale session — login prompt already shown
+
         // Ensure CSS is injected
         this.injectTankSelectionCSS();
         
@@ -251,7 +252,7 @@ class ModalManager {
         document.head.appendChild(style);
     }
 
-    // Load user's tanks
+    // Load user's tanks. Returns false if the session is stale (login prompt shown).
     async loadUserTanks() {
         try {
             const token = localStorage.getItem('userToken');
@@ -260,17 +261,27 @@ class ModalManager {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            
+
+            // Expired/invalid token: clear it and re-prompt login instead of a generic failure
+            if (response.status === 401) {
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('userData');
+                this.showLoginPrompt();
+                return false;
+            }
+
             if (!response.ok) {
                 throw new Error('Failed to load your tanks');
             }
-            
+
             const data = await response.json();
             this.userTanks = data.fishtanks || [];
-            
+            return true;
+
         } catch (err) {
             console.error('Error loading tanks:', err);
             alert('Failed to load your tanks. Please try again.');
+            return false;
         }
     }
 
