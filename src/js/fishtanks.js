@@ -447,52 +447,75 @@ function renderTrendingTanks(tanks, container) {
     });
 }
 
+// Firestore timestamps arrive as {_seconds, _nanoseconds}, but a tank written
+// moments ago can come back with the field still null, so never dereference it bare.
+function tankSeconds(timestamp) {
+    return (timestamp && typeof timestamp._seconds === 'number') ? timestamp._seconds : 0;
+}
+
+function formatTankDate(timestamp) {
+    const seconds = tankSeconds(timestamp);
+    return seconds ? new Date(seconds * 1000).toLocaleDateString() : 'Unknown';
+}
+
 // Create tank card element
 function createTankCard(tank, isOwner) {
     const card = document.createElement('div');
     card.className = 'tank-card';
-    card.setAttribute('data-tank-name', tank.name.toLowerCase());
+    card.setAttribute('data-tank-name', (tank.name || '').toLowerCase());
     card.setAttribute('data-tank-description', (tank.description || '').toLowerCase());
     card.setAttribute('data-tank-privacy', tank.isPublic ? 'public' : 'private');
     card.setAttribute('data-tank-fish-count', tank.fishCount || 0);
     card.setAttribute('data-tank-view-count', tank.viewCount || 0);
-    card.setAttribute('data-tank-created', tank.createdAt._seconds);
-    card.setAttribute('data-tank-updated', tank.updatedAt._seconds);
-    
-    const createdDate = new Date(tank.createdAt._seconds * 1000).toLocaleDateString();
-    const updatedDate = new Date(tank.updatedAt._seconds * 1000).toLocaleDateString();
-    
+    card.setAttribute('data-tank-created', tankSeconds(tank.createdAt));
+    card.setAttribute('data-tank-updated', tankSeconds(tank.updatedAt));
+
+    const createdDate = formatTankDate(tank.createdAt);
+    const updatedDate = formatTankDate(tank.updatedAt);
+
     card.innerHTML = `
         <div class="tank-privacy-badge ${tank.isPublic ? 'public' : 'private'}">
             ${tank.isPublic ? 'Public' : 'Private'}
         </div>
-        <h3>${tank.name}</h3>
+        <h3>${escapeHtml(tank.name)}</h3>
         <div class="tank-info">
-            <p>${tank.description || 'No description provided'}</p>
-            <p><strong>Created:</strong> ${createdDate}</p>
-            <p><strong>Updated:</strong> ${updatedDate}</p>
+            <p>${escapeHtml(tank.description || 'No description provided')}</p>
+            <p><strong>Created:</strong> ${escapeHtml(createdDate)}</p>
+            <p><strong>Updated:</strong> ${escapeHtml(updatedDate)}</p>
         </div>
         <div class="tank-stats">
             <div class="stat">
-                <div class="stat-number">${tank.fishCount || 0}</div>
+                <div class="stat-number">${Number(tank.fishCount) || 0}</div>
                 <div class="stat-label">Fish</div>
             </div>
             <div class="stat">
-                <div class="stat-number">${tank.viewCount || 0}</div>
+                <div class="stat-number">${Number(tank.viewCount) || 0}</div>
                 <div class="stat-label">Views</div>
             </div>
         </div>
-        <div class="tank-actions">
-            <button class="btn-small btn-view" onclick="viewTank('${tank.id}')">View</button>
-            ${isOwner ? `
-                <button class="btn-small btn-edit" onclick="editTank('${tank.id}')">Edit</button>
-                <button class="btn-small btn-share" onclick="shareTank('${tank.id}', '${tank.shareId}')">Share</button>
-                <button class="btn-small btn-stats" onclick="showTankStats('${tank.id}')">Stats</button>
-                <button class="btn-small btn-delete" onclick="deleteTank('${tank.id}')">Delete</button>
-            ` : ''}
-        </div>
+        <div class="tank-actions"></div>
     `;
-    
+
+    // Buttons are wired up with listeners rather than inline onclick: the browser
+    // HTML-decodes an attribute before evaluating it as JS, so escapeHtml alone
+    // would not stop a crafted id from breaking out of the handler string.
+    const actions = card.querySelector('.tank-actions');
+    const addAction = (label, className, handler) => {
+        const btn = document.createElement('button');
+        btn.className = `btn-small ${className}`;
+        btn.textContent = label;
+        btn.addEventListener('click', handler);
+        actions.appendChild(btn);
+    };
+
+    addAction('View', 'btn-view', () => viewTank(tank.id));
+    if (isOwner) {
+        addAction('Edit', 'btn-edit', () => editTank(tank.id));
+        addAction('Share', 'btn-share', () => shareTank(tank.id, tank.shareId));
+        addAction('Stats', 'btn-stats', () => showTankStats(tank.id));
+        addAction('Delete', 'btn-delete', () => deleteTank(tank.id));
+    }
+
     return card;
 }
 
@@ -501,38 +524,40 @@ function createTrendingTankCard(tank) {
     const card = document.createElement('div');
     card.className = 'tank-card trending-tank';
     
-    const createdDate = new Date(tank.createdAt._seconds * 1000).toLocaleDateString();
-    const updatedDate = new Date(tank.updatedAt._seconds * 1000).toLocaleDateString();
-    
+    const createdDate = formatTankDate(tank.createdAt);
+    const updatedDate = formatTankDate(tank.updatedAt);
+
     card.innerHTML = `
         <div class="tank-privacy-badge trending">
             🔥 Trending
         </div>
-        <h3>${tank.name}</h3>
+        <h3>${escapeHtml(tank.name)}</h3>
         <div class="tank-info">
-            <p>${tank.description || 'No description provided'}</p>
-            <p><strong>Created:</strong> ${createdDate}</p>
-            <p><strong>Updated:</strong> ${updatedDate}</p>
+            <p>${escapeHtml(tank.description || 'No description provided')}</p>
+            <p><strong>Created:</strong> ${escapeHtml(createdDate)}</p>
+            <p><strong>Updated:</strong> ${escapeHtml(updatedDate)}</p>
         </div>
         <div class="tank-stats">
             <div class="stat">
-                <div class="stat-number">${tank.fishCount || 0}</div>
+                <div class="stat-number">${Number(tank.fishCount) || 0}</div>
                 <div class="stat-label">Fish</div>
             </div>
             <div class="stat">
-                <div class="stat-number">${tank.viewCount || 0}</div>
+                <div class="stat-number">${Number(tank.viewCount) || 0}</div>
                 <div class="stat-label">Total Views</div>
             </div>
             <div class="stat">
-                <div class="stat-number">${tank.trendingViews || 0}</div>
+                <div class="stat-number">${Number(tank.trendingViews) || 0}</div>
                 <div class="stat-label">Recent Views</div>
             </div>
         </div>
         <div class="tank-actions">
-            <button class="btn-small btn-view" onclick="viewTank('${tank.id}')">View</button>
+            <button class="btn-small btn-view" data-tank-id="${escapeHtml(tank.id)}">View</button>
         </div>
     `;
-    
+
+    card.querySelector('.btn-view').addEventListener('click', () => viewTank(tank.id));
+
     return card;
 }
 

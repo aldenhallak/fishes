@@ -3,6 +3,13 @@ let currentTank = null;
 let currentUser = null;
 let tankFish = [];
 
+// Firestore timestamps arrive as {_seconds, _nanoseconds} but can be null
+// right after a write, so never dereference ._seconds bare
+function formatTimestampDate(timestamp) {
+    const seconds = timestamp && typeof timestamp._seconds === 'number' ? timestamp._seconds : 0;
+    return seconds ? new Date(seconds * 1000).toLocaleDateString() : 'Unknown';
+}
+
 // We'll use the tank.js variables and functions directly
 // Just need to set up the canvas for tank.js to use
 
@@ -98,17 +105,14 @@ function renderTank() {
     document.getElementById('tank-title').textContent = currentTank.name;
     document.getElementById('tank-description').textContent = currentTank.description || 'No description';
     
-    // Format dates
-    const createdDate = new Date(currentTank.createdAt._seconds * 1000);
-    const updatedDate = new Date(currentTank.updatedAt._seconds * 1000);
-    
-    document.getElementById('tank-details').textContent = 
-        `Created by ${currentTank.ownerName || 'Unknown'} • Updated ${updatedDate.toLocaleDateString()}`;
-    
+    // Format dates (timestamps can be null right after a write resolves)
+    document.getElementById('tank-details').textContent =
+        `Created by ${currentTank.ownerName || 'Unknown'} • Updated ${formatTimestampDate(currentTank.updatedAt)}`;
+
     // Update stats
     document.getElementById('fish-count').textContent = currentTank.fishCount || 0;
     document.getElementById('view-count').textContent = currentTank.viewCount || 0;
-    document.getElementById('created-date').textContent = createdDate.toLocaleDateString();
+    document.getElementById('created-date').textContent = formatTimestampDate(currentTank.createdAt);
     document.getElementById('privacy-status').textContent = currentTank.isPublic ? 'Public' : 'Private';
     
     // Setup actions
@@ -210,7 +214,7 @@ function createFishCard(fish) {
         min-width: 120px;
     `;
     
-    const addedDate = new Date(fish.addedAt._seconds * 1000).toLocaleDateString();
+    const addedDate = formatTimestampDate(fish.addedAt);
     
     // Create canvas for fish preview
     const canvas = document.createElement('canvas');

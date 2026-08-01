@@ -283,7 +283,7 @@ function createFishCard(fish, stackIndex) {
     const isFlipped = fish.flipped === true || fish.flipped === 'true';
 
     card.innerHTML = `
-        <img src="${fish.image || fish.Image}" alt="Fish drawing" class="fish-image" 
+        <img src="${escapeHtml(fish.image || fish.Image || '')}" alt="Fish drawing" class="fish-image"
              style="transform: scaleX(${isFlipped ? -1 : 1}); transition: transform 0.05s ease;"
              onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUwIiBoZWlnaHQ9IjI4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzk5OSI+SW1hZ2UgTm90IEZvdW5kPC90ZXh0Pjwvc3ZnPg=='" />
         
