@@ -42,19 +42,116 @@ function calculateScore(fish) {
     return upvotes - downvotes;
 }
 
-// Send vote to endpoint
-async function sendVote(fishId, voteType) {
+// ── Vote sessions ─────────────────────────────────────────────────────────────
+// The backend requires a short-lived vote token (minted at POST /vote-session)
+// to accept votes once VOTE_TOKEN_MODE is set to enforce. Tokens are bound to
+// the caller's IP and expire after ~30 minutes; we cache one in sessionStorage
+// and mint a fresh one when it expires or the server rejects it.
+// Set window.TURNSTILE_SITE_KEY (and load the Turnstile script) once the
+// backend has TURNSTILE_SECRET configured — until then the challenge is skipped.
+const VOTE_SESSION_STORAGE_KEY = 'voteSession';
+let voteSessionMintPromise = null;
+
+function loadStoredVoteSession() {
     try {
+        const raw = sessionStorage.getItem(VOTE_SESSION_STORAGE_KEY);
+        if (!raw) return null;
+        const session = JSON.parse(raw);
+        // Treat sessions within a minute of expiry as dead
+        if (!session.token || Date.now() > session.expiresAt - 60000) return null;
+        return session;
+    } catch (e) {
+        return null;
+    }
+}
+
+function solveTurnstile() {
+    const siteKey = window.TURNSTILE_SITE_KEY;
+    if (!siteKey || !window.turnstile) return Promise.resolve(null);
+    let container = document.getElementById('turnstile-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'turnstile-container';
+        container.style.display = 'none';
+        document.body.appendChild(container);
+    }
+    return new Promise((resolve) => {
+        window.turnstile.render(container, {
+            sitekey: siteKey,
+            callback: resolve,
+            'error-callback': () => resolve(null),
+        });
+    });
+}
+
+async function mintVoteSession() {
+    const body = {};
+    const turnstileToken = await solveTurnstile();
+    if (turnstileToken) body.turnstileToken = turnstileToken;
+
+    const response = await fetch(`${BACKEND_URL}/api/vote-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    if (!response.ok) {
+        throw new Error(`Vote session request failed with status: ${response.status}`);
+    }
+    const data = await response.json();
+    const session = {
+        token: data.voteToken,
+        expiresAt: Date.now() + (data.expiresInSeconds || 1800) * 1000
+    };
+    try {
+        sessionStorage.setItem(VOTE_SESSION_STORAGE_KEY, JSON.stringify(session));
+    } catch (e) { /* private browsing — in-memory promise cache still helps */ }
+    return session;
+}
+
+async function getVoteToken(forceRefresh = false) {
+    if (forceRefresh) {
+        try { sessionStorage.removeItem(VOTE_SESSION_STORAGE_KEY); } catch (e) { /* noop */ }
+    } else {
+        const stored = loadStoredVoteSession();
+        if (stored) return stored.token;
+    }
+    // Dedupe concurrent mints (e.g. rapid-fire voting on the rank page)
+    if (!voteSessionMintPromise) {
+        voteSessionMintPromise = mintVoteSession().finally(() => {
+            voteSessionMintPromise = null;
+        });
+    }
+    try {
+        const session = await voteSessionMintPromise;
+        return session.token;
+    } catch (error) {
+        // Don't block the vote on a failed mint — the server decides whether a
+        // tokenless vote is acceptable (it is, until enforcement is turned on).
+        console.error('Could not create vote session:', error);
+        return null;
+    }
+}
+
+// Send vote to endpoint
+async function sendVote(fishId, voteType, isRetry = false) {
+    try {
+        const voteToken = await getVoteToken(isRetry);
+        const headers = { 'Content-Type': 'application/json' };
+        if (voteToken) headers['X-Vote-Token'] = voteToken;
+
         const response = await fetch(`${BACKEND_URL}/api/vote`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: headers,
             body: JSON.stringify({
                 fishId: fishId,
                 vote: voteType // 'up' or 'down'
             })
         });
+
+        // 401 = vote token missing/expired/invalid; mint a fresh one and retry once
+        if (response.status === 401 && !isRetry) {
+            return sendVote(fishId, voteType, true);
+        }
 
         if (!response.ok) {
             console.error(`Vote failed with status: ${response.status}`);
