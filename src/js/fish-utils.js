@@ -47,10 +47,28 @@ function calculateScore(fish) {
 // to accept votes once VOTE_TOKEN_MODE is set to enforce. Tokens are bound to
 // the caller's IP and expire after ~30 minutes; we cache one in sessionStorage
 // and mint a fresh one when it expires or the server rejects it.
-// Set window.TURNSTILE_SITE_KEY (and load the Turnstile script) once the
-// backend has TURNSTILE_SECRET configured — until then the challenge is skipped.
 const VOTE_SESSION_STORAGE_KEY = 'voteSession';
 let voteSessionMintPromise = null;
+
+// Cloudflare Turnstile site key (public). The matching secret lives on the
+// backend; minting a vote session requires passing the challenge.
+window.TURNSTILE_SITE_KEY = window.TURNSTILE_SITE_KEY || '0x4AAAAAAEHcDrz7FjAGQQJY';
+
+let turnstileScriptPromise = null;
+function loadTurnstileScript() {
+    if (window.turnstile) return Promise.resolve();
+    if (!turnstileScriptPromise) {
+        turnstileScriptPromise = new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+            script.async = true;
+            script.onload = () => resolve();
+            script.onerror = () => resolve(); // fail soft; solveTurnstile handles absence
+            document.head.appendChild(script);
+        });
+    }
+    return turnstileScriptPromise;
+}
 
 function loadStoredVoteSession() {
     try {
@@ -65,22 +83,41 @@ function loadStoredVoteSession() {
     }
 }
 
-function solveTurnstile() {
+async function solveTurnstile() {
     const siteKey = window.TURNSTILE_SITE_KEY;
-    if (!siteKey || !window.turnstile) return Promise.resolve(null);
+    if (!siteKey) return null;
+    await loadTurnstileScript();
+    if (!window.turnstile) return null;
+    // Not display:none — Turnstile may need to paint (and, for managed mode,
+    // interact). Sits unobtrusively in the corner and is removed afterwards.
     let container = document.getElementById('turnstile-container');
     if (!container) {
         container = document.createElement('div');
         container.id = 'turnstile-container';
-        container.style.display = 'none';
+        container.style.cssText = 'position:fixed;bottom:8px;right:8px;z-index:99999;';
         document.body.appendChild(container);
     }
     return new Promise((resolve) => {
-        window.turnstile.render(container, {
-            sitekey: siteKey,
-            callback: resolve,
-            'error-callback': () => resolve(null),
-        });
+        let widgetId = null;
+        const finish = (token) => {
+            clearTimeout(timer);
+            try {
+                if (widgetId !== null) window.turnstile.remove(widgetId);
+                container.remove();
+            } catch (e) { /* noop */ }
+            resolve(token || null);
+        };
+        // Never hang a vote on a stuck challenge — fail soft after 10s
+        const timer = setTimeout(() => finish(null), 10000);
+        try {
+            widgetId = window.turnstile.render(container, {
+                sitekey: siteKey,
+                callback: finish,
+                'error-callback': () => finish(null),
+            });
+        } catch (e) {
+            finish(null);
+        }
     });
 }
 
