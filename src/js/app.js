@@ -707,16 +707,11 @@ function ensureOrtRuntime() {
     return ortScriptPromise;
 }
 
-// The classifier model is ~44 MB, so don't fetch it on page load —
-// start fetching on the visitor's first interaction, which leaves
-// plenty of download time before their drawing is finished.
-(function scheduleModelPreload() {
-    const start = () => loadFishModel().catch(error => {
-        console.error('Failed to preload fish model:', error);
-    });
-    ['pointerdown', 'mousedown', 'touchstart', 'keydown'].forEach(evt =>
-        document.addEventListener(evt, start, { once: true, passive: true }));
-})();
+// The classifier gives per-stroke feedback, so the ~44 MB model must be
+// ready almost as soon as drawing starts — begin downloading immediately.
+loadFishModel().catch(error => {
+    console.error('Failed to load model on startup:', error);
+});
 
 // Check if user already drew a fish today when page loads
 // Function to show welcome back message for returning users
