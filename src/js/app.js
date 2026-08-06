@@ -532,6 +532,7 @@ async function loadFishModel() {
     
     modelLoadPromise = (async () => {
         try {
+            await ensureOrtRuntime();
             ortSession = await window.ort.InferenceSession.create('fish_doodle_classifier.onnx');
             console.log('Fish model loaded successfully');
             return ortSession;
@@ -607,9 +608,10 @@ function preprocessCanvasForONNX(canvas) {
 
 // Updated verifyFishDoodle function to match new model output format
 async function verifyFishDoodle(canvas) {
-    // Model should already be loaded, but check just in case
+    // Usually preloaded by the first-interaction hook; on slow
+    // connections this awaits the in-flight download instead of failing
     if (!ortSession) {
-        throw new Error('Fish model not loaded');
+        await loadFishModel();
     }
     
     // Use updated preprocessing
@@ -675,8 +677,6 @@ function showFishWarning(show) {
 
 // After each stroke, check if it's a fish
 async function checkFishAfterStroke() {
-    if (!window.ort) return; // ONNX runtime not loaded
-    
     // Wait for model to be loaded if it's not ready yet
     if (!ortSession) {
         try {
@@ -692,24 +692,30 @@ async function checkFishAfterStroke() {
     showFishWarning(!isFish);
 }
 
-// Load ONNX Runtime Web from CDN if not present
-(function ensureONNXRuntime() {
-    if (!window.ort) {
+// Load ONNX Runtime Web from CDN on demand
+let ortScriptPromise = null;
+function ensureOrtRuntime() {
+    if (window.ort) return Promise.resolve();
+    if (ortScriptPromise) return ortScriptPromise;
+    ortScriptPromise = new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js';
-        script.onload = () => { 
-            console.log('ONNX Runtime loaded, starting model load...');
-            loadFishModel().catch(error => {
-                console.error('Failed to load model on startup:', error);
-            });
-        };
+        script.onload = resolve;
+        script.onerror = () => { ortScriptPromise = null; reject(new Error('Failed to load ONNX Runtime')); };
         document.head.appendChild(script);
-    } else {
-        console.log('ONNX Runtime already available, starting model load...');
-        loadFishModel().catch(error => {
-            console.error('Failed to load model on startup:', error);
-        });
-    }
+    });
+    return ortScriptPromise;
+}
+
+// The classifier model is ~44 MB, so don't fetch it on page load —
+// start fetching on the visitor's first interaction, which leaves
+// plenty of download time before their drawing is finished.
+(function scheduleModelPreload() {
+    const start = () => loadFishModel().catch(error => {
+        console.error('Failed to preload fish model:', error);
+    });
+    ['pointerdown', 'mousedown', 'touchstart', 'keydown'].forEach(evt =>
+        document.addEventListener(evt, start, { once: true, passive: true }));
 })();
 
 // Check if user already drew a fish today when page loads
