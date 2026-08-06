@@ -7,7 +7,7 @@ function createFooter() {
     footer.style.cssText = 'text-align:center; margin:32px 0 12px 0; color:#888; font-size:1.05em;';
     
     footer.innerHTML = `
-        Made with <span style="color:#e25555;">hate</span> by <a href="https://fifteen.games">fifteen.games</a> |
+        Made with <span style="color:#e25555;">a normal amount of feeling</span> by <a href="https://aldenswebsites.com" title="More websites by Alden Hallak">Alden Hallak</a> |
         <a href="https://github.com/aldenhallak/fishes">Source Code</a> |
         <a href="privacy.html">Privacy</a> |
         <a href="https://twitter.com/AldenHallak" title="Follow @AldenHallak on Twitter">
@@ -33,11 +33,11 @@ function createSpecialFooter() {
     footer.innerHTML = `
         <a href="index.html" style="color: #0066cc; text-decoration: underline;">draw</a>
         | <a href="tank.html" style="color: #0066cc; text-decoration: underline;">public tank</a>
-        | <a href="rank.html" style="color: #0066cc; text-decoration: underline;">rankings</a>
+        | <a href="rank.html" style="color: #0066cc; text-decoration: underline;">rank</a>
         | <a href="fishtanks.html" id="my-tanks-link" style="color: #0066cc; text-decoration: underline;">my tanks</a>
         | <a href="login.html" id="auth-link" style="color: #0066cc; text-decoration: underline;">login</a>
         <br><br>
-        Made with <span style="color:#e25555;">hate</span> by <a href="https://fifteen.games" style="color: #0066cc; text-decoration: underline;">fifteen.games</a> | 
+        Made with <span style="color:#e25555;">a normal amount of feeling</span> by <a href="https://aldenswebsites.com" title="More websites by Alden Hallak" style="color: #0066cc; text-decoration: underline;">Alden Hallak</a> |
         <a href="https://github.com/aldenhallak/fishes" style="color: #0066cc; text-decoration: underline;">Source Code</a> |
         <a href="privacy.html" style="color: #0066cc; text-decoration: underline;">Privacy</a> |
         <a href="https://twitter.com/AldenHallak" title="Follow @AldenHallak on Twitter" style="color: #0066cc; text-decoration: underline;">
