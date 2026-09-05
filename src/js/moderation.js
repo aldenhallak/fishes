@@ -185,8 +185,8 @@ async function loadFishFromBackend(loadMore) {
         // Handle moderation filters according to the backend endpoint
         switch (currentFilter) {
             case 'deleted':
-                // For deleted fish, set isVisible to 'all' to get everything, then we'll need to filter client-side
-                // or the backend needs to support deleted parameter specifically
+                // Deleted fish are also invisible, so skip the visibility filter
+                params.set('isVisible', 'all');
                 params.set('deleted', 'true');
                 break;
             case 'approved':
@@ -211,7 +211,10 @@ async function loadFishFromBackend(loadMore) {
                 // This might need special backend handling since Firestore queries with null are tricky
                 break;
             case 'flagged':
-                params.set('isVisible', 'true');
+                // Flagged fish are hidden on creation (low classifier score) or when
+                // report-flagged while unapproved, so the review queue lives at isVisible=false.
+                // Visible flagged fish are approved+reported ones, already on the reported tab.
+                params.set('isVisible', 'false');
                 params.append('flaggedForReview', 'true');
                 break;
             case 'high score':
