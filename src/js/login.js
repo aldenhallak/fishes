@@ -24,11 +24,16 @@
     checkForSuccessMessage();
   };
 
+  // Maximum time a stored session is trusted before requiring re-authentication.
+  // Limits how long a token stolen via XSS remains usable from local storage.
+  const TOKEN_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
+
   // Helper function to handle successful authentication
   function handleAuthSuccess(authResponse) {
     localStorage.setItem("userToken", authResponse.token);
     localStorage.setItem("userData", JSON.stringify(authResponse.user));
     localStorage.setItem("userId", authResponse.user.id);
+    localStorage.setItem("userTokenIssuedAt", String(Date.now()));
     
     // Check if user has admin privileges and show notification
     if (authResponse.user && authResponse.user.isAdmin) {
@@ -44,12 +49,19 @@
   function checkIfAlreadyLoggedIn() {
     const token = localStorage.getItem('userToken');
     const userData = localStorage.getItem('userData');
+    const issuedAt = Number(localStorage.getItem('userTokenIssuedAt'));
     
-    if (token && userData) {
+    if (token && userData && issuedAt && (Date.now() - issuedAt) < TOKEN_MAX_AGE_MS) {
       // User is already logged in, show the "already logged in" section
       const user = JSON.parse(userData);
       showAlreadyLoggedInUI(user);
       return true;
+    }
+    
+    if (token || userData) {
+      // Stale/expired session data - clear it so an old, potentially
+      // compromised token cannot keep being used indefinitely.
+      logoutAndStay();
     }
     return false;
   }
