@@ -514,7 +514,7 @@ let lastFishCheck = true;
 let isModelLoading = false;
 let modelLoadPromise = null;
 
-// Load ONNX model (make sure fish_doodle_classifier.onnx is in your public folder)
+// Load ONNX model (make sure fish_doodle_classifier_v2.onnx is in your public folder)
 async function loadFishModel() {
     // If already loaded, return immediately
     if (ortSession) {
@@ -533,7 +533,7 @@ async function loadFishModel() {
     modelLoadPromise = (async () => {
         try {
             await ensureOrtRuntime();
-            ortSession = await window.ort.InferenceSession.create('fish_doodle_classifier.onnx');
+            ortSession = await window.ort.InferenceSession.create('fish_doodle_classifier_v2.onnx');
             console.log('Fish model loaded successfully');
             return ortSession;
         } catch (error) {
@@ -707,8 +707,9 @@ function ensureOrtRuntime() {
     return ortScriptPromise;
 }
 
-// The classifier gives per-stroke feedback, so the ~44 MB model must be
-// ready almost as soon as drawing starts — begin downloading immediately.
+// The classifier gives per-stroke feedback, so the model (~8 MB fp16
+// MobileNetV3-Large) must be ready almost as soon as drawing starts —
+// begin downloading immediately.
 loadFishModel().catch(error => {
     console.error('Failed to load model on startup:', error);
 });
